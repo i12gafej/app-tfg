@@ -1,0 +1,49 @@
+import { Typography, Box, useTheme } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+
+const Logo = () => {
+  const theme = useTheme();
+  
+  return (
+    <Box 
+      component={RouterLink} 
+      to="/" 
+      sx={{ 
+        textDecoration: 'none', 
+        color: theme.palette.text.primary,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+      }}
+    >
+      <Typography 
+        variant="h6" 
+        component="div" 
+        sx={{ 
+          fontFamily: 'Poppins, sans-serif !important',
+          fontWeight: 700,
+          letterSpacing: '0.5px',
+          fontSize: { xs: '1.2rem', md: '1.5rem' },
+          color: theme.palette.text.primary,
+        }}
+      >
+        Sustainability
+      </Typography>
+      <Typography 
+        variant="h6" 
+        component="div" 
+        sx={{ 
+          fontFamily: 'IBM Plex Sans, sans-serif !important',
+          fontWeight: 300,
+          letterSpacing: '0.5px',
+          fontSize: { xs: '1.2rem', md: '1.5rem' },
+          color: theme.palette.text.secondary,
+        }}
+      >
+        App
+      </Typography>
+    </Box>
+  );
+};
+
+export default Logo; 
