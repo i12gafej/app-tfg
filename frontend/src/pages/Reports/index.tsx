@@ -3,16 +3,16 @@ import { Container, Typography, Box, TextField, Button, Grid, Card, CardContent,
 import SearchIcon from '@mui/icons-material/Search';
 import PageContainer from '../../components/layout/PageContainer';
 
-interface Memory {
+interface Report {
   id: string;
   title: string;
   year: number;
   description: string;
 }
 
-const Memories = () => {
+const Reports = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [memories] = useState<Memory[]>([
+  const [reports] = useState<Report[]>([
     {
       id: '1',
       title: 'Memoria de Sostenibilidad 2023',
@@ -55,18 +55,18 @@ const Memories = () => {
 
       {/* Lista de Memorias - CU-1.2.2 */}
       <Grid container spacing={3}>
-        {memories.map((memory) => (
-          <Grid item xs={12} sm={6} md={4} key={memory.id}>
+        {reports.map((report) => (
+          <Grid item xs={12} sm={6} md={4} key={report.id}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  {memory.title}
+                  {report.title}
                 </Typography>
                 <Typography color="textSecondary">
-                  Año: {memory.year}
+                  Año: {report.year}
                 </Typography>
                 <Typography variant="body2">
-                  {memory.description}
+                  {report.description}
                 </Typography>
               </CardContent>
               <CardActions>
@@ -82,4 +82,4 @@ const Memories = () => {
   );
 };
 
-export default Memories; 
+export default Reports; 

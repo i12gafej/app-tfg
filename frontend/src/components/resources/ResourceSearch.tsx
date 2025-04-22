@@ -36,57 +36,58 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import SortIcon from '@mui/icons-material/Sort';
 import { useAuth } from '@/hooks/useAuth';
-import { userService, type User, type PaginatedResponse } from '@/services/userService';
-import UserDetailsDialog from './UserDetailsDialog';
-import UserEditDialog from './UserEditDialog';
-import UserDeleteDialog from './UserDeleteDialog';
-import { UserCreateDialog } from './UserCreateDialog';
+import { resourceService, type Resource, type ResourceSearchParams, type PaginatedResponse } from '@/services/resourceService';
+import ResourceDetailsDialog from './ResourceDetailsDialog';
+import ResourceEditDialog from './ResourceEditDialog';
+import ResourceDeleteDialog from './ResourceDeleteDialog';
+import { ResourceCreateDialog } from './ResourceCreateDialog';
 
-interface UserSearchProps {
+interface ResourceSearchProps {
   onSearch?: (searchTerm: string, filters: SearchFilters) => void;
 }
 
 interface SearchFilters {
   name?: string;
-  surname?: string;
-  email?: string;
-  is_admin?: boolean;
+  ownership?: string;
+  management_model?: string;
+  postal_address?: string;
 }
 
-type SortField = 'name' | 'surname' | 'email' | 'admin';
+type SortField = 'name' | 'ownership' | 'management_model' | 'postal_address' | 'typology';
 type SortOrder = 'asc' | 'desc';
 
-const UserSearch = ({ onSearch }: UserSearchProps) => {
+const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     name: '',
-    surname: '',
-    email: '',
-    is_admin: undefined
+    ownership: '',
+    management_model: '',
+    postal_address: ''
   });
-  const [users, setUsers] = useState<User[]>([]);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [allResources, setAllResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(isMobile ? 5 : 10);
-  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalResources, setTotalResources] = useState(0);
   const { token } = useAuth();
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [tempSortField, setTempSortField] = useState<SortField>('name');
   const [tempSortOrder, setTempSortOrder] = useState<SortOrder>('asc');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [resourceToEdit, setResourceToEdit] = useState<Resource | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [resourceToDelete, setResourceToDelete] = useState<Resource | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+
   useEffect(() => {
     setRowsPerPage(isMobile ? 5 : 10);
   }, [isMobile]);
@@ -96,72 +97,56 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
       setLoading(true);
       setError(null);
       
-      // Crear un objeto con los parámetros de búsqueda
-      const searchParams: any = {
-        page: 1,
-        per_page: 1000
+      const searchParams: ResourceSearchParams = {
+        page: newPage + 1,
+        per_page: rowsPerPage
       };
 
-      // Solo agregar los parámetros que tienen valores
       if (searchTerm) {
         searchParams.search_term = searchTerm;
-      }
-      if (filters.name) {
-        searchParams.name = filters.name;
-      }
-      if (filters.surname) {
-        searchParams.surname = filters.surname;
-      }
-      if (filters.email) {
-        searchParams.email = filters.email;
-      }
-      if (filters.is_admin !== undefined) {
-        searchParams.is_admin = filters.is_admin;
+      } else {
+        if (filters.name) searchParams.name = filters.name;
+        if (filters.ownership) searchParams.ownership = filters.ownership;
+        if (filters.management_model) searchParams.management_model = filters.management_model;
+        if (filters.postal_address) searchParams.postal_address = filters.postal_address;
       }
 
-      console.log('Parámetros de búsqueda:', searchParams);
-      const response = await userService.searchUsers(searchParams, token || '');
-      console.log('Respuesta del servidor:', response);
+      const response = await resourceService.searchResources(searchParams, token || '');
       
-      // Actualizar los estados
-      setAllUsers(response.items);
-      setTotalUsers(response.total);
+      setAllResources(response.items);
+      setTotalResources(response.total);
+      setResources(response.items);
+      setPage(newPage);
       
-      // Actualizar los usuarios visibles inmediatamente
-      const start = newPage * rowsPerPage;
-      const end = start + rowsPerPage;
-      const visibleUsers = response.items.slice(start, end);
-      setUsers(visibleUsers);
-      
-      console.log('Usuarios visibles:', visibleUsers);
     } catch (err) {
       console.error('Error en la búsqueda:', err);
-      setError('Error al buscar usuarios. Por favor, inténtalo de nuevo.');
+      setError('Error al buscar recursos. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (allUsers.length > 0) {
+    if (allResources.length > 0) {
       const start = page * rowsPerPage;
       const end = start + rowsPerPage;
-      const visibleUsers = allUsers.slice(start, end);
-      setUsers(visibleUsers);
+      const visibleResources = allResources.slice(start, end);
+      setResources(visibleResources);
     }
-  }, [page, rowsPerPage, allUsers]);
+  }, [page, rowsPerPage, allResources]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
+    handleSearch();
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newRowsPerPage = parseInt(event.target.value, 10);
-    setRowsPerPage(newRowsPerPage);
+    setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+    handleSearch();
   };
 
-  const handleFilterChange = (field: keyof SearchFilters, value: string | boolean | undefined) => {
+  const handleFilterChange = (field: keyof SearchFilters, value: string) => {
     setFilters(prev => ({
       ...prev,
       [field]: value
@@ -170,45 +155,44 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
 
   const handleClearSearch = () => {
     setSearchTerm('');
-    setUsers([]);
+    setResources([]);
     if (onSearch) {
       onSearch('', filters);
     }
   };
 
-  const handleView = (user: User) => {
-    setSelectedUser(user);
+  const handleView = (resource: Resource) => {
+    setSelectedResource(resource);
     setDetailsOpen(true);
   };
 
   const handleCloseDetails = () => {
     setDetailsOpen(false);
-    setSelectedUser(null);
+    setSelectedResource(null);
   };
 
   const handleEditFromDetails = () => {
-    if (selectedUser) {
-      handleEdit(selectedUser);
+    if (selectedResource) {
+      handleEdit(selectedResource);
       handleCloseDetails();
     }
   };
 
-  const handleEdit = (user: User) => {
-    setUserToEdit(user);
+  const handleEdit = (resource: Resource) => {
+    setResourceToEdit(resource);
     setEditOpen(true);
   };
 
   const handleCloseEdit = () => {
     setEditOpen(false);
-    setUserToEdit(null);
+    setResourceToEdit(null);
   };
 
-  const handleSaveEdit = async (userData: Partial<User>) => {
-    if (!userToEdit) return;
+  const handleSaveEdit = async (resourceData: Partial<Resource>) => {
+    if (!resourceToEdit) return;
     
     try {
-      await userService.updateUser(userToEdit.id, userData, token || '');
-      // Actualizar la lista de usuarios
+      await resourceService.updateResource(resourceToEdit.id, resourceData, token || '');
       handleSearch();
       handleCloseEdit();
     } catch (error) {
@@ -216,26 +200,26 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
     }
   };
 
-  const handleDelete = (user: User) => {
-    setUserToDelete(user);
+  const handleDelete = (resource: Resource) => {
+    setResourceToDelete(resource);
     setDeleteOpen(true);
   };
 
   const handleCloseDelete = () => {
     setDeleteOpen(false);
-    setUserToDelete(null);
+    setResourceToDelete(null);
   };
 
   const handleConfirmDelete = async () => {
-    if (!userToDelete) return;
+    if (!resourceToDelete) return;
     
     try {
-      await userService.deleteUser(userToDelete.id, token || '');
-      handleSearch(); // Actualizar la lista de usuarios
+      await resourceService.deleteResource(resourceToDelete.id, token || '');
+      handleSearch();
       handleCloseDelete();
     } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-      setError('Error al eliminar el usuario. Por favor, inténtalo de nuevo.');
+      console.error('Error al eliminar recurso:', error);
+      setError('Error al eliminar el recurso. Por favor, inténtalo de nuevo.');
     }
   };
 
@@ -247,8 +231,8 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
     setCreateOpen(false);
   };
 
-  const handleUserCreated = (newUser: User) => {
-    handleSearch(); // Actualizar la lista de usuarios
+  const handleResourceCreated = (newResource: Resource) => {
+    handleSearch();
   };
 
   const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -261,9 +245,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
 
   const handleSortFieldChange = (field: SortField) => {
     setTempSortField(field);
-    if (field !== 'admin') {
-      setTempSortOrder('asc');
-    }
+    setTempSortOrder('asc');
   };
 
   const handleSortOrderChange = (order: SortOrder) => {
@@ -273,35 +255,26 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
   const handleApplySort = () => {
     setSortField(tempSortField);
     setSortOrder(tempSortOrder);
-    const sortedUsers = sortUsers(allUsers, tempSortField, tempSortOrder);
-    setAllUsers(sortedUsers);
+    const sortedResources = sortResources(allResources, tempSortField, tempSortOrder);
+    setResources(sortedResources);
     handleSortClose();
   };
 
-  const sortUsers = (users: User[], field: SortField, order: SortOrder): User[] => {
-    return [...users].sort((a, b) => {
+  const sortResources = (resources: Resource[], field: SortField, order: SortOrder): Resource[] => {
+    return [...resources].sort((a, b) => {
       let comparison = 0;
       
-      if (field === 'admin') {
-        // Para el campo admin, primero los que coinciden con el orden
-        if (order === 'asc') {
-          comparison = (a.admin ? 1 : 0) - (b.admin ? 1 : 0);
-        } else {
-          comparison = (b.admin ? 1 : 0) - (a.admin ? 1 : 0);
-        }
-      } else {
-        // Para los demás campos, ordenación alfabética
-        const aValue = a[field]?.toLowerCase() || '';
-        const bValue = b[field]?.toLowerCase() || '';
-        
-        if (order === 'asc') {
-          comparison = aValue.localeCompare(bValue);
-        } else {
-          comparison = bValue.localeCompare(aValue);
-        }
+      if (field === 'name') {
+        comparison = a.name.localeCompare(b.name);
+      } else if (field === 'ownership') {
+        comparison = (a.ownership || '').localeCompare(b.ownership || '');
+      } else if (field === 'management_model') {
+        comparison = (a.management_model || '').localeCompare(b.management_model || '');
+      } else if (field === 'postal_address') {
+        comparison = (a.postal_address || '').localeCompare(b.postal_address || '');
       }
       
-      return comparison;
+      return order === 'asc' ? comparison : -comparison;
     });
   };
 
@@ -343,7 +316,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
           <TextField
             fullWidth
             variant="standard"
-            placeholder="Buscar usuarios..."
+            placeholder="Buscar recursos..."
             value={searchTerm}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -406,22 +379,21 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
             <FilterListIcon />
           </IconButton>
           
+          
         </Box>
-        
       </Paper>
       <Button
-        variant="contained"
-        onClick={handleCreate}
-        sx={{ 
-          ml: 1,
-          borderRadius: '20px',
-          textTransform: 'none',
-          px: 2,
-          marginBottom: 1,
-        }}
-      >
-        Nuevo Usuario
-      </Button>
+            variant="contained"
+            onClick={handleCreate}
+            sx={{ 
+              ml: 1,
+              borderRadius: '20px',
+              textTransform: 'none',
+              px: 2
+            }}
+          >
+            Nuevo Recurso
+          </Button>
 
       {showFilters && (
         <Paper 
@@ -446,9 +418,9 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
             <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
-                label="Apellidos"
-                value={filters.surname || ''}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => handleFilterChange('surname', e.target.value)}
+                label="Titularidad"
+                value={filters.ownership || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleFilterChange('ownership', e.target.value)}
                 variant="outlined"
                 size="small"
               />
@@ -456,29 +428,22 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
             <Grid item xs={12} sm={6} md={3}>
               <TextField
                 fullWidth
-                label="Correo electrónico"
-                value={filters.email || ''}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => handleFilterChange('email', e.target.value)}
+                label="Modelo de Gestión"
+                value={filters.management_model || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleFilterChange('management_model', e.target.value)}
                 variant="outlined"
                 size="small"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Rol</InputLabel>
-                <Select
-                  value={filters.is_admin === undefined ? '' : String(filters.is_admin)}
-                  label="Rol"
-                  onChange={(e: ChangeEvent<{ value: unknown }>) => {
-                    const value = e.target.value;
-                    handleFilterChange('is_admin', value === '' ? undefined : value === 'true');
-                  }}
-                >
-                  <MenuItem value="">Todos</MenuItem>
-                  <MenuItem value="true">Administrador</MenuItem>
-                  <MenuItem value="false">Usuario</MenuItem>
-                </Select>
-              </FormControl>
+              <TextField
+                fullWidth
+                label="Dirección Postal"
+                value={filters.postal_address || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleFilterChange('postal_address', e.target.value)}
+                variant="outlined"
+                size="small"
+              />
             </Grid>
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -508,7 +473,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
         </Alert>
       )}
 
-      {users.length > 0 && (
+      {resources.length > 0 && (
         <TableContainer component={Paper} sx={{ mt: 2, position: 'relative' }}>
           <Table>
             <TableHead>
@@ -528,18 +493,21 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                   </IconButton>
                 </TableCell>
                 <TableCell>Nombre</TableCell>
-                <TableCell>Apellidos</TableCell>
-                <TableCell>Correo</TableCell>
+                <TableCell>Titularidad</TableCell>
+                <TableCell>Modelo de Gestión</TableCell>
+                
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
+              {resources.map((resource) => (
+                <TableRow key={resource.id}>
                   <TableCell></TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.surname}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{resource.name}</TableCell>
+                  <TableCell>{resource.ownership}</TableCell>
+                  <TableCell>{resource.management_model}</TableCell>
+                  
+                  
                   <TableCell align="right">
                     <Box sx={{ 
                       display: 'flex', 
@@ -555,7 +523,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                           mr: isMobile ? 0 : 1,
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
-                        onClick={() => handleView(user)}
+                        onClick={() => handleView(resource)}
                       >
                         Consultar
                       </Button>
@@ -568,7 +536,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                           mr: isMobile ? 0 : 1,
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
-                        onClick={() => handleEdit(user)}
+                        onClick={() => handleEdit(resource)}
                       >
                         Editar
                       </Button>
@@ -580,7 +548,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                         sx={{ 
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
-                        onClick={() => handleDelete(user)}
+                        onClick={() => handleDelete(resource)}
                       >
                         Eliminar
                       </Button>
@@ -618,50 +586,46 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                 </ListItem>
                 <ListItem 
                   button 
-                  onClick={() => handleSortFieldChange('surname')}
-                  selected={tempSortField === 'surname'}
+                  onClick={() => handleSortFieldChange('ownership')}
+                  selected={tempSortField === 'ownership'}
                 >
-                  <ListItemText primary="Apellidos" />
+                  <ListItemText primary="Titularidad" />
                 </ListItem>
                 <ListItem 
                   button 
-                  onClick={() => handleSortFieldChange('email')}
-                  selected={tempSortField === 'email'}
+                  onClick={() => handleSortFieldChange('management_model')}
+                  selected={tempSortField === 'management_model'}
                 >
-                  <ListItemText primary="Correo" />
+                  <ListItemText primary="Modelo de Gestión" />
                 </ListItem>
                 <ListItem 
                   button 
-                  onClick={() => handleSortFieldChange('admin')}
-                  selected={tempSortField === 'admin'}
+                  onClick={() => handleSortFieldChange('postal_address')}
+                  selected={tempSortField === 'postal_address'}
                 >
-                  <ListItemText primary="Rol" />
+                  <ListItemText primary="Dirección Postal" />
                 </ListItem>
               </List>
-              {tempSortField !== 'admin' && (
-                <>
-                  <Divider sx={{ my: 1 }} />
-                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                    Orden
-                  </Typography>
-                  <List dense>
-                    <ListItem 
-                      button 
-                      onClick={() => handleSortOrderChange('asc')}
-                      selected={tempSortOrder === 'asc'}
-                    >
-                      <ListItemText primary="A-Z" />
-                    </ListItem>
-                    <ListItem 
-                      button 
-                      onClick={() => handleSortOrderChange('desc')}
-                      selected={tempSortOrder === 'desc'}
-                    >
-                      <ListItemText primary="Z-A" />
-                    </ListItem>
-                  </List>
-                </>
-              )}
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                Orden
+              </Typography>
+              <List dense>
+                <ListItem 
+                  button 
+                  onClick={() => handleSortOrderChange('asc')}
+                  selected={tempSortOrder === 'asc'}
+                >
+                  <ListItemText primary="Ascendente" />
+                </ListItem>
+                <ListItem 
+                  button 
+                  onClick={() => handleSortOrderChange('desc')}
+                  selected={tempSortOrder === 'desc'}
+                >
+                  <ListItemText primary="Descendente" />
+                </ListItem>
+              </List>
               <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                   variant="contained"
@@ -677,74 +641,52 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={totalUsers}
+            count={totalResources}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="Usuarios por página:"
+            labelRowsPerPage="Filas por página:"
             labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
-            ActionsComponent={({ onPageChange, page, count, rowsPerPage }: { 
-              onPageChange: (event: unknown, page: number) => void; 
-              page: number; 
-              count: number; 
-              rowsPerPage: number;
-            }) => (
-              <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-                <IconButton
-                  onClick={() => onPageChange(null, page - 1)}
-                  disabled={page === 0}
-                  aria-label="página anterior"
-                >
-                  <KeyboardArrowLeft />
-                </IconButton>
-                <IconButton
-                  onClick={() => onPageChange(null, page + 1)}
-                  disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                  aria-label="página siguiente"
-                >
-                  <KeyboardArrowRight />
-                </IconButton>
-              </Box>
-            )}
           />
         </TableContainer>
       )}
 
-      {!loading && !error && users.length === 0 && searchTerm && (
+      {!loading && !error && resources.length === 0 && searchTerm && (
         <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
-          No se encontraron usuarios que coincidan con la búsqueda.
+          No se encontraron recursos que coincidan con la búsqueda.
         </Typography>
       )}
 
-      <UserDetailsDialog
+      <ResourceDetailsDialog
         open={detailsOpen}
         onClose={handleCloseDetails}
         onEdit={handleEditFromDetails}
-        user={selectedUser}
+        resource={selectedResource}
       />
 
-      <UserEditDialog
+      <ResourceEditDialog
         open={editOpen}
         onClose={handleCloseEdit}
         onSave={handleSaveEdit}
-        user={userToEdit}
+        resource={resourceToEdit}
       />
 
-      <UserDeleteDialog
+      <ResourceDeleteDialog
         open={deleteOpen}
         onClose={handleCloseDelete}
         onConfirm={handleConfirmDelete}
-        user={userToDelete}
+        resource={resourceToDelete}
       />
-      <UserCreateDialog
+
+      <ResourceCreateDialog
         open={createOpen}
         onClose={handleCloseCreate}
-        onUserCreated={handleUserCreated}
+        onResourceCreated={handleResourceCreated}
         token={token || ''}
       />
     </Box>
   );
 };
 
-export default UserSearch; 
+export default ResourceSearch; 

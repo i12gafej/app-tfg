@@ -38,28 +38,35 @@ class Goal(Base):
 class HeritageResource(Base):
     __tablename__ = "heritage_resources"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), unique=True, nullable=False)
-    typology = Column(String(255), nullable=False)
-    ownership = Column(String(255), nullable=True)
-    management_model = Column(String(255), nullable=True)
-    postal_address = Column(String(255), nullable=True)
-    web_address = Column(String(255), nullable=True)
-    phone_number = Column(String(20), nullable=True)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    ownership = Column(String, nullable=True)
+    management_model = Column(String, nullable=True)
+    postal_address = Column(String, nullable=True)
+    web_address = Column(String, nullable=True)
+    phone_number = Column(String, nullable=True)
+    
+    # Relaciones
+    typologies = relationship("HeritageResourceTypology", back_populates="resource", cascade="all, delete-orphan")
+    social_networks = relationship("HeritageResourceSocialNetwork", back_populates="resource", cascade="all, delete-orphan")
 
-class HeritageTypology(Base):
-    __tablename__ = "heritage_typologies"
+class HeritageResourceTypology(Base):
+    __tablename__ = "heritage_resource_typologies"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    typology = Column(String(255), nullable=False)
-    heritage_resource_id = Column(Integer, ForeignKey("heritage_resources.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    resource_id = Column(Integer, ForeignKey("heritage_resources.id"))
+    typology = Column(String, nullable=False)
+    
+    resource = relationship("HeritageResource", back_populates="typologies")
 
-class HeritageSocialNetwork(Base):
-    __tablename__ = "heritage_social_networks"
+class HeritageResourceSocialNetwork(Base):
+    __tablename__ = "heritage_resource_social_networks"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    social_network = Column(String(100), nullable=False)
-    heritage_resource_id = Column(Integer, ForeignKey("heritage_resources.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    resource_id = Column(Integer, ForeignKey("heritage_resources.id"))
+    social_network = Column(String, nullable=False)
+    
+    resource = relationship("HeritageResource", back_populates="social_networks")
 
 class SustainabilityReport(Base):
     __tablename__ = "sustainability_reports"

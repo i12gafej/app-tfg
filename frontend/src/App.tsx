@@ -12,7 +12,7 @@ import MainContent from './components/layout/MainContent';
 // Pages
 import Home from './pages/Home';
 import About from './pages/About';
-import Memories from './pages/Memories/index';
+import Reports from './pages/Reports/index';
 import Surveys from './pages/Surveys/index';
 import Contact from './pages/Contact/index';
 import Login from './pages/Login';
@@ -21,7 +21,7 @@ import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Dashboard from './pages/Dashboard/Admin';
 import Users from './pages/Users';
-
+import Resources from './pages/Resources';
 const App = () => {
   return (
     <AuthProvider>
@@ -44,7 +44,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/quienes-somos" element={<About />} />
-            <Route path="/memorias" element={<Memories />} />
+            <Route path="/memorias" element={<Reports />} />
             <Route path="/encuestas" element={<Surveys />} />
             <Route path="/contacto" element={<Contact />} />
             <Route path="/login" element={<Login />} />
@@ -63,6 +63,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Users />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/recursos" 
+              element={
+                <ProtectedRoute>
+                  <Resources />
                 </ProtectedRoute>
               } 
             />

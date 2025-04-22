@@ -6,15 +6,25 @@ interface UserSearchParams {
   surname?: string;
   email?: string;
   is_admin?: boolean;
+  page?: number;
+  per_page?: number;
 }
 
 export interface User {
   id: number;
+  email: string;
   name: string;
   surname: string;
-  email: string;
   admin: boolean;
-  phone_number: string;
+  phone_number?: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
 }
 
 // Crear una instancia de axios con la configuración base
@@ -26,9 +36,9 @@ const api = axios.create({
 });
 
 export const userService = {
-  async searchUsers(params: UserSearchParams, token: string): Promise<User[]> {
+  async searchUsers(params: UserSearchParams, token: string): Promise<PaginatedResponse<User>> {
     try {
-      const response = await api.post<User[]>('/users/search', params, {
+      const response = await api.post<PaginatedResponse<User>>('/users/search', params, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -36,6 +46,50 @@ export const userService = {
       return response.data;
     } catch (error) {
       console.error('Error al buscar usuarios:', error);
+      throw error;
+    }
+  },
+
+  async updateUser(userId: number, userData: Partial<User>, token: string): Promise<User> {
+    try {
+      const response = await api.post<User>('/users/update', {
+        user_id: userId,
+        user_data: userData
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error);
+      throw error;
+    }
+  },
+
+  async deleteUser(userId: number, token: string): Promise<void> {
+    try {
+      await api.delete(`/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error('Error al eliminar usuario:', error);
+      throw error;
+    }
+  },
+
+  async createUser(userData: Partial<User> & { password: string }, token: string): Promise<User> {
+    try {
+      const response = await api.post<User>('/users/create', userData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al crear usuario:', error);
       throw error;
     }
   }

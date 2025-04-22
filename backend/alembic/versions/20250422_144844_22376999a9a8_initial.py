@@ -1,8 +1,8 @@
-"""Initial migration
+"""initial
 
-Revision ID: 37ceeac01d11
+Revision ID: 22376999a9a8
 Revises: 
-Create Date: 2025-04-18 17:24:53.931523+00:00
+Create Date: 2025-04-22 14:48:44.639805+00:00
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '37ceeac01d11'
+revision: str = '22376999a9a8'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,17 +28,16 @@ def upgrade() -> None:
     sa.UniqueConstraint('name')
     )
     op.create_table('heritage_resources',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('typology', sa.String(length=255), nullable=False),
     sa.Column('ownership', sa.String(length=255), nullable=True),
     sa.Column('management_model', sa.String(length=255), nullable=True),
     sa.Column('postal_address', sa.String(length=255), nullable=True),
     sa.Column('web_address', sa.String(length=255), nullable=True),
     sa.Column('phone_number', sa.String(length=20), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name')
+    sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_heritage_resources_id'), 'heritage_resources', ['id'], unique=False)
     op.create_table('users',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
@@ -50,20 +49,23 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
-    op.create_table('heritage_social_networks',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('social_network', sa.String(length=100), nullable=False),
-    sa.Column('heritage_resource_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['heritage_resource_id'], ['heritage_resources.id'], onupdate='CASCADE', ondelete='CASCADE'),
+    op.create_table('heritage_resource_social_networks',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('resource_id', sa.Integer(), nullable=True),
+    sa.Column('social_network', sa.String(length=255), nullable=False),
+    sa.Column('url', sa.String(length=255), nullable=False),
+    sa.ForeignKeyConstraint(['resource_id'], ['heritage_resources.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('heritage_typologies',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    op.create_index(op.f('ix_heritage_resource_social_networks_id'), 'heritage_resource_social_networks', ['id'], unique=False)
+    op.create_table('heritage_resource_typologies',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('resource_id', sa.Integer(), nullable=True),
     sa.Column('typology', sa.String(length=255), nullable=False),
-    sa.Column('heritage_resource_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['heritage_resource_id'], ['heritage_resources.id'], onupdate='CASCADE', ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['resource_id'], ['heritage_resources.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_heritage_resource_typologies_id'), 'heritage_resource_typologies', ['id'], unique=False)
     op.create_table('ods',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
@@ -287,9 +289,12 @@ def downgrade() -> None:
     op.drop_table('goals')
     op.drop_table('sustainability_reports')
     op.drop_table('ods')
-    op.drop_table('heritage_typologies')
-    op.drop_table('heritage_social_networks')
+    op.drop_index(op.f('ix_heritage_resource_typologies_id'), table_name='heritage_resource_typologies')
+    op.drop_table('heritage_resource_typologies')
+    op.drop_index(op.f('ix_heritage_resource_social_networks_id'), table_name='heritage_resource_social_networks')
+    op.drop_table('heritage_resource_social_networks')
     op.drop_table('users')
+    op.drop_index(op.f('ix_heritage_resources_id'), table_name='heritage_resources')
     op.drop_table('heritage_resources')
     op.drop_table('dimensions')
     # ### end Alembic commands ###
