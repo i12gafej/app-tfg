@@ -22,6 +22,8 @@ import Cookies from './pages/Cookies';
 import Dashboard from './pages/Dashboard/Admin';
 import Users from './pages/Users';
 import Resources from './pages/Resources';
+import Team from './pages/Team';
+
 const App = () => {
   return (
     <AuthProvider>
@@ -71,6 +73,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Resources />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/equipo" 
+              element={
+                <ProtectedRoute>
+                  <Team />
                 </ProtectedRoute>
               } 
             />

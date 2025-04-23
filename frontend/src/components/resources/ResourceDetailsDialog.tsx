@@ -104,9 +104,15 @@ const ResourceDetailsDialog = ({ open, onClose, onEdit, resource }: ResourceDeta
               <Typography variant="subtitle2" color="text.secondary">
                 Redes Sociales
               </Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                {Array.isArray(resource.social_networks) ? resource.social_networks.join(', ') : resource.social_networks}
-              </Typography>
+              <Box sx={{ mb: 2 }}>
+                {Array.isArray(resource.social_networks) 
+                  ? resource.social_networks.map((sn, index) => (
+                      <Typography key={index} variant="body1" sx={{ mb: 1 }}>
+                        {sn.network}: <a href={sn.url} target="_blank" rel="noopener noreferrer">{sn.url}</a>
+                      </Typography>
+                    ))
+                  : resource.social_networks}
+              </Box>
             </Grid>
           </Grid>
         </Box>

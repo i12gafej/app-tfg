@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+export interface SocialNetwork {
+  network: string;
+  url: string;
+}
+
 export interface Resource {
   id: number;
   name: string;
@@ -9,7 +14,7 @@ export interface Resource {
   postal_address: string;
   web_address: string;
   phone_number: string;
-  social_networks: string[];
+  social_networks: SocialNetwork[];
 }
 
 export interface ResourceSearchParams {
@@ -31,12 +36,23 @@ export interface PaginatedResponse<T> {
   total_pages: number;
 }
 
+
 const api = axios.create({
   baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
+
+export const searchResources = async (params: ResourceSearchParams): Promise<PaginatedResponse<Resource>> => {
+  const response = await api.post('/team/search/resources', params);
+  return response.data;
+};
+
+export const getResourceById = async (id: number): Promise<Resource> => {
+  const response = await api.get(`/team/resources/${id}`);
+  return response.data;
+};
 
 export const resourceService = {
   async searchResources(params: ResourceSearchParams, token: string): Promise<PaginatedResponse<Resource>> {
@@ -102,7 +118,7 @@ export const resourceService = {
 
   async deleteResource(id: number, token: string): Promise<void> {
     try {
-      await api.delete(`/resources/${id}`, {
+      await api.delete(`/resources/delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

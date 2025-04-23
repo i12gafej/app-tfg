@@ -1,40 +1,73 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
-from app.models.models import HeritageResource, HeritageResourceTypology, HeritageResourceSocialNetwork
+from app.models.models import HeritageResource, HeritageResourceTypology, HeritageResourceSocialNetwork, SustainabilityReport
 from datetime import datetime
+import logging
+
+# Configurar el logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
-    # Crear el recurso principal
-    db_resource = HeritageResource(
-        name=resource_data["name"],
-        ownership=resource_data.get("ownership"),
-        management_model=resource_data.get("management_model"),
-        postal_address=resource_data.get("postal_address"),
-        web_address=resource_data.get("web_address"),
-        phone_number=resource_data.get("phone_number")
-    )
-    db.add(db_resource)
-    db.flush()  # Para obtener el ID del recurso creado
-
-    # Crear las tipologías
-    for typology in resource_data["typology"]:
-        db_typology = HeritageResourceTypology(
-            typology=typology,
-            resource_id=db_resource.id
+    try:
+        logger.info(f"Iniciando creación de recurso con datos: {resource_data}")
+        
+        # Crear el recurso principal
+        db_resource = HeritageResource(
+            name=resource_data["name"],
+            ownership=resource_data.get("ownership"),
+            management_model=resource_data.get("management_model"),
+            postal_address=resource_data.get("postal_address"),
+            web_address=resource_data.get("web_address"),
+            phone_number=resource_data.get("phone_number")
         )
-        db.add(db_typology)
+        logger.info(f"Recurso principal creado: {db_resource}")
+        
+        db.add(db_resource)
+        db.flush()  # Para obtener el ID del recurso creado
+        logger.info(f"ID del recurso generado: {db_resource.id}")
 
-    # Crear las redes sociales
-    for social_network in resource_data["social_networks"]:
-        db_social = HeritageResourceSocialNetwork(
-            social_network=social_network,
-            resource_id=db_resource.id
+        # Crear las tipologías
+        logger.info(f"Creando tipologías: {resource_data['typology']}")
+        for typology in resource_data["typology"]:
+            db_typology = HeritageResourceTypology(
+                typology=typology,
+                resource_id=db_resource.id
+            )
+            db.add(db_typology)
+            logger.info(f"Tipología creada: {db_typology}")
+
+        # Crear las redes sociales
+        logger.info(f"Creando redes sociales: {resource_data['social_networks']}")
+        for social_network in resource_data["social_networks"]:
+            db_social = HeritageResourceSocialNetwork(
+                social_network=social_network["network"],
+                url=social_network["url"],
+                resource_id=db_resource.id
+            )
+            db.add(db_social)
+            logger.info(f"Red social creada: {db_social}")
+
+        # Crear memoria vacía para el año actual
+        current_year = datetime.now().year
+        db_report = SustainabilityReport(
+            heritage_resource_id=db_resource.id,
+            year=current_year,
+            state='Draft',
+            observation='',
+            scale=0
         )
-        db.add(db_social)
+        db.add(db_report)
+        logger.info(f"Memoria vacía creada para el año {current_year}")
 
-    db.commit()
-    db.refresh(db_resource)
-    return db_resource
+        db.commit()
+        db.refresh(db_resource)
+        logger.info(f"Recurso final creado: {db_resource}")
+        return db_resource
+        
+    except Exception as e:
+        logger.error(f"Error en la creación del recurso: {str(e)}", exc_info=True)
+        raise
 
 def get(db: Session, resource_id: int) -> Optional[HeritageResource]:
     return db.query(HeritageResource).filter(HeritageResource.id == resource_id).first()
@@ -100,9 +133,9 @@ def update(
         ).delete()
         # Crear nuevas redes sociales
         for social_network in resource_data["social_networks"]:
-            network, url = social_network.split(':', 1)
             db_social = HeritageResourceSocialNetwork(
-                social_network=network,
+                social_network=social_network["network"],
+                url=social_network["url"],
                 resource_id=resource_id
             )
             db.add(db_social)

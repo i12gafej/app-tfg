@@ -2,6 +2,10 @@ from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime
 
+class SocialNetworkBase(BaseModel):
+    network: str
+    url: str
+
 class HeritageResourceBase(BaseModel):
     name: str
     typology: List[str]
@@ -10,7 +14,7 @@ class HeritageResourceBase(BaseModel):
     postal_address: Optional[str] = None
     web_address: Optional[str] = None
     phone_number: Optional[str] = None
-    social_networks: Optional[List[str]] = None
+    social_networks: Optional[List[SocialNetworkBase]] = None
 
 class HeritageResourceCreate(HeritageResourceBase):
     pass

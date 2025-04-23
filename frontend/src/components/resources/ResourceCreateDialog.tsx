@@ -162,14 +162,17 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
         typology: validTypologies.map(t => t.value),
         social_networks: socialNetworks
           .filter(sn => sn.network.trim() !== '' && sn.url.trim() !== '')
-          .map(sn => `${sn.network}:${sn.url}`)
+          .map(sn => ({
+            network: sn.network,
+            url: sn.url
+          }))
       };
 
       // Si no hay redes sociales válidas, enviar un array vacío de strings
       if (resourceData.social_networks.length === 0) {
         resourceData.social_networks = [];
       }
-
+      console.log(resourceData);
       const newResource = await resourceService.createResource(resourceData, token);
       onResourceCreated(newResource);
       onClose();
@@ -178,6 +181,22 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClear = () => {
+    setFormData({
+      name: '',
+      typology: [],
+      ownership: '',
+      management_model: '',
+      postal_address: '',
+      web_address: '',
+      phone_number: '',
+      social_networks: []
+    });
+    setTypologies([{ id: nextId.current++, value: '' }]);
+    setSocialNetworks([{ id: nextId.current++, network: '', url: '' }]);
+    setError(null);
   };
 
   return (
@@ -316,6 +335,9 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
         </Box>
       </DialogContent>
       <DialogActions>
+        <Button onClick={handleClear} disabled={loading}>
+          Limpiar
+        </Button>
         <Button onClick={onClose} disabled={loading}>
           Cancelar
         </Button>

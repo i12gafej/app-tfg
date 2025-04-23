@@ -72,11 +72,12 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
       setTypologies(typologyFields);
 
       // Inicializar redes sociales
-      const networkFields = Array.isArray(resource.social_networks)
-        ? resource.social_networks.map(network => {
-            const [networkName, url] = network.split(':');
-            return { id: nextId.current++, network: networkName, url };
-          })
+      const networkFields = Array.isArray(resource.social_networks) && resource.social_networks.length > 0
+        ? resource.social_networks.map(network => ({
+            id: nextId.current++,
+            network: network.network,
+            url: network.url
+          }))
         : [{ id: nextId.current++, network: '', url: '' }];
       setSocialNetworks(networkFields);
     }
@@ -162,11 +163,13 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
         return;
       }
 
-      // Preparar los datos para enviar
       const resourceData = {
         ...formData,
         typology: validTypologies.map(t => t.value),
-        social_networks: validNetworks.map(sn => `${sn.network}:${sn.url}`)
+        social_networks: validNetworks.map(sn => ({
+          network: sn.network,
+          url: sn.url
+        }))
       };
 
       await onSave(resourceData);

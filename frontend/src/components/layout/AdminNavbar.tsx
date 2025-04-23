@@ -14,7 +14,7 @@ const AdminNavbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/equipo', '/backups', '/cuenta'];
+  const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/backups', '/cuenta'];
   const shouldHaveWhiteBackground = whiteBackgroundRoutes.includes(location.pathname);
 
   const handleDrawerToggle = () => {

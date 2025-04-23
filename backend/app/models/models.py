@@ -39,12 +39,12 @@ class HeritageResource(Base):
     __tablename__ = "heritage_resources"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    ownership = Column(String, nullable=True)
-    management_model = Column(String, nullable=True)
-    postal_address = Column(String, nullable=True)
-    web_address = Column(String, nullable=True)
-    phone_number = Column(String, nullable=True)
+    name = Column(String(255), nullable=False)
+    ownership = Column(String(255), nullable=True)
+    management_model = Column(String(255), nullable=True)
+    postal_address = Column(String(255), nullable=True)
+    web_address = Column(String(255), nullable=True)
+    phone_number = Column(String(255), nullable=True)
     
     # Relaciones
     typologies = relationship("HeritageResourceTypology", back_populates="resource", cascade="all, delete-orphan")
@@ -55,7 +55,7 @@ class HeritageResourceTypology(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     resource_id = Column(Integer, ForeignKey("heritage_resources.id"))
-    typology = Column(String, nullable=False)
+    typology = Column(String(255), nullable=False)
     
     resource = relationship("HeritageResource", back_populates="typologies")
 
@@ -64,7 +64,8 @@ class HeritageResourceSocialNetwork(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     resource_id = Column(Integer, ForeignKey("heritage_resources.id"))
-    social_network = Column(String, nullable=False)
+    social_network = Column(String(255), nullable=False)
+    url = Column(String(255), nullable=False)
     
     resource = relationship("HeritageResource", back_populates="social_networks")
 
