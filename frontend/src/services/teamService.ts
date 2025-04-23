@@ -91,8 +91,12 @@ export const getReports = async (resourceId: string): Promise<Report[]> => {
 
 // Obtener miembros del equipo de un reporte
 export const getTeamMembers = async (reportId: string): Promise<TeamMember[]> => {
-  const response = await api.get(`/team/members?report_id=${reportId}`);
-  return response.data;
+  const response = await api.post(`/team/search/members`, {
+    report_id: parseInt(reportId),
+    page: 1,
+    per_page: 1000
+  });
+  return response.data.items;
 };
 
 // Buscar usuarios disponibles para el equipo

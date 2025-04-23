@@ -142,7 +142,6 @@ def search_reports(
 
 @router.post("/team/search/members", response_model=dict)
 def search_team_members(
-    report_id: int,
     search_params: TeamMemberSearch = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -150,5 +149,16 @@ def search_team_members(
     """
     Buscar miembros del equipo de un reporte con filtros opcionales.
     """
-    return crud_team.search_team_members(db, report_id, search_params)
+    result = crud_team.search_team_members(db, search_params.report_id, search_params)
+    
+    # Convertir los miembros a esquema Pydantic
+    members_schema = [TeamMemberBase.from_orm(member) for member in result["items"]]
+    
+    return {
+        "items": members_schema,
+        "total": result["total"],
+        "page": result["page"],
+        "per_page": result["per_page"],
+        "total_pages": result["total_pages"]
+    }
 

@@ -25,6 +25,7 @@ class TeamMemberBase(BaseModel):
     organization: str
 
 class TeamMemberSearch(BaseModel):
+    report_id: int
     search_term: Optional[str] = None
     name: Optional[str] = None
     surname: Optional[str] = None
