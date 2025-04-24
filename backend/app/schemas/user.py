@@ -7,13 +7,7 @@ class UserBase(BaseModel):
     name: Optional[str] = None
     surname: Optional[str] = None
     phone_number: Optional[str] = None
-    
 
-class UserCreate(UserBase):
-    email: EmailStr
-    password: constr(min_length=8)
-    name: str
-    surname: str
 
 class UserUpdate(UserBase):
     password: Optional[constr(min_length=8)] = None

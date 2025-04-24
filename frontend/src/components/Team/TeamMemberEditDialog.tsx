@@ -10,7 +10,8 @@ import {
   Select,
   MenuItem,
   Box,
-  Typography
+  Typography,
+  CircularProgress
 } from '@mui/material';
 import { useState } from 'react';
 import { TeamMember, updateTeamMember } from '@/services/teamService';
@@ -21,6 +22,7 @@ interface TeamMemberEditDialogProps {
   member: TeamMember;
   resourceId: string | null;
   reportId: string | null;
+  onUpdate: () => void;
 }
 
 const ROLES = [
@@ -34,7 +36,8 @@ const TeamMemberEditDialog = ({
   onClose, 
   member,
   resourceId,
-  reportId 
+  reportId,
+  onUpdate 
 }: TeamMemberEditDialogProps) => {
   const [role, setRole] = useState(member.role);
   const [organization, setOrganization] = useState(member.organization);
@@ -51,6 +54,7 @@ const TeamMemberEditDialog = ({
         role,
         organization
       });
+      onUpdate();
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al actualizar miembro');
@@ -119,6 +123,7 @@ const TeamMemberEditDialog = ({
             type="submit" 
             variant="contained"
             disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
             Guardar
           </Button>

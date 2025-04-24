@@ -4,6 +4,7 @@ import UserSearchPanel from '@/components/Team/UserSearchPanel';
 import TeamMemberSearchPanel from '@/components/Team/TeamMemberSearchPanel';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TeamMember } from '@/services/teamService';
 
 interface TeamSearchProps {
   selectedResource: string | null;
@@ -18,6 +19,12 @@ const TeamSearch = ({
   onResourceChange,
   onReportChange
 }: TeamSearchProps) => {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  const handleTeamMembersUpdate = (members: TeamMember[]) => {
+    setTeamMembers(members);
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
@@ -29,6 +36,7 @@ const TeamSearch = ({
           <UserSearchPanel 
             resourceId={selectedResource}
             reportId={selectedReport}
+            teamMembers={teamMembers}
           />
         </Paper>
 
@@ -42,6 +50,7 @@ const TeamSearch = ({
             reportId={selectedReport}
             onResourceChange={onResourceChange}
             onReportChange={onReportChange}
+            onTeamMembersUpdate={handleTeamMembersUpdate}
           />
         </Paper>
       </Box>
@@ -50,3 +59,4 @@ const TeamSearch = ({
 };
 
 export default TeamSearch;
+

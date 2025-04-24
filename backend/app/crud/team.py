@@ -2,7 +2,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app.models.models import HeritageResource, SustainabilityReport, SustainabilityTeamMember, User
-from app.schemas.team import ResourceSearch, ReportSearch, TeamMemberSearch
+from app.schemas.team import ResourceSearch, ReportSearch, TeamMemberSearch, TeamMemberCreate
 
 def get_resources(db: Session) -> List[HeritageResource]:
     """Obtener todos los recursos patrimoniales"""
@@ -179,38 +179,61 @@ def search_team_members(
 
 def create_team_member(
     db: Session,
-    report_id: int,
-    user_id: int,
-    role: str,
-    organization: str
+    team_member_data: TeamMemberCreate
 ) -> SustainabilityTeamMember:
     """Crear un nuevo miembro del equipo"""
     # Verificar si el usuario ya es miembro
     existing_member = db.query(SustainabilityTeamMember).filter(
-        SustainabilityTeamMember.report_id == report_id,
-        SustainabilityTeamMember.user_id == user_id
+        SustainabilityTeamMember.report_id == team_member_data.report_id,
+        SustainabilityTeamMember.user_id == team_member_data.user_id
     ).first()
     
     if existing_member:
         raise ValueError("El usuario ya es miembro del equipo")
 
-    # Obtener datos del usuario
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise ValueError("Usuario no encontrado")
-
     # Crear el miembro del equipo
     team_member = SustainabilityTeamMember(
-        report_id=report_id,
-        user_id=user_id,
-        name=user.name,
-        surname=user.surname,
-        email=user.email,
-        role=role,
-        organization=organization
+        report_id=team_member_data.report_id,
+        user_id=team_member_data.user_id,
+        type=team_member_data.role,
+        organization=team_member_data.organization
     )
 
     db.add(team_member)
     db.commit()
     db.refresh(team_member)
     return team_member
+
+def update_team_member(
+    db: Session,
+    member_id: int,
+    update_data: dict
+) -> SustainabilityTeamMember:
+    """Actualizar un miembro del equipo"""
+    # Buscar el miembro
+    member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
+    if not member:
+        raise ValueError("Miembro del equipo no encontrado")
+
+    # Actualizar los campos
+    member.type = update_data["role"]
+    member.organization = update_data["organization"]
+
+    db.add(member)
+    db.commit()
+    db.refresh(member)
+    return member
+
+def delete_team_member(
+    db: Session,
+    member_id: int
+) -> None:
+    """Eliminar un miembro del equipo"""
+    # Buscar el miembro
+    member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
+    if not member:
+        raise ValueError("Miembro del equipo no encontrado")
+
+    # Eliminar el miembro
+    db.delete(member)
+    db.commit()

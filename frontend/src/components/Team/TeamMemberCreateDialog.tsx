@@ -39,7 +39,7 @@ const TeamMemberCreateDialog = ({
     name: '',
     surname: '',
     email: '',
-    phone: '',
+    phone_number: '',
     password: '',
     role: '',
     organization: ''
@@ -102,9 +102,8 @@ const TeamMemberCreateDialog = ({
             <TextField
               fullWidth
               label="Teléfono"
-              value={formData.phone}
-              onChange={handleChange('phone')}
-              required
+              value={formData.phone_number}
+              onChange={handleChange('phone_number')}
             />
             <TextField
               fullWidth

@@ -19,6 +19,8 @@ export interface TeamMember {
   phone: string;
   role: string;
   organization: string;
+  report_id: number;
+  user_id: number;
 }
 
 export interface User {
@@ -113,13 +115,22 @@ export const createTeamMember = async (
     name: string;
     surname: string;
     email: string;
-    phone: string;
+    phone_number: string;
     password: string;
     role: string;
     organization: string;
   }
 ): Promise<TeamMember> => {
-  const response = await api.post(`/reports/${reportId}/team`, data);
+  const response = await api.post('/team/create/member', {
+    name: data.name,
+    surname: data.surname,
+    email: data.email,
+    phone_number: data.phone_number || undefined,
+    password: data.password,
+    role: data.role,
+    organization: data.organization,
+    report_id: parseInt(reportId)
+  });
   return response.data;
 };
 
@@ -133,11 +144,11 @@ export const assignUserToTeam = async (
     organization: string;
   }
 ): Promise<TeamMember> => {
-  const response = await api.post(`/team/members/assign`, {
-    resource_id: resourceId,
-    report_id: reportId,
-    user_id: userId,
-    ...data
+  const response = await api.post('/team/assign/member', {
+    user_id: parseInt(userId),
+    report_id: parseInt(reportId),
+    role: data.role,
+    organization: data.organization
   });
   return response.data;
 };
@@ -150,11 +161,12 @@ export const updateTeamMember = async (
     organization: string;
   }
 ): Promise<TeamMember> => {
-  const response = await api.put(`/team/members/${memberId}`, data);
+  const response = await api.put(`/team/update/member/${memberId}`, data);
   return response.data;
 };
 
 // Eliminar un miembro del equipo
 export const deleteTeamMember = async (memberId: string): Promise<void> => {
-  await api.delete(`/team/members/${memberId}`);
+  await api.delete(`/team/delete/member/${memberId}`);
 };
+

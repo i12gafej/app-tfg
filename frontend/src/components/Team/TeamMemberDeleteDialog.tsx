@@ -16,6 +16,7 @@ interface TeamMemberDeleteDialogProps {
   member: TeamMember;
   resourceId: string | null;
   reportId: string | null;
+  onDelete: () => void;
 }
 
 const TeamMemberDeleteDialog = ({ 
@@ -23,7 +24,8 @@ const TeamMemberDeleteDialog = ({
   onClose, 
   member,
   resourceId,
-  reportId 
+  reportId,
+  onDelete 
 }: TeamMemberDeleteDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,7 @@ const TeamMemberDeleteDialog = ({
 
     try {
       await deleteTeamMember(member.id);
+      onDelete();
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al eliminar miembro');

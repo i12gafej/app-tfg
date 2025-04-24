@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { getResources, getReports, getTeamMembers, TeamMember, Resource, Report } from '@/services/teamService';
 import TeamMemberList from '@/components/Team/TeamMemberList';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
+import UserSearchPanel from '@/components/Team/UserSearchPanel';
 
 interface TeamMemberSearchPanelProps {
   resourceId: string | null;
   reportId: string | null;
   onResourceChange: (resourceId: string | null) => void;
   onReportChange: (reportId: string | null) => void;
+  onTeamMembersUpdate: (members: TeamMember[]) => void;
 }
 
 interface Filters {
@@ -30,9 +32,9 @@ const TeamMemberSearchPanel = ({
   resourceId, 
   reportId,
   onResourceChange,
-  onReportChange 
+  onReportChange,
+  onTeamMembersUpdate
 }: TeamMemberSearchPanelProps) => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -43,6 +45,30 @@ const TeamMemberSearchPanel = ({
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoadingResources, setIsLoadingResources] = useState(false);
   const [isLoadingReports, setIsLoadingReports] = useState(false);
+
+  const fetchTeamMembers = async () => {
+    if (!reportId) {
+      setTeamMembers([]);
+      onTeamMembersUpdate([]);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getTeamMembers(reportId);
+      setTeamMembers(data);
+      onTeamMembersUpdate(data);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, [reportId]);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -81,32 +107,6 @@ const TeamMemberSearchPanel = ({
     fetchReports();
   }, [resourceId]);
 
-  useEffect(() => {
-    const fetchTeamMembers = async () => {
-      if (!reportId) {
-        setTeamMembers([]);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await getTeamMembers(reportId);
-        setTeamMembers(data);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTeamMembers();
-  }, [reportId]);
-
-  const handleSearch = (event: React.FormEvent) => {
-    event.preventDefault();
-  };
-
   const handleFilterChange = (field: keyof Filters, value: string) => {
     setFilters(prev => ({
       ...prev,
@@ -115,14 +115,6 @@ const TeamMemberSearchPanel = ({
   };
 
   const filteredTeamMembers = teamMembers.filter(member => {
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = 
-      member.name.toLowerCase().includes(searchLower) ||
-      member.surname.toLowerCase().includes(searchLower) ||
-      member.email.toLowerCase().includes(searchLower) ||
-      member.role.toLowerCase().includes(searchLower) ||
-      member.organization.toLowerCase().includes(searchLower);
-
     const matchesFilters = 
       (!filters.name || member.name.toLowerCase().includes(filters.name.toLowerCase())) &&
       (!filters.surname || member.surname.toLowerCase().includes(filters.surname.toLowerCase())) &&
@@ -130,7 +122,7 @@ const TeamMemberSearchPanel = ({
       (!filters.role || member.role === filters.role) &&
       (!filters.organization || member.organization.toLowerCase().includes(filters.organization.toLowerCase()));
 
-    return matchesSearch && matchesFilters;
+    return matchesFilters;
   });
 
   return (
@@ -144,13 +136,16 @@ const TeamMemberSearchPanel = ({
             onChange={(e: SelectChangeEvent<string>) => onResourceChange(e.target.value || null)}
             disabled={isLoadingResources}
           >
+            <MenuItem value="">
+              <em>Seleccionar recurso</em>
+            </MenuItem>
             {isLoadingResources ? (
               <MenuItem disabled>
                 <CircularProgress size={20} />
               </MenuItem>
             ) : (
               resources.map((resource) => (
-                <MenuItem key={resource.id} value={resource.id}>
+                <MenuItem key={resource.id} value={resource.id.toString()}>
                   {resource.name}
                 </MenuItem>
               ))
@@ -166,13 +161,16 @@ const TeamMemberSearchPanel = ({
             onChange={(e: SelectChangeEvent<string>) => onReportChange(e.target.value || null)}
             disabled={!resourceId || isLoadingReports}
           >
+            <MenuItem value="">
+              <em>Seleccionar memoria</em>
+            </MenuItem>
             {isLoadingReports ? (
               <MenuItem disabled>
                 <CircularProgress size={20} />
               </MenuItem>
             ) : (
               reports.map((report) => (
-                <MenuItem key={report.id} value={report.id}>
+                <MenuItem key={report.id} value={report.id.toString()}>
                   {report.year}
                 </MenuItem>
               ))
@@ -181,30 +179,14 @@ const TeamMemberSearchPanel = ({
         </FormControl>
       </Box>
 
-      <form onSubmit={handleSearch}>
-        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <TextField
-            fullWidth
-            label="Buscar miembros del equipo"
-            value={searchTerm}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-            size="small"
-          />
-          <Button 
-            type="submit" 
-            variant="contained"
-            disabled={isLoading}
-          >
-            Buscar
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            Filtros
-          </Button>
-        </Box>
-      </form>
+      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          Filtros
+        </Button>
+      </Box>
 
       {showFilters && (
         <Box sx={{ mb: 2 }}>
@@ -242,11 +224,11 @@ const TeamMemberSearchPanel = ({
                 <Select
                   value={filters.role || ''}
                   label="Rol"
-                  onChange={(e: React.ChangeEvent<{ value: unknown }>) => 
-                    handleFilterChange('role', e.target.value as string)
-                  }
+                  onChange={(e: SelectChangeEvent<string>) => handleFilterChange('role', e.target.value)}
                 >
-                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="">
+                    <em>Todos</em>
+                  </MenuItem>
                   {ROLES.map((role) => (
                     <MenuItem key={role} value={role}>
                       {role}
@@ -273,6 +255,11 @@ const TeamMemberSearchPanel = ({
         isLoading={isLoading}
         resourceId={resourceId}
         reportId={reportId}
+        onUpdate={() => {
+          if (reportId) {
+            fetchTeamMembers();
+          }
+        }}
       />
 
       {resourceId && reportId && (

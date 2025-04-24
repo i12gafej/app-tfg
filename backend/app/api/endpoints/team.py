@@ -4,18 +4,23 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from app.api.deps import get_db, get_current_user
-from app.schemas.user import User, UserSearch
+from app.schemas.user import User, UserSearch, UserCreate
 from app.schemas.team import (
     ResourceSearch, 
     ReportSearch, 
     TeamMemberSearch,
     ResourceBase,
     ReportBase,
-    TeamMemberBase
+    TeamMemberBase,
+    TeamMemberCreate,
+    TeamMemberCreateParams,
+    TeamMemberList,
+    TeamMemberUpdate
 )
 from app.schemas.auth import TokenData
 from app.models.models import User as UserModel
 from app.crud import team as crud_team
+from app.crud import user as crud_user
 
 router = APIRouter()
 
@@ -148,17 +153,187 @@ def search_team_members(
 ):
     """
     Buscar miembros del equipo de un reporte con filtros opcionales.
+    Carga los datos de usuario para cada miembro del equipo.
     """
+    # Obtener los miembros del equipo
     result = crud_team.search_team_members(db, search_params.report_id, search_params)
     
-    # Convertir los miembros a esquema Pydantic
-    members_schema = [TeamMemberBase.from_orm(member) for member in result["items"]]
+    # Mapeo de roles en inglés a español
+    role_mapping = {
+        'manager': 'Gestor de Sostenibilidad',
+        'consultant': 'Consultor',
+        'external_advisor': 'Asesor Externo'
+    }
+    
+    # Para cada miembro, cargar los datos de usuario
+    members_with_user_data = []
+    for member in result["items"]:
+        user = crud_user.get(db, member.user_id)
+        if user:
+            member_dict = {
+                "id": member.id,
+                "name": user.name,
+                "surname": user.surname,
+                "email": user.email,
+                "phone_number": user.phone_number,
+                "role": role_mapping.get(member.type, member.type),  # Usar el mapeo para el rol
+                "organization": member.organization,
+                "report_id": member.report_id,
+                "user_id": member.user_id
+            }
+            members_with_user_data.append(TeamMemberList(**member_dict))
     
     return {
-        "items": members_schema,
+        "items": members_with_user_data,
         "total": result["total"],
         "page": result["page"],
         "per_page": result["per_page"],
         "total_pages": result["total_pages"]
     }
+
+@router.post("/team/create/member", response_model=TeamMemberBase)
+def create_team_member(
+    data: TeamMemberCreateParams = Body(...),
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Crear un nuevo miembro del equipo de sostenibilidad.
+    Primero crea el usuario y luego crea el miembro del equipo asociado.
+    """
+    # Verificar si el email ya está en uso
+    existing_user = db.query(UserModel).filter(UserModel.email == data.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="El correo electrónico ya está en uso"
+        )
+
+    # Crear el usuario usando el crud de usuarios
+    user_create = UserCreate(
+        name=data.name,
+        surname=data.surname,
+        email=data.email,
+        password=data.password,
+        admin=False,
+        phone_number=data.phone_number
+    )
+    user = crud_user.create(db, user_create)
+
+    # Mapear el rol del formulario al tipo de miembro
+    role_mapping = {
+        'Gestor de Sostenibilidad': 'manager',
+        'Consultor': 'consultant',
+        'Asesor Externo': 'external_advisor'
+    }
+    member_type = role_mapping.get(data.role)
+    if not member_type:
+        raise HTTPException(
+            status_code=400,
+            detail="Rol no válido"
+        )
+
+    # Crear el miembro del equipo usando el esquema TeamMemberCreate
+    team_member_data = TeamMemberCreate(
+        report_id=data.report_id,
+        user_id=user.id,
+        role=member_type,
+        organization=data.organization
+    )
+    team_member = crud_team.create_team_member(db, team_member_data)
+
+    return team_member
+
+@router.put("/team/update/member/{member_id}", response_model=TeamMemberBase)
+def update_team_member(
+    member_id: int,
+    update_data: TeamMemberUpdate = Body(...),
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Actualizar un miembro del equipo de sostenibilidad.
+    """
+    try:
+        # Mapear el rol del formulario al tipo de miembro
+        role_mapping = {
+            'Gestor de Sostenibilidad': 'manager',
+            'Consultor': 'consultant',
+            'Asesor Externo': 'external_advisor'
+        }
+        member_type = role_mapping.get(update_data.role)
+        if not member_type:
+            raise HTTPException(
+                status_code=400,
+                detail="Rol no válido"
+            )
+
+        # Actualizar el miembro
+        update_dict = {
+            "role": member_type,
+            "organization": update_data.organization
+        }
+        member = crud_team.update_team_member(db, member_id, update_dict)
+        return member
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+@router.delete("/team/delete/member/{member_id}")
+def delete_team_member(
+    member_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Eliminar un miembro del equipo de sostenibilidad.
+    """
+    try:
+        crud_team.delete_team_member(db, member_id)
+        return {"message": "Miembro eliminado correctamente"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+@router.post("/team/assign/member", response_model=TeamMemberBase)
+def assign_team_member(
+    data: TeamMemberCreate = Body(...),
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Asignar un usuario existente como miembro del equipo de sostenibilidad.
+    """
+    try:
+        # Mapear el rol del formulario al tipo de miembro
+        role_mapping = {
+            'Gestor de Sostenibilidad': 'manager',
+            'Consultor': 'consultant',
+            'Asesor Externo': 'external_advisor'
+        }
+        member_type = role_mapping.get(data.role)
+        if not member_type:
+            raise HTTPException(
+                status_code=400,
+                detail="Rol no válido"
+            )
+
+        # Crear el miembro del equipo
+        team_member_data = TeamMemberCreate(
+            report_id=data.report_id,
+            user_id=data.user_id,
+            role=member_type,
+            organization=data.organization
+        )
+        team_member = crud_team.create_team_member(db, team_member_data)
+        return team_member
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 

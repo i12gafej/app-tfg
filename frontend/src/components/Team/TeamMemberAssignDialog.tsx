@@ -14,15 +14,15 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { assignUserToTeam, User } from '@/services/teamService';
+import { User, assignUserToTeam } from '@/services/teamService';
 
 interface TeamMemberAssignDialogProps {
   open: boolean;
   onClose: () => void;
   user: User;
-  resourceId: string;
-  reportId: string;
+  resourceId: string | null;
+  reportId: string | null;
+  onAssign: () => void;
 }
 
 const ROLES = [
@@ -34,33 +34,40 @@ const ROLES = [
 const TeamMemberAssignDialog = ({ 
   open, 
   onClose, 
-  user, 
-  resourceId, 
-  reportId 
+  user,
+  resourceId,
+  reportId,
+  onAssign 
 }: TeamMemberAssignDialogProps) => {
   const [role, setRole] = useState('');
   const [organization, setOrganization] = useState('');
-  const queryClient = useQueryClient();
-
-  const { mutate: assignUser, isPending } = useMutation({
-    mutationFn: (data: { role: string; organization: string }) => 
-      assignUserToTeam(resourceId, reportId, user.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
-      onClose();
-    }
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    assignUser({ role, organization });
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await assignUserToTeam(resourceId!, reportId!, user.id, {
+        role,
+        organization
+      });
+      onAssign();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al asignar miembro');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          Asignar Usuario al Equipo
+          Asignar Miembro al Equipo
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
@@ -92,7 +99,7 @@ const TeamMemberAssignDialog = ({
 
               <TextField
                 fullWidth
-                label="Organismo"
+                label="Organización"
                 value={organization}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
                   setOrganization(e.target.value)
@@ -100,6 +107,12 @@ const TeamMemberAssignDialog = ({
                 required
               />
             </Box>
+
+            {error && (
+              <Typography color="error" sx={{ mt: 2 }}>
+                {error}
+              </Typography>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -109,8 +122,8 @@ const TeamMemberAssignDialog = ({
           <Button 
             type="submit" 
             variant="contained"
-            disabled={isPending}
-            startIcon={isPending ? <CircularProgress size={20} /> : null}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
             Asignar
           </Button>
