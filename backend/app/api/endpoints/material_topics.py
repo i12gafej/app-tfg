@@ -1,0 +1,188 @@
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, Body
+from sqlalchemy.orm import Session
+from app.api.deps import get_db, get_current_user
+from app.schemas.material_topics import (
+    MaterialTopic,
+    MaterialTopicCreate,
+    MaterialTopicUpdate,
+    MaterialTopicSearch
+)
+from app.schemas.auth import TokenData
+from app.models.models import MaterialTopic as MaterialTopicModel
+from app.crud import material_topics as crud_material_topic
+
+router = APIRouter()
+
+@router.post("/material-topics/search", response_model=dict)
+def search_material_topics(
+    search_params: MaterialTopicSearch = Body(...),
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Buscar asuntos relevantes con filtros opcionales.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para realizar esta acción"
+        )
+
+    # Paginación
+    page = search_params.page or 1
+    per_page = search_params.per_page or 10
+    skip = (page - 1) * per_page
+
+    material_topics, total = crud_material_topic.search(
+        db=db,
+        search_term=search_params.search_term,
+        name=search_params.name,
+        report_id=search_params.report_id,
+        skip=skip,
+        limit=per_page
+    )
+
+    total_pages = (total + per_page - 1) // per_page
+
+    # Convertir los material topics a esquema Pydantic
+    material_topics_schema = [
+        MaterialTopic(
+            id=material_topic.id,
+            name=material_topic.name,
+            description=material_topic.description,
+            priority=material_topic.priority,
+            main_objective=material_topic.main_objective,
+            goal_ods_id=material_topic.goal_ods_id,
+            goal_number=material_topic.goal_number,
+            report_id=material_topic.report_id
+        )
+        for material_topic in material_topics
+    ]
+
+    return {
+        "items": material_topics_schema,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages
+    }
+
+@router.post("/material-topics/create", response_model=MaterialTopic)
+def create_material_topic(
+    material_topic_data: MaterialTopicCreate,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Crear un nuevo asunto relevante.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para crear asuntos relevantes"
+        )
+    
+    # Verificar si el nombre ya existe para este reporte
+    existing_material_topic = crud_material_topic.get_by_name(db, material_topic_data.name)
+    if existing_material_topic and existing_material_topic.report_id == material_topic_data.report_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Ya existe un asunto relevante con este nombre en este reporte"
+        )
+    
+    try:
+        new_material_topic = crud_material_topic.create(db, material_topic_data)
+        return new_material_topic
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al crear el asunto relevante: {str(e)}"
+        )
+
+@router.post("/material-topics/update", response_model=MaterialTopic)
+def update_material_topic(
+    material_topic_id: int = Body(...),
+    material_topic_data: MaterialTopicUpdate = Body(...),
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Actualizar un asunto relevante.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para actualizar asuntos relevantes"
+        )
+    
+    db_material_topic = crud_material_topic.get(db, material_topic_id)
+    if not db_material_topic:
+        raise HTTPException(
+            status_code=404,
+            detail="Asunto relevante no encontrado"
+        )
+    
+    try:
+        updated_material_topic = crud_material_topic.update(db, db_material_topic, material_topic_data)
+        return updated_material_topic
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al actualizar el asunto relevante: {str(e)}"
+        )
+
+@router.delete("/material-topics/{material_topic_id}")
+def delete_material_topic(
+    material_topic_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Eliminar un asunto relevante.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para eliminar asuntos relevantes"
+        )
+    
+    db_material_topic = crud_material_topic.get(db, material_topic_id)
+    if not db_material_topic:
+        raise HTTPException(
+            status_code=404,
+            detail="Asunto relevante no encontrado"
+        )
+    
+    try:
+        crud_material_topic.delete(db, db_material_topic)
+        return {"message": "Asunto relevante eliminado correctamente"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al eliminar el asunto relevante: {str(e)}"
+        )
+
+@router.get("/material-topics/get-all/{report_id}", response_model=List[MaterialTopic])
+def get_all_material_topics(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener todos los asuntos relevantes de un reporte.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para realizar esta acción"
+        )
+
+    try:
+        material_topics = crud_material_topic.get_all_by_report(db, report_id)
+        return material_topics
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener asuntos relevantes: {str(e)}"
+        )

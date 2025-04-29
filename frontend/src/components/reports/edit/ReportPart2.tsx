@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/contexts/ReportContext';
+import StakeholderSearch from './part2/stakeholders/StakeholderSearch';
+import MaterialTopicSearch from './part2/diagnosis/MaterialTopic/MaterialTopicSearch';
 
 // Importar componentes del diagnóstico
 import Description from './part2/diagnosis/Description';
-import DimensionsODS from './part2/diagnosis/DimensionsODS';
-import MaterialTopics from './part2/diagnosis/MaterialTopics';
+
 import MainSecondaryImpacts from './part2/diagnosis/MainSecondaryImpacts';
 import Graphs from './part2/diagnosis/Graphs';
 import Surveys from './part2/diagnosis/Surveys';
@@ -19,7 +20,6 @@ interface ReportPart2Props {
 
 const DIAGNOSIS_SECTIONS = [
   { id: 'description', label: 'Descripción' },
-  { id: 'dimensions-ods', label: 'Dimensiones y ODS' },
   { id: 'material-topics', label: 'Asuntos Relevantes' },
   { id: 'impacts', label: 'Impactos Principal y Secundario' },
   { id: 'graphs', label: 'Gráficos' },
@@ -36,12 +36,10 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
     switch (activeDiagnosisSection) {
       case 'description':
         return <Description />;
-      case 'dimensions-ods':
-        return <DimensionsODS />;
       case 'material-topics':
-        return <MaterialTopics />;
+        return <MaterialTopicSearch reportId={report?.id || 0} />;
       case 'impacts':
-        return <MainSecondaryImpacts />;
+        return <MainSecondaryImpacts reportId={report?.id || 0} onUpdate={() => {}} />;
       case 'graphs':
         return <Graphs />;
       case 'surveys':
@@ -60,7 +58,7 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
       case 'stakeholders':
         return (
           <Box sx={{ p: 3 }}>
-            Contenido del Análisis de Grupos de Interés
+            <StakeholderSearch reportId={report?.id || 0} />
           </Box>
         );
       case 'diagnostic':

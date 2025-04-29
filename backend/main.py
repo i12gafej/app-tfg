@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import auth, users, resources, team, reports
+from app.api.endpoints import auth, users, resources, team, reports, stakeholders, material_topics, goals, ods
 from app.core.config import settings
 
 
@@ -24,3 +24,7 @@ app.include_router(users.router, prefix=settings.API_V1_STR, tags=["users"])
 app.include_router(resources.router, prefix=settings.API_V1_STR, tags=["resources"])
 app.include_router(team.router, prefix=settings.API_V1_STR, tags=["team"])
 app.include_router(reports.router, prefix=settings.API_V1_STR, tags=["reports"])
+app.include_router(stakeholders.router, prefix=settings.API_V1_STR, tags=["stakeholders"])
+app.include_router(material_topics.router, prefix=settings.API_V1_STR, tags=["material_topics"])
+app.include_router(goals.router, prefix=settings.API_V1_STR, tags=["goals"])
+app.include_router(ods.router, prefix=settings.API_V1_STR, tags=["ods"])

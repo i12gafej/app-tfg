@@ -33,7 +33,7 @@ const TeamMemberCreateDialog = ({
   open, 
   onClose, 
   resourceId, 
-  reportId 
+  reportId
 }: TeamMemberCreateDialogProps) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -46,6 +46,21 @@ const TeamMemberCreateDialog = ({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        name: '',
+        surname: '',
+        email: '',
+        phone_number: '',
+        password: '',
+        role: '',
+        organization: ''
+      });
+      setError(null);
+    }
+  }, [open]);
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | { value: unknown }>) => {
     setFormData(prev => ({

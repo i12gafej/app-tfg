@@ -32,7 +32,7 @@ class Goal(Base):
     __tablename__ = "goals"
 
     ods_id = Column(Integer, ForeignKey("ods.id", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
-    goal_number = Column(Integer, primary_key=True)
+    goal_number = Column(String(2), primary_key=True)
     description = Column(Text, nullable=False)
 
 class HeritageResource(Base):
@@ -153,10 +153,10 @@ class MaterialTopic(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    priority = Column(Enum('high', 'medium', 'low', name='priority_level'), nullable=False)
-    main_objective = Column(Text, nullable=False)
-    goal_ods_id = Column(Integer, nullable=False)
-    goal_number = Column(Integer, nullable=False)
+    priority = Column(Enum('high', 'medium', 'low', name='priority_level'), nullable=True)
+    main_objective = Column(Text, nullable=True)
+    goal_ods_id = Column(Integer, nullable=True)
+    goal_number = Column(String(2), nullable=True)
     report_id = Column(Integer, ForeignKey("sustainability_reports.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
     __table_args__ = (

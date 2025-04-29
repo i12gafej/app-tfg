@@ -8,10 +8,13 @@ const InternalConsistency = () => {
         Coherencia Interna
       </Typography>
       <Typography paragraph>
-        Análisis de la coherencia interna del plan de sostenibilidad.
+        Análisis de la coherencia interna del plan de sostenibilidad. 
+        <br />
+        Faltan los impactos principales y secundarios de las acciones.
+        
       </Typography>
     </Box>
   );
 };
-
+ 
 export default InternalConsistency; 

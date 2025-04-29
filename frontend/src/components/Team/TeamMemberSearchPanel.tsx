@@ -1,10 +1,11 @@
 import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, Grid, CircularProgress } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getResources, getReports, getTeamMembers, TeamMember, Resource, Report } from '@/services/teamService';
 import TeamMemberList from '@/components/Team/TeamMemberList';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
 import UserSearchPanel from '@/components/Team/UserSearchPanel';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 interface TeamMemberSearchPanelProps {
   resourceId: string | null;
@@ -12,6 +13,9 @@ interface TeamMemberSearchPanelProps {
   onResourceChange: (resourceId: string | null) => void;
   onReportChange: (reportId: string | null) => void;
   onTeamMembersUpdate: (members: TeamMember[]) => void;
+  fixedResource?: Resource;
+  fixedReport?: Report;
+  onUpdate?: () => void;
 }
 
 interface Filters {
@@ -33,7 +37,10 @@ const TeamMemberSearchPanel = ({
   reportId,
   onResourceChange,
   onReportChange,
-  onTeamMembersUpdate
+  onTeamMembersUpdate,
+  fixedResource,
+  fixedReport,
+  onUpdate
 }: TeamMemberSearchPanelProps) => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +66,7 @@ const TeamMemberSearchPanel = ({
       const data = await getTeamMembers(reportId);
       setTeamMembers(data);
       onTeamMembersUpdate(data);
+      console.log('Miembros actualizados:', data);
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -72,6 +80,11 @@ const TeamMemberSearchPanel = ({
 
   useEffect(() => {
     const fetchResources = async () => {
+      if (fixedResource) {
+        setResources([fixedResource]);
+        return;
+      }
+
       setIsLoadingResources(true);
       try {
         const data = await getResources();
@@ -84,10 +97,15 @@ const TeamMemberSearchPanel = ({
     };
 
     fetchResources();
-  }, []);
+  }, [fixedResource]);
 
   useEffect(() => {
     const fetchReports = async () => {
+      if (fixedReport) {
+        setReports([fixedReport]);
+        return;
+      }
+
       if (!resourceId) {
         setReports([]);
         return;
@@ -105,7 +123,7 @@ const TeamMemberSearchPanel = ({
     };
 
     fetchReports();
-  }, [resourceId]);
+  }, [resourceId, fixedReport]);
 
   const handleFilterChange = (field: keyof Filters, value: string) => {
     setFilters(prev => ({
@@ -125,59 +143,77 @@ const TeamMemberSearchPanel = ({
     return matchesFilters;
   });
 
+  const handleUpdate = useCallback(() => {
+    fetchTeamMembers();
+    onUpdate?.();
+  }, [onUpdate]);
+
+  const handleCreateSuccess = useCallback(() => {
+    console.log('Creación exitosa, actualizando lista...');
+    fetchTeamMembers();
+    onUpdate?.();
+  }, [onUpdate]);
+
+  const handleResourceChange = (newResourceId: string | null) => {
+    onResourceChange(newResourceId);
+    onReportChange(null); // Resetear la memoria cuando cambia el recurso
+  };
+
   return (
     <Box>
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <FormControl fullWidth>
-          <InputLabel>Recurso Patrimonial</InputLabel>
-          <Select
-            value={resourceId || ''}
-            label="Recurso Patrimonial"
-            onChange={(e: SelectChangeEvent<string>) => onResourceChange(e.target.value || null)}
-            disabled={isLoadingResources}
-          >
-            <MenuItem value="">
-              <em>Seleccionar recurso</em>
-            </MenuItem>
-            {isLoadingResources ? (
-              <MenuItem disabled>
-                <CircularProgress size={20} />
+      {!fixedResource && !fixedReport && (
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <FormControl fullWidth>
+            <InputLabel>Recurso Patrimonial</InputLabel>
+            <Select
+              value={resourceId || ''}
+              label="Recurso Patrimonial"
+              onChange={(e: SelectChangeEvent<string>) => handleResourceChange(e.target.value || null)}
+              disabled={isLoadingResources}
+            >
+              <MenuItem value="">
+                <em>Seleccionar recurso</em>
               </MenuItem>
-            ) : (
-              resources.map((resource) => (
-                <MenuItem key={resource.id} value={resource.id.toString()}>
-                  {resource.name}
+              {isLoadingResources ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} />
                 </MenuItem>
-              ))
-            )}
-          </Select>
-        </FormControl>
+              ) : (
+                resources.map((resource) => (
+                  <MenuItem key={resource.id} value={resource.id.toString()}>
+                    {resource.name}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+          </FormControl>
 
-        <FormControl fullWidth>
-          <InputLabel>Memoria de Sostenibilidad</InputLabel>
-          <Select
-            value={reportId || ''}
-            label="Memoria de Sostenibilidad"
-            onChange={(e: SelectChangeEvent<string>) => onReportChange(e.target.value || null)}
-            disabled={!resourceId || isLoadingReports}
-          >
-            <MenuItem value="">
-              <em>Seleccionar memoria</em>
-            </MenuItem>
-            {isLoadingReports ? (
-              <MenuItem disabled>
-                <CircularProgress size={20} />
+          <FormControl fullWidth>
+            <InputLabel>Memoria de Sostenibilidad</InputLabel>
+            <Select
+              value={reportId || ''}
+              label="Memoria de Sostenibilidad"
+              onChange={(e: SelectChangeEvent<string>) => onReportChange(e.target.value || null)}
+              disabled={!resourceId || isLoadingReports}
+            >
+              <MenuItem value="">
+                <em>Seleccionar memoria</em>
               </MenuItem>
-            ) : (
-              reports.map((report) => (
-                <MenuItem key={report.id} value={report.id.toString()}>
-                  {report.year}
+              {isLoadingReports ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} />
                 </MenuItem>
-              ))
-            )}
-          </Select>
-        </FormControl>
-      </Box>
+              ) : (
+                reports.map((report) => (
+                  <MenuItem key={report.id} value={report.id.toString()}>
+                    {report.year}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+          </FormControl>
+        </Box>
+      )}
 
       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
         <Button
@@ -185,6 +221,14 @@ const TeamMemberSearchPanel = ({
           onClick={() => setShowFilters(!showFilters)}
         >
           Filtros
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={fetchTeamMembers}
+          disabled={!resourceId || !reportId}
+          startIcon={<RefreshIcon />}
+        >
+          Refrescar
         </Button>
       </Box>
 
@@ -255,11 +299,7 @@ const TeamMemberSearchPanel = ({
         isLoading={isLoading}
         resourceId={resourceId}
         reportId={reportId}
-        onUpdate={() => {
-          if (reportId) {
-            fetchTeamMembers();
-          }
-        }}
+        onUpdate={handleUpdate}
       />
 
       {resourceId && reportId && (

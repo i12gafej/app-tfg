@@ -13,7 +13,7 @@ import {
   Typography,
   CircularProgress
 } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TeamMember, updateTeamMember } from '@/services/teamService';
 
 interface TeamMemberEditDialogProps {
@@ -43,6 +43,15 @@ const TeamMemberEditDialog = ({
   const [organization, setOrganization] = useState(member.organization);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Reiniciar estados cuando cambie el miembro o se abra el diálogo
+  useEffect(() => {
+    if (open) {
+      setRole(member.role);
+      setOrganization(member.organization);
+      setError(null);
+    }
+  }, [open, member]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
