@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+export interface ReportNorm {
+    id: number;
+    norm: string;
+    report_id: number;
+}
+
 export interface SustainabilityReport {
     id: number;
     heritage_resource_id: number;
@@ -23,6 +29,7 @@ export interface SustainabilityReport {
     secondary_impact_weight?: number;
     roadmap_description?: string;
     data_tables_text?: string;
+    norms?: ReportNorm[];
 }
 
 export interface ReportSearchParams {
@@ -50,6 +57,81 @@ const api = axios.create({
 });
 
 export const reportService = {
+    getReport: async (id: number, token: string): Promise<SustainabilityReport> => {
+        try {
+            const response = await api.get<SustainabilityReport>(`/reports/get/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener la memoria:', error);
+            throw error;
+        }
+    },
+
+    getReportNorms: async (reportId: number, token: string): Promise<ReportNorm[]> => {
+        try {
+            const response = await api.get<ReportNorm[]>(`/reports/norms/${reportId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener las normativas:', error);
+            throw error;
+        }
+    },
+
+    updateNorm: async (reportId: number, normId: number, norm: string, token: string): Promise<ReportNorm> => {
+        try {
+            const response = await api.put<ReportNorm>(`/reports/norms/${normId}`, {
+                norm,
+                report_id: reportId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al actualizar la normativa:', error);
+            throw error;
+        }
+    },
+
+    createNorm: async (reportId: number, norm: string, token: string): Promise<ReportNorm> => {
+        try {
+            const response = await api.post<ReportNorm>('/reports/norms', {
+                norm,
+                report_id: reportId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al crear la normativa:', error);
+            throw error;
+        }
+    },
+
+    deleteNorm: async (normId: number, token: string): Promise<void> => {
+        try {
+            await api.delete(`/reports/norms/${normId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error al eliminar la normativa:', error);
+            throw error;
+        }
+    },
+
     searchReports: async (params: ReportSearchParams, token: string): Promise<PaginatedResponse<SustainabilityReport>> => {
         try {
             const response = await api.post<PaginatedResponse<SustainabilityReport>>('/reports/search', {
@@ -82,6 +164,7 @@ export const reportService = {
 
     updateReport: async (id: number, report: Partial<SustainabilityReport>, token: string): Promise<SustainabilityReport> => {
         try {
+            console.log('Enviando actualización:', { report_id: id, report_data: report });
             const response = await api.post<SustainabilityReport>('/reports/update', {
                 report_id: id,
                 report_data: report

@@ -23,6 +23,7 @@ import Dashboard from './pages/Dashboard/Admin';
 import Users from './pages/Users';
 import Resources from './pages/Resources';
 import Team from './pages/Team';
+import ReportNavController from './components/reports/ReportNavController';
 
 const App = () => {
   return (
@@ -46,7 +47,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/quienes-somos" element={<About />} />
-            <Route path="/memorias" element={<Reports />} />
+            <Route path="/memorias/*" element={<ReportNavController />} />
             <Route path="/encuestas" element={<Surveys />} />
             <Route path="/contacto" element={<Contact />} />
             <Route path="/login" element={<Login />} />

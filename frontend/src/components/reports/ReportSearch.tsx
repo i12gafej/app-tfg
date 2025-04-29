@@ -1,4 +1,5 @@
 import { useState, ChangeEvent, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
   TextField, 
@@ -53,6 +54,7 @@ type SortField = 'year' | 'state';
 type SortOrder = 'asc' | 'desc';
 
 const ReportSearch = ({ onSearch }: ReportSearchProps) => {
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchTerm, setSearchTerm] = useState('');
@@ -212,6 +214,10 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
 
   const handleReportCreated = (newReport: SustainabilityReport) => {
     handleSearch(); // Actualizar la lista de memorias
+  };
+
+  const handleEdit = (report: SustainabilityReport) => {
+    navigate(`/memorias/editar/${report.id}`);
   };
 
   return (
@@ -462,6 +468,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                         size="small" 
                         color="primary"
                         fullWidth={isMobile}
+                        onClick={() => handleEdit(report)}
                         sx={{ 
                           mr: isMobile ? 0 : 1,
                           minWidth: isMobile ? '100%' : 'auto'

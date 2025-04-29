@@ -1,7 +1,24 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from decimal import Decimal
 from datetime import datetime
+
+class ReportNormBase(BaseModel):
+    norm: str
+    report_id: int
+
+class ReportNormCreate(ReportNormBase):
+    pass
+
+class ReportNormUpdate(BaseModel):
+    norm: str
+    report_id: int
+
+class ReportNorm(ReportNormBase):
+    id: int
+
+    class Config:
+        from_attributes = True
 
 class SustainabilityReportBase(BaseModel):
     year: int
@@ -47,10 +64,15 @@ class SustainabilityReportUpdate(BaseModel):
     data_tables_text: Optional[str] = None
     heritage_resource_id: Optional[int] = None
 
+class ReportUpdateRequest(BaseModel):
+    report_id: int
+    report_data: SustainabilityReportUpdate
+
 class SustainabilityReport(SustainabilityReportBase):
     id: int
     heritage_resource_id: int
     heritage_resource_name: Optional[str] = None
+    norms: List[ReportNorm] = []
 
     class Config:
         from_attributes = True 

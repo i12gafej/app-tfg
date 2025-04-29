@@ -11,9 +11,9 @@ const colors = {
     hovertext: "#FFFFFF",
   },
   secondary: {
-    main: '#4CAF50', // Verde para elementos secundarios
-    light: '#6FBF73',
-    dark: '#357A38',
+    main: '#87EC9D', // Verde para elementos secundarios
+    light: '#87EC9D',
+    dark: '#87EC9D',
     contrastText: '#FFFFFF',
   },
   background: {

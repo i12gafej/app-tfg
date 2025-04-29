@@ -5,9 +5,17 @@ from sqlalchemy import or_
 from app.api.deps import get_db, get_current_user
 from app.crud import reports as reports_crud
 from app.crud import resources as resources_crud
-from app.schemas.reports import SustainabilityReport, SustainabilityReportCreate, SustainabilityReportUpdate
+from app.schemas.reports import (
+    SustainabilityReport, 
+    SustainabilityReportCreate, 
+    SustainabilityReportUpdate, 
+    ReportUpdateRequest,
+    ReportNorm,
+    ReportNormCreate,
+    ReportNormUpdate
+)
 from app.schemas.auth import TokenData
-from app.models.models import SustainabilityReport as SustainabilityReportModel, HeritageResource
+from app.models.models import SustainabilityReport as SustainabilityReportModel, HeritageResource, ReportNorm as ReportNormModel
 import logging
 
 # Configurar el logger
@@ -15,6 +23,37 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+@router.get("/reports/get/{report_id}", response_model=SustainabilityReport)
+async def get_report_endpoint(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener una memoria de sostenibilidad por su ID.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para acceder a esta memoria"
+        )
+
+    try:
+        report = reports_crud.get_report(db=db, report_id=report_id)
+        if not report:
+            raise HTTPException(
+                status_code=404,
+                detail="Memoria no encontrada"
+            )
+        return report
+
+    except Exception as e:
+        logger.error(f"Error al obtener la memoria: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener la memoria: {str(e)}"
+        )
 
 @router.post("/reports/search", response_model=dict)
 async def search_reports_endpoint(
@@ -250,14 +289,15 @@ async def create_report_endpoint(
 
 @router.post("/reports/update", response_model=SustainabilityReport)
 async def update_report_endpoint(
-    report_id: int = Body(...),
-    report_data: SustainabilityReportUpdate = Body(...),
+    update_request: ReportUpdateRequest,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
     """
     Actualizar una memoria de sostenibilidad existente.
     """
+    logger.info(f"Recibida petición de actualización: {update_request}")
+    
     if not current_user.admin:
         raise HTTPException(
             status_code=403,
@@ -265,7 +305,11 @@ async def update_report_endpoint(
         )
 
     try:
-        db_report = reports_crud.update_report(db=db, report_id=report_id, report=report_data)
+        db_report = reports_crud.update_report(
+            db=db, 
+            report_id=update_request.report_id, 
+            report=update_request.report_data
+        )
         if not db_report:
             raise HTTPException(
                 status_code=404,
@@ -337,4 +381,140 @@ async def delete_report_endpoint(
         raise HTTPException(
             status_code=500,
             detail=f"Error al eliminar la memoria: {str(e)}"
+        )
+
+@router.post("/reports/norms", response_model=ReportNorm)
+async def create_norm_endpoint(
+    norm: ReportNormCreate,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Crear una nueva normativa para una memoria.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para crear normativas"
+        )
+
+    try:
+        db_norm = ReportNormModel(**norm.dict())
+        db.add(db_norm)
+        db.commit()
+        db.refresh(db_norm)
+        return db_norm
+
+    except Exception as e:
+        logger.error(f"Error al crear la normativa: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al crear la normativa: {str(e)}"
+        )
+
+@router.put("/reports/norms/{norm_id}", response_model=ReportNorm)
+async def update_norm_endpoint(
+    norm_id: int,
+    norm: ReportNormUpdate,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Actualizar una normativa existente.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para actualizar normativas"
+        )
+
+    try:
+        db_norm = db.query(ReportNormModel).filter(ReportNormModel.id == norm_id).first()
+        if not db_norm:
+            raise HTTPException(
+                status_code=404,
+                detail="Normativa no encontrada"
+            )
+
+        for key, value in norm.dict().items():
+            setattr(db_norm, key, value)
+
+        db.commit()
+        db.refresh(db_norm)
+        return db_norm
+
+    except Exception as e:
+        logger.error(f"Error al actualizar la normativa: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al actualizar la normativa: {str(e)}"
+        )
+
+@router.delete("/reports/norms/{norm_id}")
+async def delete_norm_endpoint(
+    norm_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Eliminar una normativa.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para eliminar normativas"
+        )
+
+    try:
+        db_norm = db.query(ReportNormModel).filter(ReportNormModel.id == norm_id).first()
+        if not db_norm:
+            raise HTTPException(
+                status_code=404,
+                detail="Normativa no encontrada"
+            )
+
+        db.delete(db_norm)
+        db.commit()
+        return {"message": "Normativa eliminada correctamente"}
+
+    except Exception as e:
+        logger.error(f"Error al eliminar la normativa: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al eliminar la normativa: {str(e)}"
+        )
+
+@router.get("/reports/norms/{report_id}", response_model=List[ReportNorm])
+async def get_report_norms_endpoint(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener todas las normativas de una memoria de sostenibilidad.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para acceder a las normativas"
+        )
+
+    try:
+        # Verificar que el reporte existe
+        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
+        if not report:
+            raise HTTPException(
+                status_code=404,
+                detail="Memoria no encontrada"
+            )
+
+        # Obtener todas las normativas del reporte
+        norms = db.query(ReportNormModel).filter(ReportNormModel.report_id == report_id).all()
+        return norms
+
+    except Exception as e:
+        logger.error(f"Error al obtener las normativas: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener las normativas: {str(e)}"
         )
