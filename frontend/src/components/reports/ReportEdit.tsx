@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, IconButton, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ReportNavBar from './edit/ReportNavBar';
-import { ReportProvider } from '@/contexts/ReportContext';
+import { ReportProvider } from '@/context/ReportContext';
 
 const ReportEdit = () => {
   const { id } = useParams();

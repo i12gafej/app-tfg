@@ -11,6 +11,7 @@ from app.schemas.material_topics import (
 from app.schemas.auth import TokenData
 from app.models.models import MaterialTopic as MaterialTopicModel
 from app.crud import material_topics as crud_material_topic
+from app.graphs.materiality_matrix import create_materiality_matrix_data, generate_matrix_image
 
 router = APIRouter()
 
@@ -185,4 +186,30 @@ def get_all_material_topics(
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener asuntos relevantes: {str(e)}"
+        )
+
+@router.get("/material-topics/get/materiality-matrix/{report_id}")
+async def get_materiality_matrix(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener los datos de la matriz de materialidad para un reporte específico.
+    """
+    try:
+        # Obtener los datos de la matriz
+        matrix_data = create_materiality_matrix_data(db, report_id)
+        
+        # Generar la imagen de la matriz
+        matrix_image = generate_matrix_image(matrix_data)
+        
+        return {
+            "matrix_data": matrix_data,
+            "matrix_image": matrix_image
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al generar la matriz de materialidad: {str(e)}"
         )

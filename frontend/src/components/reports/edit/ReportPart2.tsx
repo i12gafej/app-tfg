@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
-import { useReport } from '@/contexts/ReportContext';
+import { useReport } from '@/context/ReportContext';
 import StakeholderSearch from './part2/stakeholders/StakeholderSearch';
 import MaterialTopicSearch from './part2/diagnosis/MaterialTopic/MaterialTopicSearch';
 

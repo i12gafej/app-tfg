@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
-import { useReport } from '@/contexts/ReportContext';
+import { useReport } from '@/context/ReportContext';
 
 // Importar componentes de la parte 5
 import Cover from './part5/Cover';

@@ -12,6 +12,7 @@ export interface SustainabilityReport {
     heritage_resource_name?: string;
     year: number;
     state: 'Draft' | 'Published';
+    survey_state: 'active' | 'inactive';
     observation: string;
     cover_photo?: string;
     commitment_letter?: string;

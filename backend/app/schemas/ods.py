@@ -23,3 +23,14 @@ class SecondaryImpactResponse(BaseModel):
 class ODSList(BaseModel):
     items: List[ODS]
     total: int
+
+class Dimension(BaseModel):
+    name: str
+    description: str
+    ods: List[ODS]
+
+    class Config:
+        from_attributes = True
+
+class DimensionResponse(BaseModel):
+    dimensions: List[Dimension]

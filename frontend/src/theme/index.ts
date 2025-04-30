@@ -1,4 +1,6 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, ThemeOptions } from '@mui/material/styles';
+
+
 
 // Paleta de colores basada en patrimonio2030.org
 const colors = {
@@ -15,6 +17,13 @@ const colors = {
     light: '#87EC9D',
     dark: '#87EC9D',
     contrastText: '#FFFFFF',
+  },
+  dimensions: {
+    people: '#D3DDF2',    // ODS 1-5
+    planet: '#C1DDB0',    // ODS 6,12,13,14,15
+    prosperity: '#F9E4C7', // ODS 7-11
+    peace: '#C6E6F5',     // ODS 16
+    alliance: '#DCCAE4',   // ODS 17
   },
   background: {
     default: '#F6F1C5',

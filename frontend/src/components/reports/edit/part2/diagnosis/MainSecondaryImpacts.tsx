@@ -18,10 +18,11 @@ import {
   Paper,
   IconButton,
   Tooltip,
-  OutlinedInput
+  OutlinedInput,
+  useTheme
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
-import { odsService, ODS } from '@/services/odsService';
+import { odsService, ODS, getBackgroundColor } from '@/services/odsService';
 import { goalsService, Goal } from '@/services/goalsService';
 import { materialTopicService } from '@/services/materialTopicService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -44,6 +45,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   onUpdate
 }) => {
   const { token } = useAuth();
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
   const [odsList, setOdsList] = useState<ODS[]>([]);
@@ -51,6 +53,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   const [secondaryImpacts, setSecondaryImpacts] = useState<{ [key: number]: number[] }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [changes, setChanges] = useState<{ [key: number]: boolean }>({});
+
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -69,17 +72,21 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
 
         // Cargar Material Topics
         const materialTopicsResponse = await materialTopicService.getAllByReport(reportId, token);
-        setMaterialTopics(materialTopicsResponse);
+        setMaterialTopics(materialTopicsResponse || []);
 
         // Cargar impactos secundarios para cada asunto relevante
         const secondaryImpactsData: { [key: number]: number[] } = {};
-        for (const topic of materialTopicsResponse) {
+        for (const topic of materialTopicsResponse || []) {
           const response = await odsService.getSecondaryImpacts(topic.id, token);
           secondaryImpactsData[topic.id] = response.ods_ids;
         }
         setSecondaryImpacts(secondaryImpactsData);
       } catch (error) {
         console.error('Error al cargar datos:', error);
+        setMaterialTopics([]);
+        setOdsList([]);
+        setGoals([]);
+        setSecondaryImpacts({});
       } finally {
         setLoading(false);
       }
@@ -88,11 +95,37 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
     fetchData();
   }, [token, reportId]);
 
-  const handleMainImpactChange = (topicId: number, odsId: number) => {
+  const handleMainImpactChange = async (topicId: number, odsId: number | '') => {
+    const topic = materialTopics.find(t => t.id === topicId);
+    if (!topic) return;
+
+    // Si se deselecciona el ODS, limpiar todo
+    if (odsId === '') {
+      const updatedTopics = materialTopics.map(t => 
+        t.id === topicId ? { ...t, goal_ods_id: undefined, goal_number: undefined } : t
+      );
+      setMaterialTopics(updatedTopics);
+      setSecondaryImpacts(prev => ({ ...prev, [topicId]: [] }));
+      return;
+    }
+
+    // Actualizar el ODS seleccionado
+    const updatedTopics = materialTopics.map(t => 
+      t.id === topicId ? { ...t, goal_ods_id: odsId as number, goal_number: undefined } : t
+    );
+    setMaterialTopics(updatedTopics);
     setChanges(prev => ({ ...prev, [topicId]: true }));
   };
 
-  const handleGoalChange = (topicId: number, goalNumber: string) => {
+  const handleGoalChange = (topicId: number, goalNumber: string | '') => {
+    const topic = materialTopics.find(t => t.id === topicId);
+    if (!topic) return;
+
+    // Actualizar la meta seleccionada
+    const updatedTopics = materialTopics.map(t => 
+      t.id === topicId ? { ...t, goal_number: goalNumber || undefined } : t
+    );
+    setMaterialTopics(updatedTopics);
     setChanges(prev => ({ ...prev, [topicId]: true }));
   };
 
@@ -132,9 +165,9 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
     }
   };
 
-  const filteredTopics = materialTopics?.filter(topic =>
+  const filteredTopics = materialTopics.filter(topic =>
     topic.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  );
 
   if (loading) {
     return (
@@ -163,41 +196,55 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Asunto Relevante</TableCell>
-                <TableCell>Impacto Principal</TableCell>
-                <TableCell>Impactos Secundarios</TableCell>
-                <TableCell>Acciones</TableCell>
+                <TableCell width="25%">Asunto Relevante</TableCell>
+                <TableCell width="30%">Impacto Principal</TableCell>
+                <TableCell width="35%">Impactos Secundarios</TableCell>
+                <TableCell width="10%">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredTopics.map((topic) => (
-                <TableRow key={topic.id}>
+                <TableRow 
+                  key={topic.id}
+                  sx={{ 
+                    backgroundColor: getBackgroundColor(topic.goal_ods_id),
+                    '&:hover': {
+                      backgroundColor: getBackgroundColor(topic.goal_ods_id),
+                    }
+                  }}
+                >
                   <TableCell>{topic.name}</TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                      <FormControl fullWidth>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <FormControl sx={{ width: 300 }}>
                         <InputLabel>ODS Principal</InputLabel>
                         <Select
                           value={topic.goal_ods_id || ''}
                           label="ODS Principal"
-                          onChange={(e: React.ChangeEvent<{ value: unknown }>) => handleMainImpactChange(topic.id, e.target.value as number)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMainImpactChange(topic.id, Number(e.target.value))}
                         >
+                          <MenuItem value="">
+                            <em>Ninguno</em>
+                          </MenuItem>
                           {odsList.map((ods) => (
                             <MenuItem key={ods.id} value={ods.id}>
-                              {ods.name}
+                              {ods.id}. {ods.name}
                             </MenuItem>
                           ))}
                         </Select>
                       </FormControl>
 
-                      <FormControl fullWidth>
+                      <FormControl sx={{ width: 300 }}>
                         <InputLabel>Meta</InputLabel>
                         <Select
                           value={topic.goal_number || ''}
                           label="Meta"
-                          onChange={(e: React.ChangeEvent<{ value: unknown }>) => handleGoalChange(topic.id, e.target.value as string)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGoalChange(topic.id, e.target.value as string)}
                           disabled={!topic.goal_ods_id}
                         >
+                          <MenuItem value="">
+                            <em>Ninguna</em>
+                          </MenuItem>
                           {goals
                             .filter(goal => goal.ods_id === topic.goal_ods_id)
                             .map((goal) => (
@@ -210,19 +257,40 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <FormControl fullWidth>
+                    <FormControl sx={{ width: 300 }}>
                       <InputLabel>Impactos Secundarios</InputLabel>
                       <Select
                         multiple
                         value={secondaryImpacts[topic.id] || []}
-                        onChange={(e: React.ChangeEvent<{ value: unknown }>) => {
-                          const selectedIds = e.target.value as number[];
-                          // Filtrar el ODS principal si está seleccionado
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const selectedIds = (e.target.value as unknown as number[]);
                           const filteredIds = selectedIds.filter(id => id !== topic.goal_ods_id);
                           handleSecondaryImpactChange(topic.id, filteredIds);
                         }}
                         input={<OutlinedInput label="Impactos Secundarios" />}
-                        disabled={!topic.goal_ods_id}
+                        disabled={!topic.goal_number}
+                        sx={{
+                          '& .MuiMenuItem-root.Mui-selected': {
+                            backgroundColor: '#1976d2',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#1565c0',
+                            },
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            sx: {
+                              '& .MuiMenuItem-root.Mui-selected': {
+                                backgroundColor: '#1976d2 !important',
+                                color: 'white',
+                                '&:hover': {
+                                  backgroundColor: '#1565c0 !important',
+                                },
+                              },
+                            },
+                          },
+                        }}
                       >
                         {odsList.map((ods) => (
                           <MenuItem
@@ -230,7 +298,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                             value={ods.id}
                             disabled={ods.id === topic.goal_ods_id}
                           >
-                            {ods.name}
+                            {ods.id}. {ods.name}
                           </MenuItem>
                         ))}
                       </Select>
@@ -257,5 +325,5 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
     </Box>
   );
 };
-
+ 
 export default MainSecondaryImpacts; 

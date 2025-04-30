@@ -5,8 +5,7 @@ import ReportPart2 from './ReportPart2';
 import ReportPart3 from './ReportPart3';
 import ReportPart4 from './ReportPart4';
 import ReportPart5 from './ReportPart5';
-import { useReport } from '@/contexts/ReportContext';
-import theme from '@/theme';
+import { useReport } from '@/context/ReportContext';
 
 type Part2Section = 'main' | 'stakeholders' | 'diagnostic';
 

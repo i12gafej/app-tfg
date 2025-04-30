@@ -23,6 +23,7 @@ class ReportNorm(ReportNormBase):
 class SustainabilityReportBase(BaseModel):
     year: int
     state: str = 'Draft'
+    survey_state: str = 'inactive'
     observation: str = ''
     cover_photo: Optional[str] = None
     commitment_letter: Optional[str] = None
@@ -32,7 +33,7 @@ class SustainabilityReportBase(BaseModel):
     org_chart_text: Optional[str] = None
     org_chart_figure: Optional[str] = None
     diagnosis_description: Optional[str] = None
-    scale: int = 0
+    scale: int = 5
     action_plan_description: Optional[str] = None
     internal_coherence_description: Optional[str] = None
     main_impact_weight: Optional[Decimal] = None
@@ -46,6 +47,7 @@ class SustainabilityReportCreate(SustainabilityReportBase):
 class SustainabilityReportUpdate(BaseModel):
     year: Optional[int] = None
     state: Optional[str] = None
+    survey_state: Optional[str] = None
     observation: Optional[str] = None
     cover_photo: Optional[str] = None
     commitment_letter: Optional[str] = None

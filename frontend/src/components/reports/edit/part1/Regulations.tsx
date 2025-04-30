@@ -11,7 +11,7 @@ import {
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import SaveIcon from '@mui/icons-material/Save';
-import { useReport } from '@/contexts/ReportContext';
+import { useReport } from '@/context/ReportContext';
 import { reportService } from '@/services/reportServices';
 import { useAuth } from '@/hooks/useAuth';
 import { ReportNorm } from '@/services/reportServices';

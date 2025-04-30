@@ -6,7 +6,7 @@ import Vision from './part1/Vision';
 import Values from './part1/Values';
 import Regulations from './part1/Regulations';
 import SustainabilityTeam from './part1/SustainabilityTeam';
-import { useReport } from '@/contexts/ReportContext';
+import { useReport } from '@/context/ReportContext';
 
 const PART1_SECTIONS = [
   { id: 'mission', label: 'Misión' },

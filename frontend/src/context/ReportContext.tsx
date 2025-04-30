@@ -5,11 +5,12 @@ import { useAuth } from '@/hooks/useAuth';
 interface ReportContextType {
   report: SustainabilityReport | null;
   updateReport: (field: keyof SustainabilityReport, value: any) => Promise<void>;
+  updateFullReport: (reportData: Partial<SustainabilityReport>) => Promise<void>;
   loading: boolean;
   error: string | null;
 }
 
-const ReportContext = createContext<ReportContextType | undefined>(undefined);
+export const ReportContext = createContext<ReportContextType | undefined>(undefined);
 
 export const useReport = () => {
   const context = useContext(ReportContext);
@@ -36,7 +37,6 @@ export const ReportProvider: React.FC<ReportProviderProps> = ({ children, report
       
       try {
         setLoading(true);
-        // Aquí necesitarás implementar un método en reportService para obtener un reporte por ID
         const reportData = await reportService.getReport(reportId, token);
         setReport(reportData);
       } catch (err) {
@@ -70,8 +70,28 @@ export const ReportProvider: React.FC<ReportProviderProps> = ({ children, report
     }
   };
 
+  const updateFullReport = async (reportData: Partial<SustainabilityReport>) => {
+    if (!report || !token) return;
+
+    try {
+      setLoading(true);
+      const updatedReport = await reportService.updateReport(
+        report.id,
+        reportData,
+        token
+      );
+      setReport(updatedReport);
+    } catch (err) {
+      setError('Error al actualizar el reporte');
+      console.error('Error al actualizar el reporte:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <ReportContext.Provider value={{ report, updateReport, loading, error }}>
+    <ReportContext.Provider value={{ report, updateReport, updateFullReport, loading, error }}>
       {children}
     </ReportContext.Provider>
   );

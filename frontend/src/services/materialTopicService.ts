@@ -29,6 +29,29 @@ export interface PaginatedResponse<T> {
   total_pages: number;
 }
 
+export interface MaterialityMatrixData {
+  points: {
+    [key: number]: {
+      x: number;
+      y: number;
+    };
+  };
+  dimensions: {
+    [key: number]: string;
+  };
+  topic_names: {
+    [key: number]: string;
+  };
+  dimension_colors: {
+    [key: string]: string;
+  };
+}
+
+export interface MaterialityMatrixResponse {
+  matrix_data: MaterialityMatrixData;
+  matrix_image: string;
+}
+
 // Crear una instancia de axios con la configuración base
 const api = axios.create({
   baseURL: '/api',
@@ -106,6 +129,20 @@ export const materialTopicService = {
       return response.data;
     } catch (error) {
       console.error('Error al obtener asuntos relevantes:', error);
+      throw error;
+    }
+  },
+
+  async getMaterialityMatrix(reportId: number, token: string): Promise<MaterialityMatrixResponse> {
+    try {
+      const response = await api.get<MaterialityMatrixResponse>(`/material-topics/get/materiality-matrix/${reportId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener la matriz de materialidad:', error);
       throw error;
     }
   }

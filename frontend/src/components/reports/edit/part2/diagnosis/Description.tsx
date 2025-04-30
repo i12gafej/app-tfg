@@ -4,7 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../../common/EditorMenuBar';
-import { useReport } from '@/contexts/ReportContext';
+import { useReport } from '@/context/ReportContext';
 
 const Description = () => {
   const { report, updateReport, loading: reportLoading } = useReport();
