@@ -4,30 +4,34 @@ import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/context/ReportContext';
 
 // Importar componentes de la parte 3
-import ActionPlan from './part3/ActionPlan';
 import ContextTimePeriod from './part3/ContextTimePeriod';
+import MainObjective from './part3/MainObjective';
+import SpecificObjectives from './part3/SpecificObjectives';
 import InternalConsistency from './part3/InternalConsistency';
 
 interface ReportPart3Props {
-  section?: 'context' | 'action-plan' | 'internal-consistency';
+  section?: 'context' | 'main-objective' | 'specific-objectives' | 'internal-consistency';
 }
 
 const PART3_SECTIONS = [
   { id: 'context', label: 'Contexto y Periodo Temporal' },
-  { id: 'action-plan', label: 'Plan de Acción' },
+  { id: 'main-objective', label: 'Objetivo Principal' },
+  { id: 'specific-objectives', label: 'Objetivos Específicos' },
   { id: 'internal-consistency', label: 'Coherencia Interna' },
 ];
 
 const ReportPart3: React.FC<ReportPart3Props> = ({ section = 'context' }) => {
   const { report } = useReport();
-  const [activeSection, setActiveSection] = useState(PART3_SECTIONS[0].id);
+  const [activeSection, setActiveSection] = useState(section);
 
   const renderContent = () => {
     switch (activeSection) {
       case 'context':
         return <ContextTimePeriod />;
-      case 'action-plan':
-        return <ActionPlan />;
+      case 'main-objective':
+        return <MainObjective />;
+      case 'specific-objectives':
+        return <SpecificObjectives />;
       case 'internal-consistency':
         return <InternalConsistency />;
       default:

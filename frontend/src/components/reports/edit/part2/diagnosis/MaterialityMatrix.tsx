@@ -101,17 +101,17 @@ const MaterialityMatrix = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontSize: '0.75rem', py: 0.5 }}>ID</TableCell>
-                        <TableCell sx={{ fontSize: '0.75rem', py: 0.5 }}>Asunto</TableCell>
-                        <TableCell sx={{ fontSize: '0.75rem', py: 0.5 }}>Dimensión</TableCell>
+                        <TableCell sx={{ fontSize: '0.75rem' }}>ID</TableCell>
+                        <TableCell sx={{ fontSize: '0.75rem' }}>Asunto</TableCell>
+                        <TableCell sx={{ fontSize: '0.75rem' }}>Dimensión</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {Object.entries(matrixData.matrix_data.topic_names).map(([id, name]) => (
                         <TableRow key={id}>
-                          <TableCell sx={{ fontSize: '0.75rem', py: 0.5 }}>{id}</TableCell>
-                          <TableCell sx={{ fontSize: '0.75rem', py: 0.5 }}>{name}</TableCell>
-                          <TableCell sx={{ fontSize: '0.75rem', py: 0.5 }}>
+                          <TableCell sx={{ fontSize: '0.75rem' }}>{id}</TableCell>
+                          <TableCell sx={{ fontSize: '0.75rem' }}>{name}</TableCell>
+                          <TableCell sx={{ fontSize: '0.75rem' }}>
                             <Box
                               sx={{
                                 width: 12,
@@ -119,7 +119,7 @@ const MaterialityMatrix = () => {
                                 borderRadius: '50%',
                                 backgroundColor: matrixData.matrix_data.dimension_colors[matrixData.matrix_data.dimensions[Number(id)]],
                                 display: 'inline-block',
-                                mr: 0.5
+                                mr: 1
                               }}
                             />
                             {matrixData.matrix_data.dimensions[Number(id)]}
@@ -141,5 +141,5 @@ const MaterialityMatrix = () => {
     </Box>
   );
 };
-
+ 
 export default MaterialityMatrix; 

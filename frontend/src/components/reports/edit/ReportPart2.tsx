@@ -12,7 +12,7 @@ import MainSecondaryImpacts from './part2/diagnosis/MainSecondaryImpacts';
 import Graphs from './part2/diagnosis/Graphs';
 import Surveys from './part2/diagnosis/Surveys';
 import MaterialityMatrix from './part2/diagnosis/MaterialityMatrix';
-import Indicators from './part2/diagnosis/Indicators';
+import DiagnosisIndicators from './part2/diagnosis/DiagnosisIndicators';
 
 interface ReportPart2Props {
   section?: 'stakeholders' | 'diagnostic';
@@ -47,7 +47,7 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
       case 'materiality-matrix':
         return <MaterialityMatrix />;
       case 'indicators':
-        return <Indicators />;
+        return <DiagnosisIndicators />;
       default:
         return null;
     }

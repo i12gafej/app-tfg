@@ -219,7 +219,7 @@ class Action(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(Text, nullable=False)
     difficulty = Column(Enum('low', 'medium', 'high', name='difficulty_level'), nullable=True)
-    ods_id = Column(Integer, ForeignKey("ods.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    ods_id = Column(Integer, ForeignKey("ods.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     specific_objective_id = Column(Integer, ForeignKey("specific_objectives.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
 class SecondaryODSAction(Base):
