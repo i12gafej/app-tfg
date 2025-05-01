@@ -90,8 +90,8 @@ class SustainabilityReport(Base):
     permissions = Column(Integer, nullable=False, default=0)
     action_plan_description = Column(Text, nullable=True)
     internal_coherence_description = Column(Text, nullable=True)
-    main_impact_weight = Column(DECIMAL(5,2), nullable=True)
-    secondary_impact_weight = Column(DECIMAL(5,2), nullable=True)
+    main_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
+    secondary_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
     roadmap_description = Column(Text, nullable=True)
     data_tables_text = Column(Text, nullable=True) 
 

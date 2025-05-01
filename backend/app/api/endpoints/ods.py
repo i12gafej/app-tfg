@@ -2,7 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api.deps import get_db, get_current_user
-from app.schemas.ods import ODS, ODSList, SecondaryImpactUpdate, SecondaryImpactResponse, DimensionResponse
+from app.schemas.ods import (
+    ODS, ODSList, SecondaryImpactUpdate, SecondaryImpactResponse, 
+    DimensionResponse, ActionSecondaryImpactUpdate, ActionSecondaryImpactResponse,
+    ActionSecondaryImpactCountList, ActionSecondaryImpactCount
+)
 from app.schemas.auth import TokenData
 from app.crud import ods as crud_ods
 from app.crud import material_topics as crud_material_topics
@@ -208,4 +212,95 @@ async def get_all_dimensions(
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener dimensiones: {str(e)}"
+        )
+
+@router.get("/ods/get/action-secondary-impacts/{action_id}", response_model=ActionSecondaryImpactResponse)
+def get_action_secondary_impacts(
+    action_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener los impactos secundarios de una acción.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para realizar esta acción"
+        )
+
+    try:
+        ods_ids = crud_ods.get_action_secondary_impacts(db, action_id)
+        return {
+            "action_id": action_id,
+            "ods_ids": ods_ids
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener impactos secundarios de la acción: {str(e)}"
+        )
+
+@router.put("/ods/update/action-secondary-impacts/{action_id}", response_model=ActionSecondaryImpactResponse)
+def update_action_secondary_impacts(
+    action_id: int,
+    update_data: ActionSecondaryImpactUpdate,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Actualizar los impactos secundarios de una acción.
+    """
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para realizar esta acción"
+        )
+
+    if update_data.action_id != action_id:
+        raise HTTPException(
+            status_code=400,
+            detail="El ID de la acción en la ruta no coincide con el del cuerpo de la petición"
+        )
+
+    try:
+        crud_ods.update_action_secondary_impacts(
+            db,
+            action_id,
+            update_data.ods_ids
+        )
+        return {
+            "action_id": action_id,
+            "ods_ids": update_data.ods_ids
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al actualizar impactos secundarios de la acción: {str(e)}"
+        )
+
+@router.get("/ods/get/all-action-secondary-impacts/{report_id}", response_model=ActionSecondaryImpactCountList)
+def get_all_action_secondary_impacts(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener el recuento de impactos secundarios de todas las acciones de un reporte.
+    """
+    try:
+        impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        return {
+            "items": [ActionSecondaryImpactCount(**impact) for impact in impacts],
+            "total": len(impacts)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener impactos secundarios de acciones: {str(e)}"
         )
