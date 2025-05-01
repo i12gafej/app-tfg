@@ -100,7 +100,6 @@ def get_all_ods_with_dimension(db: Session) -> Dict[str, List[ODS]]:
         return ods_by_dimension
     except Exception as e:
         raise Exception(f"Error al obtener ODS por dimensión: {str(e)}")
-
 def get_action_secondary_impacts(db: Session, action_id: int) -> List[int]:
     """
     Obtiene los ODS de impacto secundario para una acción específica.
@@ -176,3 +175,4 @@ def get_all_action_secondary_impacts(db: Session, report_id: int) -> List[dict]:
     except Exception as e:
         logger.error(f"Error al obtener impactos secundarios de acciones: {str(e)}")
         raise
+

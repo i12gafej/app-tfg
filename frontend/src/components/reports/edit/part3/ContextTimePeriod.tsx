@@ -50,8 +50,8 @@ const ContextTimePeriod = () => {
         mb: 2 
       }}>
         <Typography variant="h6">
-          Contexto y periodo temporal
-        </Typography>
+        Contexto y periodo temporal
+      </Typography>
         <Button
           variant="contained"
           color="primary"
@@ -99,5 +99,5 @@ const ContextTimePeriod = () => {
     </Box>
   );
 };
-
+ 
 export default ContextTimePeriod; 

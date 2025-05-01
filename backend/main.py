@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import auth, users, resources, team, reports, stakeholders, material_topics, goals, ods, surveys, diagnosis_indicators, action_plan
+from app.api.endpoints import auth, users, resources, team, reports, stakeholders, material_topics, goals
+from app.api.endpoints import ods, surveys, diagnosis_indicators, action_plan, monitoring
 from app.core.config import settings
 
 
@@ -31,3 +32,4 @@ app.include_router(ods.router, prefix=settings.API_V1_STR, tags=["ods"])
 app.include_router(surveys.router, prefix=settings.API_V1_STR, tags=["surveys"])
 app.include_router(diagnosis_indicators.router, prefix=settings.API_V1_STR, tags=["diagnosis_indicators"])
 app.include_router(action_plan.router, prefix=settings.API_V1_STR, tags=["action_plan"])
+app.include_router(monitoring.router, prefix=settings.API_V1_STR, tags=["monitoring"])

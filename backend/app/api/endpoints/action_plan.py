@@ -6,10 +6,18 @@ from app.schemas.action_plan import (
     SpecificObjective, SpecificObjectiveCreate, SpecificObjectiveUpdate,
     Action, ActionCreate, ActionUpdate,
     PerformanceIndicator, PerformanceIndicatorCreate, PerformanceIndicatorUpdate,
-    ActionPrimaryImpactsList, ActionPrimaryImpactResponse
+    ActionPrimaryImpactsList, ActionPrimaryImpactResponse,
+    InternalConsistencyGraphResponse, DimensionTotal
 )
 from app.schemas.auth import TokenData
 from app.crud import action_plan as crud_action_plan
+from app.crud import reports as crud_reports
+from app.crud import ods as crud_ods
+from app.graphs.internal_consistency import generate_internal_consistency_graph
+import logging
+
+# Configurar el logger
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -298,3 +306,101 @@ def get_all_action_primary_impacts(
             status_code=500,
             detail=f"Error al obtener impactos principales de acciones: {str(e)}"
         )
+
+@router.get("/action-plan/get/internal-consistency-graph/{report_id}", response_model=InternalConsistencyGraphResponse)
+def get_internal_consistency_graph(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener el gráfico de coherencia interna y los totales por dimensión.
+    """
+    try:
+        logger.info(f"Iniciando generación de gráfico para report_id: {report_id}")
+
+        # 1. Obtener el reporte para las ponderaciones
+        report = crud_reports.get_report(db, report_id)
+        if not report:
+            logger.error(f"Reporte no encontrado: {report_id}")
+            raise HTTPException(
+                status_code=404,
+                detail="Reporte no encontrado"
+            )
+
+        # Asegurarnos de que las ponderaciones son números válidos
+        main_weight = float(report.main_impact_weight if report.main_impact_weight is not None else 0)
+        secondary_weight = float(report.secondary_impact_weight if report.secondary_impact_weight is not None else 0)
+        logger.info(f"Ponderaciones: main={main_weight}, secondary={secondary_weight}")
+
+        # 2. Obtener impactos principales y secundarios
+        primary_impacts = crud_action_plan.get_all_action_main_impacts(db, report_id)
+        secondary_impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        logger.info(f"Impactos obtenidos: {len(primary_impacts)} principales, {len(secondary_impacts)} secundarios")
+        logger.debug(f"Impactos principales: {primary_impacts}")
+        logger.debug(f"Impactos secundarios: {secondary_impacts}")
+
+        # 3. Inicializar totales por dimensión
+        dimension_totals = {
+            "PERSONAS": 0.0,
+            "PLANETA": 0.0,
+            "PROSPERIDAD": 0.0,
+            "PAZ": 0.0,
+            "ALIANZAS": 0.0
+        }
+
+        # Mapeo de ODS a dimensiones
+        ods_dimensions = {
+            1: "PERSONAS", 2: "PERSONAS", 3: "PERSONAS", 4: "PERSONAS", 5: "PERSONAS",
+            6: "PLANETA", 12: "PLANETA", 13: "PLANETA", 14: "PLANETA", 15: "PLANETA",
+            7: "PROSPERIDAD", 8: "PROSPERIDAD", 9: "PROSPERIDAD", 10: "PROSPERIDAD", 11: "PROSPERIDAD",
+            16: "PAZ",
+            17: "ALIANZAS"
+        }
+
+        # 4. Procesar y ponderar impactos principales
+        logger.info("Procesando impactos principales...")
+        for impact in primary_impacts:
+            if impact.get('ods_id') and impact['ods_id'] in ods_dimensions:
+                dimension = ods_dimensions[impact['ods_id']]
+                count = float(impact.get('count', 0))
+                weighted_count = count * main_weight
+                dimension_totals[dimension] += weighted_count
+                logger.debug(f"Impacto principal: ODS={impact['ods_id']}, dimensión={dimension}, count={count}, ponderado={weighted_count}")
+
+        # 5. Procesar y ponderar impactos secundarios
+        logger.info("Procesando impactos secundarios...")
+        for impact in secondary_impacts:
+            if impact.get('ods_id') and impact['ods_id'] in ods_dimensions:
+                dimension = ods_dimensions[impact['ods_id']]
+                count = float(impact.get('count', 0))
+                weighted_count = count * secondary_weight
+                dimension_totals[dimension] += weighted_count
+                logger.debug(f"Impacto secundario: ODS={impact['ods_id']}, dimensión={dimension}, count={count}, ponderado={weighted_count}")
+
+        logger.info(f"Totales por dimensión calculados: {dimension_totals}")
+
+        # 6. Generar el gráfico
+        logger.info("Generando gráfico...")
+        graph_data_url = generate_internal_consistency_graph(dimension_totals)
+        logger.info("Gráfico generado correctamente")
+
+        # 7. Preparar la respuesta
+        dimension_totals_list = [
+            DimensionTotal(dimension=dim, total=total)
+            for dim, total in dimension_totals.items()
+        ]
+
+        return InternalConsistencyGraphResponse(
+            graph_data_url=graph_data_url,
+            dimension_totals=dimension_totals_list
+        )
+
+    except Exception as e:
+        logger.error(f"Error en get_internal_consistency_graph: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al generar el gráfico de coherencia interna: {str(e)}"
+        )
+
+

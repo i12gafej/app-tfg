@@ -283,3 +283,5 @@ def get_all_action_main_impacts(db: Session, report_id: int) -> List[dict]:
     except Exception as e:
         logger.error(f"Error al obtener impactos principales de acciones: {str(e)}")
         raise
+
+

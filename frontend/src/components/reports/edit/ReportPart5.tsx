@@ -9,9 +9,9 @@ import CommitmentLetter from './part5/CommitmentLetter';
 import OrganizationChart from './part5/OrganizationChart';
 import DiagnosisDescription from './part5/DiagnosisDescription';
 import RoadmapDescription from './part5/RoadmapDescription';
-import Collaborations from './part5/Collaborations';
+import Agreements from './part5/Agreements';
 import Bibliography from './part5/Bibliography';
-import Annexes from './part5/Annexes';
+import Gallery from './part5/Gallery';
 import PublishReport from './part5/PublishReport';
 
 interface ReportPart5Props {
@@ -24,9 +24,9 @@ const PART5_SECTIONS = [
   { id: 'organization', label: 'Organigrama' },
   { id: 'diagnosis', label: 'Descripción del Diagnóstico' },
   { id: 'roadmap', label: 'Descripción de la Hoja de Ruta' },
-  { id: 'collaborations', label: 'Colaboraciones' },
+  { id: 'agreements', label: 'Colaboraciones' },
   { id: 'bibliography', label: 'Bibliografía' },
-  { id: 'annexes', label: 'Anexos' },
+  { id: 'gallery', label: 'Galería' },
   { id: 'publish', label: 'Publicar Reporte' },
 ];
 
@@ -46,12 +46,12 @@ const ReportPart5: React.FC<ReportPart5Props> = ({ section = 'cover' }) => {
         return <DiagnosisDescription />;
       case 'roadmap':
         return <RoadmapDescription />;
-      case 'collaborations':
-        return <Collaborations />;
+      case 'agreements':
+        return <Agreements />;
       case 'bibliography':
         return <Bibliography />;
-      case 'annexes':
-        return <Annexes />;
+      case 'gallery':
+        return <Gallery />;
       case 'publish':
         return <PublishReport />;
       default:

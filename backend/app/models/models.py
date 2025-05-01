@@ -128,6 +128,7 @@ class ReportPhoto(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     photo = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
     report_id = Column(Integer, ForeignKey("sustainability_reports.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
 class SustainabilityTeamMember(Base):

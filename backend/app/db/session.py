@@ -28,7 +28,7 @@ engine = create_engine(
     pool_recycle=1800,  # Reciclar conexiones cada 30 minutos
     pool_pre_ping=True,  # Verificar conexión antes de usar
     poolclass=QueuePool,
-    echo=True  # Mostrar todas las consultas SQL
+    echo=False  # Mostrar todas las consultas SQL
 )
 
 try:

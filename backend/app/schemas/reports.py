@@ -20,6 +20,23 @@ class ReportNorm(ReportNormBase):
     class Config:
         from_attributes = True
 
+class ReportAgreementBase(BaseModel):
+    agreement: str
+    report_id: int
+
+class ReportAgreementCreate(ReportAgreementBase):
+    pass
+
+class ReportAgreementUpdate(BaseModel):
+    agreement: str
+    report_id: int
+
+class ReportAgreement(ReportAgreementBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
 class SustainabilityReportBase(BaseModel):
     year: int
     state: str = 'Draft'
@@ -77,4 +94,48 @@ class SustainabilityReport(SustainabilityReportBase):
     norms: List[ReportNorm] = []
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
+
+class ReportLogo(BaseModel):
+    id: int
+    logo: str
+    report_id: int
+
+    class Config:
+        from_attributes = True
+
+class ReportLogoResponse(ReportLogo):
+    pass
+
+class ReportBibliographyBase(BaseModel):
+    reference: str
+    report_id: int
+
+class ReportBibliographyCreate(ReportBibliographyBase):
+    pass
+
+class ReportBibliographyUpdate(BaseModel):
+    reference: str
+    report_id: int
+
+class ReportBibliography(ReportBibliographyBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class ReportPhoto(BaseModel):
+    id: int
+    photo: str
+    description: Optional[str] = None
+    report_id: int
+
+    class Config:
+        from_attributes = True
+
+class ReportPhotoResponse(ReportPhoto):
+    pass
+
+class ReportPhotoUpdate(BaseModel):
+    description: Optional[str] = None
+    report_id: int 

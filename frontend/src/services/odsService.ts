@@ -3,8 +3,23 @@ import axios from 'axios';
 export interface ODS {
   id: number;
   name: string;
-  description: string;
-  dimension: string;
+  description?: string;
+  dimension_id: number;
+}
+
+export interface ODSList {
+  items: ODS[];
+  total: number;
+}
+
+export interface SecondaryImpactResponse {
+  material_topic_id: number;
+  ods_ids: number[];
+}
+
+export interface ActionSecondaryImpactResponse {
+  action_id: number;
+  ods_ids: number[];
 }
 
 export interface Dimension {
@@ -17,19 +32,15 @@ export interface DimensionResponse {
   dimensions: Dimension[];
 }
 
-export interface ODSList {
-  items: ODS[];
+export interface ActionSecondaryImpactCount {
+  ods_id: number;
+  ods_name: string;
+  count: number;
+}
+
+export interface ActionSecondaryImpactCountList {
+  items: ActionSecondaryImpactCount[];
   total: number;
-}
-
-export interface SecondaryImpactUpdate {
-  material_topic_id: number;
-  ods_ids: number[];
-}
-
-export interface SecondaryImpactResponse {
-  material_topic_id: number;
-  ods_ids: number[];
 }
 
 // Colores para las dimensiones de los ODS
@@ -100,9 +111,16 @@ export const odsService = {
     }
   },
 
-  async updateSecondaryImpacts(updateData: SecondaryImpactUpdate, token: string): Promise<SecondaryImpactResponse> {
+  async updateSecondaryImpacts(
+    materialTopicId: number,
+    odsIds: number[],
+    token: string
+  ): Promise<SecondaryImpactResponse> {
     try {
-      const response = await api.put<SecondaryImpactResponse>('/ods/update/secondary-impacts', updateData, {
+      const response = await api.put<SecondaryImpactResponse>('/ods/update/secondary-impacts', {
+        material_topic_id: materialTopicId,
+        ods_ids: odsIds
+      }, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -110,6 +128,48 @@ export const odsService = {
       return response.data;
     } catch (error) {
       console.error('Error al actualizar impactos secundarios:', error);
+      throw error;
+    }
+  },
+
+  async getActionSecondaryImpacts(actionId: number, token: string): Promise<ActionSecondaryImpactResponse> {
+    try {
+      const response = await api.get<ActionSecondaryImpactResponse>(
+        `/ods/get/action-secondary-impacts/${actionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener impactos secundarios de la acción:', error);
+      throw error;
+    }
+  },
+
+  async updateActionSecondaryImpacts(
+    actionId: number,
+    odsIds: number[],
+    token: string
+  ): Promise<ActionSecondaryImpactResponse> {
+    try {
+      const response = await api.put<ActionSecondaryImpactResponse>(
+        `/ods/update/action-secondary-impacts/${actionId}`,
+        {
+          action_id: actionId,
+          ods_ids: odsIds
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar impactos secundarios de la acción:', error);
       throw error;
     }
   },
@@ -124,6 +184,23 @@ export const odsService = {
       return response.data;
     } catch (error) {
       console.error('Error al obtener dimensiones:', error);
+      throw error;
+    }
+  },
+
+  async getAllActionSecondaryImpacts(reportId: number, token: string): Promise<ActionSecondaryImpactCount[]> {
+    try {
+      const response = await api.get<ActionSecondaryImpactCountList>(
+        `/ods/get/all-action-secondary-impacts/${reportId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data.items;
+    } catch (error) {
+      console.error('Error al obtener impactos secundarios de acciones:', error);
       throw error;
     }
   }

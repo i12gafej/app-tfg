@@ -213,7 +213,6 @@ async def get_all_dimensions(
             status_code=500,
             detail=f"Error al obtener dimensiones: {str(e)}"
         )
-
 @router.get("/ods/get/action-secondary-impacts/{action_id}", response_model=ActionSecondaryImpactResponse)
 def get_action_secondary_impacts(
     action_id: int,
@@ -304,3 +303,4 @@ def get_all_action_secondary_impacts(
             status_code=500,
             detail=f"Error al obtener impactos secundarios de acciones: {str(e)}"
         )
+

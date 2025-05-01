@@ -90,3 +90,20 @@ class ActionPrimaryImpactResponse(BaseModel):
 class ActionPrimaryImpactsList(BaseModel):
     items: List[ActionPrimaryImpactResponse]
     total: int
+
+# Schema para el gráfico de coherencia interna
+class DimensionTotal(BaseModel):
+    dimension: str
+    total: float
+
+    class Config:
+        from_attributes = True
+
+class InternalConsistencyGraphResponse(BaseModel):
+    graph_data_url: str
+    dimension_totals: List[DimensionTotal]
+
+    class Config:
+        from_attributes = True
+
+

@@ -6,6 +6,31 @@ export interface ReportNorm {
     report_id: number;
 }
 
+export interface ReportLogo {
+    id: number;
+    logo: string;
+    report_id: number;
+}
+
+export interface ReportAgreement {
+    id: number;
+    agreement: string;
+    report_id: number;
+}
+
+export interface ReportBibliography {
+    id: number;
+    reference: string;
+    report_id: number;
+}
+
+export interface ReportPhoto {
+    id: number;
+    photo: string;
+    description?: string;
+    report_id: number;
+}
+
 export interface SustainabilityReport {
     id: number;
     heritage_resource_id: number;
@@ -31,6 +56,10 @@ export interface SustainabilityReport {
     roadmap_description?: string;
     data_tables_text?: string;
     norms?: ReportNorm[];
+    logos?: ReportLogo[];
+    agreements?: ReportAgreement[];
+    bibliographies?: ReportBibliography[];
+    photos?: ReportPhoto[];
 }
 
 export interface ReportSearchParams {
@@ -82,6 +111,20 @@ export const reportService = {
             return response.data;
         } catch (error) {
             console.error('Error al obtener las normativas:', error);
+            throw error;
+        }
+    },
+
+    getReportAgreements: async (reportId: number, token: string): Promise<ReportAgreement[]> => {
+        try {
+            const response = await api.get<ReportAgreement[]>(`/reports/agreements/${reportId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener los acuerdos:', error);
             throw error;
         }
     },
@@ -190,6 +233,285 @@ export const reportService = {
             });
         } catch (error) {
             console.error('Error al eliminar memoria:', error);
+            throw error;
+        }
+    },
+
+    updateCoverPhoto: async (reportId: number, file: File, token: string): Promise<string> => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await api.post<{ url: string }>(
+                `/reports/update/cover/${reportId}`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            return response.data.url;
+        } catch (error) {
+            console.error('Error al actualizar la foto de portada:', error);
+            throw error;
+        }
+    },
+
+    getCoverPhoto: async (reportId: number, token: string): Promise<string> => {
+        try {
+            const response = await api.get<Blob>(
+                `/reports/get/cover/${reportId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                    responseType: 'blob'
+                }
+            );
+            
+            return URL.createObjectURL(response.data);
+        } catch (error) {
+            console.error('Error al obtener la foto de portada:', error);
+            throw error;
+        }
+    },
+
+    uploadLogo: async (reportId: number, file: File, token: string): Promise<ReportLogo> => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await api.post<ReportLogo>(
+                `/reports/upload/logos/${reportId}`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error al subir el logo:', error);
+            throw error;
+        }
+    },
+
+    getReportLogos: async (reportId: number, token: string): Promise<ReportLogo[]> => {
+        try {
+            const response = await api.get<ReportLogo[]>(
+                `/reports/get-all/logos/${reportId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener los logos:', error);
+            throw error;
+        }
+    },
+
+    deleteLogo: async (logoId: number, token: string): Promise<void> => {
+        try {
+            await api.delete(
+                `/reports/delete/logo/${logoId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error al eliminar el logo:', error);
+            throw error;
+        }
+    },
+
+    createAgreement: async (reportId: number, agreement: string, token: string): Promise<ReportAgreement> => {
+        try {
+            const response = await api.post<ReportAgreement>('/reports/agreements', {
+                agreement,
+                report_id: reportId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al crear el acuerdo:', error);
+            throw error;
+        }
+    },
+
+    updateAgreement: async (reportId: number, agreementId: number, agreement: string, token: string): Promise<ReportAgreement> => {
+        try {
+            const response = await api.put<ReportAgreement>(`/reports/agreements/${agreementId}`, {
+                agreement,
+                report_id: reportId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al actualizar el acuerdo:', error);
+            throw error;
+        }
+    },
+
+    deleteAgreement: async (agreementId: number, token: string): Promise<void> => {
+        try {
+            await api.delete(`/reports/agreements/${agreementId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error al eliminar el acuerdo:', error);
+            throw error;
+        }
+    },
+
+    getReportBibliographies: async (reportId: number, token: string): Promise<ReportBibliography[]> => {
+        try {
+            const response = await api.get<ReportBibliography[]>(`/reports/bibliographies/${reportId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener las referencias bibliográficas:', error);
+            throw error;
+        }
+    },
+
+    createBibliography: async (reportId: number, reference: string, token: string): Promise<ReportBibliography> => {
+        try {
+            const response = await api.post<ReportBibliography>('/reports/bibliographies', {
+                reference,
+                report_id: reportId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al crear la referencia bibliográfica:', error);
+            throw error;
+        }
+    },
+
+    updateBibliography: async (reportId: number, bibliographyId: number, reference: string, token: string): Promise<ReportBibliography> => {
+        try {
+            const response = await api.put<ReportBibliography>(`/reports/bibliographies/${bibliographyId}`, {
+                reference,
+                report_id: reportId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al actualizar la referencia bibliográfica:', error);
+            throw error;
+        }
+    },
+
+    deleteBibliography: async (bibliographyId: number, token: string): Promise<void> => {
+        try {
+            await api.delete(`/reports/bibliographies/${bibliographyId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error al eliminar la referencia bibliográfica:', error);
+            throw error;
+        }
+    },
+
+    uploadPhoto: async (reportId: number, file: File, token: string, description?: string): Promise<ReportPhoto> => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (description) {
+                formData.append('description', description);
+            }
+
+            const response = await api.post<ReportPhoto>(
+                `/reports/upload/photos/${reportId}`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error al subir la foto:', error);
+            throw error;
+        }
+    },
+
+    getReportPhotos: async (reportId: number, token: string): Promise<ReportPhoto[]> => {
+        try {
+            const response = await api.get<ReportPhoto[]>(
+                `/reports/get-all/photos/${reportId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener las fotos:', error);
+            throw error;
+        }
+    },
+
+    deletePhoto: async (photoId: number, token: string): Promise<void> => {
+        try {
+            await api.delete(
+                `/reports/delete/photo/${photoId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error al eliminar la foto:', error);
+            throw error;
+        }
+    },
+
+    updatePhoto: async (reportId: number, photoId: number, description: string, token: string): Promise<ReportPhoto> => {
+        try {
+            const response = await api.put<ReportPhoto>(`/reports/update/photo/${photoId}`, {
+                description,
+                report_id: reportId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al actualizar la foto:', error);
             throw error;
         }
     }
