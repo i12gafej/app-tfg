@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import secrets
 from urllib.parse import quote_plus
 import logging
-
+import os
 logger = logging.getLogger(__name__)
 
 class Settings(BaseModel):
@@ -19,6 +19,7 @@ class Settings(BaseModel):
     MYSQL_PASSWORD: str = "root"
     MYSQL_DB: str = "sustainability_db"
     MYSQL_PORT: str = "3306"
+    BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

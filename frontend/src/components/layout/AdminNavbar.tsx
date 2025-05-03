@@ -32,7 +32,7 @@ const AdminNavbar = () => {
     { text: 'Recursos Patrimoniales', path: '/recursos' },
     { text: 'Usuarios', path: '/usuarios' },
     { text: 'Equipo de Sostenibilidad', path: '/equipo' },
-    { text: 'Copias de Seguridad', path: '/backups' },
+    { text: 'Copias de Seguridad', path: '/backup' },
     { text: 'Cuenta', path: '/cuenta' },
   ];
 

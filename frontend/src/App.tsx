@@ -19,6 +19,7 @@ import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
+import Backup from './pages/Backup/index';
 import Dashboard from './pages/Dashboard/Admin';
 import Users from './pages/Users';
 import Resources from './pages/Resources';
@@ -82,6 +83,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Team />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/backup" 
+              element={
+                <ProtectedRoute>
+                  <Backup />
                 </ProtectedRoute>
               } 
             />

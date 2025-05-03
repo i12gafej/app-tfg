@@ -1,0 +1,50 @@
+2025-05-01 20:27:38,722 - app.api.endpoints.backup - ERROR - Error al crear el backup: 'TokenData' object has no attribute 'get'
+Traceback (most recent call last):
+  File "C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\app\api\endpoints\backup.py", line 45, in create_backup
+    logger.info(f"Iniciando creación de backup por usuario: {current_user.get('email', 'unknown')}")
+  File "C:\Users\USUARIO\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\pydantic\main.py", line 761, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'TokenData' object has no attribute 'get'
+2025-05-01 20:29:11,595 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-01 20:29:11,596 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-01 20:29:11,597 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250501_202911.sql
+2025-05-01 20:29:11,597 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
+2025-05-01 20:29:11,707 - app.api.endpoints.backup - ERROR - Error al crear el backup: Command 'docker exec mysql-container sh -c 'exec mysqldump -u root -p root sustainability_db' > C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups\backup_20250501_202911.sql' returned non-zero exit status 2.
+Traceback (most recent call last):
+  File "C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\app\api\endpoints\backup.py", line 64, in create_backup
+    subprocess.run(command, shell=True, check=True)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command 'docker exec mysql-container sh -c 'exec mysqldump -u root -p root sustainability_db' > C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups\backup_20250501_202911.sql' returned non-zero exit status 2.
+2025-05-01 20:29:44,124 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-01 20:29:44,125 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-01 20:29:44,126 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250501_202944.sql
+2025-05-01 20:29:44,126 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
+2025-05-01 20:29:44,228 - app.api.endpoints.backup - INFO - Backup creado exitosamente
+2025-05-01 20:42:46,163 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-01 20:42:46,164 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-01 20:42:46,164 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250501_204246.sql
+2025-05-01 20:42:46,165 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
+2025-05-01 20:42:46,301 - app.api.endpoints.backup - ERROR - Error al crear el backup: Command 'docker exec mysql-container mysqldump -u root -proot sustainability_db > C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups\backup_20250501_204246.sql' returned non-zero exit status 6.
+Traceback (most recent call last):
+  File "C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\app\api\endpoints\backup.py", line 64, in create_backup
+    subprocess.run(command, shell=True, check=True)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command 'docker exec mysql-container mysqldump -u root -proot sustainability_db > C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups\backup_20250501_204246.sql' returned non-zero exit status 6.
+2025-05-01 20:44:01,760 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-01 20:44:01,761 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-01 20:44:01,762 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250501_204401.sql
+2025-05-01 20:44:01,763 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
+2025-05-01 20:44:01,876 - app.api.endpoints.backup - ERROR - Error al crear el backup: Command 'docker exec mysql-container sh -c 'mysqldump -u root -proot sustainability_db' > C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups\backup_20250501_204401.sql' returned non-zero exit status 2.
+Traceback (most recent call last):
+  File "C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\app\api\endpoints\backup.py", line 64, in create_backup
+    subprocess.run(command, shell=True, check=True)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command 'docker exec mysql-container sh -c 'mysqldump -u root -proot sustainability_db' > C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups\backup_20250501_204401.sql' returned non-zero exit status 2.
+2025-05-01 20:46:03,548 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-01 20:46:03,549 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-01 20:46:03,550 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250501_204603.sql
+2025-05-01 20:46:03,550 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
+2025-05-01 20:46:03,807 - app.api.endpoints.backup - INFO - Backup creado exitosamente
