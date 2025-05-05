@@ -36,13 +36,14 @@ from app.models.models import SustainabilityReport as SustainabilityReportModel,
 from app.services.user import check_user_permissions
 import logging
 from PIL import Image
+from app.core.config import Settings
 import io
 
 # Configurar el logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
+settings = Settings().copy()
 
 router = APIRouter()
 
@@ -581,7 +582,29 @@ async def update_cover_photo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        file_url = reports_crud.update_cover_photo(db, report_id, file)
+        report = reports_crud.get_report(db, report_id)
+        if not report:
+            raise HTTPException(status_code=404, detail="Memoria de sostenibilidad no encontrada")
+        # Verificar extensión del archivo
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension not in ['.jpg', '.jpeg', '.png']:
+            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
+
+        # Eliminar la foto anterior si existe
+        if report.cover_photo:
+            try:
+                old_file_path = settings.BASE_DIR / report.cover_photo.lstrip('/')
+                if old_file_path.exists():
+                    old_file_path.unlink()
+                    logger.info(f"Archivo anterior eliminado: {old_file_path}")
+            except Exception as e:
+                logger.error(f"Error al eliminar el archivo anterior: {str(e)}")
+                # Continuamos con el proceso aunque falle la eliminación
+
+        # Leer el contenido del archivo
+        content = await file.read()
+        
+        file_url = reports_crud.update_cover_photo(db, report, content)
 
         return {"url": file_url}
 
@@ -612,7 +635,19 @@ async def upload_logo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        new_logo = reports_crud.upload_logo(db, report_id, file)
+        report = reports_crud.get_report(db, report_id)
+        if not report:
+            raise HTTPException(status_code=404, detail="Memoria no encontrada")
+
+        # Verificar extensión del archivo
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension not in ['.jpg', '.jpeg', '.png']:
+            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
+
+        # Leer el contenido del archivo
+            content = await file.read()
+
+        new_logo = reports_crud.upload_logo(db, report, content, file_extension)
 
         return ReportLogoResponse(
             id=new_logo.id,
@@ -645,7 +680,7 @@ async def get_report_logos(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        logos_responses = reports_crud.get_report_logos(db, report_id)
+        logo_responses = reports_crud.get_report_logos(db, report_id)
 
         return logo_responses
 
@@ -717,7 +752,7 @@ async def get_cover_photo(
         # La ruta en la base de datos es relativa (/static/uploads/covers/filename)
         # Necesitamos convertirla a ruta absoluta
         relative_path = report.cover_photo.lstrip('/')  # Eliminar el primer '/'
-        file_path = Settings.BASE_DIR / relative_path
+        file_path = settings.BASE_DIR / relative_path
 
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Archivo no encontrado")
@@ -1036,6 +1071,59 @@ async def get_report_bibliographies_endpoint(
             detail=f"Error al obtener las referencias bibliográficas: {str(e)}"
         )
 
+@router.post("/reports/update/organization-chart/{report_id}")
+async def update_organization_chart(
+    report_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Actualizar el organigrama de una memoria.
+    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    """
+    try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        report = reports_crud.get_report(db, report_id)
+        if not report:
+            raise HTTPException(status_code=404, detail="Memoria de sostenibilidad no encontrada")
+        # Verificar extensión del archivo
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension not in ['.jpg', '.jpeg', '.png']:
+            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
+
+        # Eliminar el organigrama anterior si existe
+        if report.org_chart_figure:
+            try:
+                old_file_path = settings.BASE_DIR / report.org_chart_figure.lstrip('/')
+                if old_file_path.exists():
+                    old_file_path.unlink()
+                    logger.info(f"Archivo anterior eliminado: {old_file_path}")
+            except Exception as e:
+                logger.error(f"Error al eliminar el archivo anterior: {str(e)}")
+                # Continuamos con el proceso aunque falle la eliminación
+
+        # Leer el contenido del archivo
+            content = await file.read()
+
+        file_url = reports_crud.update_organization_chart(db, report, content)
+
+        return {"url": file_url}
+
+    except Exception as e:
+        logger.error(f"Error al actualizar el organigrama: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/reports/upload/photos/{report_id}", response_model=ReportPhotoResponse)
 async def upload_photo(
     report_id: int,
@@ -1065,7 +1153,15 @@ async def upload_photo(
         if not report:
             raise HTTPException(status_code=404, detail="Memoria no encontrada")
 
-        new_photo = reports_crud.upload_photo(db, report_id, file, description)
+        # Leer el contenido del archivo
+        content = await file.read()
+
+        # Verificar extensión del archivo
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension not in ['.jpg', '.jpeg', '.png']:
+            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
+
+        new_photo = reports_crud.upload_photo(db, report, content, file_extension, description)
 
         return ReportPhotoResponse(
             id=new_photo.id,
@@ -1171,13 +1267,13 @@ async def update_photo(
                 raise HTTPException(status_code=403, detail=error_message)
 
         photo = reports_crud.update_photo(db, photo_id, photo_update)
-        
+
         return ReportPhotoResponse(
             id=photo.id,
             photo=photo.photo,
             description=photo.description,
             report_id=photo.report_id
-        )
+            )
 
     except Exception as e:
         logger.error(f"Error al actualizar la foto: {str(e)}", exc_info=True)
@@ -1206,3 +1302,55 @@ def get_user_role(
         )
 
     return {"role": team_member.type}
+
+@router.get("/reports/get/organization-chart/{report_id}")
+async def get_organization_chart(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener la imagen del organigrama de una memoria.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    """
+    try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        # Verificar que el reporte existe y tiene organigrama
+        report = reports_crud.get_report(db, report_id)
+        if not report or not report.org_chart_figure:
+            raise HTTPException(status_code=404, detail="Imagen no encontrada")
+
+        # La ruta en la base de datos es relativa (/static/uploads/organization_charts/filename)
+        # Necesitamos convertirla a ruta absoluta
+        relative_path = report.org_chart_figure.lstrip('/')
+        file_path = settings.BASE_DIR / relative_path
+
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="Archivo no encontrado")
+
+        # Determinar el tipo MIME basado en la extensión del archivo
+        file_extension = file_path.suffix.lower()
+        mime_type = {
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.png': 'image/png'
+        }.get(file_extension, 'image/jpeg')
+
+        return FileResponse(
+            file_path,
+            media_type=mime_type,
+            filename=file_path.name
+        )
+
+    except Exception as e:
+        logger.error(f"Error al obtener el organigrama: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))

@@ -6,7 +6,11 @@ import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
 
-const ContextTimePeriod = () => {
+interface ContextTimePeriodProps {
+  readOnly?: boolean;
+}
+
+const ContextTimePeriod: React.FC<ContextTimePeriodProps> = ({ readOnly = false }) => {
   const { report, updateReport, loading: reportLoading } = useReport();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -17,6 +21,7 @@ const ContextTimePeriod = () => {
       Underline
     ],
     content: report?.action_plan_description || '<p>Describe aquí el contexto y periodo temporal del plan de sostenibilidad...</p>',
+    editable: !readOnly,
   });
 
   useEffect(() => {
@@ -50,16 +55,18 @@ const ContextTimePeriod = () => {
         mb: 2 
       }}>
         <Typography variant="h6">
-        Contexto y periodo temporal
-      </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={reportLoading}
-        >
-          {reportLoading ? 'Guardando...' : 'Guardar'}
-        </Button>
+          Contexto y periodo temporal
+        </Typography>
+        {!readOnly && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={reportLoading}
+          >
+            {reportLoading ? 'Guardando...' : 'Guardar'}
+          </Button>
+        )}
       </Box>
 
       {error && (
@@ -74,23 +81,38 @@ const ContextTimePeriod = () => {
         </Alert>
       )}
 
-      <Box sx={{ 
-        border: '1px solid #ccc', 
-        borderRadius: '4px',
-        overflow: 'hidden'
-      }}>
-        <EditorMenuBar editor={editor} />
+      {readOnly ? (
+        <Box 
+          sx={{ 
+            p: 3,
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            minHeight: '200px',
+            '& p': { m: 0 },
+            '& ul, & ol': { pl: 3 },
+            '& h1, & h2, & h3, & h4, & h5, & h6': { mt: 2, mb: 1 }
+          }}
+          dangerouslySetInnerHTML={{ __html: report?.action_plan_description || '' }}
+        />
+      ) : (
         <Box sx={{ 
-          padding: '1rem',
-          minHeight: '200px',
-          '& .ProseMirror': {
-            outline: 'none',
-            height: '100%'
-          }
+          border: '1px solid #ccc', 
+          borderRadius: '4px',
+          overflow: 'hidden'
         }}>
-          <EditorContent editor={editor} />
+          <EditorMenuBar editor={editor} />
+          <Box sx={{ 
+            padding: '1rem',
+            minHeight: '200px',
+            '& .ProseMirror': {
+              outline: 'none',
+              height: '100%'
+            }
+          }}>
+            <EditorContent editor={editor} />
+          </Box>
         </Box>
-      </Box>
+      )}
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
         Define el contexto y periodo temporal del plan de sostenibilidad. Incluye información relevante sobre el marco temporal

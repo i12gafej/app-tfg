@@ -32,11 +32,12 @@ import { stakeholderService } from '@/services/stakeholderService';
 
 interface MaterialTopicSearchProps {
   reportId: number;
+  readOnly?: boolean;
 }
 
 type Order = 'asc' | 'desc';
 
-const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) => {
+const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, readOnly = false }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { token, user } = useAuth();
@@ -73,6 +74,13 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
   useEffect(() => {
     setRowsPerPage(isMobile ? 5 : 10);
   }, [isMobile]);
+
+  useEffect(() => {
+    if (token) {
+      handleSearch(0);
+    }
+    // eslint-disable-next-line
+  }, [token, reportId]);
 
   const handleSearch = async (newPage: number = 0) => {
     if (!token) return;
@@ -156,7 +164,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
     });
   }, [materialTopics, order, orderBy]);
 
-  const canEdit = user?.admin || userRole === 'manager';
+  const canEdit = (user?.admin || userRole === 'manager') && !readOnly;
 
   return (
     <Box>
@@ -248,19 +256,19 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
       </Paper>
 
       {canEdit && (
-        <Button
-          variant="contained"
-          onClick={handleCreate}
-          sx={{ 
-            ml: 1,
-            borderRadius: '20px',
-            textTransform: 'none',
-            px: 2,
-            marginBottom: 1,
-          }}
-        >
-          Nuevo Asunto Relevante
-        </Button>
+      <Button
+        variant="contained"
+        onClick={handleCreate}
+        sx={{ 
+          ml: 1,
+          borderRadius: '20px',
+          textTransform: 'none',
+          px: 2,
+          marginBottom: 1,
+        }}
+      >
+        Nuevo Asunto Relevante
+      </Button>
       )}
 
       {loading && (
@@ -323,31 +331,31 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
                       </Button>
                       {canEdit && (
                         <>
-                          <Button 
-                            variant="outlined" 
-                            size="small" 
+                      <Button 
+                        variant="outlined" 
+                        size="small" 
                             color="view"
-                            fullWidth={isMobile}
-                            sx={{ 
-                              mr: isMobile ? 0 : 1,
-                              minWidth: isMobile ? '100%' : 'auto'
-                            }}
-                            onClick={() => handleEdit(materialTopic)}
-                          >
-                            Editar
-                          </Button>
-                          <Button 
-                            variant="outlined" 
-                            size="small" 
-                            color="error"
-                            fullWidth={isMobile}
-                            sx={{ 
-                              minWidth: isMobile ? '100%' : 'auto'
-                            }}
-                            onClick={() => handleDelete(materialTopic)}
-                          >
-                            Eliminar
-                          </Button>
+                        fullWidth={isMobile}
+                        sx={{ 
+                          mr: isMobile ? 0 : 1,
+                          minWidth: isMobile ? '100%' : 'auto'
+                        }}
+                        onClick={() => handleEdit(materialTopic)}
+                      >
+                        Editar
+                      </Button>
+                      <Button 
+                        variant="outlined" 
+                        size="small" 
+                        color="error"
+                        fullWidth={isMobile}
+                        sx={{ 
+                          minWidth: isMobile ? '100%' : 'auto'
+                        }}
+                        onClick={() => handleDelete(materialTopic)}
+                      >
+                        Eliminar
+                      </Button>
                         </>
                       )}
                     </Box>
@@ -383,8 +391,10 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
             open={detailsOpen}
             onClose={() => setDetailsOpen(false)}
             materialTopic={selectedMaterialTopic}
-            onEdit={() => handleEdit(selectedMaterialTopic)}
+            onEdit={canEdit ? () => handleEdit(selectedMaterialTopic) : undefined}
           />
+          {canEdit && (
+            <>
           <MaterialTopicEditDialog
             open={editOpen}
             onClose={() => setEditOpen(false)}
@@ -399,9 +409,12 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
             token={token || ''}
             onDelete={() => handleSearch(page)}
           />
+            </>
+          )}
         </>
       )}
 
+      {canEdit && (
       <MaterialTopicCreateDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
@@ -409,6 +422,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
         token={token || ''}
         reportId={reportId}
       />
+      )}
     </Box>
   );
 };

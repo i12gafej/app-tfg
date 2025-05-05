@@ -162,20 +162,20 @@ const TeamMemberList = ({
                     </IconButton>
                     {!readOnly && (
                       <>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleEdit(member)}
-                          title="Editar"
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleDelete(member)}
-                          title="Eliminar"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleEdit(member)}
+                      title="Editar"
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleDelete(member)}
+                      title="Eliminar"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                       </>
                     )}
                   </TableCell>

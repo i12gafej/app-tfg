@@ -30,7 +30,7 @@ import SurveyDisableDialog from './Survey/SurveyDisableDialog';
 
 const Surveys = () => {
   const { token } = useAuth();
-  const { report, updateFullReport } = useReport();
+  const { report, updateFullReport, readOnly } = useReport();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -242,7 +242,7 @@ const Surveys = () => {
       </Typography>
 
       <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-        {localReport.survey_state === 'inactive' ? (
+        {!readOnly && localReport.survey_state === 'inactive' ? (
           <Button
             variant="contained"
             color="primary"
@@ -252,7 +252,7 @@ const Surveys = () => {
           >
             Activar Encuesta
           </Button>
-        ) : (
+        ) : !readOnly && localReport.survey_state === 'active' ? (
           <>
             <Button
               variant="contained"
@@ -273,7 +273,7 @@ const Surveys = () => {
               Editar Encuesta
             </Button>
           </>
-        )}
+        ) : null}
       </Stack>
 
       {localReport.survey_state === 'active' && (

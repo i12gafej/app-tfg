@@ -285,6 +285,61 @@ export const reportService = {
         }
     },
 
+    updateOrganizationChart: async (reportId: number, file: File, token: string): Promise<string> => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await api.post<{ url: string }>(
+                `/reports/update/organization-chart/${reportId}`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            return response.data.url;
+        } catch (error) {
+            console.error('Error al actualizar el organigrama:', error);
+            throw error;
+        }
+    },
+
+    getOrganizationChart: async (reportId: number, token: string): Promise<string> => {
+        try {
+            const response = await api.get<Blob>(
+                `/reports/get/organization-chart/${reportId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                    responseType: 'blob'
+                }
+            );
+            return URL.createObjectURL(response.data);
+        } catch (error) {
+            console.error('Error al obtener el organigrama:', error);
+            throw error;
+        }
+    },
+
+    deleteOrganizationChart: async (reportId: number, token: string): Promise<void> => {
+        try {
+            await api.delete(`/reports/delete/organization-chart/${reportId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error al eliminar el organigrama:', error);
+            throw error;
+        }
+    },
+    
+
+    
     uploadLogo: async (reportId: number, file: File, token: string): Promise<ReportLogo> => {
         try {
             const formData = new FormData();

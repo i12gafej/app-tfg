@@ -53,7 +53,7 @@ const ODS_DIMENSIONS: { [key: number]: Dimension } = {
 };
 
 const InternalConsistency = () => {
-  const { report, updateReport } = useReport();
+  const { report, updateReport, readOnly } = useReport();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -224,36 +224,40 @@ const InternalConsistency = () => {
                 label="Ponderación Impacto Principal"
                 type="number"
                 value={mainWeight}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMainWeight(Number(e.target.value))}
+                onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setMainWeight(Number(e.target.value))}
                 inputProps={{ min: 0, step: 1 }}
                 size="small"
                 fullWidth
+                disabled={readOnly}
               />
               <TextField
                 label="Ponderación Impacto Secundario"
                 type="number"
                 value={secondaryWeight}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecondaryWeight(Number(e.target.value))}
+                onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSecondaryWeight(Number(e.target.value))}
                 inputProps={{ min: 0, step: 1 }}
                 size="small"
                 fullWidth
+                disabled={readOnly}
               />
-              <Button
-                variant="contained"
-                onClick={handleSaveWeights}
-                disabled={loading}
-                size="small"
-                fullWidth
-              >
-                Guardar Ponderaciones
-              </Button>
+              {!readOnly && (
+                <Button
+                  variant="contained"
+                  onClick={handleSaveWeights}
+                  disabled={loading}
+                  size="small"
+                  fullWidth
+                >
+                  Guardar Ponderaciones
+                </Button>
+              )}
             </Box>
           </Paper>
 
           <Paper sx={{ p: 2, mt: 2 }}>
             <Typography variant="subtitle2" gutterBottom>
               Recuento por Dimensión
-      </Typography>
+            </Typography>
             <TableContainer>
               <Table size="small" sx={{ '& .MuiTableCell-root': { py: 0.75, px: 1, fontSize: '0.75rem' } }}>
                 <TableBody>

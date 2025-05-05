@@ -10,6 +10,7 @@ settings = Settings().copy()
 settings.COVERS_DIR.mkdir(parents=True, exist_ok=True)
 settings.LOGOS_DIR.mkdir(parents=True, exist_ok=True)
 settings.PHOTOS_DIR.mkdir(parents=True, exist_ok=True)
+settings.ORGANIZATION_CHART_DIR.mkdir(parents=True, exist_ok=True)
 
 settings = Settings().copy()
 

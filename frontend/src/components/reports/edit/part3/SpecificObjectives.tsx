@@ -38,7 +38,7 @@ interface MaterialTopic {
 }
 
 const SpecificObjectives = () => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -503,7 +503,7 @@ const SpecificObjectives = () => {
               <Typography variant="subtitle1">
                 Objetivos 
               </Typography>
-              {selectedTopic && (
+              {selectedTopic && !readOnly && (
                 <Button
                   variant="contained"
                   size="small"
@@ -558,30 +558,32 @@ const SpecificObjectives = () => {
                       <Typography variant="body2" color="text.secondary">
                         {objective.execution_time}
                       </Typography>
-                      <Box sx={{ 
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        display: 'flex',
-                        gap: 1
-                      }}>
-                        <IconButton
-                          size="small"
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                            e.stopPropagation();
-                            handleEditClick(objective);
-                          }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDeleteClick(objective)}
-                          sx={{ bgcolor: 'background.paper' }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
+                      {!readOnly && (
+                        <Box sx={{ 
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          display: 'flex',
+                          gap: 1
+                        }}>
+                          <IconButton
+                            size="small"
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.stopPropagation();
+                              handleEditClick(objective);
+                            }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteClick(objective)}
+                            sx={{ bgcolor: 'background.paper' }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -607,18 +609,20 @@ const SpecificObjectives = () => {
               <Typography variant="subtitle1">
                 Acciones
               </Typography>
-              <Button
-                variant="contained"
-                size="small"
-                disabled={!selectedObjective}
-                onClick={() => setOpenCreateActionDialog(true)}
-                sx={{ 
-                  fontSize: '0.75rem',
-                  py: 0.5
-                }}
-              >
-                Nueva Acción
-              </Button>
+              {!readOnly && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={!selectedObjective}
+                  onClick={() => setOpenCreateActionDialog(true)}
+                  sx={{ 
+                    fontSize: '0.75rem',
+                    py: 0.5
+                  }}
+                >
+                  Nueva Acción
+                </Button>
+              )}
             </Box>
             <Box sx={{ 
               flexGrow: 1, 
@@ -662,34 +666,36 @@ const SpecificObjectives = () => {
                           Dificultad: {action.difficulty === 'low' ? 'Baja' : action.difficulty === 'medium' ? 'Media' : 'Alta'}
                         </Typography>
                       )}
-                      <Box sx={{ 
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        display: 'flex',
-                        gap: 1
-                      }}>
-                        <IconButton
-                          size="small"
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                            e.stopPropagation();
-                            handleEditActionClick(action);
-                          }}
-                          sx={{ bgcolor: 'background.paper' }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                            e.stopPropagation();
-                            handleDeleteActionClick(action);
-                          }}
-                          sx={{ bgcolor: 'background.paper' }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
+                      {!readOnly && (
+                        <Box sx={{ 
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          display: 'flex',
+                          gap: 1
+                        }}>
+                          <IconButton
+                            size="small"
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.stopPropagation();
+                              handleEditActionClick(action);
+                            }}
+                            sx={{ bgcolor: 'background.paper' }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.stopPropagation();
+                              handleDeleteActionClick(action);
+                            }}
+                            sx={{ bgcolor: 'background.paper' }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -715,19 +721,21 @@ const SpecificObjectives = () => {
               <Typography variant="subtitle1">
                 Indicadores
               </Typography>
-              <Button
-                variant="contained"
-                size="small"
-                disabled={!selectedAction}
-                onClick={() => setOpenCreateIndicatorDialog(true)}
-                sx={{ 
-                  fontSize: '0.75rem',
-                  py: 0.5,
-                  minWidth: '140px'
-                }}
-              >
-                Nuevo Indicador
-              </Button>
+              {!readOnly && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={!selectedAction}
+                  onClick={() => setOpenCreateIndicatorDialog(true)}
+                  sx={{ 
+                    fontSize: '0.75rem',
+                    py: 0.5,
+                    minWidth: '140px'
+                  }}
+                >
+                  Nuevo Indicador
+                </Button>
+              )}
             </Box>
             <Box sx={{ 
               flexGrow: 1, 
@@ -777,34 +785,36 @@ const SpecificObjectives = () => {
                           Respuesta: {indicator.qualitative_data.response}
                         </Typography>
                       )}
-                      <Box sx={{ 
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        display: 'flex',
-                        gap: 1
-                      }}>
-                        <IconButton
-                          size="small"
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                            e.stopPropagation();
-                            handleEditIndicatorClick(indicator);
-                          }}
-                          sx={{ bgcolor: 'background.paper' }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                            e.stopPropagation();
-                            handleDeleteIndicatorClick(indicator);
-                          }}
-                          sx={{ bgcolor: 'background.paper' }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
+                      {!readOnly && (
+                        <Box sx={{ 
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          display: 'flex',
+                          gap: 1
+                        }}>
+                          <IconButton
+                            size="small"
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.stopPropagation();
+                              handleEditIndicatorClick(indicator);
+                            }}
+                            sx={{ bgcolor: 'background.paper' }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.stopPropagation();
+                              handleDeleteIndicatorClick(indicator);
+                            }}
+                            sx={{ bgcolor: 'background.paper' }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      )}
                     </CardContent>
                   </Card>
                 ))}

@@ -16,7 +16,7 @@ interface MaterialTopicDetailsDialogProps {
   open: boolean;
   onClose: () => void;
   materialTopic: MaterialTopic;
-  onEdit: () => void;
+  onEdit?: () => void;
 }
 
 export const MaterialTopicDetailsDialog: React.FC<MaterialTopicDetailsDialogProps> = ({
@@ -26,8 +26,10 @@ export const MaterialTopicDetailsDialog: React.FC<MaterialTopicDetailsDialogProp
   onEdit
 }) => {
   const handleEdit = () => {
+    if (onEdit) {
     onClose();
     onEdit();
+    }
   };
 
   return (
@@ -102,6 +104,7 @@ export const MaterialTopicDetailsDialog: React.FC<MaterialTopicDetailsDialogProp
         <Button onClick={onClose}>
           Cerrar
         </Button>
+        {onEdit && (
         <Button 
           onClick={handleEdit}
           variant="contained"
@@ -109,6 +112,7 @@ export const MaterialTopicDetailsDialog: React.FC<MaterialTopicDetailsDialogProp
         >
           Editar
         </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

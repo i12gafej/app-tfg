@@ -35,7 +35,7 @@ interface SpecificObjective {
 }
 
 const AssignResponsibles = () => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -208,13 +208,15 @@ const AssignResponsibles = () => {
                   <ListItem
                     key={objective.id}
                     secondaryAction={
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleOpenDialog(objective)}
-                      >
-                        Asignar
-                      </Button>
+                      !readOnly && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleOpenDialog(objective)}
+                        >
+                          Asignar
+                        </Button>
+                      )
                     }
                   >
                     <ListItemText

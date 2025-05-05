@@ -227,53 +227,53 @@ const Regulations = () => {
         </List>
       ) : (
         <>
-          {regulations.map((regulation) => (
-            <Paper 
-              key={regulation.id}
-              elevation={0}
-              sx={{ 
-                p: 2, 
-                mb: 2, 
-                border: '1px solid #e0e0e0',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 1
-              }}
-            >
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                placeholder="Introduce la normativa..."
-                value={regulation.norm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleRegulationChange(regulation.id, e.target.value)}
-                sx={{ flex: 1 }}
+      {regulations.map((regulation) => (
+        <Paper 
+          key={regulation.id}
+          elevation={0}
+          sx={{ 
+            p: 2, 
+            mb: 2, 
+            border: '1px solid #e0e0e0',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 1
+          }}
+        >
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            placeholder="Introduce la normativa..."
+            value={regulation.norm}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleRegulationChange(regulation.id, e.target.value)}
+            sx={{ flex: 1 }}
                 disabled={readOnly}
-              />
+          />
               {!readOnly && (
-                <IconButton 
-                  onClick={() => removeRegulation(regulation.id)}
-                  color="error"
-                  size="small"
-                  sx={{ mt: 1 }}
-                >
-                  <DeleteOutlineIcon />
-                </IconButton>
+          <IconButton 
+            onClick={() => removeRegulation(regulation.id)}
+            color="error"
+            size="small"
+            sx={{ mt: 1 }}
+          >
+            <DeleteOutlineIcon />
+          </IconButton>
               )}
-            </Paper>
-          ))}
+        </Paper>
+      ))}
 
           {!readOnly && (
-            <Button
-              startIcon={<AddCircleOutlineIcon />}
-              onClick={addRegulation}
-              variant="outlined"
-              sx={{ mt: 1 }}
-              disabled={reportLoading}
-            >
-              Añadir normativa
-            </Button>
+      <Button
+        startIcon={<AddCircleOutlineIcon />}
+        onClick={addRegulation}
+        variant="outlined"
+        sx={{ mt: 1 }}
+        disabled={reportLoading}
+      >
+        Añadir normativa
+      </Button>
           )}
         </>
       )}

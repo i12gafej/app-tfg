@@ -21,6 +21,7 @@ class Settings(BaseModel):
     COVERS_DIR: Path = UPLOADS_DIR / "covers"
     LOGOS_DIR: Path = UPLOADS_DIR / "logos"
     PHOTOS_DIR: Path = UPLOADS_DIR / "gallery"
+    ORGANIZATION_CHART_DIR: Path = UPLOADS_DIR / "organization_charts"
 
     # Constantes para el procesamiento de imágenes
     A4_RATIO: float = 1.4142  # Ratio de A4 (297mm/210mm)

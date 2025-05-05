@@ -195,7 +195,7 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({ open, onClose, onConfirm, p
 };
 
 const Gallery = () => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const { token } = useAuth();
   const [photos, setPhotos] = useState<ReportPhoto[]>([]);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -289,14 +289,16 @@ const Gallery = () => {
         <Typography variant="h6">
           Galería de fotos
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddPhotoAlternateIcon />}
-          onClick={() => setIsUploadDialogOpen(true)}
-          disabled={isLoading}
-        >
-          Añadir foto
-        </Button>
+        {!readOnly && (
+          <Button
+            variant="contained"
+            startIcon={<AddPhotoAlternateIcon />}
+            onClick={() => setIsUploadDialogOpen(true)}
+            disabled={isLoading}
+          >
+            Añadir foto
+          </Button>
+        )}
       </Box>
 
       <Grid container spacing={3}>
@@ -317,54 +319,60 @@ const Gallery = () => {
                   </Typography>
                 </CardContent>
               )}
-              <CardActions>
-                <IconButton 
-                  onClick={() => handleEdit(photo)}
-                  color="primary"
-                  size="small"
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton 
-                  onClick={() => handleDeleteClick(photo)}
-                  color="error"
-                  size="small"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </CardActions>
+              {!readOnly && (
+                <CardActions>
+                  <IconButton 
+                    onClick={() => handleEdit(photo)}
+                    color="primary"
+                    size="small"
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton 
+                    onClick={() => handleDeleteClick(photo)}
+                    color="error"
+                    size="small"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </CardActions>
+              )}
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      <UploadDialog
-        open={isUploadDialogOpen}
-        onClose={() => setIsUploadDialogOpen(false)}
-        onUpload={handleUpload}
-      />
-
-      {selectedPhoto && (
+      {!readOnly && (
         <>
-          <EditDialog
-            open={isEditDialogOpen}
-            onClose={() => {
-              setIsEditDialogOpen(false);
-              setSelectedPhoto(null);
-            }}
-            onSave={handleSaveEdit}
-            initialDescription={selectedPhoto.description || ''}
+          <UploadDialog
+            open={isUploadDialogOpen}
+            onClose={() => setIsUploadDialogOpen(false)}
+            onUpload={handleUpload}
           />
 
-          <DeleteDialog
-            open={isDeleteDialogOpen}
-            onClose={() => {
-              setIsDeleteDialogOpen(false);
-              setSelectedPhoto(null);
-            }}
-            onConfirm={handleDeleteConfirm}
-            photoDescription={selectedPhoto.description}
-          />
+          {selectedPhoto && (
+            <>
+              <EditDialog
+                open={isEditDialogOpen}
+                onClose={() => {
+                  setIsEditDialogOpen(false);
+                  setSelectedPhoto(null);
+                }}
+                onSave={handleSaveEdit}
+                initialDescription={selectedPhoto.description || ''}
+              />
+
+              <DeleteDialog
+                open={isDeleteDialogOpen}
+                onClose={() => {
+                  setIsDeleteDialogOpen(false);
+                  setSelectedPhoto(null);
+                }}
+                onConfirm={handleDeleteConfirm}
+                photoDescription={selectedPhoto.description}
+              />
+            </>
+          )}
         </>
       )}
     </Box>

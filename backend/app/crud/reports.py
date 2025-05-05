@@ -15,6 +15,12 @@ from fastapi import HTTPException
 from app.utils.image_processing import process_cover_image
 from app.core.config import Settings
 from fastapi import UploadFile
+import logging
+
+logger = logging.getLogger(__name__)
+
+settings = Settings().copy()
+
 
 def create_report(db: Session, report: SustainabilityReportCreate) -> SustainabilityReport:
     db_report = SustainabilityReport(**report.dict())
@@ -167,36 +173,14 @@ def delete_norm(db: Session, norm_id: int) -> bool:
         return True
     return False
 
-def update_cover_photo(db: Session, report_id: int, file: UploadFile) -> str:
-    # Obtener la memoria de sostenibilidad
-    report = get_report(db, report_id)
-    if not report:
-        raise HTTPException(status_code=404, detail="Memoria de sostenibilidad no encontrada")
-    # Verificar extensión del archivo
-    file_extension = os.path.splitext(file.filename)[1].lower()
-    if file_extension not in ['.jpg', '.jpeg', '.png']:
-        raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
-
-    # Eliminar la foto anterior si existe
-    if report.cover_photo:
-        try:
-            old_file_path = BASE_DIR / report.cover_photo.lstrip('/')
-            if old_file_path.exists():
-                old_file_path.unlink()
-                logger.info(f"Archivo anterior eliminado: {old_file_path}")
-        except Exception as e:
-            logger.error(f"Error al eliminar el archivo anterior: {str(e)}")
-            # Continuamos con el proceso aunque falle la eliminación
-
-    # Leer el contenido del archivo
-    content =  file.read()
-    
+def update_cover_photo(db: Session, report: SustainabilityReport, content: bytes) -> str:
+        
     # Procesar la imagen
     processed_image = process_cover_image(content)
 
     # Crear nombre único para el archivo
-    filename = f"report_{report_id}_cover_{uuid.uuid4()}.jpg"  # Siempre guardamos como JPG
-    file_path = Settings.COVERS_DIR / filename
+    filename = f"report_{report.id}_cover_{uuid.uuid4()}.jpg"  # Siempre guardamos como JPG
+    file_path = settings.COVERS_DIR / filename
 
     # Guardar el archivo procesado
     with open(file_path, "wb") as file_object:
@@ -208,39 +192,40 @@ def update_cover_photo(db: Session, report_id: int, file: UploadFile) -> str:
     db.commit()
     return file_url
 
-def upload_logo(db: Session, report_id: int, file: UploadFile) -> str:
-     # Verificar que el reporte existe
-        report = get_report(db, report_id)
-        if not report:
-            raise HTTPException(status_code=404, detail="Memoria no encontrada")
-
-        # Verificar extensión del archivo
-        file_extension = os.path.splitext(file.filename)[1].lower()
-        if file_extension not in ['.jpg', '.jpeg', '.png']:
-            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
-
+def upload_logo(db: Session, report: SustainabilityReport, content: bytes, file_extension: str) -> str:
         # Crear nombre único para el archivo
-        filename = f"report_{report_id}_logo_{uuid.uuid4()}{file_extension}"
-        file_path = Settings.LOGOS_DIR / filename
+        filename = f"report_{report.id}_logo_{uuid.uuid4()}{file_extension}"
+        file_path = settings.LOGOS_DIR / filename
 
         logger.info(f"Guardando logo en: {file_path}")
 
         # Guardar el archivo
         with open(file_path, "wb+") as file_object:
-            content =  file.read()
             file_object.write(content)
 
         # Crear registro en la base de datos (usando ruta relativa para la URL)
         file_url = f"/static/uploads/logos/{filename}"
         new_logo = ReportLogoModel(
             logo=file_url,
-            report_id=report_id
+            report_id=report.id
         )
         db.add(new_logo)
         db.commit()
         db.refresh(new_logo)
 
         return new_logo
+
+def update_organization_chart(db: Session, report: SustainabilityReport, content: bytes) -> str:
+    filename = f"report_{report.id}_organization_chart_{uuid.uuid4()}.jpg"
+    file_path = settings.ORGANIZATION_CHART_DIR / filename
+
+    with open(file_path, "wb") as file_object:
+        file_object.write(content)
+
+    file_url = f"/static/uploads/organization_charts/{filename}"
+    report.org_chart_figure = file_url
+    db.commit()
+    return file_url
 
 def get_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse]:
     logos = db.query(ReportLogoModel).filter(ReportLogoModel.report_id == report_id).all()
@@ -250,11 +235,12 @@ def get_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse]:
         try:
             # Convertir la ruta relativa a absoluta
             relative_path = logo.logo.lstrip('/')
-            file_path = Settings.BASE_DIR / relative_path
+            file_path = settings.BASE_DIR / relative_path
 
             if not file_path.exists():
                 logger.warning(f"Archivo de logo no encontrado: {file_path}")
                 continue
+            logger.info(f"Archivo de logo encontrado: {file_path}")
 
             # Leer el archivo y convertirlo a base64
             with open(file_path, "rb") as image_file:
@@ -289,7 +275,7 @@ def get_logo_by_id(db: Session, logo_id: int) -> ReportLogoModel:
 def delete_logo(db: Session, logo_id: int, logo: ReportLogoModel) -> bool:
     # Convertir la ruta relativa a absoluta
     relative_path = logo.logo.lstrip('/')
-    file_path = Settings.BASE_DIR / relative_path
+    file_path = settings.BASE_DIR / relative_path
 
     # Eliminar el archivo físico si existe
     if file_path.exists():
@@ -306,7 +292,7 @@ def delete_logo(db: Session, logo_id: int, logo: ReportLogoModel) -> bool:
     return True
 
 def get_report_agreements(db: Session, report_id: int) -> List[ReportAgreement]:
-    return db.query(ReportAgreement).filter(ReportAgreement.report_id == report_id).all()
+    return db.query(ReportAgreementModel).filter(ReportAgreementModel.report_id == report_id).all()
 
 def create_agreement(db: Session, agreement: ReportAgreementCreate) -> ReportAgreement:
     db_agreement = ReportAgreement(**agreement.dict())
@@ -316,7 +302,7 @@ def create_agreement(db: Session, agreement: ReportAgreementCreate) -> ReportAgr
     return db_agreement
 
 def get_agreement_by_id(db: Session, agreement_id: int) -> ReportAgreement:
-    return db.query(ReportAgreement).filter(ReportAgreement.id == agreement_id).first()
+    return db.query(ReportAgreementModel).filter(ReportAgreementModel.id == agreement_id).first()
 
 def update_agreement(db: Session, agreement_id: int, agreement: ReportAgreementUpdate) -> ReportAgreement:
     for key, value in agreement.dict().items():
@@ -355,23 +341,21 @@ def delete_bibliography(db: Session, bibliography_id: int, bibliography: ReportB
     return True
 
 def get_report_bibliographies(db: Session, report_id: int) -> List[ReportBibliography]:
-    return db.query(ReportBibliography).filter(ReportBibliography.report_id == report_id).all()
+    return db.query(ReportBibliographyModel).filter(ReportBibliographyModel.report_id == report_id).all()
 
-def upload_photo(db: Session, report_id: int, file: UploadFile, description: str) -> ReportPhoto:
+def upload_photo(db: Session, report: SustainabilityReport, content: bytes, file_extension: str, description: str) -> ReportPhoto:
     # Verificar extensión del archivo
-    file_extension = os.path.splitext(file.filename)[1].lower()
     if file_extension not in ['.jpg', '.jpeg', '.png']:
         raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
 
     # Crear nombre único para el archivo
-    filename = f"report_{report_id}_photo_{uuid.uuid4()}{file_extension}"
-    file_path = Settings.PHOTOS_DIR / filename
+    filename = f"report_{report.id}_photo_{uuid.uuid4()}{file_extension}"
+    file_path = settings.PHOTOS_DIR / filename
 
     logger.info(f"Guardando foto en: {file_path}")
 
     # Guardar el archivo
     with open(file_path, "wb+") as file_object:
-        content =  file.read()
         file_object.write(content)
 
     # Crear registro en la base de datos
@@ -379,7 +363,7 @@ def upload_photo(db: Session, report_id: int, file: UploadFile, description: str
     new_photo = ReportPhotoModel(
         photo=file_url,
         description=description,
-        report_id=report_id
+        report_id=report.id
     )
     db.add(new_photo)
     db.commit()
@@ -394,7 +378,7 @@ def get_report_photos(db: Session, report_id: int) -> List[ReportPhoto]:
         try:
             # Convertir la ruta relativa a absoluta
             relative_path = photo.photo.lstrip('/')
-            file_path = Settings.BASE_DIR / relative_path
+            file_path = settings.BASE_DIR / relative_path
 
             if not file_path.exists():
                 logger.warning(f"Archivo de foto no encontrado: {file_path}")
@@ -434,7 +418,7 @@ def get_photo_by_id(db: Session, photo_id: int) -> ReportPhoto:
 def delete_photo(db: Session, photo_id: int, photo: ReportPhoto) -> bool:
     # Convertir la ruta relativa a absoluta
     relative_path = photo.photo.lstrip('/')
-    file_path = Settings.BASE_DIR / relative_path
+    file_path = settings.BASE_DIR / relative_path
 
     # Eliminar el archivo físico si existe
     if file_path.exists():
@@ -459,7 +443,7 @@ def update_photo(db: Session, photo_id: int, photo: ReportPhoto) -> ReportPhoto:
 
     # Convertir la ruta relativa a absoluta para obtener la imagen
     relative_path = photo.photo.lstrip('/')
-    file_path = Settings.BASE_DIR / relative_path
+    file_path = settings.BASE_DIR / relative_path
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Archivo no encontrado")

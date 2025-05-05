@@ -7,7 +7,7 @@ import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
 
 const DiagnosisDescription = () => {
-  const { report, updateReport, loading: reportLoading } = useReport();
+  const { report, updateReport, loading: reportLoading, readOnly } = useReport();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -17,6 +17,7 @@ const DiagnosisDescription = () => {
       Underline
     ],
     content: report?.diagnosis_description || '<p>Escribe aquí la descripción del proceso de diagnóstico y sus resultados principales...</p>',
+    editable: !readOnly,
   });
 
   useEffect(() => {
@@ -52,14 +53,16 @@ const DiagnosisDescription = () => {
         <Typography variant="h6">
           Descripción del Diagnóstico
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={reportLoading}
-        >
-          {reportLoading ? 'Guardando...' : 'Guardar'}
-        </Button>
+        {!readOnly && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={reportLoading}
+          >
+            {reportLoading ? 'Guardando...' : 'Guardar'}
+          </Button>
+        )}
       </Box>
 
       {error && (
@@ -79,7 +82,7 @@ const DiagnosisDescription = () => {
         borderRadius: '4px',
         overflow: 'hidden'
       }}>
-        <EditorMenuBar editor={editor} />
+        {!readOnly && <EditorMenuBar editor={editor} />}
         <Box sx={{ 
           padding: '1rem',
           minHeight: '200px',

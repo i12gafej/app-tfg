@@ -38,12 +38,15 @@ interface MaterialTopic {
 interface MainSecondaryImpactsProps {
   reportId: number;
   onUpdate: () => void;
+  readOnly?: boolean;
 }
 
 const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   reportId,
-  onUpdate
+  onUpdate,
+  readOnly = false
 }) => {
+  console.log('Valor de readOnly en MainSecondaryImpacts:', readOnly);
   const { token } = useAuth();
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
@@ -96,6 +99,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   }, [token, reportId]);
 
   const handleMainImpactChange = async (topicId: number, odsId: number | '') => {
+    if (readOnly) return;
     const topic = materialTopics.find(t => t.id === topicId);
     if (!topic) return;
 
@@ -118,6 +122,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   };
 
   const handleGoalChange = (topicId: number, goalNumber: string | '') => {
+    if (readOnly) return;
     const topic = materialTopics.find(t => t.id === topicId);
     if (!topic) return;
 
@@ -130,12 +135,13 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   };
 
   const handleSecondaryImpactChange = (topicId: number, selectedOdsIds: number[]) => {
+    if (readOnly) return;
     setSecondaryImpacts(prev => ({ ...prev, [topicId]: selectedOdsIds }));
     setChanges(prev => ({ ...prev, [topicId]: true }));
   };
 
   const handleSaveChanges = async (topicId: number) => {
-    if (!token) return;
+    if (!token || readOnly) return;
     try {
       setLoading(true);
       const topic = materialTopics.find(t => t.id === topicId);
@@ -151,10 +157,11 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
       }
 
       // Actualizar impactos secundarios
-      await odsService.updateSecondaryImpacts({
-        material_topic_id: topicId,
-        ods_ids: secondaryImpacts[topicId] || []
-      }, token);
+      await odsService.updateSecondaryImpacts(
+        topicId,
+        secondaryImpacts[topicId] || [],
+        token
+      );
 
       setChanges(prev => ({ ...prev, [topicId]: false }));
       onUpdate();
@@ -216,12 +223,13 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                   <TableCell>{topic.name}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <FormControl sx={{ width: 300 }}>
+                      <FormControl sx={{ width: 300 }} disabled={readOnly}>
                         <InputLabel>ODS Principal</InputLabel>
                         <Select
                           value={topic.goal_ods_id || ''}
                           label="ODS Principal"
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMainImpactChange(topic.id, Number(e.target.value))}
+                          onChange={readOnly ? undefined : (e: React.ChangeEvent<{ value: unknown }>) => handleMainImpactChange(topic.id, Number(e.target.value))}
+                          disabled={readOnly}
                         >
                           <MenuItem value="">
                             <em>Ninguno</em>
@@ -234,13 +242,13 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                         </Select>
                       </FormControl>
 
-                      <FormControl sx={{ width: 300 }}>
+                      <FormControl sx={{ width: 300 }} disabled={readOnly || !topic.goal_ods_id}>
                         <InputLabel>Meta</InputLabel>
                         <Select
                           value={topic.goal_number || ''}
                           label="Meta"
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleGoalChange(topic.id, e.target.value as string)}
-                          disabled={!topic.goal_ods_id}
+                          onChange={readOnly ? undefined : (e: React.ChangeEvent<{ value: unknown }>) => handleGoalChange(topic.id, e.target.value as string)}
+                          disabled={readOnly || !topic.goal_ods_id}
                         >
                           <MenuItem value="">
                             <em>Ninguna</em>
@@ -257,17 +265,17 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <FormControl sx={{ width: 300 }}>
+                    <FormControl sx={{ width: 300 }} disabled={!topic.goal_number}>
                       <InputLabel>Impactos Secundarios</InputLabel>
                       <Select
                         multiple
                         value={secondaryImpacts[topic.id] || []}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        input={<OutlinedInput label="Impactos Secundarios" />}
+                        onChange={readOnly ? undefined : (e: React.ChangeEvent<{ value: unknown }>) => {
                           const selectedIds = (e.target.value as unknown as number[]);
                           const filteredIds = selectedIds.filter(id => id !== topic.goal_ods_id);
                           handleSecondaryImpactChange(topic.id, filteredIds);
                         }}
-                        input={<OutlinedInput label="Impactos Secundarios" />}
                         disabled={!topic.goal_number}
                         sx={{
                           '& .MuiMenuItem-root.Mui-selected': {
@@ -277,6 +285,9 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                               backgroundColor: '#1565c0',
                             },
                           },
+                          '& .MuiSelect-select': {
+                            cursor: readOnly ? 'default' : 'pointer'
+                          }
                         }}
                         MenuProps={{
                           PaperProps: {
@@ -288,6 +299,10 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                                   backgroundColor: '#1565c0 !important',
                                 },
                               },
+                              '& .MuiMenuItem-root': {
+                                cursor: readOnly ? 'default' : 'pointer',
+                                pointerEvents: readOnly ? 'none' : 'auto'
+                              }
                             },
                           },
                         }}
@@ -305,7 +320,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                     </FormControl>
                   </TableCell>
                   <TableCell>
-                    {changes[topic.id] && (
+                    {!readOnly && changes[topic.id] && (
                       <Tooltip title="Guardar cambios">
                         <IconButton
                           color="primary"

@@ -226,11 +226,11 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   };
 
   const handleEdit = (report: SustainabilityReport) => {
-    navigate(`/memorias/editar/${report.id}`);
+    navigate(`/memorias/editar/${report.id}/${report.heritage_resource_name}/${report.year}`);
   };
 
   const handleView = (report: SustainabilityReport) => {
-    navigate(`/memorias/consultar/${report.id}`);
+    navigate(`/memorias/consultar/${report.id}/${report.heritage_resource_name}/${report.year}`);
   };
 
   const getRoleLabel = (role: string) => {

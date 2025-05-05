@@ -219,12 +219,12 @@ const TeamMemberSearchPanel = ({
 
       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
         {!readOnly && (
-          <Button
-            variant="outlined"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            Filtros
-          </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          Filtros
+        </Button>
         )}
         <Button
           variant="outlined"

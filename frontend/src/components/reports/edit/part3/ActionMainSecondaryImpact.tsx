@@ -26,7 +26,7 @@ import type { ODS } from '@/services/odsService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const ActionMainSecondaryImpact = () => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const { token } = useAuth();
   const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<MaterialTopic | null>(null);
@@ -299,7 +299,7 @@ const ActionMainSecondaryImpact = () => {
                         <Typography variant="body1">
                         {action.description}
                       </Typography>
-                        {changes[action.id] && (
+                        {!readOnly && changes[action.id] && (
                           <Tooltip title="Guardar cambios">
                             <IconButton
                               color="primary"
@@ -313,12 +313,13 @@ const ActionMainSecondaryImpact = () => {
                       </Box>
                       <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
-                          <FormControl fullWidth>
+                          <FormControl fullWidth disabled={readOnly}>
                             <InputLabel>Impacto Principal (ODS)</InputLabel>
                             <Select
                               value={action.ods_id || ''}
                               label="Impacto Principal (ODS)"
-                              onChange={(e: { target: { value: string } }) => handleMainImpactChange(action.id, Number(e.target.value))}
+                              onChange={readOnly ? undefined : (e: { target: { value: string } }) => handleMainImpactChange(action.id, Number(e.target.value))}
+                              disabled={readOnly}
                             >
                               <MenuItem value="">
                                 <em>Ninguno</em>
@@ -332,13 +333,13 @@ const ActionMainSecondaryImpact = () => {
                           </FormControl>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                          <FormControl fullWidth>
+                          <FormControl fullWidth disabled={readOnly || !action.ods_id}>
                             <InputLabel>Impactos Secundarios (ODS)</InputLabel>
                             <Select
                               multiple
                               value={secondaryImpacts[action.id] || []}
                               input={<OutlinedInput label="Impactos Secundarios (ODS)" />}
-                              onChange={(e: { target: { value: number[] } }) => {
+                              onChange={readOnly ? undefined : (e: { target: { value: number[] } }) => {
                                 const selectedIds = e.target.value;
                                 const filteredIds = selectedIds.filter(id => id !== action.ods_id);
                                 handleSecondaryImpactChange(action.id, filteredIds);
@@ -352,6 +353,9 @@ const ActionMainSecondaryImpact = () => {
                                     backgroundColor: '#1565c0',
                                   },
                                 },
+                                '& .MuiSelect-select': {
+                                  cursor: readOnly ? 'default' : 'pointer'
+                                }
                               }}
                               MenuProps={{
                                 PaperProps: {
@@ -363,6 +367,10 @@ const ActionMainSecondaryImpact = () => {
                                         backgroundColor: '#1565c0 !important',
                                       },
                                     },
+                                    '& .MuiMenuItem-root': {
+                                      cursor: readOnly ? 'default' : 'pointer',
+                                      pointerEvents: readOnly ? 'none' : 'auto'
+                                    }
                                   },
                                 },
                               }}

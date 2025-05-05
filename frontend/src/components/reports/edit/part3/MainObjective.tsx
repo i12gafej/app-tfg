@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, PriorityLevel } from '@/services/materialTopicService';
 
@@ -21,20 +17,13 @@ const priorityOptions = [
 ];
 
 const MainObjective = () => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<MaterialTopic | null>(null);
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline
-    ],
-    content: selectedTopic?.main_objective || '<p>Define aquí el objetivo principal para este asunto relevante...</p>',
-  });
+  const [mainObjectiveValue, setMainObjectiveValue] = useState<string>('');
 
   useEffect(() => {
     const fetchMaterialTopics = async () => {
@@ -59,10 +48,8 @@ const MainObjective = () => {
   }, [report]);
 
   useEffect(() => {
-    if (editor && selectedTopic) {
-      editor.commands.setContent(selectedTopic.main_objective || '<p>Define aquí el objetivo principal para este asunto relevante...</p>');
-    }
-  }, [selectedTopic, editor]);
+    setMainObjectiveValue(selectedTopic?.main_objective || '');
+  }, [selectedTopic]);
 
   const handlePriorityChange = (event: any) => {
     if (!selectedTopic) return;
@@ -70,7 +57,7 @@ const MainObjective = () => {
   };
 
   const handleSave = async () => {
-    if (!editor || !selectedTopic) return;
+    if (!selectedTopic) return;
 
     try {
       setLoading(true);
@@ -82,10 +69,9 @@ const MainObjective = () => {
         throw new Error('No se encontró el token de autenticación');
       }
 
-      const content = editor.getHTML();
       const updatedTopic = await materialTopicService.updateMaterialTopic(
         selectedTopic.id,
-        { main_objective: content, priority: selectedTopic.priority as PriorityLevel },
+        { main_objective: mainObjectiveValue, priority: selectedTopic.priority as PriorityLevel },
         token
       );
 
@@ -163,20 +149,28 @@ const MainObjective = () => {
                 Objetivo Principal
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <FormControl size="small" sx={{ minWidth: 120, mr: 2 }}>
-                  <InputLabel id="priority-label">Prioridad</InputLabel>
-                  <Select
-                    labelId="priority-label"
-                    value={selectedTopic?.priority ? selectedTopic.priority : ''}
-                    label="Prioridad"
-                    onChange={handlePriorityChange}
-                  >
-                    {priorityOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                {selectedTopic && (
+                {readOnly ? (
+                  <Box sx={{ minWidth: 120, mr: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Prioridad: {selectedTopic?.priority ? priorityOptions.find(opt => opt.value === selectedTopic.priority)?.label : 'Sin prioridad'}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <FormControl size="small" sx={{ minWidth: 120, mr: 2 }}>
+                    <InputLabel id="priority-label">Prioridad</InputLabel>
+                    <Select
+                      labelId="priority-label"
+                      value={selectedTopic?.priority ? selectedTopic.priority : ''}
+                      label="Prioridad"
+                      onChange={handlePriorityChange}
+                    >
+                      {priorityOptions.map(option => (
+                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+                {!readOnly && selectedTopic && (
                   <Button
                     variant="contained"
                     onClick={handleSave}
@@ -201,29 +195,47 @@ const MainObjective = () => {
             )}
 
             {selectedTopic ? (
-              <Box sx={{ 
+              <Box sx={{
                 flex: 1,
-                border: '1px solid #ccc', 
+                border: '1px solid #ccc',
                 borderRadius: '4px',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                minHeight: 0
+                minHeight: 0,
+                p: 2
               }}>
-                <EditorMenuBar editor={editor} />
-                <Box sx={{ 
-                  padding: '1rem',
-                  flex: 1,
-                  minHeight: 0,
-                  maxHeight: 220,
-                  overflow: 'auto',
-                  '& .ProseMirror': {
-                    outline: 'none',
-                    height: '100%'
-                  }
-                }}>
-                  <EditorContent editor={editor} />
-                </Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>Descripción del objetivo principal</Typography>
+                {readOnly ? (
+                  <Box sx={{
+                    backgroundColor: '#f9f9f9',
+                    borderRadius: '4px',
+                    p: 2,
+                    minHeight: 120,
+                    whiteSpace: 'pre-line',
+                    color: 'text.primary',
+                    fontSize: '1rem',
+                    border: '1px solid #eee'
+                  }}>
+                    {selectedTopic.main_objective || 'Sin descripción'}
+                  </Box>
+                ) : (
+                  <textarea
+                    style={{
+                      width: '100%',
+                      minHeight: 120,
+                      resize: 'vertical',
+                      fontSize: '1rem',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      border: '1px solid #ccc',
+                      fontFamily: 'inherit'
+                    }}
+                    value={mainObjectiveValue}
+                    onChange={e => setMainObjectiveValue(e.target.value)}
+                    placeholder="Define aquí el objetivo principal para este asunto relevante..."
+                  />
+                )}
               </Box>
             ) : (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>

@@ -48,14 +48,14 @@ const Vision = () => {
           Visión
         </Typography>
         {!readOnly && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            disabled={reportLoading}
-          >
-            {reportLoading ? 'Guardando...' : 'Guardar'}
-          </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={reportLoading}
+        >
+          {reportLoading ? 'Guardando...' : 'Guardar'}
+        </Button>
         )}
       </Box>
 
@@ -85,23 +85,23 @@ const Vision = () => {
           dangerouslySetInnerHTML={{ __html: report?.vision || '' }}
         />
       ) : (
+      <Box sx={{ 
+        border: '1px solid #ccc', 
+        borderRadius: '4px',
+        overflow: 'hidden'
+      }}>
+        <EditorMenuBar editor={editor} />
         <Box sx={{ 
-          border: '1px solid #ccc', 
-          borderRadius: '4px',
-          overflow: 'hidden'
+          padding: '1rem',
+          minHeight: '200px',
+          '& .ProseMirror': {
+            outline: 'none',
+            height: '100%'
+          }
         }}>
-          <EditorMenuBar editor={editor} />
-          <Box sx={{ 
-            padding: '1rem',
-            minHeight: '200px',
-            '& .ProseMirror': {
-              outline: 'none',
-              height: '100%'
-            }
-          }}>
-            <EditorContent editor={editor} />
-          </Box>
+          <EditorContent editor={editor} />
         </Box>
+      </Box>
       )}
     </Box>
   );

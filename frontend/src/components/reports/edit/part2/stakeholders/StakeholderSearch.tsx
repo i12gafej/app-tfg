@@ -294,19 +294,19 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
       </Paper>
 
       {isManager && !readOnly && (
-        <Button
-          variant="contained"
-          onClick={handleCreate}
-          sx={{ 
-            ml: 1,
-            borderRadius: '20px',
-            textTransform: 'none',
-            px: 2,
-            marginBottom: 1,
-          }}
-        >
-          Nuevo Grupo de Interés
-        </Button>
+      <Button
+        variant="contained"
+        onClick={handleCreate}
+        sx={{ 
+          ml: 1,
+          borderRadius: '20px',
+          textTransform: 'none',
+          px: 2,
+          marginBottom: 1,
+        }}
+      >
+        Nuevo Grupo de Interés
+      </Button>
       )}
 
       {showFilters && (
@@ -417,31 +417,31 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
                       </Button>
                       {isManager && !readOnly && (
                         <>
-                          <Button 
-                            variant="outlined" 
-                            size="small" 
+                      <Button 
+                        variant="outlined" 
+                        size="small" 
                             color="view"
-                            fullWidth={isMobile}
-                            sx={{ 
-                              mr: isMobile ? 0 : 1,
-                              minWidth: isMobile ? '100%' : 'auto'
-                            }}
-                            onClick={() => handleEdit(stakeholder)}
-                          >
-                            Editar
-                          </Button>
-                          <Button 
-                            variant="outlined" 
-                            size="small" 
-                            color="error"
-                            fullWidth={isMobile}
-                            sx={{ 
-                              minWidth: isMobile ? '100%' : 'auto'
-                            }}
-                            onClick={() => handleDelete(stakeholder)}
-                          >
-                            Eliminar
-                          </Button>
+                        fullWidth={isMobile}
+                        sx={{ 
+                          mr: isMobile ? 0 : 1,
+                          minWidth: isMobile ? '100%' : 'auto'
+                        }}
+                        onClick={() => handleEdit(stakeholder)}
+                      >
+                        Editar
+                      </Button>
+                      <Button 
+                        variant="outlined" 
+                        size="small" 
+                        color="error"
+                        fullWidth={isMobile}
+                        sx={{ 
+                          minWidth: isMobile ? '100%' : 'auto'
+                        }}
+                        onClick={() => handleDelete(stakeholder)}
+                      >
+                        Eliminar
+                      </Button>
                         </>
                       )}
                     </Box>
@@ -481,33 +481,33 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
           />
           {isManager && !readOnly && (
             <>
-              <StakeholderEditDialog
-                open={editOpen}
-                onClose={() => setEditOpen(false)}
-                stakeholder={selectedStakeholder}
-                token={token || ''}
-                onUpdate={() => handleSearch(page)}
-              />
-              <StakeholderDeleteDialog
-                open={deleteOpen}
-                onClose={() => setDeleteOpen(false)}
-                stakeholder={selectedStakeholder}
-                token={token || ''}
-                onDelete={() => handleSearch(page)}
-              />
+          <StakeholderEditDialog
+            open={editOpen}
+            onClose={() => setEditOpen(false)}
+            stakeholder={selectedStakeholder}
+            token={token || ''}
+            onUpdate={() => handleSearch(page)}
+          />
+          <StakeholderDeleteDialog
+            open={deleteOpen}
+            onClose={() => setDeleteOpen(false)}
+            stakeholder={selectedStakeholder}
+            token={token || ''}
+            onDelete={() => handleSearch(page)}
+          />
             </>
           )}
         </>
       )}
 
       {isManager && !readOnly && (
-        <StakeholderCreateDialog
-          open={createOpen}
-          onClose={() => setCreateOpen(false)}
-          onStakeholderCreated={handleStakeholderCreated}
-          token={token || ''}
-          reportId={reportId}
-        />
+      <StakeholderCreateDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onStakeholderCreated={handleStakeholderCreated}
+        token={token || ''}
+        reportId={reportId}
+      />
       )}
     </Box>
   );

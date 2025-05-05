@@ -6,7 +6,11 @@ import {
   IconButton, 
   Button,
   Paper,
-  Alert
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -22,7 +26,7 @@ interface PendingChange {
 }
 
 const Bibliography = () => {
-  const { report, loading: reportLoading } = useReport();
+  const { report, loading: reportLoading, readOnly } = useReport();
   const { token } = useAuth();
   const [bibliographies, setBibliographies] = useState<ReportBibliography[]>([]);
   const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
@@ -179,7 +183,7 @@ const Bibliography = () => {
         <Typography variant="h6">
           Referencias Bibliográficas
         </Typography>
-        {pendingChanges.length > 0 && (
+        {!readOnly && pendingChanges.length > 0 && (
           <Button
             variant="contained"
             color="primary"
@@ -204,49 +208,78 @@ const Bibliography = () => {
         </Alert>
       )}
       
-      {bibliographies.map((bibliography) => (
-        <Paper 
-          key={bibliography.id}
-          elevation={0}
-          sx={{ 
-            p: 2, 
-            mb: 2, 
-            border: '1px solid #e0e0e0',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 1
-          }}
-        >
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            placeholder="Introduce la referencia bibliográfica..."
-            value={bibliography.reference}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleBibliographyChange(bibliography.id, e.target.value)}
-            sx={{ flex: 1 }}
-          />
-          <IconButton 
-            onClick={() => removeBibliography(bibliography.id)}
-            color="error"
-            size="small"
-            sx={{ mt: 1 }}
-          >
-            <DeleteOutlineIcon />
-          </IconButton>
-        </Paper>
-      ))}
+      {readOnly ? (
+        <List sx={{ 
+          width: '100%',
+          bgcolor: 'background.paper',
+          border: '1px solid #e0e0e0',
+          borderRadius: '4px',
+          overflow: 'hidden'
+        }}>
+          {bibliographies.map((bibliography, index) => (
+            <React.Fragment key={bibliography.id}>
+              <ListItem>
+                <ListItemText 
+                  primary={bibliography.reference}
+                  sx={{
+                    '& .MuiListItemText-primary': {
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word'
+                    }
+                  }}
+                />
+              </ListItem>
+              {index < bibliographies.length - 1 && <Divider />}
+            </React.Fragment>
+          ))}
+        </List>
+      ) : (
+        <>
+          {bibliographies.map((bibliography) => (
+            <Paper 
+              key={bibliography.id}
+              elevation={0}
+              sx={{ 
+                p: 2, 
+                mb: 2, 
+                border: '1px solid #e0e0e0',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1
+              }}
+            >
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                placeholder="Introduce la referencia bibliográfica..."
+                value={bibliography.reference}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleBibliographyChange(bibliography.id, e.target.value)}
+                sx={{ flex: 1 }}
+              />
+              <IconButton 
+                onClick={() => removeBibliography(bibliography.id)}
+                color="error"
+                size="small"
+                sx={{ mt: 1 }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            </Paper>
+          ))}
 
-      <Button
-        startIcon={<AddCircleOutlineIcon />}
-        onClick={addBibliography}
-        variant="outlined"
-        sx={{ mt: 1 }}
-        disabled={reportLoading}
-      >
-        Añadir referencia bibliográfica
-      </Button>
+          <Button
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={addBibliography}
+            variant="outlined"
+            sx={{ mt: 1 }}
+            disabled={reportLoading}
+          >
+            Añadir referencia bibliográfica
+          </Button>
+        </>
+      )}
     </Box>
   );
 };

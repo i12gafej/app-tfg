@@ -7,10 +7,11 @@ import { ReportProvider } from '@/context/ReportContext';
 
 interface ReportEditProps {
   readOnly?: boolean;
+  reportName?: string;
 }
 
 const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false }) => {
-  const { id } = useParams();
+  const { id, name, year } = useParams();
   const navigate = useNavigate();
   const reportId = id ? parseInt(id, 10) : null;
 
@@ -44,7 +45,7 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false }) => {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" id="edit-title">
-            Editar Memoria de Sostenibilidad
+            {readOnly ? `Consultar Memoria de ${name} - ${year}` : `Editar Memoria de ${name} - ${year}`}
           </Typography>
         </Box>
         <Box sx={{ flex: 1, overflow: 'auto' }}>

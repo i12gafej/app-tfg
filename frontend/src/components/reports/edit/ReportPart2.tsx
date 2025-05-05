@@ -19,7 +19,7 @@ interface ReportPart2Props {
 }
 
 const DIAGNOSIS_SECTIONS = [
-  { id: 'description', label: 'Descripción' },
+  //{ id: 'description', label: 'Descripción' },
   { id: 'material-topics', label: 'Asuntos Relevantes' },
   { id: 'impacts', label: 'Impactos Principal y Secundario' },
   { id: 'graphs', label: 'Gráficos' },
@@ -29,17 +29,17 @@ const DIAGNOSIS_SECTIONS = [
 ];
 
 const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const [activeDiagnosisSection, setActiveDiagnosisSection] = useState(DIAGNOSIS_SECTIONS[0].id);
 
   const renderDiagnosisContent = () => {
     switch (activeDiagnosisSection) {
-      case 'description':
-        return <Description />;
+      //case 'description':
+      //  return <Description />;
       case 'material-topics':
-        return <MaterialTopicSearch reportId={report?.id || 0} />;
+        return <MaterialTopicSearch reportId={report?.id || 0} readOnly={readOnly} />;
       case 'impacts':
-        return <MainSecondaryImpacts reportId={report?.id || 0} onUpdate={() => {}} />;
+        return <MainSecondaryImpacts reportId={report?.id || 0} onUpdate={() => {}} readOnly={readOnly} />;
       case 'graphs':
         return <Graphs />;
       case 'surveys':

@@ -8,7 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { reportService, ReportLogo } from '@/services/reportServices';
 
 const Cover = () => {
-  const { report, updateFullReport } = useReport();
+  const { report, updateFullReport, readOnly } = useReport();
   const { token } = useAuth();
   const coverInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -192,22 +192,24 @@ const Cover = () => {
       </Typography>
 
       <Box sx={{ mt: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
-        <input
-          type="file"
-          ref={coverInputRef}
-          onChange={handleCoverUpload}
-          accept="image/*"
-          style={{ display: 'none' }}
-        />
-        
-        <Button
-          variant="contained"
-          startIcon={<CloudUploadIcon />}
-          onClick={() => coverInputRef.current?.click()}
-        >
-          Subir fotografía
-        </Button>
-
+        {!readOnly && (
+          <>
+            <input
+              type="file"
+              ref={coverInputRef}
+              onChange={handleCoverUpload}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<CloudUploadIcon />}
+              onClick={() => coverInputRef.current?.click()}
+            >
+              Subir fotografía
+            </Button>
+          </>
+        )}
         {coverPhotoUrl && (
           <Button
             variant="outlined"
@@ -243,23 +245,24 @@ const Cover = () => {
           Logos de la Memoria
         </Typography>
 
-        <Box sx={{ mt: 3, mb: 3 }}>
-          <input
-            type="file"
-            ref={logoInputRef}
-            onChange={handleLogoUpload}
-            accept="image/*"
-            style={{ display: 'none' }}
-          />
-          
-          <Button
-            variant="contained"
-            startIcon={<CloudUploadIcon />}
-            onClick={() => logoInputRef.current?.click()}
-          >
-            Añadir logo
-          </Button>
-        </Box>
+        {!readOnly && (
+          <Box sx={{ mt: 3, mb: 3 }}>
+            <input
+              type="file"
+              ref={logoInputRef}
+              onChange={handleLogoUpload}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<CloudUploadIcon />}
+              onClick={() => logoInputRef.current?.click()}
+            >
+              Añadir logo
+            </Button>
+          </Box>
+        )}
 
         <Grid container spacing={2}>
           {logos.map((logo) => (
@@ -285,21 +288,23 @@ const Cover = () => {
                     objectFit: 'contain'
                   }}
                 />
-                <IconButton
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    bgcolor: 'background.paper',
-                    '&:hover': {
-                      bgcolor: 'error.light',
-                      color: 'white'
-                    }
-                  }}
-                  onClick={() => handleDeleteLogo(logo.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                {!readOnly && (
+                  <IconButton
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      bgcolor: 'background.paper',
+                      '&:hover': {
+                        bgcolor: 'error.light',
+                        color: 'white'
+                      }
+                    }}
+                    onClick={() => handleDeleteLogo(logo.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
               </Box>
             </Grid>
           ))}

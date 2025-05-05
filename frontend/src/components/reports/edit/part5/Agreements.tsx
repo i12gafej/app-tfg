@@ -6,7 +6,11 @@ import {
   IconButton, 
   Button,
   Paper,
-  Alert
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -22,7 +26,7 @@ interface PendingChange {
 }
 
 const Agreements = () => {
-  const { report, loading: reportLoading } = useReport();
+  const { report, loading: reportLoading, readOnly } = useReport();
   const { token } = useAuth();
   const [agreements, setAgreements] = useState<ReportAgreement[]>([]);
   const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
@@ -179,7 +183,7 @@ const Agreements = () => {
         <Typography variant="h6">
           Acuerdos
         </Typography>
-        {pendingChanges.length > 0 && (
+        {!readOnly && pendingChanges.length > 0 && (
           <Button
             variant="contained"
             color="primary"
@@ -204,49 +208,78 @@ const Agreements = () => {
         </Alert>
       )}
       
-      {agreements.map((agreement) => (
-        <Paper 
-          key={agreement.id}
-          elevation={0}
-          sx={{ 
-            p: 2, 
-            mb: 2, 
-            border: '1px solid #e0e0e0',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 1
-          }}
-        >
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            placeholder="Introduce el acuerdo..."
-            value={agreement.agreement}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAgreementChange(agreement.id, e.target.value)}
-            sx={{ flex: 1 }}
-          />
-          <IconButton 
-            onClick={() => removeAgreement(agreement.id)}
-            color="error"
-            size="small"
-            sx={{ mt: 1 }}
-          >
-            <DeleteOutlineIcon />
-          </IconButton>
-        </Paper>
-      ))}
+      {readOnly ? (
+        <List sx={{ 
+          width: '100%',
+          bgcolor: 'background.paper',
+          border: '1px solid #e0e0e0',
+          borderRadius: '4px',
+          overflow: 'hidden'
+        }}>
+          {agreements.map((agreement, index) => (
+            <React.Fragment key={agreement.id}>
+              <ListItem>
+                <ListItemText 
+                  primary={agreement.agreement}
+                  sx={{
+                    '& .MuiListItemText-primary': {
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word'
+                    }
+                  }}
+                />
+              </ListItem>
+              {index < agreements.length - 1 && <Divider />}
+            </React.Fragment>
+          ))}
+        </List>
+      ) : (
+        <>
+          {agreements.map((agreement) => (
+            <Paper 
+              key={agreement.id}
+              elevation={0}
+              sx={{ 
+                p: 2, 
+                mb: 2, 
+                border: '1px solid #e0e0e0',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1
+              }}
+            >
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                placeholder="Introduce el acuerdo..."
+                value={agreement.agreement}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAgreementChange(agreement.id, e.target.value)}
+                sx={{ flex: 1 }}
+              />
+              <IconButton 
+                onClick={() => removeAgreement(agreement.id)}
+                color="error"
+                size="small"
+                sx={{ mt: 1 }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            </Paper>
+          ))}
 
-      <Button
-        startIcon={<AddCircleOutlineIcon />}
-        onClick={addAgreement}
-        variant="outlined"
-        sx={{ mt: 1 }}
-        disabled={reportLoading}
-      >
-        Añadir acuerdo
-      </Button>
+          <Button
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={addAgreement}
+            variant="outlined"
+            sx={{ mt: 1 }}
+            disabled={reportLoading}
+          >
+            Añadir acuerdo
+          </Button>
+        </>
+      )}
     </Box>
   );
 };

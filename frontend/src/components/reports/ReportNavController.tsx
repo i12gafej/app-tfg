@@ -20,12 +20,12 @@ const ReportNavController = () => {
                 <ReportSearch />
               </ProtectedRoute>
             } />
-            <Route path="/editar/:id" element={
+            <Route path="/editar/:id/:name/:year" element={
               <ProtectedRoute>
                 <ReportEdit />
               </ProtectedRoute>
             } />
-            <Route path="/consultar/:id" element={
+            <Route path="/consultar/:id/:name/:year" element={
               <ProtectedRoute>
                 <ReportEdit readOnly={true} />
               </ProtectedRoute>

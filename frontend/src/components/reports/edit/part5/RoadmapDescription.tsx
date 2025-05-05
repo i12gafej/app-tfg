@@ -7,7 +7,7 @@ import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
 
 const RoadmapDescription = () => {
-  const { report, updateReport, loading: reportLoading } = useReport();
+  const { report, updateReport, loading: reportLoading, readOnly } = useReport();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -17,6 +17,7 @@ const RoadmapDescription = () => {
       Underline
     ],
     content: report?.roadmap_description || '<p>Escribe aquí la descripción de la hoja de ruta y sus objetivos principales...</p>',
+    editable: !readOnly,
   });
 
   useEffect(() => {
@@ -52,14 +53,16 @@ const RoadmapDescription = () => {
         <Typography variant="h6">
           Descripción de la Hoja de Ruta
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={reportLoading}
-        >
-          {reportLoading ? 'Guardando...' : 'Guardar'}
-        </Button>
+        {!readOnly && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={reportLoading}
+          >
+            {reportLoading ? 'Guardando...' : 'Guardar'}
+          </Button>
+        )}
       </Box>
 
       {error && (
@@ -79,7 +82,7 @@ const RoadmapDescription = () => {
         borderRadius: '4px',
         overflow: 'hidden'
       }}>
-        <EditorMenuBar editor={editor} />
+        {!readOnly && <EditorMenuBar editor={editor} />}
         <Box sx={{ 
           padding: '1rem',
           minHeight: '200px',

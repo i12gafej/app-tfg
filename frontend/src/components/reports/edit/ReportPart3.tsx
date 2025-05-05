@@ -25,13 +25,13 @@ const PART3_SECTIONS = [
 ];
 
 const ReportPart3: React.FC<ReportPart3Props> = ({ section = 'context' }) => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const [activeSection, setActiveSection] = useState(section);
 
   const renderContent = () => {
     switch (activeSection) {
       case 'context':
-        return <ContextTimePeriod />;
+        return <ContextTimePeriod readOnly={readOnly} />;
       case 'main-objective':
         return <MainObjective />;
       case 'specific-objectives':

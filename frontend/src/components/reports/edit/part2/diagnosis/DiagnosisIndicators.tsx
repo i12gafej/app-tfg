@@ -35,7 +35,7 @@ interface MaterialTopic {
 
 const DiagnosisIndicators: React.FC = () => {
   const { token } = useAuth();
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
@@ -266,13 +266,15 @@ const DiagnosisIndicators: React.FC = () => {
                 Indicadores
               </Typography>
               {selectedTopic && (
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => setOpenCreateDialog(true)}
-                >
-                  Nuevo Indicador
-                </Button>
+                !readOnly && (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => setOpenCreateDialog(true)}
+                  >
+                    Nuevo Indicador
+                  </Button>
+                )
               )}
             </Box>
             <List sx={{ 
@@ -300,13 +302,15 @@ const DiagnosisIndicators: React.FC = () => {
                   selected={selectedIndicator?.id === indicator.id}
                   onClick={() => setSelectedIndicator(indicator)}
                   secondaryAction={
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => handleDeleteClick(indicator)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    !readOnly && (
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleDeleteClick(indicator)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )
                   }
                 >
                   <ListItemText
@@ -341,21 +345,23 @@ const DiagnosisIndicators: React.FC = () => {
                   fullWidth
                   label="Nombre"
                   value={selectedIndicator.name}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
+                  onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
                     ...selectedIndicator,
                     name: e.target.value
                   })}
+                  disabled={readOnly}
                   margin="normal"
                 />
-                <FormControl fullWidth margin="normal">
+                <FormControl fullWidth margin="normal" disabled={readOnly}>
                   <InputLabel>Tipo</InputLabel>
                   <Select
                     value={selectedIndicator.type}
                     label="Tipo"
-                    onChange={(e: React.ChangeEvent<{ value: unknown }>) => setSelectedIndicator({
+                    onChange={readOnly ? undefined : (e: React.ChangeEvent<{ value: unknown }>) => setSelectedIndicator({
                       ...selectedIndicator,
                       type: e.target.value as 'quantitative' | 'qualitative'
                     })}
+                    disabled={readOnly}
                   >
                     <MenuItem value="quantitative">Cuantitativo</MenuItem>
                     <MenuItem value="qualitative">Cualitativo</MenuItem>
@@ -369,7 +375,7 @@ const DiagnosisIndicators: React.FC = () => {
                       label="Valor Numérico"
                       type="number"
                       value={selectedIndicator.quantitative_data?.numeric_response || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
+                      onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
                         ...selectedIndicator,
                         quantitative_data: {
                           diagnostic_indicator_id: selectedIndicator.id,
@@ -377,13 +383,14 @@ const DiagnosisIndicators: React.FC = () => {
                           unit: selectedIndicator.quantitative_data?.unit || ''
                         }
                       })}
+                      disabled={readOnly}
                       margin="normal"
                     />
                     <TextField
                       fullWidth
                       label="Unidad"
                       value={selectedIndicator.quantitative_data?.unit || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
+                      onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
                         ...selectedIndicator,
                         quantitative_data: {
                           diagnostic_indicator_id: selectedIndicator.id,
@@ -391,6 +398,7 @@ const DiagnosisIndicators: React.FC = () => {
                           unit: e.target.value
                         }
                       })}
+                      disabled={readOnly}
                       margin="normal"
                     />
                   </>
@@ -401,24 +409,27 @@ const DiagnosisIndicators: React.FC = () => {
                     multiline
                     rows={4}
                     value={selectedIndicator.qualitative_data?.response || ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
+                    onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
                       ...selectedIndicator,
                       qualitative_data: {
                         diagnostic_indicator_id: selectedIndicator.id,
                         response: e.target.value
                       }
                     })}
+                    disabled={readOnly}
                     margin="normal"
                   />
                 )}
 
-                <Button
-                  variant="contained"
-                  onClick={() => setOpenEditDialog(true)}
-                  sx={{ mt: 2 }}
-                >
-                  Guardar Cambios
-                </Button>
+                {!readOnly && (
+                  <Button
+                    variant="contained"
+                    onClick={() => setOpenEditDialog(true)}
+                    sx={{ mt: 2 }}
+                  >
+                    Guardar Cambios
+                  </Button>
+                )}
               </Box>
             ) : (
               <Typography variant="body2" color="text.secondary">
@@ -439,13 +450,15 @@ const DiagnosisIndicators: React.FC = () => {
             value={newIndicator.name}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewIndicator({ ...newIndicator, name: e.target.value })}
             margin="normal"
+            disabled={readOnly}
           />
-          <FormControl fullWidth margin="normal">
+          <FormControl fullWidth margin="normal" disabled={readOnly}>
             <InputLabel>Tipo</InputLabel>
             <Select
               value={newIndicator.type}
               label="Tipo"
-              onChange={(e: React.ChangeEvent<{ value: unknown }>) => setNewIndicator({ ...newIndicator, type: e.target.value as 'quantitative' | 'qualitative' })}
+              onChange={readOnly ? undefined : (e: React.ChangeEvent<{ value: unknown }>) => setNewIndicator({ ...newIndicator, type: e.target.value as 'quantitative' | 'qualitative' })}
+              disabled={readOnly}
             >
               <MenuItem value="quantitative">Cuantitativo</MenuItem>
               <MenuItem value="qualitative">Cualitativo</MenuItem>
@@ -461,6 +474,7 @@ const DiagnosisIndicators: React.FC = () => {
                 value={newIndicator.numeric_response || ''}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewIndicator({ ...newIndicator, numeric_response: Number(e.target.value) })}
                 margin="normal"
+                disabled={readOnly}
               />
               <TextField
                 fullWidth
@@ -468,6 +482,7 @@ const DiagnosisIndicators: React.FC = () => {
                 value={newIndicator.unit || ''}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewIndicator({ ...newIndicator, unit: e.target.value })}
                 margin="normal"
+                disabled={readOnly}
               />
             </>
           ) : (
@@ -479,14 +494,17 @@ const DiagnosisIndicators: React.FC = () => {
               value={newIndicator.response || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewIndicator({ ...newIndicator, response: e.target.value })}
               margin="normal"
+              disabled={readOnly}
             />
           )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenCreateDialog(false)}>Cancelar</Button>
-          <Button onClick={handleCreateIndicator} variant="contained">
-            Crear
-          </Button>
+          {!readOnly && (
+            <Button onClick={handleCreateIndicator} variant="contained">
+              Crear
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
@@ -500,9 +518,11 @@ const DiagnosisIndicators: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancelar</Button>
-          <Button onClick={handleUpdateIndicator} variant="contained">
-            Guardar
-          </Button>
+          {!readOnly && (
+            <Button onClick={handleUpdateIndicator} variant="contained">
+              Guardar
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
