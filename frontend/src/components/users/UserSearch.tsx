@@ -562,7 +562,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                       <Button 
                         variant="outlined" 
                         size="small" 
-                        color="primary"
+                        color="view"
                         fullWidth={isMobile}
                         sx={{ 
                           mr: isMobile ? 0 : 1,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -15,7 +15,9 @@ import {
   Rating,
   CircularProgress,
   Alert,
-  Paper
+  Paper,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { materialTopicService, MaterialTopic } from '@/services/materialTopicService';
@@ -39,6 +41,9 @@ const dimensions = [
 
 const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) => {
   const { token } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const topRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +110,11 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
       handleSubmit();
     } else {
       setActiveStep(prev => prev + 1);
+      setTimeout(() => {
+        if (topRef.current) {
+          topRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
@@ -158,8 +168,8 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
   });
 
   return (
-    <Box>
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+    <Box ref={topRef}>
+      <Stepper activeStep={activeStep} sx={{ mb: 4 }} orientation={isMobile ? 'vertical' : 'horizontal'}>
         {dimensions.map((dimension) => (
           <Step key={dimension.name}>
             <StepLabel>{dimension.name}</StepLabel>

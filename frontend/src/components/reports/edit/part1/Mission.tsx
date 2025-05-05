@@ -7,7 +7,7 @@ import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
 
 const Mission = () => {
-  const { report, updateReport, loading: reportLoading } = useReport();
+  const { report, updateReport, loading: reportLoading, readOnly } = useReport();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -17,6 +17,7 @@ const Mission = () => {
       Underline
     ],
     content: report?.mission || '<p>Escribe aquí la misión de la organización...</p>',
+    editable: !readOnly,
   });
 
   useEffect(() => {
@@ -52,14 +53,16 @@ const Mission = () => {
         <Typography variant="h6">
           Misión
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={reportLoading}
-        >
-          {reportLoading ? 'Guardando...' : 'Guardar'}
-        </Button>
+        {!readOnly && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={reportLoading}
+          >
+            {reportLoading ? 'Guardando...' : 'Guardar'}
+          </Button>
+        )}
       </Box>
 
       {error && (
@@ -74,23 +77,38 @@ const Mission = () => {
         </Alert>
       )}
 
-      <Box sx={{ 
-        border: '1px solid #ccc', 
-        borderRadius: '4px',
-        overflow: 'hidden'
-      }}>
-        <EditorMenuBar editor={editor} />
+      {readOnly ? (
+        <Box 
+          sx={{ 
+            p: 3,
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            minHeight: '200px',
+            '& p': { m: 0 },
+            '& ul, & ol': { pl: 3 },
+            '& h1, & h2, & h3, & h4, & h5, & h6': { mt: 2, mb: 1 }
+          }}
+          dangerouslySetInnerHTML={{ __html: report?.mission || '' }}
+        />
+      ) : (
         <Box sx={{ 
-          padding: '1rem',
-          minHeight: '200px',
-          '& .ProseMirror': {
-            outline: 'none',
-            height: '100%'
-          }
+          border: '1px solid #ccc', 
+          borderRadius: '4px',
+          overflow: 'hidden'
         }}>
-          <EditorContent editor={editor} />
+          <EditorMenuBar editor={editor} />
+          <Box sx={{ 
+            padding: '1rem',
+            minHeight: '200px',
+            '& .ProseMirror': {
+              outline: 'none',
+              height: '100%'
+            }
+          }}>
+            <EditorContent editor={editor} />
+          </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 };

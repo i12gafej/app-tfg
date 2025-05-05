@@ -37,65 +37,6 @@ class ReportAgreement(ReportAgreementBase):
     class Config:
         from_attributes = True
 
-class SustainabilityReportBase(BaseModel):
-    year: int
-    state: str = 'Draft'
-    survey_state: str = 'inactive'
-    observation: str = ''
-    cover_photo: Optional[str] = None
-    commitment_letter: Optional[str] = None
-    mission: Optional[str] = None
-    vision: Optional[str] = None
-    values: Optional[str] = None
-    org_chart_text: Optional[str] = None
-    org_chart_figure: Optional[str] = None
-    diagnosis_description: Optional[str] = None
-    scale: int = 5
-    action_plan_description: Optional[str] = None
-    internal_coherence_description: Optional[str] = None
-    main_impact_weight: Optional[Decimal] = None
-    secondary_impact_weight: Optional[Decimal] = None
-    roadmap_description: Optional[str] = None
-    data_tables_text: Optional[str] = None
-
-class SustainabilityReportCreate(SustainabilityReportBase):
-    heritage_resource_id: int
-
-class SustainabilityReportUpdate(BaseModel):
-    year: Optional[int] = None
-    state: Optional[str] = None
-    survey_state: Optional[str] = None
-    observation: Optional[str] = None
-    cover_photo: Optional[str] = None
-    commitment_letter: Optional[str] = None
-    mission: Optional[str] = None
-    vision: Optional[str] = None
-    values: Optional[str] = None
-    org_chart_text: Optional[str] = None
-    org_chart_figure: Optional[str] = None
-    diagnosis_description: Optional[str] = None
-    scale: Optional[int] = None
-    action_plan_description: Optional[str] = None
-    internal_coherence_description: Optional[str] = None
-    main_impact_weight: Optional[Decimal] = None
-    secondary_impact_weight: Optional[Decimal] = None
-    roadmap_description: Optional[str] = None
-    data_tables_text: Optional[str] = None
-    heritage_resource_id: Optional[int] = None
-
-class ReportUpdateRequest(BaseModel):
-    report_id: int
-    report_data: SustainabilityReportUpdate
-
-class SustainabilityReport(SustainabilityReportBase):
-    id: int
-    heritage_resource_id: int
-    heritage_resource_name: Optional[str] = None
-    norms: List[ReportNorm] = []
-
-    class Config:
-        from_attributes = True
-
 class ReportLogo(BaseModel):
     id: int
     logo: str
@@ -138,4 +79,92 @@ class ReportPhotoResponse(ReportPhoto):
 
 class ReportPhotoUpdate(BaseModel):
     description: Optional[str] = None
-    report_id: int 
+    report_id: int
+
+class SustainabilityReportBase(BaseModel):
+    year: int
+    state: str = 'Draft'
+    survey_state: str = 'inactive'
+    observation: str = ''
+    cover_photo: Optional[str] = None
+    commitment_letter: Optional[str] = None
+    mission: Optional[str] = None
+    vision: Optional[str] = None
+    values: Optional[str] = None
+    org_chart_text: Optional[str] = None
+    org_chart_figure: Optional[str] = None
+    diagnosis_description: Optional[str] = None
+    scale: int = 5
+    action_plan_description: Optional[str] = None
+    internal_coherence_description: Optional[str] = None
+    main_impact_weight: Optional[Decimal] = None
+    secondary_impact_weight: Optional[Decimal] = None
+    roadmap_description: Optional[str] = None
+    data_tables_text: Optional[str] = None
+    permissions: int = 0
+
+class SustainabilityReportCreate(SustainabilityReportBase):
+    heritage_resource_id: int
+
+class SustainabilityReportUpdate(BaseModel):
+    year: Optional[int] = None
+    state: Optional[str] = None
+    survey_state: Optional[str] = None
+    observation: Optional[str] = None
+    cover_photo: Optional[str] = None
+    commitment_letter: Optional[str] = None
+    mission: Optional[str] = None
+    vision: Optional[str] = None
+    values: Optional[str] = None
+    org_chart_text: Optional[str] = None
+    org_chart_figure: Optional[str] = None
+    diagnosis_description: Optional[str] = None
+    scale: Optional[int] = None
+    action_plan_description: Optional[str] = None
+    internal_coherence_description: Optional[str] = None
+    main_impact_weight: Optional[Decimal] = None
+    secondary_impact_weight: Optional[Decimal] = None
+    roadmap_description: Optional[str] = None
+    data_tables_text: Optional[str] = None
+    heritage_resource_id: Optional[int] = None
+    permissions: Optional[int] = None
+
+class ReportUpdateRequest(BaseModel):
+    report_id: int
+    report_data: SustainabilityReportUpdate
+
+class SustainabilityReport(SustainabilityReportBase):
+    id: int
+    heritage_resource_id: int
+    heritage_resource_name: Optional[str] = None
+    norms: List[ReportNorm] = []
+    logos: List[ReportLogo] = []
+    agreements: List[ReportAgreement] = []
+    bibliographies: List[ReportBibliography] = []
+    photos: List[ReportPhoto] = []
+    permissions: int
+
+    class Config:
+        from_attributes = True
+
+
+
+class UserReportRole(BaseModel):
+    report_id: int
+    role: str  # 'manager', 'consultant', 'external_advisor'
+    organization: str
+
+    class Config:
+        from_attributes = True
+
+class SustainabilityReportWithRole(SustainabilityReport):
+    user_role: Optional[UserReportRole] = None
+    permissions: int
+
+class UserRoleResponse(BaseModel):
+    role: str 
+
+class ReportResponse(BaseModel):
+    report: SustainabilityReport
+    user_role_response: UserRoleResponse 
+    permissions: int 

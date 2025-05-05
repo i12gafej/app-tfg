@@ -6,7 +6,11 @@ import {
   IconButton, 
   Button,
   Paper,
-  Alert
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -23,7 +27,7 @@ interface PendingChange {
 }
 
 const Regulations = () => {
-  const { report, loading: reportLoading } = useReport();
+  const { report, loading: reportLoading, readOnly } = useReport();
   const { token } = useAuth();
   const [regulations, setRegulations] = useState<ReportNorm[]>([]);
   const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
@@ -171,7 +175,7 @@ const Regulations = () => {
         <Typography variant="h6">
           Normativa
         </Typography>
-        {pendingChanges.length > 0 && (
+        {!readOnly && pendingChanges.length > 0 && (
           <Button
             variant="contained"
             color="primary"
@@ -196,49 +200,83 @@ const Regulations = () => {
         </Alert>
       )}
       
-      {regulations.map((regulation) => (
-        <Paper 
-          key={regulation.id}
-          elevation={0}
-          sx={{ 
-            p: 2, 
-            mb: 2, 
-            border: '1px solid #e0e0e0',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 1
-          }}
-        >
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            placeholder="Introduce la normativa..."
-            value={regulation.norm}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleRegulationChange(regulation.id, e.target.value)}
-            sx={{ flex: 1 }}
-          />
-          <IconButton 
-            onClick={() => removeRegulation(regulation.id)}
-            color="error"
-            size="small"
-            sx={{ mt: 1 }}
-          >
-            <DeleteOutlineIcon />
-          </IconButton>
-        </Paper>
-      ))}
+      {readOnly ? (
+        <List sx={{ 
+          width: '100%',
+          bgcolor: 'background.paper',
+          border: '1px solid #e0e0e0',
+          borderRadius: '4px',
+          overflow: 'hidden'
+        }}>
+          {regulations.map((regulation, index) => (
+            <React.Fragment key={regulation.id}>
+              <ListItem>
+                <ListItemText 
+                  primary={regulation.norm}
+                  sx={{
+                    '& .MuiListItemText-primary': {
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word'
+                    }
+                  }}
+                />
+              </ListItem>
+              {index < regulations.length - 1 && <Divider />}
+            </React.Fragment>
+          ))}
+        </List>
+      ) : (
+        <>
+          {regulations.map((regulation) => (
+            <Paper 
+              key={regulation.id}
+              elevation={0}
+              sx={{ 
+                p: 2, 
+                mb: 2, 
+                border: '1px solid #e0e0e0',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1
+              }}
+            >
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                placeholder="Introduce la normativa..."
+                value={regulation.norm}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleRegulationChange(regulation.id, e.target.value)}
+                sx={{ flex: 1 }}
+                disabled={readOnly}
+              />
+              {!readOnly && (
+                <IconButton 
+                  onClick={() => removeRegulation(regulation.id)}
+                  color="error"
+                  size="small"
+                  sx={{ mt: 1 }}
+                >
+                  <DeleteOutlineIcon />
+                </IconButton>
+              )}
+            </Paper>
+          ))}
 
-      <Button
-        startIcon={<AddCircleOutlineIcon />}
-        onClick={addRegulation}
-        variant="outlined"
-        sx={{ mt: 1 }}
-        disabled={reportLoading}
-      >
-        Añadir normativa
-      </Button>
+          {!readOnly && (
+            <Button
+              startIcon={<AddCircleOutlineIcon />}
+              onClick={addRegulation}
+              variant="outlined"
+              sx={{ mt: 1 }}
+              disabled={reportLoading}
+            >
+              Añadir normativa
+            </Button>
+          )}
+        </>
+      )}
     </Box>
   );
 };

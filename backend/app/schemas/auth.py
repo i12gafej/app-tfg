@@ -18,5 +18,6 @@ class Token(BaseModel):
     user: UserInfo
 
 class TokenData(BaseModel):
+    id: int | None = None
     email: str | None = None
     admin: bool = False 

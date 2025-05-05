@@ -16,6 +16,12 @@ const colors = {
     dark: '#357A38',
     contrastText: '#FFFFFF',
   },
+  view: {
+    main: '#e6ac1b',
+    light: '#FFFF99',
+    dark: '#FAF622',
+    contrastText: '#FFFFFF',
+  },
   background: {
     default: '#F6F1C5',
     paper: '#FFFFFF',

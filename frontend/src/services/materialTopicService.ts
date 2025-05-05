@@ -78,8 +78,8 @@ export const materialTopicService = {
   async updateMaterialTopic(materialTopicId: number, materialTopicData: Partial<MaterialTopic>, token: string): Promise<MaterialTopic> {
     try {
       const response = await api.post<MaterialTopic>('/material-topics/update', {
-        material_topic_id: materialTopicId,
-        material_topic_data: materialTopicData
+        id: materialTopicId,
+        ...materialTopicData
       }, {
         headers: {
           Authorization: `Bearer ${token}`

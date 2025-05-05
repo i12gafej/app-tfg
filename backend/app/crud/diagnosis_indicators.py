@@ -72,6 +72,12 @@ def create_indicator(
     db.refresh(db_indicator)
     return db_indicator
 
+def get_report_id_by_indicator(db: Session, indicator_id: int) -> int:
+    material_topic_indicator = db.query(MaterialTopic).join(DiagnosticIndicator, DiagnosticIndicator.material_topic_id == MaterialTopic.id).filter(DiagnosticIndicator.id == indicator_id).first()
+    if not material_topic_indicator:
+        return None
+    return material_topic_indicator.report_id
+
 def update_indicator(
     db: Session,
     indicator_id: int,

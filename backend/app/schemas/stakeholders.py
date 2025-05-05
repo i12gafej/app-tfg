@@ -15,6 +15,8 @@ class StakeholderCreate(StakeholderBase):
     report_id: int
 
 class StakeholderUpdate(BaseModel):
+    id: int
+    report_id: int
     name: Optional[str] = None
     description: Optional[str] = None
     type: Optional[StakeholderType] = None

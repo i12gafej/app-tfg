@@ -28,6 +28,7 @@ import { MaterialTopicDetailsDialog } from './MaterialTopicDetailsDialog';
 import { MaterialTopicEditDialog } from './MaterialTopicEditDialog';
 import { MaterialTopicDeleteDialog } from './MaterialTopicDeleteDialog';
 import { MaterialTopicCreateDialog } from './MaterialTopicCreateDialog';
+import { stakeholderService } from '@/services/stakeholderService';
 
 interface MaterialTopicSearchProps {
   reportId: number;
@@ -38,7 +39,7 @@ type Order = 'asc' | 'desc';
 const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
   const [loading, setLoading] = useState(false);
@@ -53,6 +54,21 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
   const [createOpen, setCreateOpen] = useState(false);
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof MaterialTopic>('name');
+  const [userRole, setUserRole] = useState<'manager' | 'consultant' | 'external_advisor' | null>(null);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (token) {
+        try {
+          const response = await stakeholderService.getUserRole(reportId, token);
+          setUserRole(response.role);
+        } catch (error) {
+          console.error('Error al obtener el rol del usuario:', error);
+        }
+      }
+    };
+    fetchUserRole();
+  }, [reportId, token]);
 
   useEffect(() => {
     setRowsPerPage(isMobile ? 5 : 10);
@@ -139,6 +155,8 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
       return 0;
     });
   }, [materialTopics, order, orderBy]);
+
+  const canEdit = user?.admin || userRole === 'manager';
 
   return (
     <Box>
@@ -229,19 +247,21 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
         </Box>
       </Paper>
 
-      <Button
-        variant="contained"
-        onClick={handleCreate}
-        sx={{ 
-          ml: 1,
-          borderRadius: '20px',
-          textTransform: 'none',
-          px: 2,
-          marginBottom: 1,
-        }}
-      >
-        Nuevo Asunto Relevante
-      </Button>
+      {canEdit && (
+        <Button
+          variant="contained"
+          onClick={handleCreate}
+          sx={{ 
+            ml: 1,
+            borderRadius: '20px',
+            textTransform: 'none',
+            px: 2,
+            marginBottom: 1,
+          }}
+        >
+          Nuevo Asunto Relevante
+        </Button>
+      )}
 
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -301,31 +321,35 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId }) =
                       >
                         Consultar
                       </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        color="primary"
-                        fullWidth={isMobile}
-                        sx={{ 
-                          mr: isMobile ? 0 : 1,
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                        onClick={() => handleEdit(materialTopic)}
-                      >
-                        Editar
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        color="error"
-                        fullWidth={isMobile}
-                        sx={{ 
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                        onClick={() => handleDelete(materialTopic)}
-                      >
-                        Eliminar
-                      </Button>
+                      {canEdit && (
+                        <>
+                          <Button 
+                            variant="outlined" 
+                            size="small" 
+                            color="view"
+                            fullWidth={isMobile}
+                            sx={{ 
+                              mr: isMobile ? 0 : 1,
+                              minWidth: isMobile ? '100%' : 'auto'
+                            }}
+                            onClick={() => handleEdit(materialTopic)}
+                          >
+                            Editar
+                          </Button>
+                          <Button 
+                            variant="outlined" 
+                            size="small" 
+                            color="error"
+                            fullWidth={isMobile}
+                            sx={{ 
+                              minWidth: isMobile ? '100%' : 'auto'
+                            }}
+                            onClick={() => handleDelete(materialTopic)}
+                          >
+                            Eliminar
+                          </Button>
+                        </>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>

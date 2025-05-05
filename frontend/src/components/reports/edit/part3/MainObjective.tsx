@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, Alert } from '@mui/material';
+import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
-import { materialTopicService } from '@/services/materialTopicService';
+import { materialTopicService, PriorityLevel } from '@/services/materialTopicService';
 
 interface MaterialTopic {
   id: number;
   name: string;
   main_objective?: string;
+  priority?: string;
 }
+
+const priorityOptions = [
+  { value: 'high', label: 'Alta' },
+  { value: 'medium', label: 'Media' },
+  { value: 'low', label: 'Baja' }
+];
 
 const MainObjective = () => {
   const { report } = useReport();
@@ -57,6 +64,11 @@ const MainObjective = () => {
     }
   }, [selectedTopic, editor]);
 
+  const handlePriorityChange = (event: any) => {
+    if (!selectedTopic) return;
+    setSelectedTopic({ ...selectedTopic, priority: event.target.value as PriorityLevel });
+  };
+
   const handleSave = async () => {
     if (!editor || !selectedTopic) return;
 
@@ -73,17 +85,17 @@ const MainObjective = () => {
       const content = editor.getHTML();
       const updatedTopic = await materialTopicService.updateMaterialTopic(
         selectedTopic.id,
-        { main_objective: content },
+        { main_objective: content, priority: selectedTopic.priority as PriorityLevel },
         token
       );
 
       // Actualizar el topic en la lista local
       setMaterialTopics(prevTopics =>
         prevTopics.map(topic =>
-          topic.id === updatedTopic.id ? { ...topic, main_objective: updatedTopic.main_objective } : topic
+          topic.id === updatedTopic.id ? { ...topic, main_objective: updatedTopic.main_objective, priority: updatedTopic.priority } : topic
         )
       );
-      setSelectedTopic({ ...selectedTopic, main_objective: updatedTopic.main_objective });
+      setSelectedTopic({ ...selectedTopic, main_objective: updatedTopic.main_objective, priority: updatedTopic.priority });
       setSuccessMessage('Objetivo principal guardado correctamente');
     } catch (err) {
       console.error('Error al guardar el objetivo principal:', err);
@@ -150,15 +162,30 @@ const MainObjective = () => {
               <Typography variant="subtitle1">
                 Objetivo Principal
               </Typography>
-              {selectedTopic && (
-                <Button
-                  variant="contained"
-                  onClick={handleSave}
-                  disabled={loading}
-                >
-                  {loading ? 'Guardando...' : 'Guardar'}
-                </Button>
-              )}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 120, mr: 2 }}>
+                  <InputLabel id="priority-label">Prioridad</InputLabel>
+                  <Select
+                    labelId="priority-label"
+                    value={selectedTopic?.priority ? selectedTopic.priority : ''}
+                    label="Prioridad"
+                    onChange={handlePriorityChange}
+                  >
+                    {priorityOptions.map(option => (
+                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {selectedTopic && (
+                  <Button
+                    variant="contained"
+                    onClick={handleSave}
+                    disabled={loading}
+                  >
+                    {loading ? 'Guardando...' : 'Guardar'}
+                  </Button>
+                )}
+              </Box>
             </Box>
 
             {error && (
@@ -180,12 +207,15 @@ const MainObjective = () => {
                 borderRadius: '4px',
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                minHeight: 0
               }}>
                 <EditorMenuBar editor={editor} />
                 <Box sx={{ 
                   padding: '1rem',
                   flex: 1,
+                  minHeight: 0,
+                  maxHeight: 220,
                   overflow: 'auto',
                   '& .ProseMirror': {
                     outline: 'none',

@@ -39,6 +39,7 @@ import SortIcon from '@mui/icons-material/Sort';
 import { useAuth } from '@/hooks/useAuth';
 import { reportService, type SustainabilityReport, type ReportSearchParams } from '@/services/reportServices';
 import { ReportCreateDialog } from './ReportCreateDialog';
+import { ReportPermissionDialog } from './ReportPermissionDialog';
 
 interface ReportSearchProps {
   onSearch?: (searchTerm: string, filters: SearchFilters) => void;
@@ -71,17 +72,25 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(isMobile ? 5 : 10);
   const [totalReports, setTotalReports] = useState(0);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const isAdmin = user?.admin || false;
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [sortField, setSortField] = useState<SortField>('year');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [tempSortField, setTempSortField] = useState<SortField>('year');
   const [tempSortOrder, setTempSortOrder] = useState<SortOrder>('asc');
   const [createOpen, setCreateOpen] = useState(false);
+  const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<SustainabilityReport | null>(null);
 
   useEffect(() => {
     setRowsPerPage(isMobile ? 5 : 10);
   }, [isMobile]);
+
+  useEffect(() => {
+    handleSearch();
+    // eslint-disable-next-line
+  }, []);
 
   const handleSearch = async (newPage: number = 0) => {
     try {
@@ -218,6 +227,33 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
 
   const handleEdit = (report: SustainabilityReport) => {
     navigate(`/memorias/editar/${report.id}`);
+  };
+
+  const handleView = (report: SustainabilityReport) => {
+    navigate(`/memorias/consultar/${report.id}`);
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'manager':
+        return 'Gestor';
+      case 'consultant':
+        return 'Consultor';
+      case 'external_advisor':
+        return 'Asesor externo';
+      default:
+        return role;
+    }
+  };
+
+  const handleOpenPermissions = (report: SustainabilityReport) => {
+    setSelectedReport(report);
+    setPermissionDialogOpen(true);
+  };
+
+  const handleClosePermissions = () => {
+    setPermissionDialogOpen(false);
+    setSelectedReport(null);
   };
 
   return (
@@ -435,6 +471,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                 <TableCell>Recurso Patrimonial</TableCell>
                 <TableCell>Año</TableCell>
                 <TableCell>Estado</TableCell>
+                {!isAdmin && <TableCell>Rol</TableCell>}
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
@@ -445,6 +482,11 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                   <TableCell>{report.heritage_resource_name || 'Sin nombre'}</TableCell>
                   <TableCell>{report.year}</TableCell>
                   <TableCell>{report.state === 'Draft' ? 'Borrador' : 'Publicado'}</TableCell>
+                  {!isAdmin && (
+                    <TableCell>
+                      {report.user_role ? getRoleLabel(report.user_role.role) : 'Sin rol'}
+                    </TableCell>
+                  )}
                   <TableCell align="right">
                     <Box sx={{ 
                       display: 'flex', 
@@ -460,33 +502,52 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                           mr: isMobile ? 0 : 1,
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
+                        onClick={() => handleView(report)}
                       >
                         Consultar
                       </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        color="primary"
-                        fullWidth={isMobile}
-                        onClick={() => handleEdit(report)}
-                        sx={{ 
-                          mr: isMobile ? 0 : 1,
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                      >
-                        Editar
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        color="error"
-                        fullWidth={isMobile}
-                        sx={{ 
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                      >
-                        Eliminar
-                      </Button>
+                      {(isAdmin || report.user_role?.role === 'manager') && (
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          color="view"
+                          fullWidth={isMobile}
+                          onClick={() => handleEdit(report)}
+                          sx={{ 
+                            mr: isMobile ? 0 : 1,
+                            minWidth: isMobile ? '100%' : 'auto'
+                          }}
+                        >
+                          Editar
+                        </Button>
+                      )}
+                      {(isAdmin || report.user_role?.role === 'manager') && (
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          color="error"
+                          fullWidth={isMobile}
+                          sx={{ 
+                            mr: isMobile ? 0 : 1,
+                            minWidth: isMobile ? '100%' : 'auto'
+                          }}
+                        >
+                          Eliminar
+                        </Button>
+                      )}
+                      {(isAdmin || report.user_role?.role === 'manager') && (
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          color="secondary"
+                          fullWidth={isMobile}
+                          sx={{ mr: isMobile ? 0 : 1,
+                             minWidth: isMobile ? '100%' : 'auto' }}
+                          onClick={() => handleOpenPermissions(report)}
+                        >
+                          Permisos
+                        </Button>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -585,6 +646,13 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
         open={createOpen}
         onClose={handleCloseCreate}
         onReportCreated={handleReportCreated}
+        token={token || ''}
+      />
+
+      <ReportPermissionDialog
+        open={permissionDialogOpen}
+        onClose={handleClosePermissions}
+        report={selectedReport as SustainabilityReport}
         token={token || ''}
       />
     </Box>

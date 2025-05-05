@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from app.api.deps import get_db, get_current_user
@@ -9,7 +9,7 @@ from app.schemas.material_topics import (
     MaterialTopicSearch
 )
 from app.schemas.auth import TokenData
-from app.models.models import MaterialTopic as MaterialTopicModel
+from app.models.models import MaterialTopic as MaterialTopicModel, SustainabilityTeamMember
 from app.crud import material_topics as crud_material_topic
 from app.graphs.materiality_matrix import create_materiality_matrix_data, generate_matrix_image
 
@@ -24,11 +24,19 @@ def search_material_topics(
     """
     Buscar asuntos relevantes con filtros opcionales.
     """
+    # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para realizar esta acción"
-        )
+        # Buscar el rol del usuario en el reporte
+        team_member = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == search_params.report_id,
+            SustainabilityTeamMember.user_id == current_user.id
+        ).first()
+        
+        if not team_member:
+            raise HTTPException(
+                status_code=403,
+                    detail="No tienes permisos para acceder a los asuntos relevantes"
+            )
 
     # Paginación
     page = search_params.page or 1
@@ -78,11 +86,20 @@ def create_material_topic(
     """
     Crear un nuevo asunto relevante.
     """
+    # Verificar si el usuario es admin o gestor del reporte
     if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para crear asuntos relevantes"
-        )
+        # Buscar el rol del usuario en el reporte
+        team_member = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == material_topic_data.report_id,
+            SustainabilityTeamMember.user_id == current_user.id,
+            SustainabilityTeamMember.type == 'manager'
+        ).first()
+        
+        if not team_member:
+            raise HTTPException(
+                status_code=403,
+                detail="No tienes permisos para crear asuntos relevantes"
+            )
     
     # Verificar si el nombre ya existe para este reporte
     existing_material_topic = crud_material_topic.get_by_name(db, material_topic_data.name)
@@ -103,7 +120,6 @@ def create_material_topic(
 
 @router.post("/material-topics/update", response_model=MaterialTopic)
 def update_material_topic(
-    material_topic_id: int = Body(...),
     material_topic_data: MaterialTopicUpdate = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -111,17 +127,27 @@ def update_material_topic(
     """
     Actualizar un asunto relevante.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para actualizar asuntos relevantes"
-        )
-    
-    db_material_topic = crud_material_topic.get(db, material_topic_id)
+    # Obtener el asunto relevante existente
+    db_material_topic = crud_material_topic.get(db, material_topic_data.id)
     if not db_material_topic:
         raise HTTPException(
             status_code=404,
             detail="Asunto relevante no encontrado"
+        )
+
+    # Verificar si el usuario es admin o gestor del reporte
+    if not current_user.admin:
+        # Buscar el rol del usuario en el reporte
+        team_member = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == db_material_topic.report_id,
+            SustainabilityTeamMember.user_id == current_user.id,
+            SustainabilityTeamMember.type == 'manager'
+        ).first()
+        
+        if not team_member:
+            raise HTTPException(
+                status_code=403,
+                detail="No tienes permisos para actualizar asuntos relevantes"
         )
     
     try:
@@ -142,17 +168,27 @@ def delete_material_topic(
     """
     Eliminar un asunto relevante.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para eliminar asuntos relevantes"
-        )
-    
+    # Primero obtener el material topic para saber a qué reporte pertenece
     db_material_topic = crud_material_topic.get(db, material_topic_id)
     if not db_material_topic:
         raise HTTPException(
             status_code=404,
             detail="Asunto relevante no encontrado"
+        )
+
+    # Verificar si el usuario es admin o gestor del reporte
+    if not current_user.admin:
+        # Buscar el rol del usuario en el reporte
+        team_member = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == db_material_topic.report_id,
+            SustainabilityTeamMember.user_id == current_user.id,
+            SustainabilityTeamMember.type == 'manager'
+        ).first()
+        
+        if not team_member:
+            raise HTTPException(
+                status_code=403,
+                detail="No tienes permisos para eliminar asuntos relevantes"
         )
     
     try:
@@ -173,11 +209,19 @@ def get_all_material_topics(
     """
     Obtener todos los asuntos relevantes de un reporte.
     """
+    # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para realizar esta acción"
-        )
+        # Buscar el rol del usuario en el reporte
+        team_member = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == report_id,
+            SustainabilityTeamMember.user_id == current_user.id
+        ).first()
+        
+        if not team_member:
+            raise HTTPException(
+                status_code=403,
+                    detail="No tienes permisos para acceder a los asuntos relevantes"
+            )
 
     try:
         material_topics = crud_material_topic.get_all_by_report(db, report_id)
@@ -197,6 +241,20 @@ async def get_materiality_matrix(
     """
     Obtener los datos de la matriz de materialidad para un reporte específico.
     """
+    # Verificar si el usuario es admin o tiene un rol en el reporte
+    if not current_user.admin:
+        # Buscar el rol del usuario en el reporte
+        team_member = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == report_id,
+            SustainabilityTeamMember.user_id == current_user.id
+        ).first()
+        
+        if not team_member:
+            raise HTTPException(
+                status_code=403,
+                detail="No tienes permisos para acceder a la matriz de materialidad"
+            )
+
     try:
         # Obtener los datos de la matriz
         matrix_data = create_materiality_matrix_data(db, report_id)

@@ -28,6 +28,7 @@ interface TeamMemberListProps {
   resourceId: string | null;
   reportId: string | null;
   onUpdate: () => void;
+  readOnly?: boolean;
 }
 
 const TeamMemberList = ({ 
@@ -35,7 +36,8 @@ const TeamMemberList = ({
   isLoading, 
   resourceId, 
   reportId,
-  onUpdate 
+  onUpdate,
+  readOnly = false
 }: TeamMemberListProps) => {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -158,20 +160,24 @@ const TeamMemberList = ({
                     >
                       <VisibilityIcon />
                     </IconButton>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => handleEdit(member)}
-                      title="Editar"
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => handleDelete(member)}
-                      title="Eliminar"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    {!readOnly && (
+                      <>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleEdit(member)}
+                          title="Editar"
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleDelete(member)}
+                          title="Eliminar"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -8,6 +8,7 @@ from app.core import security
 from app.core.config import settings
 from app.db.session import SessionLocal
 from app.schemas.auth import TokenData
+from app.models.models import SustainabilityTeamMember
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login")
 
@@ -41,4 +42,62 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     
-    return TokenData(email=email, admin=user.admin) 
+    return TokenData(id=user.id, email=email, admin=user.admin)
+
+async def get_user_report_role(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+) -> Optional[SustainabilityTeamMember]:
+    """
+    Obtiene el rol del usuario actual en una memoria específica.
+    """
+    if current_user.admin:
+        return None  # Los admins no necesitan verificación de rol
+    
+    team_member = db.query(SustainabilityTeamMember).filter(
+        SustainabilityTeamMember.report_id == report_id,
+        SustainabilityTeamMember.user_id == current_user.id
+    ).first()
+    
+    return team_member
+
+def check_report_access(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+    team_member: Optional[SustainabilityTeamMember] = Depends(get_user_report_role)
+) -> bool:
+    """
+    Verifica si el usuario tiene acceso a una memoria específica.
+    """
+    if current_user.admin:
+        return True
+    
+    if not team_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes acceso a esta memoria"
+        )
+    
+    return True
+
+def check_report_edit_access(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+    team_member: Optional[SustainabilityTeamMember] = Depends(get_user_report_role)
+) -> bool:
+    """
+    Verifica si el usuario tiene permisos de edición en una memoria específica.
+    """
+    if current_user.admin:
+        return True
+    
+    if not team_member or team_member.type != 'manager':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permisos para editar esta memoria"
+        )
+    
+    return True 

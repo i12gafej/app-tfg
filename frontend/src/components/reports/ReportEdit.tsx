@@ -5,7 +5,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ReportNavBar from './edit/ReportNavBar';
 import { ReportProvider } from '@/context/ReportContext';
 
-const ReportEdit = () => {
+interface ReportEditProps {
+  readOnly?: boolean;
+}
+
+const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const reportId = id ? parseInt(id, 10) : null;
@@ -27,7 +31,7 @@ const ReportEdit = () => {
   }
 
   return (
-    <ReportProvider reportId={reportId}>
+    <ReportProvider reportId={reportId} readOnly={readOnly}>
       <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ 
           display: 'flex', 

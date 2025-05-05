@@ -5,6 +5,7 @@ from app.api.deps import get_db, get_current_user
 from app.schemas.goals import Goal, GoalList, MainImpactUpdate
 from app.schemas.auth import TokenData
 from app.crud import goals as crud_goals
+from app.services.user import check_user_permissions
 
 router = APIRouter()
 
@@ -17,11 +18,6 @@ def get_goals_by_ods(
     """
     Obtener todas las metas de un ODS.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para realizar esta acción"
-        )
 
     try:
         goals = crud_goals.get_goals_by_ods(db, ods_id)
@@ -45,10 +41,14 @@ def update_main_impact(
     Actualizar el impacto principal de un asunto relevante.
     """
     if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para realizar esta acción"
-        )
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=update_data.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
 
     try:
         crud_goals.update_main_impact(
@@ -77,11 +77,6 @@ def get_all_goals(
     """
     Obtener todas las metas.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para realizar esta acción"
-        )
 
     try:
         goals = crud_goals.get_all_goals(db)

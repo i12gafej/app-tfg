@@ -31,6 +31,12 @@ export interface ReportPhoto {
     report_id: number;
 }
 
+export interface UserReportRole {
+    report_id: number;
+    role: 'manager' | 'consultant' | 'external_advisor';
+    organization: string;
+}
+
 export interface SustainabilityReport {
     id: number;
     heritage_resource_id: number;
@@ -60,6 +66,7 @@ export interface SustainabilityReport {
     agreements?: ReportAgreement[];
     bibliographies?: ReportBibliography[];
     photos?: ReportPhoto[];
+    user_role?: UserReportRole;
 }
 
 export interface ReportSearchParams {

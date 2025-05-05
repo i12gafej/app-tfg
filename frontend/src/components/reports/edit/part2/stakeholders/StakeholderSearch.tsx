@@ -37,6 +37,7 @@ import { StakeholderCreateDialog } from './StakeholderCreateDialog';
 
 interface StakeholderSearchProps {
   reportId: number;
+  readOnly?: boolean;
 }
 
 interface SearchFilters {
@@ -46,10 +47,10 @@ interface SearchFilters {
 
 type Order = 'asc' | 'desc';
 
-const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId }) => {
+const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnly = false }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({});
@@ -66,10 +67,34 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId }) => {
   const [createOpen, setCreateOpen] = useState(false);
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof Stakeholder>('name');
+  const [userRole, setUserRole] = useState<'manager' | 'consultant' | 'external_advisor' | null>(null);
 
   useEffect(() => {
     setRowsPerPage(isMobile ? 5 : 10);
   }, [isMobile]);
+
+  useEffect(() => {
+    // Obtener el rol del usuario para este reporte
+    const fetchUserRole = async () => {
+      try {
+        const response = await stakeholderService.getUserRole(reportId, token || '');
+        setUserRole(response.role);
+      } catch (error) {
+        console.error('Error al obtener el rol del usuario:', error);
+      }
+    };
+
+    if (token) {
+      fetchUserRole();
+    }
+  }, [reportId, token]);
+
+  useEffect(() => {
+    if (token) {
+      handleSearch(0);
+    }
+    // eslint-disable-next-line
+  }, [token, reportId]);
 
   const handleSearch = async (newPage: number = 0) => {
     if (!token) return;
@@ -162,6 +187,8 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId }) => {
       return 0;
     });
   }, [stakeholders, order, orderBy]);
+
+  const isManager = userRole === 'manager';
 
   return (
     <Box>
@@ -266,19 +293,21 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId }) => {
         </Box>
       </Paper>
 
-      <Button
-        variant="contained"
-        onClick={handleCreate}
-        sx={{ 
-          ml: 1,
-          borderRadius: '20px',
-          textTransform: 'none',
-          px: 2,
-          marginBottom: 1,
-        }}
-      >
-        Nuevo Grupo de Interés
-      </Button>
+      {isManager && !readOnly && (
+        <Button
+          variant="contained"
+          onClick={handleCreate}
+          sx={{ 
+            ml: 1,
+            borderRadius: '20px',
+            textTransform: 'none',
+            px: 2,
+            marginBottom: 1,
+          }}
+        >
+          Nuevo Grupo de Interés
+        </Button>
+      )}
 
       {showFilters && (
         <Paper 
@@ -386,31 +415,35 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId }) => {
                       >
                         Consultar
                       </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        color="primary"
-                        fullWidth={isMobile}
-                        sx={{ 
-                          mr: isMobile ? 0 : 1,
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                        onClick={() => handleEdit(stakeholder)}
-                      >
-                        Editar
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        color="error"
-                        fullWidth={isMobile}
-                        sx={{ 
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                        onClick={() => handleDelete(stakeholder)}
-                      >
-                        Eliminar
-                      </Button>
+                      {isManager && !readOnly && (
+                        <>
+                          <Button 
+                            variant="outlined" 
+                            size="small" 
+                            color="view"
+                            fullWidth={isMobile}
+                            sx={{ 
+                              mr: isMobile ? 0 : 1,
+                              minWidth: isMobile ? '100%' : 'auto'
+                            }}
+                            onClick={() => handleEdit(stakeholder)}
+                          >
+                            Editar
+                          </Button>
+                          <Button 
+                            variant="outlined" 
+                            size="small" 
+                            color="error"
+                            fullWidth={isMobile}
+                            sx={{ 
+                              minWidth: isMobile ? '100%' : 'auto'
+                            }}
+                            onClick={() => handleDelete(stakeholder)}
+                          >
+                            Eliminar
+                          </Button>
+                        </>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -446,30 +479,36 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId }) => {
             stakeholder={selectedStakeholder}
             onEdit={() => handleEdit(selectedStakeholder)}
           />
-          <StakeholderEditDialog
-            open={editOpen}
-            onClose={() => setEditOpen(false)}
-            stakeholder={selectedStakeholder}
-            token={token || ''}
-            onUpdate={() => handleSearch(page)}
-          />
-          <StakeholderDeleteDialog
-            open={deleteOpen}
-            onClose={() => setDeleteOpen(false)}
-            stakeholder={selectedStakeholder}
-            token={token || ''}
-            onDelete={() => handleSearch(page)}
-          />
+          {isManager && !readOnly && (
+            <>
+              <StakeholderEditDialog
+                open={editOpen}
+                onClose={() => setEditOpen(false)}
+                stakeholder={selectedStakeholder}
+                token={token || ''}
+                onUpdate={() => handleSearch(page)}
+              />
+              <StakeholderDeleteDialog
+                open={deleteOpen}
+                onClose={() => setDeleteOpen(false)}
+                stakeholder={selectedStakeholder}
+                token={token || ''}
+                onDelete={() => handleSearch(page)}
+              />
+            </>
+          )}
         </>
       )}
 
-      <StakeholderCreateDialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onStakeholderCreated={handleStakeholderCreated}
-        token={token || ''}
-        reportId={reportId}
-      />
+      {isManager && !readOnly && (
+        <StakeholderCreateDialog
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          onStakeholderCreated={handleStakeholderCreated}
+          token={token || ''}
+          reportId={reportId}
+        />
+      )}
     </Box>
   );
 };

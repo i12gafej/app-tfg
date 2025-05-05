@@ -16,6 +16,7 @@ interface TeamMemberSearchPanelProps {
   fixedResource?: Resource;
   fixedReport?: Report;
   onUpdate?: () => void;
+  readOnly?: boolean;
 }
 
 interface Filters {
@@ -40,7 +41,8 @@ const TeamMemberSearchPanel = ({
   onTeamMembersUpdate,
   fixedResource,
   fixedReport,
-  onUpdate
+  onUpdate,
+  readOnly = false
 }: TeamMemberSearchPanelProps) => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -161,7 +163,7 @@ const TeamMemberSearchPanel = ({
 
   return (
     <Box>
-      {!fixedResource && !fixedReport && (
+      {!fixedResource && !fixedReport && !readOnly && (
         <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
           <FormControl fullWidth>
             <InputLabel>Recurso Patrimonial</InputLabel>
@@ -216,12 +218,14 @@ const TeamMemberSearchPanel = ({
       )}
 
       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-        <Button
-          variant="outlined"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          Filtros
-        </Button>
+        {!readOnly && (
+          <Button
+            variant="outlined"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            Filtros
+          </Button>
+        )}
         <Button
           variant="outlined"
           onClick={fetchTeamMembers}
@@ -232,7 +236,7 @@ const TeamMemberSearchPanel = ({
         </Button>
       </Box>
 
-      {showFilters && (
+      {showFilters && !readOnly && (
         <Box sx={{ mb: 2 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={4}>
@@ -300,9 +304,10 @@ const TeamMemberSearchPanel = ({
         resourceId={resourceId}
         reportId={reportId}
         onUpdate={handleUpdate}
+        readOnly={readOnly}
       />
 
-      {resourceId && reportId && (
+      {!readOnly && resourceId && reportId && (
         <TeamMemberCreateDialog
           open={isCreateDialogOpen}
           onClose={() => setIsCreateDialogOpen(false)}

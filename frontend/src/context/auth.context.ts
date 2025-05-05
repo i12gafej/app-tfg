@@ -15,6 +15,7 @@ export interface AuthContextType {
   logout: () => void;
   token: string | null;
   user: User | null;
+  current_user: User | null;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined); 

@@ -69,6 +69,18 @@ def get_all_actions(db: Session, specific_objective_id: int) -> List[Action]:
         Action.specific_objective_id == specific_objective_id
     ).all()
 
+def get_action_by_id(db: Session, action_id: int) -> Optional[Action]:
+    return db.query(Action).filter(Action.id == action_id).first()
+
+def get_report_id_by_action(db: Session, action_id: int) -> int:
+    material_topic = db.query(MaterialTopic
+    ).join(SpecificObjective, MaterialTopic.id == SpecificObjective.material_topic_id
+    ).join(Action, SpecificObjective.id == Action.specific_objective_id
+    ).filter(Action.id == action_id).first()
+    if not material_topic:
+        return None
+    return material_topic.report_id
+
 def create_action(db: Session, action: ActionCreate) -> Action:
     db_action = Action(**action.model_dump())
     db.add(db_action)

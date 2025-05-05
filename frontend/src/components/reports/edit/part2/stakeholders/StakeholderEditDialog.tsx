@@ -65,7 +65,10 @@ export const StakeholderEditDialog: React.FC<StakeholderEditDialogProps> = ({
     setError(null);
 
     try {
-      await stakeholderService.updateStakeholder(stakeholder.id, formData, token);
+      await stakeholderService.updateStakeholder(stakeholder.id, {
+        ...formData,
+        report_id: stakeholder.report_id
+      }, token);
       onUpdate();
       onClose();
     } catch (err) {

@@ -53,8 +53,11 @@ export const stakeholderService = {
   async updateStakeholder(stakeholderId: number, stakeholderData: Partial<Stakeholder>, token: string): Promise<Stakeholder> {
     try {
       const response = await api.post<Stakeholder>('/stakeholders/update', {
-        stakeholder_id: stakeholderId,
-        stakeholder_data: stakeholderData
+        id: stakeholderId,
+        report_id: stakeholderData.report_id,
+        name: stakeholderData.name,
+        description: stakeholderData.description,
+        type: stakeholderData.type
       }, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -62,7 +65,7 @@ export const stakeholderService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar grupo de interés:', error);
+      console.error('Error al actualizar el grupo de interés:', error);
       throw error;
     }
   },
@@ -92,5 +95,14 @@ export const stakeholderService = {
       console.error('Error al crear grupo de interés:', error);
       throw error;
     }
-  }
+  },
+
+  getUserRole: async (reportId: number, token: string): Promise<{ role: 'manager' | 'consultant' | 'external_advisor' }> => {
+    const response = await api.get(`/${reportId}/user-role`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  },
 };

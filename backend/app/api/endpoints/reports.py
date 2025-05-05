@@ -27,10 +27,13 @@ from app.schemas.reports import (
     ReportBibliographyUpdate,
     ReportPhoto,
     ReportPhotoResponse,
-    ReportPhotoUpdate
+    ReportPhotoUpdate,
+    UserRoleResponse,
+    ReportResponse
 )
 from app.schemas.auth import TokenData
-from app.models.models import SustainabilityReport as SustainabilityReportModel, HeritageResource, ReportNorm as ReportNormModel, ReportLogo as ReportLogoModel, ReportAgreement as ReportAgreementModel, ReportBibliography as ReportBibliographyModel, ReportPhoto as ReportPhotoModel
+from app.models.models import SustainabilityReport as SustainabilityReportModel, HeritageResource, ReportNorm as ReportNormModel, ReportLogo as ReportLogoModel, ReportAgreement as ReportAgreementModel, ReportBibliography as ReportBibliographyModel, ReportPhoto as ReportPhotoModel, SustainabilityTeamMember
+from app.services.user import check_user_permissions
 import logging
 from PIL import Image
 import io
@@ -39,71 +42,7 @@ import io
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configurar rutas de archivos
-BASE_DIR = Path(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-STATIC_DIR = BASE_DIR / "static"
-UPLOADS_DIR = STATIC_DIR / "uploads"
-COVERS_DIR = UPLOADS_DIR / "covers"
-LOGOS_DIR = UPLOADS_DIR / "logos"
-PHOTOS_DIR = UPLOADS_DIR / "gallery"
 
-# Crear directorios si no existen
-COVERS_DIR.mkdir(parents=True, exist_ok=True)
-LOGOS_DIR.mkdir(parents=True, exist_ok=True)
-PHOTOS_DIR.mkdir(parents=True, exist_ok=True)
-
-# Constantes para el procesamiento de imágenes
-A4_RATIO = 1.4142  # Ratio de A4 (297mm/210mm)
-A4_WIDTH = 2480    # Ancho en píxeles para 300 DPI
-A4_HEIGHT = 3508   # Alto en píxeles para 300 DPI
-
-def process_cover_image(image_data: bytes) -> bytes:
-    """
-    Procesa la imagen de portada para ajustarla al formato A4.
-    El proceso mantiene el centro de la imagen y recorta los excesos para mantener el ratio A4.
-    """
-    try:
-        # Abrir la imagen desde los bytes
-        img = Image.open(io.BytesIO(image_data))
-        
-        # Convertir a RGB si es necesario
-        if img.mode in ('RGBA', 'P'):
-            img = img.convert('RGB')
-        
-        # Obtener dimensiones actuales
-        width, height = img.size
-        current_ratio = height / width
-        
-        if current_ratio < A4_RATIO:
-            # La imagen es más ancha que el ratio A4
-            # Calculamos el nuevo ancho necesario manteniendo el alto actual
-            new_width = int(height / A4_RATIO)
-            # Calculamos los puntos de recorte desde el centro
-            left = (width - new_width) // 2
-            right = left + new_width
-            # Recortamos la imagen manteniendo el alto completo
-            img = img.crop((left, 0, right, height))
-        else:
-            # La imagen es más alta que el ratio A4
-            # Calculamos el nuevo alto necesario manteniendo el ancho actual
-            new_height = int(width * A4_RATIO)
-            # Calculamos los puntos de recorte desde el centro
-            top = (height - new_height) // 2
-            bottom = top + new_height
-            # Recortamos la imagen manteniendo el ancho completo
-            img = img.crop((0, top, width, bottom))
-        
-        # Redimensionar a las dimensiones A4 finales
-        img = img.resize((A4_WIDTH, A4_HEIGHT), Image.Resampling.LANCZOS)
-        
-        # Guardar la imagen procesada en bytes
-        output = io.BytesIO()
-        img.save(output, format='JPEG', quality=95)
-        return output.getvalue()
-        
-    except Exception as e:
-        logger.error(f"Error al procesar la imagen: {str(e)}")
-        raise
 
 router = APIRouter()
 
@@ -115,14 +54,19 @@ async def get_report_endpoint(
 ):
     """
     Obtener una memoria de sostenibilidad por su ID.
+    Permite el acceso si el usuario es admin o si tiene un rol asignado en el reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para acceder a esta memoria"
-        )
-
     try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
         report = reports_crud.get_report(db=db, report_id=report_id)
         if not report:
             raise HTTPException(
@@ -147,12 +91,6 @@ async def search_reports_endpoint(
     """
     Buscar memorias de sostenibilidad con filtros opcionales.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para realizar esta acción"
-        )
-
     try:
         # Extraer parámetros de búsqueda del objeto search_params
         params = search_params.get('search_params', {})
@@ -193,6 +131,8 @@ async def search_reports_endpoint(
             # Buscar memorias por IDs de recursos y otros filtros
             reports, total = reports_crud.search_reports(
                 db=db,
+                user_id=current_user.id if not current_user.admin else None,
+                is_admin=current_user.admin,
                 heritage_resource_ids=resource_ids,
                 year=year,
                 state=state,
@@ -205,6 +145,8 @@ async def search_reports_endpoint(
             logger.info(f"Realizando búsqueda por año: {year} y estado: {state}")
             reports, total = reports_crud.search_reports(
                 db=db,
+                user_id=current_user.id if not current_user.admin else None,
+                is_admin=current_user.admin,
                 year=year,
                 state=state,
                 skip=(page - 1) * per_page,
@@ -228,6 +170,8 @@ async def search_reports_endpoint(
             # Buscar memorias por IDs de recursos
             reports, total = reports_crud.search_reports(
                 db=db,
+                user_id=current_user.id if not current_user.admin else None,
+                is_admin=current_user.admin,
                 heritage_resource_ids=resource_ids,
                 skip=(page - 1) * per_page,
                 limit=per_page
@@ -238,6 +182,8 @@ async def search_reports_endpoint(
             logger.info("No se proporcionaron filtros de búsqueda, devolviendo todas las memorias")
             reports, total = reports_crud.search_reports(
                 db=db,
+                user_id=current_user.id if not current_user.admin else None,
+                is_admin=current_user.admin,
                 skip=(page - 1) * per_page,
                 limit=per_page
             )
@@ -251,37 +197,13 @@ async def search_reports_endpoint(
         # Crear un diccionario para acceder rápidamente a los recursos por ID
         resources_dict = {resource.id: resource for resource in resources}
 
-        # Convertir los reportes a esquema Pydantic
-        reports_schema = [
-            SustainabilityReport(
-                id=report.id,
-                heritage_resource_id=report.heritage_resource_id,
-                heritage_resource_name=resources_dict.get(report.heritage_resource_id).name if report.heritage_resource_id in resources_dict else None,
-                year=report.year,
-                state=report.state,
-                observation=report.observation,
-                cover_photo=report.cover_photo,
-                commitment_letter=report.commitment_letter,
-                mission=report.mission,
-                vision=report.vision,
-                values=report.values,
-                org_chart_text=report.org_chart_text,
-                org_chart_figure=report.org_chart_figure,
-                diagnosis_description=report.diagnosis_description,
-                scale=report.scale,
-                permissions=report.permissions,
-                action_plan_description=report.action_plan_description,
-                internal_coherence_description=report.internal_coherence_description,
-                main_impact_weight=report.main_impact_weight,
-                secondary_impact_weight=report.secondary_impact_weight,
-                roadmap_description=report.roadmap_description,
-                data_tables_text=report.data_tables_text
-            )
-            for report in reports
-        ]
+        # Añadir el nombre del recurso a cada memoria
+        for report in reports:
+            if report.heritage_resource_id in resources_dict:
+                report.heritage_resource_name = resources_dict[report.heritage_resource_id].name
 
         response = {
-            "items": reports_schema,
+            "items": reports,
             "total": total,
             "page": page,
             "per_page": per_page,
@@ -307,15 +229,21 @@ async def create_report_endpoint(
 ):
     """
     Crear una nueva memoria de sostenibilidad.
+    Permite la creación si el usuario es admin o si es gestor del recurso.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para crear memorias"
-        )
-
     try:
         logger.info(f"Recibiendo datos de la memoria: {report.model_dump()}")
+        
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report.heritage_resource_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
         
         # Verificar si ya existe una memoria para el mismo recurso y año
         existing_report = db.query(SustainabilityReportModel).filter(
@@ -378,16 +306,22 @@ async def update_report_endpoint(
 ):
     """
     Actualizar una memoria de sostenibilidad existente.
+    Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
     logger.info(f"Recibida petición de actualización: {update_request}")
     
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para actualizar memorias"
-        )
-
     try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=update_request.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
         db_report = reports_crud.update_report(
             db=db, 
             report_id=update_request.report_id, 
@@ -443,14 +377,20 @@ async def delete_report_endpoint(
 ):
     """
     Eliminar una memoria de sostenibilidad.
+    Permite la eliminación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para eliminar memorias"
-        )
-
     try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
         success = reports_crud.delete_report(db=db, report_id=report_id)
         if not success:
             raise HTTPException(
@@ -466,6 +406,46 @@ async def delete_report_endpoint(
             detail=f"Error al eliminar la memoria: {str(e)}"
         )
 
+@router.get("/reports/norms/{report_id}", response_model=List[ReportNorm])
+async def get_report_norms_endpoint(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener todas las normativas de una memoria de sostenibilidad.
+    Permite el acceso si el usuario es admin o si tiene un rol asignado en el reporte.
+    """
+    try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        # Verificar que el reporte existe
+        report = reports_crud.get_report(db, report_id)
+        if not report:
+            raise HTTPException(
+                status_code=404,
+                detail="Memoria no encontrada"
+            )
+
+        # Obtener todas las normativas del reporte
+        norms = reports_crud.get_norms_by_report_id(db, report_id)
+        return norms
+
+    except Exception as e:
+        logger.error(f"Error al obtener las normativas: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener las normativas: {str(e)}"
+        )
+
 @router.post("/reports/norms", response_model=ReportNorm)
 async def create_norm_endpoint(
     norm: ReportNormCreate,
@@ -474,18 +454,21 @@ async def create_norm_endpoint(
 ):
     """
     Crear una nueva normativa para una memoria.
+    Permite la creación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para crear normativas"
-        )
-
     try:
-        db_norm = ReportNormModel(**norm.dict())
-        db.add(db_norm)
-        db.commit()
-        db.refresh(db_norm)
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=norm.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        db_norm = reports_crud.create_norm(db=db, norm=norm)
         return db_norm
 
     except Exception as e:
@@ -504,26 +487,28 @@ async def update_norm_endpoint(
 ):
     """
     Actualizar una normativa existente.
+    Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para actualizar normativas"
-        )
-
     try:
-        db_norm = db.query(ReportNormModel).filter(ReportNormModel.id == norm_id).first()
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=norm.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        db_norm = reports_crud.get_norm_by_id(db, norm_id)
         if not db_norm:
             raise HTTPException(
                 status_code=404,
                 detail="Normativa no encontrada"
             )
 
-        for key, value in norm.dict().items():
-            setattr(db_norm, key, value)
-
-        db.commit()
-        db.refresh(db_norm)
+        db_norm = reports_crud.update_norm(db, norm_id, norm)
         return db_norm
 
     except Exception as e:
@@ -541,14 +526,10 @@ async def delete_norm_endpoint(
 ):
     """
     Eliminar una normativa.
+    Permite la eliminación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para eliminar normativas"
-        )
-
     try:
+        # Primero obtener la normativa para saber a qué reporte pertenece
         db_norm = db.query(ReportNormModel).filter(ReportNormModel.id == norm_id).first()
         if not db_norm:
             raise HTTPException(
@@ -556,8 +537,18 @@ async def delete_norm_endpoint(
                 detail="Normativa no encontrada"
             )
 
-        db.delete(db_norm)
-        db.commit()
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=db_norm.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        reports_crud.delete_norm(db, norm_id)
         return {"message": "Normativa eliminada correctamente"}
 
     except Exception as e:
@@ -565,41 +556,6 @@ async def delete_norm_endpoint(
         raise HTTPException(
             status_code=500,
             detail=f"Error al eliminar la normativa: {str(e)}"
-        )
-
-@router.get("/reports/norms/{report_id}", response_model=List[ReportNorm])
-async def get_report_norms_endpoint(
-    report_id: int,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """
-    Obtener todas las normativas de una memoria de sostenibilidad.
-    """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para acceder a las normativas"
-        )
-
-    try:
-        # Verificar que el reporte existe
-        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
-        if not report:
-            raise HTTPException(
-                status_code=404,
-                detail="Memoria no encontrada"
-            )
-
-        # Obtener todas las normativas del reporte
-        norms = db.query(ReportNormModel).filter(ReportNormModel.report_id == report_id).all()
-        return norms
-
-    except Exception as e:
-        logger.error(f"Error al obtener las normativas: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error al obtener las normativas: {str(e)}"
         )
 
 @router.post("/reports/update/cover/{report_id}")
@@ -611,52 +567,21 @@ async def update_cover_photo(
 ):
     """
     Actualizar la foto de portada de una memoria.
+    Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
-        # Verificar que el reporte existe
-        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
-        if not report:
-            raise HTTPException(status_code=404, detail="Memoria no encontrada")
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
 
-        # Verificar extensión del archivo
-        file_extension = os.path.splitext(file.filename)[1].lower()
-        if file_extension not in ['.jpg', '.jpeg', '.png']:
-            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
-
-        # Eliminar la foto anterior si existe
-        if report.cover_photo:
-            try:
-                old_file_path = BASE_DIR / report.cover_photo.lstrip('/')
-                if old_file_path.exists():
-                    old_file_path.unlink()
-                    logger.info(f"Archivo anterior eliminado: {old_file_path}")
-            except Exception as e:
-                logger.error(f"Error al eliminar el archivo anterior: {str(e)}")
-                # Continuamos con el proceso aunque falle la eliminación
-
-        # Leer el contenido del archivo
-        content = await file.read()
-        
-        # Procesar la imagen
-        processed_image = process_cover_image(content)
-
-        # Crear nombre único para el archivo
-        filename = f"report_{report_id}_cover_{uuid.uuid4()}.jpg"  # Siempre guardamos como JPG
-        file_path = COVERS_DIR / filename
-
-        logger.info(f"Guardando archivo procesado en: {file_path}")
-
-        # Guardar el archivo procesado
-        with open(file_path, "wb") as file_object:
-            file_object.write(processed_image)
-
-        # Actualizar la URL en la base de datos
-        file_url = f"/static/uploads/covers/{filename}"
-        report.cover_photo = file_url
-        db.commit()
+        file_url = reports_crud.update_cover_photo(db, report_id, file)
 
         return {"url": file_url}
 
@@ -673,41 +598,21 @@ async def upload_logo(
 ):
     """
     Subir un nuevo logo para una memoria.
+    Permite la subida si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
-        # Verificar que el reporte existe
-        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
-        if not report:
-            raise HTTPException(status_code=404, detail="Memoria no encontrada")
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
 
-        # Verificar extensión del archivo
-        file_extension = os.path.splitext(file.filename)[1].lower()
-        if file_extension not in ['.jpg', '.jpeg', '.png']:
-            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
-
-        # Crear nombre único para el archivo
-        filename = f"report_{report_id}_logo_{uuid.uuid4()}{file_extension}"
-        file_path = LOGOS_DIR / filename
-
-        logger.info(f"Guardando logo en: {file_path}")
-
-        # Guardar el archivo
-        with open(file_path, "wb+") as file_object:
-            content = await file.read()
-            file_object.write(content)
-
-        # Crear registro en la base de datos (usando ruta relativa para la URL)
-        file_url = f"/static/uploads/logos/{filename}"
-        new_logo = ReportLogoModel(
-            logo=file_url,
-            report_id=report_id
-        )
-        db.add(new_logo)
-        db.commit()
-        db.refresh(new_logo)
+        new_logo = reports_crud.upload_logo(db, report_id, file)
 
         return ReportLogoResponse(
             id=new_logo.id,
@@ -727,48 +632,20 @@ async def get_report_logos(
 ):
     """
     Obtener todos los logos de una memoria como data URLs.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
-        logos = db.query(ReportLogoModel).filter(ReportLogoModel.report_id == report_id).all()
-        logo_responses = []
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
 
-        for logo in logos:
-            try:
-                # Convertir la ruta relativa a absoluta
-                relative_path = logo.logo.lstrip('/')
-                file_path = BASE_DIR / relative_path
-
-                if not file_path.exists():
-                    logger.warning(f"Archivo de logo no encontrado: {file_path}")
-                    continue
-
-                # Leer el archivo y convertirlo a base64
-                with open(file_path, "rb") as image_file:
-                    import base64
-                    encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-                    
-                    # Determinar el tipo MIME basado en la extensión del archivo
-                    file_extension = file_path.suffix.lower()
-                    mime_type = {
-                        '.jpg': 'image/jpeg',
-                        '.jpeg': 'image/jpeg',
-                        '.png': 'image/png'
-                    }.get(file_extension, 'image/jpeg')
-
-                    # Crear data URL
-                    data_url = f"data:{mime_type};base64,{encoded_string}"
-
-                    logo_responses.append(ReportLogoResponse(
-                        id=logo.id,
-                        logo=data_url,
-                        report_id=logo.report_id
-                    ))
-            except Exception as e:
-                logger.error(f"Error al procesar el logo {logo.id}: {str(e)}")
-                continue
+        logos_responses = reports_crud.get_report_logos(db, report_id)
 
         return logo_responses
 
@@ -784,31 +661,26 @@ async def delete_logo(
 ):
     """
     Eliminar un logo de una memoria y su archivo físico asociado.
+    Permite la eliminación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
-        logo = db.query(ReportLogoModel).filter(ReportLogoModel.id == logo_id).first()
+        # Primero obtener el logo para saber a qué reporte pertenece
+        logo = reports_crud.get_logo_by_id(db, logo_id)
         if not logo:
             raise HTTPException(status_code=404, detail="Logo no encontrado")
 
-        # Convertir la ruta relativa a absoluta
-        relative_path = logo.logo.lstrip('/')
-        file_path = BASE_DIR / relative_path
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=logo.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
 
-        # Eliminar el archivo físico si existe
-        if file_path.exists():
-            try:
-                file_path.unlink()  # Eliminar el archivo
-                logger.info(f"Archivo eliminado exitosamente: {file_path}")
-            except Exception as e:
-                logger.error(f"Error al eliminar el archivo físico: {str(e)}")
-                # Continuamos con la eliminación del registro aunque falle la eliminación del archivo
-
-        # Eliminar el registro de la base de datos
-        db.delete(logo)
-        db.commit()
+        reports_crud.delete_logo(db, logo_id, logo)
 
         return {"message": "Logo eliminado correctamente"}
 
@@ -824,20 +696,28 @@ async def get_cover_photo(
 ):
     """
     Obtener la imagen de portada de una memoria.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
         # Verificar que el reporte existe y tiene foto de portada
-        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
+        report = reports_crud.get_report(db, report_id)
         if not report or not report.cover_photo:
             raise HTTPException(status_code=404, detail="Imagen no encontrada")
 
         # La ruta en la base de datos es relativa (/static/uploads/covers/filename)
         # Necesitamos convertirla a ruta absoluta
         relative_path = report.cover_photo.lstrip('/')  # Eliminar el primer '/'
-        file_path = BASE_DIR / relative_path
+        file_path = Settings.BASE_DIR / relative_path
 
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Archivo no encontrado")
@@ -852,6 +732,46 @@ async def get_cover_photo(
         logger.error(f"Error al obtener la foto de portada: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/reports/agreements/{report_id}", response_model=List[ReportAgreement])
+async def get_report_agreements_endpoint(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener todos los acuerdos de una memoria de sostenibilidad.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    """
+    try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        # Verificar que el reporte existe
+        report = reports_crud.get_report(db, report_id)
+        if not report:
+            raise HTTPException(
+                status_code=404,
+                detail="Memoria no encontrada"
+            )
+
+        # Obtener todos los acuerdos del reporte
+        agreements = reports_crud.get_report_agreements(db, report_id)
+        return agreements
+
+    except Exception as e:
+        logger.error(f"Error al obtener los acuerdos: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener los acuerdos: {str(e)}"
+        )
+
 @router.post("/reports/agreements", response_model=ReportAgreement)
 async def create_agreement_endpoint(
     agreement: ReportAgreementCreate,
@@ -860,18 +780,21 @@ async def create_agreement_endpoint(
 ):
     """
     Crear un nuevo acuerdo para una memoria.
+    Permite la creación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para crear acuerdos"
-        )
-
     try:
-        db_agreement = ReportAgreementModel(**agreement.dict())
-        db.add(db_agreement)
-        db.commit()
-        db.refresh(db_agreement)
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=agreement.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        db_agreement = reports_crud.create_agreement(db, agreement)
         return db_agreement
 
     except Exception as e:
@@ -890,26 +813,28 @@ async def update_agreement_endpoint(
 ):
     """
     Actualizar un acuerdo existente.
+    Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para actualizar acuerdos"
-        )
-
     try:
-        db_agreement = db.query(ReportAgreementModel).filter(ReportAgreementModel.id == agreement_id).first()
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=agreement.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        db_agreement = reports_crud.get_agreement_by_id(db, agreement_id)
         if not db_agreement:
             raise HTTPException(
                 status_code=404,
                 detail="Acuerdo no encontrado"
             )
 
-        for key, value in agreement.dict().items():
-            setattr(db_agreement, key, value)
-
-        db.commit()
-        db.refresh(db_agreement)
+        db_agreement = reports_crud.update_agreement(db, agreement_id, agreement)
         return db_agreement
 
     except Exception as e:
@@ -927,23 +852,29 @@ async def delete_agreement_endpoint(
 ):
     """
     Eliminar un acuerdo.
+    Permite la eliminación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para eliminar acuerdos"
-        )
-
     try:
-        db_agreement = db.query(ReportAgreementModel).filter(ReportAgreementModel.id == agreement_id).first()
+        # Primero obtener el acuerdo para saber a qué reporte pertenece
+        db_agreement = reports_crud.get_agreement_by_id(db, agreement_id)
         if not db_agreement:
             raise HTTPException(
                 status_code=404,
                 detail="Acuerdo no encontrado"
             )
 
-        db.delete(db_agreement)
-        db.commit()
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=db_agreement.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        reports_crud.delete_agreement(db, agreement_id, db_agreement)
         return {"message": "Acuerdo eliminado correctamente"}
 
     except Exception as e:
@@ -953,41 +884,6 @@ async def delete_agreement_endpoint(
             detail=f"Error al eliminar el acuerdo: {str(e)}"
         )
 
-@router.get("/reports/agreements/{report_id}", response_model=List[ReportAgreement])
-async def get_report_agreements_endpoint(
-    report_id: int,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """
-    Obtener todos los acuerdos de una memoria de sostenibilidad.
-    """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para acceder a los acuerdos"
-        )
-
-    try:
-        # Verificar que el reporte existe
-        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
-        if not report:
-            raise HTTPException(
-                status_code=404,
-                detail="Memoria no encontrada"
-            )
-
-        # Obtener todos los acuerdos del reporte
-        agreements = db.query(ReportAgreementModel).filter(ReportAgreementModel.report_id == report_id).all()
-        return agreements
-
-    except Exception as e:
-        logger.error(f"Error al obtener los acuerdos: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error al obtener los acuerdos: {str(e)}"
-        )
-
 @router.post("/reports/bibliographies", response_model=ReportBibliography)
 async def create_bibliography_endpoint(
     bibliography: ReportBibliographyCreate,
@@ -995,26 +891,29 @@ async def create_bibliography_endpoint(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Crear una nueva referencia bibliográfica para una memoria.
+    Crear una nueva bibliografía para una memoria.
+    Permite la creación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para crear referencias bibliográficas"
-        )
-
     try:
-        db_bibliography = ReportBibliographyModel(**bibliography.dict())
-        db.add(db_bibliography)
-        db.commit()
-        db.refresh(db_bibliography)
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=bibliography.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        db_bibliography = reports_crud.create_bibliography(db, bibliography)
         return db_bibliography
 
     except Exception as e:
-        logger.error(f"Error al crear la referencia bibliográfica: {str(e)}", exc_info=True)
+        logger.error(f"Error al crear la bibliografía: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Error al crear la referencia bibliográfica: {str(e)}"
+            detail=f"Error al crear la bibliografía: {str(e)}"
         )
 
 @router.put("/reports/bibliographies/{bibliography_id}", response_model=ReportBibliography)
@@ -1025,34 +924,36 @@ async def update_bibliography_endpoint(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Actualizar una referencia bibliográfica existente.
+    Actualizar una bibliografía existente.
+    Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para actualizar referencias bibliográficas"
-        )
-
     try:
-        db_bibliography = db.query(ReportBibliographyModel).filter(ReportBibliographyModel.id == bibliography_id).first()
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=bibliography.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        db_bibliography = reports_crud.get_bibliography_by_id(db, bibliography_id)
         if not db_bibliography:
             raise HTTPException(
                 status_code=404,
-                detail="Referencia bibliográfica no encontrada"
+                detail="Bibliografía no encontrada"
             )
 
-        for key, value in bibliography.dict().items():
-            setattr(db_bibliography, key, value)
-
-        db.commit()
-        db.refresh(db_bibliography)
+        db_bibliography = reports_crud.update_bibliography(db, bibliography_id, bibliography)
         return db_bibliography
 
     except Exception as e:
-        logger.error(f"Error al actualizar la referencia bibliográfica: {str(e)}", exc_info=True)
+        logger.error(f"Error al actualizar la bibliografía: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Error al actualizar la referencia bibliográfica: {str(e)}"
+            detail=f"Error al actualizar la bibliografía: {str(e)}"
         )
 
 @router.delete("/reports/bibliographies/{bibliography_id}")
@@ -1062,31 +963,37 @@ async def delete_bibliography_endpoint(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Eliminar una referencia bibliográfica.
+    Eliminar una bibliografía.
+    Permite la eliminación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para eliminar referencias bibliográficas"
-        )
-
     try:
+        # Primero obtener la bibliografía para saber a qué reporte pertenece
         db_bibliography = db.query(ReportBibliographyModel).filter(ReportBibliographyModel.id == bibliography_id).first()
         if not db_bibliography:
             raise HTTPException(
                 status_code=404,
-                detail="Referencia bibliográfica no encontrada"
+                detail="Bibliografía no encontrada"
             )
 
-        db.delete(db_bibliography)
-        db.commit()
-        return {"message": "Referencia bibliográfica eliminada correctamente"}
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=db_bibliography.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        reports_crud.delete_bibliography(db, bibliography_id, db_bibliography)
+        return {"message": "Bibliografía eliminada correctamente"}
 
     except Exception as e:
-        logger.error(f"Error al eliminar la referencia bibliográfica: {str(e)}", exc_info=True)
+        logger.error(f"Error al eliminar la bibliografía: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Error al eliminar la referencia bibliográfica: {str(e)}"
+            detail=f"Error al eliminar la bibliografía: {str(e)}"
         )
 
 @router.get("/reports/bibliographies/{report_id}", response_model=List[ReportBibliography])
@@ -1097,14 +1004,19 @@ async def get_report_bibliographies_endpoint(
 ):
     """
     Obtener todas las referencias bibliográficas de una memoria de sostenibilidad.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para acceder a las referencias bibliográficas"
-        )
-
     try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
         # Verificar que el reporte existe
         report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
         if not report:
@@ -1114,7 +1026,7 @@ async def get_report_bibliographies_endpoint(
             )
 
         # Obtener todas las referencias bibliográficas del reporte
-        bibliographies = db.query(ReportBibliographyModel).filter(ReportBibliographyModel.report_id == report_id).all()
+        bibliographies = reports_crud.get_report_bibliographies(db, report_id)
         return bibliographies
 
     except Exception as e:
@@ -1134,42 +1046,26 @@ async def upload_photo(
 ):
     """
     Subir una nueva foto para una memoria.
+    Permite la subida si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
         # Verificar que el reporte existe
-        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
+        report = reports_crud.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria no encontrada")
 
-        # Verificar extensión del archivo
-        file_extension = os.path.splitext(file.filename)[1].lower()
-        if file_extension not in ['.jpg', '.jpeg', '.png']:
-            raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
-
-        # Crear nombre único para el archivo
-        filename = f"report_{report_id}_photo_{uuid.uuid4()}{file_extension}"
-        file_path = PHOTOS_DIR / filename
-
-        logger.info(f"Guardando foto en: {file_path}")
-
-        # Guardar el archivo
-        with open(file_path, "wb+") as file_object:
-            content = await file.read()
-            file_object.write(content)
-
-        # Crear registro en la base de datos
-        file_url = f"/static/uploads/gallery/{filename}"
-        new_photo = ReportPhotoModel(
-            photo=file_url,
-            description=description,
-            report_id=report_id
-        )
-        db.add(new_photo)
-        db.commit()
-        db.refresh(new_photo)
+        new_photo = reports_crud.upload_photo(db, report_id, file, description)
 
         return ReportPhotoResponse(
             id=new_photo.id,
@@ -1190,49 +1086,20 @@ async def get_report_photos(
 ):
     """
     Obtener todas las fotos de una memoria.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
-        photos = db.query(ReportPhotoModel).filter(ReportPhotoModel.report_id == report_id).all()
-        photo_responses = []
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
 
-        for photo in photos:
-            try:
-                # Convertir la ruta relativa a absoluta
-                relative_path = photo.photo.lstrip('/')
-                file_path = BASE_DIR / relative_path
-
-                if not file_path.exists():
-                    logger.warning(f"Archivo de foto no encontrado: {file_path}")
-                    continue
-
-                # Leer el archivo y convertirlo a base64
-                with open(file_path, "rb") as image_file:
-                    import base64
-                    encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-                    
-                    # Determinar el tipo MIME basado en la extensión del archivo
-                    file_extension = file_path.suffix.lower()
-                    mime_type = {
-                        '.jpg': 'image/jpeg',
-                        '.jpeg': 'image/jpeg',
-                        '.png': 'image/png'
-                    }.get(file_extension, 'image/jpeg')
-
-                    # Crear data URL
-                    data_url = f"data:{mime_type};base64,{encoded_string}"
-
-                    photo_responses.append(ReportPhotoResponse(
-                        id=photo.id,
-                        photo=data_url,
-                        description=photo.description,
-                        report_id=photo.report_id
-                    ))
-            except Exception as e:
-                logger.error(f"Error al procesar la foto {photo.id}: {str(e)}")
-                continue
+        photo_responses = reports_crud.get_report_photos(db, report_id)
 
         return photo_responses
 
@@ -1248,31 +1115,26 @@ async def delete_photo(
 ):
     """
     Eliminar una foto de una memoria y su archivo físico asociado.
+    Permite la eliminación si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
-        photo = db.query(ReportPhotoModel).filter(ReportPhotoModel.id == photo_id).first()
+        # Primero obtener la foto para saber a qué reporte pertenece
+        photo = reports_crud.get_photo_by_id(db, photo_id)
         if not photo:
             raise HTTPException(status_code=404, detail="Foto no encontrada")
 
-        # Convertir la ruta relativa a absoluta
-        relative_path = photo.photo.lstrip('/')
-        file_path = BASE_DIR / relative_path
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=photo.report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
 
-        # Eliminar el archivo físico si existe
-        if file_path.exists():
-            try:
-                file_path.unlink()  # Eliminar el archivo
-                logger.info(f"Archivo eliminado exitosamente: {file_path}")
-            except Exception as e:
-                logger.error(f"Error al eliminar el archivo físico: {str(e)}")
-                # Continuamos con la eliminación del registro aunque falle la eliminación del archivo
-
-        # Eliminar el registro de la base de datos
-        db.delete(photo)
-        db.commit()
+        reports_crud.delete_photo(db, photo_id, photo)
 
         return {"message": "Foto eliminada correctamente"}
 
@@ -1289,51 +1151,58 @@ async def update_photo(
 ):
     """
     Actualizar la descripción de una foto.
+    Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
-
     try:
-        photo = db.query(ReportPhotoModel).filter(ReportPhotoModel.id == photo_id).first()
+        # Primero obtener la foto para saber a qué reporte pertenece
+        photo = reports_crud.get_photo_by_id(db, photo_id)
         if not photo:
             raise HTTPException(status_code=404, detail="Foto no encontrada")
 
-        # Actualizar la descripción
-        photo.description = photo_update.description
-
-        db.commit()
-        db.refresh(photo)
-
-        # Convertir la ruta relativa a absoluta para obtener la imagen
-        relative_path = photo.photo.lstrip('/')
-        file_path = BASE_DIR / relative_path
-
-        if not file_path.exists():
-            raise HTTPException(status_code=404, detail="Archivo no encontrado")
-
-        # Leer el archivo y convertirlo a base64
-        with open(file_path, "rb") as image_file:
-            import base64
-            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            
-            # Determinar el tipo MIME basado en la extensión del archivo
-            file_extension = file_path.suffix.lower()
-            mime_type = {
-                '.jpg': 'image/jpeg',
-                '.jpeg': 'image/jpeg',
-                '.png': 'image/png'
-            }.get(file_extension, 'image/jpeg')
-
-            # Crear data URL
-            data_url = f"data:{mime_type};base64,{encoded_string}"
-
-            return ReportPhotoResponse(
-                id=photo.id,
-                photo=data_url,
-                description=photo.description,
-                report_id=photo.report_id
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=photo.report_id,
+                require_manager=True
             )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        photo = reports_crud.update_photo(db, photo_id, photo_update)
+        
+        return ReportPhotoResponse(
+            id=photo.id,
+            photo=photo.photo,
+            description=photo.description,
+            report_id=photo.report_id
+        )
 
     except Exception as e:
         logger.error(f"Error al actualizar la foto: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/{report_id}/user-role", response_model=UserRoleResponse)
+def get_user_role(
+    report_id: int,
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene el rol del usuario actual en el reporte especificado.
+    """
+    # Verificar si el usuario es admin
+    if current_user.admin:
+        return {"role": "manager"}
+
+    # Obtener el rol del usuario en el reporte
+    team_member = reports_crud.get_team_member(db, current_user.id, report_id)
+
+    if not team_member:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontró un rol asignado para este usuario en el reporte"
+        )
+
+    return {"role": team_member.type}

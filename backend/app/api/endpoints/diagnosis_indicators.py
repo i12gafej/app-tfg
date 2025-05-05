@@ -11,7 +11,7 @@ from app.schemas.diagnosis_indicators import (
 )
 from app.api.deps import get_db, get_current_user
 from app.schemas.auth import TokenData
-
+from app.services.user import check_user_permissions
 router = APIRouter()
 
 @router.get("/diagnosis-indicators/get-all/{report_id}", response_model=List[DiagnosticIndicator])
@@ -20,6 +20,15 @@ def get_all_by_report(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    if not current_user.admin:
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
+
     indicators = crud.get_all_by_report(db, report_id)
     return indicators
 
@@ -29,6 +38,18 @@ def create_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+
+    report_id = crud.get_report_id_by_indicator(db, indicator.id)
+    if not current_user.admin:
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id,
+            require_manager=True
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
+    
     if indicator.type == 'quantitative' and (indicator.numeric_response is None or indicator.unit is None):
         raise HTTPException(
             status_code=400,
@@ -55,6 +76,17 @@ def update_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    report_id = crud.get_report_id_by_indicator(db, indicator_id)
+    if not current_user.admin:
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id,
+            require_manager=True
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
+
     indicator = crud.update_indicator(db, indicator_id, indicator_update)
     if not indicator:
         raise HTTPException(status_code=404, detail="Indicador no encontrado")
@@ -66,6 +98,17 @@ def delete_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    report_id = crud.get_report_id_by_indicator(db, indicator_id)
+    if not current_user.admin:
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id,
+            require_manager=True
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
+
     success = crud.delete_indicator(db, indicator_id)
     if not success:
         raise HTTPException(status_code=404, detail="Indicador no encontrado")
@@ -77,6 +120,16 @@ def get_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    report_id = crud.get_report_id_by_indicator(db, indicator_id)
+    if not current_user.admin:
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
+
     indicator = crud.get_indicator(db, indicator_id)
     if not indicator:
         raise HTTPException(status_code=404, detail="Indicador no encontrado")

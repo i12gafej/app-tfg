@@ -19,12 +19,14 @@ class MaterialTopicCreate(MaterialTopicBase):
     report_id: int
 
 class MaterialTopicUpdate(BaseModel):
+    id: int
     name: Optional[str] = None
     description: Optional[str] = None
     priority: Optional[PriorityLevel] = None
     main_objective: Optional[str] = None
     goal_ods_id: Optional[int] = None
     goal_number: Optional[str] = None
+    report_id: Optional[int] = None
 
 class MaterialTopic(MaterialTopicBase):
     id: int

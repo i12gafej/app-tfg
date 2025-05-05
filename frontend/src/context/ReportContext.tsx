@@ -8,6 +8,7 @@ interface ReportContextType {
   updateFullReport: (reportData: Partial<SustainabilityReport>) => Promise<void>;
   loading: boolean;
   error: string | null;
+  readOnly: boolean;
 }
 
 export const ReportContext = createContext<ReportContextType | undefined>(undefined);
@@ -23,9 +24,10 @@ export const useReport = () => {
 interface ReportProviderProps {
   children: React.ReactNode;
   reportId: number;
+  readOnly?: boolean;
 }
 
-export const ReportProvider: React.FC<ReportProviderProps> = ({ children, reportId }) => {
+export const ReportProvider: React.FC<ReportProviderProps> = ({ children, reportId, readOnly = false }) => {
   const { token } = useAuth();
   const [report, setReport] = useState<SustainabilityReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -91,7 +93,7 @@ export const ReportProvider: React.FC<ReportProviderProps> = ({ children, report
   };
 
   return (
-    <ReportContext.Provider value={{ report, updateReport, updateFullReport, loading, error }}>
+    <ReportContext.Provider value={{ report, updateReport, updateFullReport, loading, error, readOnly }}>
       {children}
     </ReportContext.Provider>
   );

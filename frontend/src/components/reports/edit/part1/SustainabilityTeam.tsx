@@ -17,7 +17,7 @@ import TeamMemberSearchPanel from '@/components/Team/TeamMemberSearchPanel';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
 
 const SustainabilityTeam = () => {
-  const { report } = useReport();
+  const { report, readOnly } = useReport();
   const { token } = useAuth();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +58,38 @@ const SustainabilityTeam = () => {
     );
   }
 
+  // Solo mostrar TeamMemberSearchPanel en modo lectura
+  if (readOnly) {
+    return (
+      <DndProvider backend={HTML5Backend}>
+        <Paper sx={{ p: 2, flex: 1 }}>
+          <Typography variant="h6" gutterBottom>
+            Miembros del Equipo
+          </Typography>
+          <TeamMemberSearchPanel 
+            resourceId={report.heritage_resource_id.toString()}
+            reportId={report.id.toString()}
+            onResourceChange={() => {}}
+            onReportChange={() => {}}
+            onTeamMembersUpdate={handleTeamMembersUpdate}
+            fixedResource={{
+              id: report.heritage_resource_id,
+              name: report.heritage_resource_name || ''
+            }}
+            fixedReport={{
+              id: report.id,
+              year: report.year,
+              heritage_resource_id: report.heritage_resource_id
+            }}
+            onUpdate={handleUpdate}
+            readOnly={true}
+          />
+        </Paper>
+      </DndProvider>
+    );
+  }
+
+  // Modo edición (original)
   return (
     <DndProvider backend={HTML5Backend}>
       <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
@@ -103,6 +135,7 @@ const SustainabilityTeam = () => {
               heritage_resource_id: report.heritage_resource_id
             }}
             onUpdate={handleUpdate}
+            readOnly={false}
           />
         </Paper>
       </Box>
