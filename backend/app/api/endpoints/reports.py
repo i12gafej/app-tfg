@@ -645,7 +645,7 @@ async def upload_logo(
             raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
 
         # Leer el contenido del archivo
-            content = await file.read()
+        content = await file.read()
 
         new_logo = reports_crud.upload_logo(db, report, content, file_extension)
 

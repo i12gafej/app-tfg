@@ -101,6 +101,9 @@ def create_materiality_matrix_data(db: Session, report_id: int) -> Dict:
 def generate_matrix_image(matrix_data: Dict) -> str:
     """Genera la imagen de la matriz de materialidad."""
     try:
+        # Limpiar cualquier figura existente
+        plt.close('all')
+        
         # Configurar el gráfico
         fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
         
@@ -152,10 +155,12 @@ def generate_matrix_image(matrix_data: Dict) -> str:
         buffer.seek(0)
         image_png = buffer.getvalue()
         buffer.close()
-        plt.close()
 
         return f"data:image/png;base64,{base64.b64encode(image_png).decode()}"
 
     except Exception as e:
         logger.error(f"Error al generar imagen de la matriz: {str(e)}")
         raise
+    finally:
+        # Asegurar que se limpian todos los recursos
+        plt.close('all')

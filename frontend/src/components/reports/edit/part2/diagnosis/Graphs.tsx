@@ -27,13 +27,11 @@ const Graphs = () => {
       setLoading(true);
       setError(null);
 
-      // Obtener ambas gráficas en paralelo
-      const [mainResponse, secondaryResponse] = await Promise.all([
-        graphsService.getMainImpactsGraph(report.id, token),
-        graphsService.getSecondaryImpactsGraph(report.id, token)
-      ]);
-
+      // Obtener las gráficas secuencialmente
+      const mainResponse = await graphsService.getMainImpactsGraph(report.id, token);
       setMainImpactsGraph(mainResponse.graph_data_url);
+
+      const secondaryResponse = await graphsService.getSecondaryImpactsGraph(report.id, token);
       setSecondaryImpactsGraph(secondaryResponse.graph_data_url);
     } catch (error) {
       console.error('Error al generar gráficas:', error);

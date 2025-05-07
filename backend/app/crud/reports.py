@@ -154,7 +154,7 @@ def create_norm(db: Session, norm: ReportNormCreate) -> ReportNorm:
     return db_norm
 
 def get_norm_by_id(db: Session, norm_id: int) -> ReportNorm:
-    return db.query(ReportNorm).filter(ReportNorm.id == norm_id).first()
+    return db.query(ReportNormModel).filter(ReportNormModel.id == norm_id).first()
 
 def update_norm(db: Session, norm_id: int, norm: ReportNormUpdate) -> ReportNorm:
     db_norm = get_norm_by_id(db, norm_id)
