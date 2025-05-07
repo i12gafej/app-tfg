@@ -40,7 +40,7 @@ export const MaterialTopicDetailsDialog: React.FC<MaterialTopicDetailsDialogProp
       fullWidth
     >
       <DialogTitle>
-        Detalles del Asunto Relevante
+        Detalles del Asunto de Materialidad
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>

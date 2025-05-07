@@ -41,7 +41,7 @@ const Surveys = () => {
       <Container maxWidth="xl">
         <Box sx={{ py: 4}}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Encuestas de Materialidad
+            Encuestas para la Comunidad Patrimonial
           </Typography>
           <SurveySearch onSearch={handleSearch} />
           

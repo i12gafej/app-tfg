@@ -20,7 +20,7 @@ interface ReportPart2Props {
 
 const DIAGNOSIS_SECTIONS = [
   //{ id: 'description', label: 'Descripción' },
-  { id: 'material-topics', label: 'Asuntos Relevantes' },
+  { id: 'material-topics', label: 'Asuntos de Materialidad' },
   { id: 'impacts', label: 'Impactos Principal y Secundario' },
   { id: 'graphs', label: 'Gráficos' },
   { id: 'surveys', label: 'Encuestas' },
@@ -85,7 +85,7 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
       default:
         return (
           <Box sx={{ p: 3 }}>
-            Contenido principal de la Parte 2
+            Contenido principal de la Paso 2
           </Box>
         );
     }

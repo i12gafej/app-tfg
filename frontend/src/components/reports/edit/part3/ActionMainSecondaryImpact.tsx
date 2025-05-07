@@ -64,8 +64,8 @@ const ActionMainSecondaryImpact = () => {
         const topics = await materialTopicService.getAllByReport(report.id, token);
         setMaterialTopics(topics);
       } catch (error) {
-        console.error('Error al cargar asuntos relevantes:', error);
-        setError('Error al cargar los asuntos relevantes');
+        console.error('Error al cargar asuntos de materialidad:', error);
+        setError('Error al cargar los asuntos de materialidad');
       } finally {
         setLoading(false);
       }
@@ -183,14 +183,14 @@ const ActionMainSecondaryImpact = () => {
       )}
 
       <Grid container spacing={2}>
-        {/* Panel de Asuntos Relevantes */}
+        {/* Panel de Asuntos de Materialidad */}
         <Grid item xs={12}>
           <Paper sx={{ p: 2, mb: 2 }}>
             <FormControl fullWidth>
-              <InputLabel>Asunto Relevante</InputLabel>
+              <InputLabel>Asunto de Materialidad</InputLabel>
               <Select
                 value={selectedTopic?.id || ''}
-                label="Asunto Relevante"
+                label="Asunto de Materialidad"
                 onChange={(e: { target: { value: number } }) => {
                   const topic = materialTopics.find(t => t.id === e.target.value);
                   setSelectedTopic(topic || null);

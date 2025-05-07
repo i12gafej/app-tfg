@@ -102,7 +102,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
       setPage(newPage);
     } catch (err) {
       console.error('Error en la búsqueda:', err);
-      setError('Error al buscar asuntos relevantes. Por favor, inténtalo de nuevo.');
+      setError('Error al buscar asuntos de materialidad. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -204,7 +204,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
           <TextField
             fullWidth
             variant="standard"
-            placeholder="Buscar asuntos relevantes..."
+            placeholder="Buscar asuntos de materialidad..."
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -267,7 +267,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
           marginBottom: 1,
         }}
       >
-        Nuevo Asunto Relevante
+        Nuevo Asunto de Materialidad
       </Button>
       )}
 
@@ -381,7 +381,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
 
       {!loading && !error && materialTopics.length === 0 && searchTerm && (
         <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
-          No se encontraron asuntos relevantes que coincidan con la búsqueda.
+          No se encontraron asuntos de materialidad que coincidan con la búsqueda.
         </Typography>
       )}
 

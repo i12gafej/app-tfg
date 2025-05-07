@@ -89,7 +89,7 @@ def generate_monitoring_template(material_topics):
         logger.info(f"Procesando {len(material_topics)} asuntos relevantes")
         # Generar una página por cada acción
         for topic in material_topics:
-            logger.debug(f"Procesando asunto relevante: {topic['name']}")
+            logger.debug(f"Procesando asunto de materialidad: {topic['name']}")
             for objective in topic['objectives']:
                 logger.debug(f"Procesando objetivo: {objective['description']}")
                 for action in objective['actions']:
@@ -109,11 +109,11 @@ def generate_monitoring_template(material_topics):
                                 </div>
                             </div>
 
-                            <h2>Ficha de seguimiento y control de un asunto relevante a corto plazo</h2>
+                            <h2>Ficha de seguimiento y control de un asunto de materialidad a corto plazo</h2>
                             <p>Ejecucion 1 año</p>
 
                             <div class="form-group">
-                                <label>Asunto relevante</label>
+                                <label>asunto de materialidad</label>
                                 <textarea rows="2">{topic['name']}</textarea>
                             </div>
 

@@ -84,7 +84,7 @@ def create_material_topic(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Crear un nuevo asunto relevante.
+    Crear un nuevo asunto de materialidad.
     """
     # Verificar si el usuario es admin o gestor del reporte
     if not current_user.admin:
@@ -106,7 +106,7 @@ def create_material_topic(
     if existing_material_topic and existing_material_topic.report_id == material_topic_data.report_id:
         raise HTTPException(
             status_code=400,
-            detail="Ya existe un asunto relevante con este nombre en este reporte"
+            detail="Ya existe un asunto de materialidad con este nombre en este reporte"
         )
     
     try:
@@ -115,7 +115,7 @@ def create_material_topic(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error al crear el asunto relevante: {str(e)}"
+            detail=f"Error al crear el asunto de materialidad: {str(e)}"
         )
 
 @router.post("/material-topics/update", response_model=MaterialTopic)
@@ -125,14 +125,14 @@ def update_material_topic(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Actualizar un asunto relevante.
+    Actualizar un asunto de materialidad.
     """
-    # Obtener el asunto relevante existente
+    # Obtener el asunto de materialidad existente
     db_material_topic = crud_material_topic.get(db, material_topic_data.id)
     if not db_material_topic:
         raise HTTPException(
             status_code=404,
-            detail="Asunto relevante no encontrado"
+            detail="asunto de materialidad no encontrado"
         )
 
     # Verificar si el usuario es admin o gestor del reporte
@@ -156,7 +156,7 @@ def update_material_topic(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error al actualizar el asunto relevante: {str(e)}"
+            detail=f"Error al actualizar el asunto de materialidad: {str(e)}"
         )
 
 @router.delete("/material-topics/{material_topic_id}")
@@ -166,14 +166,14 @@ def delete_material_topic(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Eliminar un asunto relevante.
+    Eliminar un asunto de materialidad.
     """
     # Primero obtener el material topic para saber a qué reporte pertenece
     db_material_topic = crud_material_topic.get(db, material_topic_id)
     if not db_material_topic:
         raise HTTPException(
             status_code=404,
-            detail="Asunto relevante no encontrado"
+            detail="asunto de materialidad no encontrado"
         )
 
     # Verificar si el usuario es admin o gestor del reporte
@@ -193,11 +193,11 @@ def delete_material_topic(
     
     try:
         crud_material_topic.delete(db, db_material_topic)
-        return {"message": "Asunto relevante eliminado correctamente"}
+        return {"message": "asunto de materialidad eliminado correctamente"}
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error al eliminar el asunto relevante: {str(e)}"
+            detail=f"Error al eliminar el asunto de materialidad: {str(e)}"
         )
 
 @router.get("/material-topics/get-all/{report_id}", response_model=List[MaterialTopic])

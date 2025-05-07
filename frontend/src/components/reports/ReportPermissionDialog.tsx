@@ -20,7 +20,7 @@ import { reportService, SustainabilityReport } from '@/services/reportServices';
 // Estructura de partes y apartados con rangos de bits
 const PARTS = [
   {
-    name: 'Parte 1',
+    name: 'Paso 1',
     start: 0,
     end: 4,
     sections: [
@@ -32,12 +32,12 @@ const PARTS = [
     ]
   },
   {
-    name: 'Parte 2',
+    name: 'Paso 2',
     start: 5,
     end: 12,
     sections: [
-      'Análisis de grupos de interés',
-      'Asuntos relevantes',
+      'Grupos de Interés',
+      'Asuntos de Materialidad',
       'Impactos principales',
       'Impactos secundarios',
       'Gráficos',
@@ -47,7 +47,7 @@ const PARTS = [
     ]
   },
   {
-    name: 'Parte 3',
+    name: 'Paso 3',
     start: 13,
     end: 18,
     sections: [
@@ -60,7 +60,7 @@ const PARTS = [
     ]
   },
   {
-    name: 'Parte 4',
+    name: 'Paso 4',
     start: 19,
     end: 20,
     sections: [
@@ -69,7 +69,7 @@ const PARTS = [
     ]
   },
   {
-    name: 'Parte 5',
+    name: 'Paso 5',
     start: 21,
     end: 28,
     sections: [

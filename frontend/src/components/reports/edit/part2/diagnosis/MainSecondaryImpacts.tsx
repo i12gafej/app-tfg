@@ -77,7 +77,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
         const materialTopicsResponse = await materialTopicService.getAllByReport(reportId, token);
         setMaterialTopics(materialTopicsResponse || []);
 
-        // Cargar impactos secundarios para cada asunto relevante
+        // Cargar impactos secundarios para cada asunto de materialidad
         const secondaryImpactsData: { [key: number]: number[] } = {};
         for (const topic of materialTopicsResponse || []) {
           const response = await odsService.getSecondaryImpacts(topic.id, token);
@@ -193,7 +193,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
       <Box sx={{ mb: 3 }}>
         <TextField
           fullWidth
-          label="Buscar asunto relevante"
+          label="Buscar asunto de materialidad"
           value={searchTerm}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
           sx={{ mb: 2 }}
@@ -203,7 +203,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell width="25%">Asunto Relevante</TableCell>
+                <TableCell width="25%">Asunto de Materialidad</TableCell>
                 <TableCell width="30%">Impacto Principal</TableCell>
                 <TableCell width="35%">Impactos Secundarios</TableCell>
                 <TableCell width="10%">Acciones</TableCell>

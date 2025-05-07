@@ -32,14 +32,14 @@ def get(db: Session, material_topic_id: int) -> Optional[MaterialTopic]:
     try:
         return db.query(MaterialTopic).filter(MaterialTopic.id == material_topic_id).first()
     except Exception as e:
-        logger.error(f"Error al obtener asunto relevante: {str(e)}")
+        logger.error(f"Error al obtener asunto de materialidad: {str(e)}")
         return None
 
 def get_by_name(db: Session, name: str) -> Optional[MaterialTopic]:
     try:
         return db.query(MaterialTopic).filter(MaterialTopic.name == name).first()
     except Exception as e:
-        logger.error(f"Error al buscar asunto relevante por nombre: {str(e)}")
+        logger.error(f"Error al buscar asunto de materialidad por nombre: {str(e)}")
         return None
 
 def update(db: Session, db_material_topic: MaterialTopic, material_topic_data: MaterialTopicUpdate) -> MaterialTopic:
@@ -57,7 +57,7 @@ def update(db: Session, db_material_topic: MaterialTopic, material_topic_data: M
         return db_material_topic
     except Exception as e:
         db.rollback()
-        logger.error(f"Error al actualizar asunto relevante: {str(e)}")
+        logger.error(f"Error al actualizar asunto de materialidad: {str(e)}")
         raise
 
 def delete(db: Session, db_material_topic: MaterialTopic) -> None:
@@ -66,7 +66,7 @@ def delete(db: Session, db_material_topic: MaterialTopic) -> None:
         db.commit()
     except Exception as e:
         db.rollback()
-        logger.error(f"Error al eliminar asunto relevante: {str(e)}")
+        logger.error(f"Error al eliminar asunto de materialidad: {str(e)}")
         raise e
 
 def search(

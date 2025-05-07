@@ -37,8 +37,8 @@ const MainObjective = () => {
         const topics = await materialTopicService.getAllByReport(report.id, token);
         setMaterialTopics(topics);
       } catch (error) {
-        console.error('Error al cargar asuntos relevantes:', error);
-        setError('Error al cargar los asuntos relevantes');
+        console.error('Error al cargar asuntos de materialidad:', error);
+        setError('Error al cargar los asuntos de materialidad');
       } finally {
         setLoading(false);
       }
@@ -98,11 +98,11 @@ const MainObjective = () => {
       </Typography>
 
       <Grid container spacing={2}>
-        {/* Panel de Asuntos Relevantes */}
+        {/* Panel de Asuntos de Materialidad */}
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2, height: '500px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" gutterBottom>
-              Asuntos Relevantes
+              Asuntos de Materialidad
             </Typography>
             <List sx={{ 
               flexGrow: 1, 
@@ -233,13 +233,13 @@ const MainObjective = () => {
                     }}
                     value={mainObjectiveValue}
                     onChange={e => setMainObjectiveValue(e.target.value)}
-                    placeholder="Define aquí el objetivo principal para este asunto relevante..."
+                    placeholder="Define aquí el objetivo principal para este asunto de materialidad..."
                   />
                 )}
               </Box>
             ) : (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                Selecciona un asunto relevante para definir su objetivo principal
+                Selecciona un asunto de materialidad para definir su objetivo principal
               </Typography>
             )}
           </Paper>

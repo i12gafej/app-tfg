@@ -220,11 +220,11 @@ const DiagnosisIndicators: React.FC = () => {
       )}
 
       <Grid container spacing={2}>
-        {/* Panel de Asuntos Relevantes */}
+        {/* Panel de Asuntos de Materialidad */}
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2, height: '500px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" gutterBottom>
-              Asuntos Relevantes
+              Asuntos de Materialidad
             </Typography>
             <List sx={{ 
               flexGrow: 1, 
@@ -321,12 +321,12 @@ const DiagnosisIndicators: React.FC = () => {
               ))}
               {selectedTopic && filteredIndicators.length === 0 && (
                 <ListItem>
-                  <ListItemText primary="No hay indicadores para este asunto relevante" />
+                  <ListItemText primary="No hay indicadores para este asunto de materialidad" />
                 </ListItem>
               )}
               {!selectedTopic && (
                 <ListItem>
-                  <ListItemText primary="Seleccione un asunto relevante para ver sus indicadores" />
+                  <ListItemText primary="Seleccione un asunto de materialidad para ver sus indicadores" />
                 </ListItem>
               )}
             </List>

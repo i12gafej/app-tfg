@@ -51,8 +51,8 @@ export const MaterialTopicCreateDialog: React.FC<MaterialTopicCreateDialogProps>
       onClose();
       resetForm();
     } catch (err) {
-      console.error('Error al crear asunto relevante:', err);
-      setError('Error al crear el asunto relevante. Por favor, inténtalo de nuevo.');
+      console.error('Error al crear asunto de materialidad:', err);
+      setError('Error al crear el asunto de materialidad. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ export const MaterialTopicCreateDialog: React.FC<MaterialTopicCreateDialogProps>
       fullWidth
     >
       <DialogTitle>
-        Nuevo Asunto Relevante
+        Nuevo Asunto de Materialidad
       </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>

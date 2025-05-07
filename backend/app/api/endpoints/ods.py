@@ -53,14 +53,14 @@ def get_secondary_impacts(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Obtener los impactos secundarios de un asunto relevante.
+    Obtener los impactos secundarios de un asunto de materialidad.
     Permite el acceso si el usuario es admin, gestor, consultor o asesor.
     """
     try:
         # Obtener el material topic para saber a qué reporte pertenece
         material_topic = crud_material_topics.get(db, material_topic_id)
         if not material_topic:
-            raise HTTPException(status_code=404, detail="Asunto relevante no encontrado")
+            raise HTTPException(status_code=404, detail="asunto de materialidad no encontrado")
 
         # Verificar permisos
         if not current_user.admin:
@@ -187,14 +187,14 @@ def update_secondary_impacts(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Actualizar los impactos secundarios de un asunto relevante.
+    Actualizar los impactos secundarios de un asunto de materialidad.
     Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
     try:
         # Obtener el material topic para saber a qué reporte pertenece
         material_topic = crud_material_topics.get(db, update_data.material_topic_id)
         if not material_topic:
-            raise HTTPException(status_code=404, detail="Asunto relevante no encontrado")
+            raise HTTPException(status_code=404, detail="asunto de materialidad no encontrado")
 
         # Verificar permisos
         if not current_user.admin:

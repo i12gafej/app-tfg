@@ -545,7 +545,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                              minWidth: isMobile ? '100%' : 'auto' }}
                           onClick={() => handleOpenPermissions(report)}
                         >
-                          Permisos
+                          Permisos del Asesor
                         </Button>
                       )}
                     </Box>

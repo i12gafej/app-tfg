@@ -29,7 +29,7 @@ def get_specific_objectives(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Obtener todos los objetivos específicos de un asunto relevante.
+    Obtener todos los objetivos específicos de un asunto de materialidad.
     """
     try:
         objectives = crud_action_plan.get_all_specific_objectives(db, material_topic_id)

@@ -38,7 +38,7 @@ def update_main_impact(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Actualizar el impacto principal de un asunto relevante.
+    Actualizar el impacto principal de un asunto de materialidad.
     """
     if not current_user.admin:
             has_permission, error_message = check_user_permissions(

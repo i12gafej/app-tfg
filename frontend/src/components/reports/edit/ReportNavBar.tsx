@@ -80,7 +80,7 @@ const ReportNavBar = () => {
               })
             }}
           >
-            Parte {part}
+            Paso {part}
           </Button>
         ))}
       </Box>
@@ -115,7 +115,7 @@ const ReportNavBar = () => {
               })
             }}
           >
-            Análisis de Grupos de Interés
+            Grupos de Interés
           </Button>
           <Button
             variant={part2Section === 'diagnostic' ? 'contained' : 'outlined'}

@@ -38,8 +38,8 @@ export const MaterialTopicDeleteDialog: React.FC<MaterialTopicDeleteDialogProps>
       onDelete();
       onClose();
     } catch (err) {
-      console.error('Error al eliminar asunto relevante:', err);
-      setError('Error al eliminar el asunto relevante. Por favor, inténtalo de nuevo.');
+      console.error('Error al eliminar asunto de materialidad:', err);
+      setError('Error al eliminar el asunto de materialidad. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export const MaterialTopicDeleteDialog: React.FC<MaterialTopicDeleteDialogProps>
       fullWidth
     >
       <DialogTitle>
-        Eliminar Asunto Relevante
+        Eliminar Asunto de Materialidad
       </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
@@ -64,7 +64,7 @@ export const MaterialTopicDeleteDialog: React.FC<MaterialTopicDeleteDialogProps>
           )}
 
           <Typography>
-            ¿Estás seguro de que deseas eliminar el asunto relevante "{materialTopic.name}"?
+            ¿Estás seguro de que deseas eliminar el asunto de materialidad "{materialTopic.name}"?
             Esta acción no se puede deshacer.
           </Typography>
         </Box>

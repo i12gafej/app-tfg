@@ -117,8 +117,8 @@ const SpecificObjectives = () => {
         const topics = await materialTopicService.getAllByReport(report.id, token);
         setMaterialTopics(topics);
       } catch (error) {
-        console.error('Error al cargar asuntos relevantes:', error);
-        setError('Error al cargar los asuntos relevantes');
+        console.error('Error al cargar asuntos de materialidad:', error);
+        setError('Error al cargar los asuntos de materialidad');
       } finally {
         setLoading(false);
       }
@@ -127,7 +127,7 @@ const SpecificObjectives = () => {
     fetchMaterialTopics();
   }, [report, token]);
 
-  // Cargar objetivos específicos cuando se selecciona un asunto relevante
+  // Cargar objetivos específicos cuando se selecciona un asunto de materialidad
   useEffect(() => {
     const fetchSpecificObjectives = async () => {
       if (!selectedTopic || !token) return;
@@ -474,13 +474,13 @@ const SpecificObjectives = () => {
         </Alert>
       )}
 
-      {/* Selector de Asunto Relevante */}
+      {/* Selector de Asunto de Materialidad */}
       <Paper sx={{ p: 2, mb: 2 }}>
         <FormControl fullWidth>
-          <InputLabel>Asunto Relevante</InputLabel>
+          <InputLabel>Asunto de Materialidad</InputLabel>
           <Select
             value={selectedTopic?.id || ''}
-            label="Asunto Relevante"
+            label="Asunto de Materialidad"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const topic = materialTopics.find(t => t.id === Number(e.target.value));
               setSelectedTopic(topic || null);
@@ -594,7 +594,7 @@ const SpecificObjectives = () => {
                 )}
                 {!selectedTopic && (
                   <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
-                    Seleccione un asunto relevante para ver sus objetivos
+                    Seleccione un asunto de materialidad para ver sus objetivos
                   </Typography>
                 )}
               </Stack>

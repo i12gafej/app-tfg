@@ -55,8 +55,8 @@ const AssignResponsibles = () => {
         const topics = await materialTopicService.getAllByReport(report.id, token);
         setMaterialTopics(topics);
       } catch (error) {
-        console.error('Error al cargar asuntos relevantes:', error);
-        setError('Error al cargar los asuntos relevantes');
+        console.error('Error al cargar asuntos de materialidad:', error);
+        setError('Error al cargar los asuntos de materialidad');
       } finally {
         setLoading(false);
       }
@@ -65,7 +65,7 @@ const AssignResponsibles = () => {
     fetchData();
   }, [token, report]);
 
-  // Cargar objetivos específicos cuando se selecciona un asunto relevante
+  // Cargar objetivos específicos cuando se selecciona un asunto de materialidad
   const loadObjectives = async (topicId: number) => {
     if (!token) return;
     try {
@@ -80,7 +80,7 @@ const AssignResponsibles = () => {
     }
   };
 
-  // Manejar la selección de un asunto relevante
+  // Manejar la selección de un asunto de materialidad
   const handleTopicSelect = (topic: MaterialTopic) => {
     setSelectedTopic(topic);
     loadObjectives(topic.id);
@@ -137,11 +137,11 @@ const AssignResponsibles = () => {
       )}
 
       <Grid container spacing={2}>
-        {/* Panel de Asuntos Relevantes */}
+        {/* Panel de Asuntos de Materialidad */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2, height: '500px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" gutterBottom>
-              Asuntos Relevantes
+              Asuntos de Materialidad
             </Typography>
             <List sx={{ 
               flexGrow: 1, 
@@ -228,12 +228,12 @@ const AssignResponsibles = () => {
               )}
               {!selectedTopic && (
                 <ListItem>
-                  <ListItemText primary="Seleccione un asunto relevante para ver sus objetivos específicos" />
+                  <ListItemText primary="Seleccione un asunto de materialidad para ver sus objetivos específicos" />
                 </ListItem>
               )}
               {selectedTopic && objectives.length === 0 && !loading && (
                 <ListItem>
-                  <ListItemText primary="No hay objetivos específicos para este asunto relevante" />
+                  <ListItemText primary="No hay objetivos específicos para este asunto de materialidad" />
                 </ListItem>
               )}
             </List>

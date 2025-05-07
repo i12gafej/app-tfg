@@ -70,7 +70,7 @@ export const materialTopicService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error al buscar asuntos relevantes:', error);
+      console.error('Error al buscar asuntos de materialidad:', error);
       throw error;
     }
   },
@@ -87,7 +87,7 @@ export const materialTopicService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar asunto relevante:', error);
+      console.error('Error al actualizar asunto de materialidad:', error);
       throw error;
     }
   },
@@ -100,7 +100,7 @@ export const materialTopicService = {
         }
       });
     } catch (error) {
-      console.error('Error al eliminar asunto relevante:', error);
+      console.error('Error al eliminar asunto de materialidad:', error);
       throw error;
     }
   },
@@ -114,7 +114,7 @@ export const materialTopicService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error al crear asunto relevante:', error);
+      console.error('Error al crear asunto de materialidad:', error);
       throw error;
     }
   },
@@ -128,7 +128,7 @@ export const materialTopicService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error al obtener asuntos relevantes:', error);
+      console.error('Error al obtener asuntos de materialidad:', error);
       throw error;
     }
   },

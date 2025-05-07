@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-import logging
 import re
 from app.api.deps import get_db, get_current_user
 from app.schemas.auth import TokenData
@@ -13,8 +12,6 @@ from app.crud import action_plan as crud_action_plan
 from app.crud import ods as crud_ods
 from app.templates.monitoring_templates import generate_monitoring_template
 
-# Configurar logger
-logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -49,23 +46,18 @@ def get_monitoring_template(
         logger.info(f"Iniciando generación de plantilla para report_id: {report_id}")
 
         # 1. Obtener todos los asuntos relevantes
-        logger.debug("Obteniendo asuntos relevantes...")
         material_topics = crud_material_topics.get_all_by_report(db, report_id)
         if not material_topics:
-            logger.warning(f"No se encontraron asuntos relevantes para el report_id: {report_id}")
-            raise HTTPException(status_code=404, detail="No se encontraron asuntos relevantes")
-        logger.info(f"Se encontraron {len(material_topics)} asuntos relevantes")
+            raise HTTPException(status_code=404, detail="No se encontraron asuntos de materialidad")
+        
 
         # 2. Obtener todos los ODS
-        logger.debug("Obteniendo ODS...")
         all_ods = crud_ods.get_all_ods(db)
         ods_dict = {ods.id: ods for ods in all_ods}
-        logger.info(f"Se encontraron {len(all_ods)} ODS")
 
         # 3. Preparar la estructura de datos para la plantilla
         template_data = []
         for topic in material_topics:
-            logger.debug(f"Procesando asunto relevante id: {topic.id}")
             
             # Obtener objetivos específicos
             objectives = crud_action_plan.get_all_specific_objectives(db, topic.id)
@@ -113,7 +105,7 @@ def get_monitoring_template(
                 }
                 topic_objectives.append(objective_dict)
 
-            # Crear diccionario de asunto relevante
+            # Crear diccionario de asunto de materialidad
             topic_dict = {
                 "id": topic.id,
                 "name": topic.name,
@@ -124,9 +116,9 @@ def get_monitoring_template(
             template_data.append(topic_dict)
 
         # 4. Generar el HTML de la plantilla
-        logger.info("Generando HTML de la plantilla...")
+        
         html_content = generate_monitoring_template(template_data)
-        logger.info("HTML generado correctamente")
+        
 
         return MonitoringTemplateResponse(html_content=html_content)
 

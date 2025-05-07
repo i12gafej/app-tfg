@@ -74,8 +74,8 @@ export const MaterialTopicEditDialog: React.FC<MaterialTopicEditDialogProps> = (
       onUpdate();
       onClose();
     } catch (err) {
-      console.error('Error al actualizar asunto relevante:', err);
-      setError('Error al actualizar el asunto relevante. Por favor, inténtalo de nuevo.');
+      console.error('Error al actualizar asunto de materialidad:', err);
+      setError('Error al actualizar el asunto de materialidad. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,7 @@ export const MaterialTopicEditDialog: React.FC<MaterialTopicEditDialogProps> = (
       fullWidth
     >
       <DialogTitle>
-        Editar Asunto Relevante
+        Editar Asunto de Materialidad
       </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
