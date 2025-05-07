@@ -45,7 +45,8 @@ const ReportNavBar = () => {
       display: 'flex', 
       flexDirection: 'column', 
       alignItems: 'center', 
-      p: isMobile ? 0.5 : 2 
+      p: isMobile ? 0.5 : 0,
+      py: 1 
     }}>
       
       <Box sx={{ 

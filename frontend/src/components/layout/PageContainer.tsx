@@ -8,10 +8,8 @@ interface PageContainerProps {
 
 const PageContainer = ({ children, whiteBackground }: PageContainerProps) => {
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ 
-        px: 4, 
-        py: 6,
+    <Container maxWidth="xl" disableGutters>
+      <Box sx={{ px: 0,
         backgroundColor: whiteBackground ? '#ffffff' : 'transparent'
       }}>
         {children}

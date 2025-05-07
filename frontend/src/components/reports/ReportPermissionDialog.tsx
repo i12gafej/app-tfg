@@ -38,8 +38,7 @@ const PARTS = [
     sections: [
       'Grupos de Interés',
       'Asuntos de Materialidad',
-      'Impactos principales',
-      'Impactos secundarios',
+      'Impactos principales y Secundarios ODS',
       'Gráficos',
       'Encuestas',
       'Matriz de materialidad',

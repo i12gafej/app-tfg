@@ -211,7 +211,7 @@ async def search_reports_endpoint(
             "total_pages": (total + per_page - 1) // per_page
         }
 
-        logger.info(f"Respuesta final: {response}")
+        
 
         return response
 

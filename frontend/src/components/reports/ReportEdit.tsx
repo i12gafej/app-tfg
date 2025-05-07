@@ -37,7 +37,7 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false }) => {
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center', 
-          p: 2, 
+          py: 1, 
           borderBottom: '1px solid',
           borderColor: 'divider'
         }}>

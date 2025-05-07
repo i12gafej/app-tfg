@@ -7,7 +7,7 @@ const Reports = () => {
     return (
         <PageContainer>
             <Container maxWidth="xl">
-                <Box sx={{ py: 4 }}>
+                <Box >
                     <Typography variant="h4" component="h1" gutterBottom>
                         Gestión de Memorias de Sostenibilidad
                     </Typography>
