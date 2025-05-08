@@ -23,24 +23,12 @@ router = APIRouter()
 @router.post("/stakeholders/search", response_model=dict)
 def search_stakeholders(
     search_params: StakeholderSearch = Body(...),
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """
     Buscar grupos de interés con filtros opcionales.
-    Permite el acceso si el usuario es admin o si tiene un rol asignado en el reporte.
     """
     try:
-        # Verificar permisos
-        if not current_user.admin:
-            has_permission, error_message = check_user_permissions(
-                db=db,
-                user_id=current_user.id,
-                report_id=search_params.report_id
-            )
-            if not has_permission:
-                raise HTTPException(status_code=403, detail=error_message)
-
         # Paginación
         page = search_params.page or 1
         per_page = search_params.per_page or 10

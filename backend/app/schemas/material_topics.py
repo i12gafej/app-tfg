@@ -39,16 +39,12 @@ class MaterialTopicSearch(BaseModel):
     search_term: Optional[str] = None
     name: Optional[str] = None
     report_id: Optional[int] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
 
     class Config:
         json_schema_extra = {
             "example": {
                 "search_term": "asunto",
                 "name": "Asunto A",
-                "report_id": 1,
-                "page": 1,
-                "per_page": 10
+                "report_id": 1
             }
         }

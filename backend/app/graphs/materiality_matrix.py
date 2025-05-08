@@ -74,12 +74,41 @@ def create_materiality_matrix_data(db: Session, report_id: int) -> Dict:
         # Calcular medias
         averages = calculate_averages(assessments, stakeholders)
 
+        # Organizar asuntos por dimensión y ordenar por id
+        dimension_topics = {}
+        for topic in material_topics:
+            dimension = get_dimension_by_ods(topic.goal_ods_id) if topic.goal_ods_id else "OTROS"
+            if dimension not in dimension_topics:
+                dimension_topics[dimension] = []
+            dimension_topics[dimension].append(topic)
+        for dim in dimension_topics:
+            dimension_topics[dim].sort(key=lambda t: t.id)
+
+        # Orden global de dimensiones
+        ordered_dims = ["PERSONAS", "PLANETA", "PROSPERIDAD", "PAZ", "ALIANZAS"]
+        # Añadir cualquier otra dimensión al final
+        other_dims = [d for d in dimension_topics.keys() if d not in ordered_dims]
+        final_dim_order = ordered_dims + sorted(other_dims)
+
+        # Asignar número de leyenda consecutivo siguiendo el orden global de dimensiones
+        legend_numbers = {}
+        leyenda_counter = 1
+        leyenda_order = []
+        for dim in final_dim_order:
+            if dim in dimension_topics:
+                for topic in dimension_topics[dim]:
+                    legend_numbers[topic.id] = leyenda_counter
+                    leyenda_order.append(topic.id)
+                    leyenda_counter += 1
+
         # Organizar datos por dimensión y crear respuesta
         matrix_data = {
             "points": {},
             "dimensions": {},
             "topic_names": {},
-            "dimension_colors": DIMENSION_COLORS
+            "dimension_colors": DIMENSION_COLORS,
+            "legend_numbers": legend_numbers,
+            "leyenda_order": leyenda_order
         }
 
         for topic in material_topics:
@@ -118,38 +147,60 @@ def generate_matrix_image(matrix_data: Dict) -> str:
         )
         max_escala = math.ceil(max_coord)
 
-        # Configurar límites y zonas
-        baja_lim = int(max_escala * 0.6)
-        media_lim = int(max_escala * 0.8)
+        # Calcular proporciones exactas
+        baja_lim = max_escala * 0.6
+        media_lim = max_escala * 0.8
 
-        ax.set_xlim(-0.1, max_escala + 0.1)
-        ax.set_ylim(-0.1, max_escala + 0.1)
-        ax.set_xticks(range(0, max_escala + 1))
-        ax.set_yticks(range(0, max_escala + 1))
+        # Modificar los límites para que empiecen en 1,1
+        ax.set_xlim(0.9, max_escala + 0.1)
+        ax.set_ylim(0.9, max_escala + 0.1)
+        ax.set_xticks([round(x, 1) for x in list(frange(1, max_escala + 0.1, 1))])
+        ax.set_yticks([round(y, 1) for y in list(frange(1, max_escala + 0.1, 1))])
         ax.grid(True, which='major', linestyle=':', color='gray')
         ax.set_xlabel("Internos", fontsize=12, fontweight='bold')
         ax.set_ylabel("Externos", fontsize=12, fontweight='bold')
+        ax.tick_params(axis='x', length=0)
+        ax.tick_params(axis='y', length=0)
 
         # Eliminar bordes
         for spine in ax.spines.values():
             spine.set_visible(False)
 
-        # Añadir zonas
-        ax.add_patch(patches.Rectangle((0, 0), baja_lim, baja_lim, fill=False, linestyle=':', edgecolor='green', linewidth=1.5))
-        ax.add_patch(patches.Rectangle((0, 0), media_lim, media_lim, fill=False, linestyle=':', edgecolor='red', linewidth=1.5))
-        ax.add_patch(patches.Rectangle((0, 0), max_escala, max_escala, fill=False, linestyle=':', edgecolor='blue', linewidth=1.5))
+        # Añadir zonas con proporciones decimales
+        ax.add_patch(patches.Rectangle((1, 1), baja_lim - 1, baja_lim - 1, fill=False, linestyle=':', edgecolor='green', linewidth=1.5))
+        ax.add_patch(patches.Rectangle((1, 1), media_lim - 1, media_lim - 1, fill=False, linestyle=':', edgecolor='red', linewidth=1.5))
+        ax.add_patch(patches.Rectangle((1, 1), max_escala - 1, max_escala - 1, fill=False, linestyle=':', edgecolor='blue', linewidth=1.5))
 
         # Etiquetas de zonas
-        ax.text(0.2, baja_lim - 0.15, "BAJA", color='green', fontsize=10, fontweight='bold', va='top')
-        ax.text(0.2, media_lim - 0.15, "MEDIA", color='red', fontsize=10, fontweight='bold', va='top')
-        ax.text(0.2, max_escala - 0.15, "ALTA", color='blue', fontsize=10, fontweight='bold', va='top')
+        ax.text(1.2, baja_lim - 0.15, "BAJA", color='green', fontsize=10, fontweight='bold', va='top')
+        ax.text(1.2, media_lim - 0.15, "MEDIA", color='red', fontsize=10, fontweight='bold', va='top')
+        ax.text(1.2, max_escala - 0.15, "ALTA", color='blue', fontsize=10, fontweight='bold', va='top')
 
-        # Dibujar puntos
+        # Agrupar puntos coincidentes
+        point_groups = {}
         for topic_id, point in matrix_data["points"].items():
-            dimension = matrix_data["dimensions"][topic_id]
+            # Redondear coordenadas para agrupar
+            x_rounded = round(point["x"], 1)
+            y_rounded = round(point["y"], 1)
+            key = (x_rounded, y_rounded)
+            if key not in point_groups:
+                point_groups[key] = []
+            point_groups[key].append(topic_id)
+
+        # Dibujar puntos y números agrupados
+        for (x, y), topic_ids in point_groups.items():
+            # Dibujar el círculo (usando el primer topic_id para el color)
+            first_topic_id = topic_ids[0]
+            dimension = matrix_data["dimensions"][first_topic_id]
             color = matrix_data["dimension_colors"][dimension]
-            ax.scatter(point["x"], point["y"], s=300, color=color, alpha=0.7, edgecolor='black', linewidth=0.5, clip_on=False)
-            ax.text(point["x"], point["y"], str(topic_id), fontsize=9, ha='center', va='center', fontweight='bold', color='black', clip_on=False)
+            ax.scatter(x, y, s=300, color=color, alpha=0.7, edgecolor='black', linewidth=0.5, clip_on=False)
+            
+            # Preparar el texto con los números de leyenda separados por comas
+            legend_numbers = [str(matrix_data["legend_numbers"][tid]) for tid in topic_ids]
+            legend_text = ",".join(legend_numbers)
+            
+            # Dibujar el texto encima del punto
+            ax.text(x, y + 0.15, legend_text, fontsize=9, ha='center', va='bottom', fontweight='bold', color='black', clip_on=False)
 
         plt.tight_layout()
 
@@ -168,3 +219,8 @@ def generate_matrix_image(matrix_data: Dict) -> str:
     finally:
         # Asegurar que se limpian todos los recursos
         plt.close('all')
+
+def frange(start, stop, step):
+    while start < stop:
+        yield start
+        start += step

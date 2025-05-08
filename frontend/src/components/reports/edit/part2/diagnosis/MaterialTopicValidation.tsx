@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/context/ReportContext';
-import { materialTopicService, MaterialTopic, PriorityLevel } from '@/services/materialTopicService';
+import { materialTopicService, MaterialTopic, PriorityLevel, sortMaterialTopics } from '@/services/materialTopicService';
 import { surveyService, Assessment } from '@/services/surveyService';
 import { getDimension, getBackgroundColor } from '@/services/odsService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -61,7 +61,7 @@ const MaterialTopicValidation: React.FC = () => {
 
         // Cargar asuntos de materialidad
         const topics = await materialTopicService.getAllByReport(report.id, token);
-        setMaterialTopics(topics);
+        setMaterialTopics(sortMaterialTopics<MaterialTopic>(topics));
 
         // Cargar valoraciones
         const assessmentsData = await surveyService.getAllAssessments(report.id, token);
@@ -200,15 +200,15 @@ const MaterialTopicValidation: React.FC = () => {
                 <TableRow 
                   key={topic.id}
                   sx={{ 
-                    backgroundColor: getBackgroundColor(topic.goal_ods_id),
+                    backgroundColor: getBackgroundColor(topic.goal_ods_id ?? undefined),
                     '&:hover': {
                       backgroundColor: theme.palette.mode === 'light' 
-                        ? `${getBackgroundColor(topic.goal_ods_id)}dd`
-                        : `${getBackgroundColor(topic.goal_ods_id)}99`
+                        ? `${getBackgroundColor(topic.goal_ods_id ?? undefined)}dd`
+                        : `${getBackgroundColor(topic.goal_ods_id ?? undefined)}99`
                     }
                   }}
                 >
-                  <TableCell>{getDimension(topic.goal_ods_id)}</TableCell>
+                  <TableCell>{getDimension(topic.goal_ods_id ?? undefined)}</TableCell>
                   <TableCell>{topic.name}</TableCell>
                   <TableCell>
                     {priorityOptions.find(opt => opt.value === materialityPriority)?.label || 'Sin prioridad'}

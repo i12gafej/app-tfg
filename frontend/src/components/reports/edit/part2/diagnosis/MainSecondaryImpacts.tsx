@@ -24,14 +24,14 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { odsService, ODS, getBackgroundColor, getDimension } from '@/services/odsService';
 import { goalsService, Goal } from '@/services/goalsService';
-import { materialTopicService } from '@/services/materialTopicService';
+import { materialTopicService, sortMaterialTopics } from '@/services/materialTopicService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 interface MaterialTopic {
   id: number;
   name: string;
-  goal_ods_id?: number;
-  goal_number?: string;
+  goal_ods_id?: number | null;
+  goal_number?: string | null;
   report_id: number;
 }
 
@@ -75,7 +75,8 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
 
         // Cargar Material Topics
         const materialTopicsResponse = await materialTopicService.getAllByReport(reportId, token);
-        setMaterialTopics(materialTopicsResponse || []);
+        // Ordenar los asuntos materiales con la función común
+        setMaterialTopics(sortMaterialTopics<MaterialTopic>(materialTopicsResponse || []));
 
         // Cargar impactos secundarios para cada asunto de materialidad
         const secondaryImpactsData: { [key: number]: number[] } = {};
@@ -147,8 +148,14 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
       const topic = materialTopics.find(t => t.id === topicId);
       if (!topic) return;
 
-      // Actualizar impacto principal
-      if (topic.goal_ods_id && topic.goal_number) {
+      // Si no hay ODS principal ni meta, actualizar el asunto para eliminarlos en el backend
+      if (!topic.goal_ods_id && !topic.goal_number) {
+        await materialTopicService.updateMaterialTopic(topicId, {
+          goal_ods_id: null,
+          goal_number: null
+        }, token);
+      } else if (topic.goal_ods_id && topic.goal_number) {
+        // Actualizar impacto principal normalmente
         await goalsService.updateMainImpact({
           material_topic_id: topicId,
           goal_ods_id: topic.goal_ods_id,
@@ -215,14 +222,14 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                 <TableRow 
                   key={topic.id}
                   sx={{ 
-                    backgroundColor: getBackgroundColor(topic.goal_ods_id),
+                    backgroundColor: getBackgroundColor(topic.goal_ods_id ?? undefined),
                     '&:hover': {
-                      backgroundColor: getBackgroundColor(topic.goal_ods_id),
+                      backgroundColor: getBackgroundColor(topic.goal_ods_id ?? undefined),
                     }
                   }}
                 >
                   <TableCell>
-                    {getDimension(topic.goal_ods_id)}
+                    {getDimension(topic.goal_ods_id ?? undefined)}
                   </TableCell>
                   <TableCell>{topic.name}</TableCell>
                   <TableCell>
@@ -230,7 +237,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                       <FormControl sx={{ width: 300 }} disabled={readOnly}>
                         <InputLabel>ODS Principal</InputLabel>
                         <Select
-                          value={topic.goal_ods_id || ''}
+                          value={topic.goal_ods_id ?? ''}
                           label="ODS Principal"
                           onChange={readOnly ? undefined : (e: React.ChangeEvent<{ value: unknown }>) => handleMainImpactChange(topic.id, Number(e.target.value))}
                           disabled={readOnly}
@@ -249,7 +256,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                       <FormControl sx={{ width: 300 }} disabled={readOnly || !topic.goal_ods_id}>
                         <InputLabel>Meta</InputLabel>
                         <Select
-                          value={topic.goal_number || ''}
+                          value={topic.goal_number ?? ''}
                           label="Meta"
                           onChange={readOnly ? undefined : (e: React.ChangeEvent<{ value: unknown }>) => handleGoalChange(topic.id, e.target.value as string)}
                           disabled={readOnly || !topic.goal_ods_id}
@@ -258,7 +265,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                             <em>Ninguna</em>
                           </MenuItem>
                           {goals
-                            .filter(goal => goal.ods_id === topic.goal_ods_id)
+                            .filter(goal => goal.ods_id === (topic.goal_ods_id ?? undefined))
                             .map((goal) => (
                               <MenuItem key={goal.id} value={goal.goal_number}>
                                 {goal.ods_id}.{goal.goal_number} - {goal.description}
@@ -316,7 +323,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                           <MenuItem
                             key={ods.id}
                             value={ods.id}
-                            disabled={ods.id === topic.goal_ods_id}
+                            disabled={ods.id === (topic.goal_ods_id ?? undefined)}
                           >
                             {ods.id}. {ods.name}
                           </MenuItem>

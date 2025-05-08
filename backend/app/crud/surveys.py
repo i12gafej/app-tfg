@@ -64,7 +64,7 @@ def search_assessments(
         logger.error(f"Error al buscar valoraciones: {str(e)}")
         raise
 
-def search_private_surveys(
+def search_surveys(
     db: Session,
     search_term: Optional[str] = None,
     heritage_resource_name: Optional[str] = None,

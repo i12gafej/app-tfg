@@ -188,7 +188,7 @@ class DiagnosticIndicator(Base):
     __tablename__ = "diagnostic_indicators"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
     type = Column(Enum('quantitative', 'qualitative', name='indicator_type'), nullable=False)
     material_topic_id = Column(Integer, ForeignKey("material_topics.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
@@ -243,7 +243,7 @@ class PerformanceIndicator(Base):
     __tablename__ = "performance_indicators"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
     human_resources = Column(Text, nullable=True)
     material_resources = Column(Text, nullable=True)
     type = Column(Enum('quantitative', 'qualitative', name='indicator_type'), nullable=False)

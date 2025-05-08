@@ -16,8 +16,8 @@ export interface MaterialTopic {
   description?: string;
   priority?: PriorityLevel;
   main_objective?: string;
-  goal_ods_id?: number;
-  goal_number?: string;
+  goal_ods_id?: number | null;
+  goal_number?: string | null;
   report_id: number;
 }
 
@@ -146,4 +146,33 @@ export const materialTopicService = {
       throw error;
     }
   }
-}; 
+};
+
+/**
+ * Ordena los asuntos de materialidad según el siguiente criterio:
+ * 1. Sin dimensión (ods_id o goal_ods_id vacío o nulo) primero
+ * 2. Luego PERSONAS, PLANETA, PROSPERIDAD, PAZ, ALIANZAS
+ * 3. Dentro de cada grupo, por id
+ * La función acepta ambos nombres de atributo: ods_id y goal_ods_id
+ */
+export function sortMaterialTopics<T extends { id: number; ods_id?: number | null | undefined; goal_ods_id?: number | null | undefined }>(topics: T[]): T[] {
+  const DIMENSION_ORDER = ['SIN_DIMENSION', 'PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'];
+  function getDimensionOrder(topic: T): string {
+    const ods = topic.ods_id ?? topic.goal_ods_id;
+    if (!ods) return 'SIN_DIMENSION';
+    if (ods >= 1 && ods <= 5) return 'PERSONAS';
+    if ([6, 12, 13, 14, 15].includes(ods)) return 'PLANETA';
+    if (ods >= 7 && ods <= 11) return 'PROSPERIDAD';
+    if (ods === 16) return 'PAZ';
+    if (ods === 17) return 'ALIANZAS';
+    return 'SIN_DIMENSION';
+  }
+  return [...topics].sort((a, b) => {
+    const dimA = getDimensionOrder(a);
+    const dimB = getDimensionOrder(b);
+    const indexA = DIMENSION_ORDER.indexOf(dimA);
+    const indexB = DIMENSION_ORDER.indexOf(dimB);
+    if (indexA !== indexB) return indexA - indexB;
+    return a.id - b.id;
+  });
+} 

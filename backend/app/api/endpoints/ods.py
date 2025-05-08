@@ -224,24 +224,12 @@ def update_secondary_impacts(
 
 @router.get("/ods/get-all/dimensions", response_model=DimensionResponse)
 async def get_all_dimensions(
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """
     Obtiene todas las dimensiones de los ODS con sus ODS correspondientes.
-    Permite el acceso si el usuario es admin, gestor, consultor o asesor.
     """
     try:
-        # Verificar permisos
-        if not current_user.admin:
-            has_permission, error_message = check_user_permissions(
-                db=db,
-                user_id=current_user.id,
-                report_id=1  # ID del reporte por defecto para ODS globales
-            )
-            if not has_permission:
-                raise HTTPException(status_code=403, detail=error_message)
-
         ods_by_dimension = crud_ods.get_all_ods_with_dimension(db)
         
         # Convertir el diccionario a la estructura de respuesta esperada

@@ -133,7 +133,8 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
       await surveyService.createAssessments({
         stakeholder_id: selectedStakeholder as number,
         assessments,
-        report_id: reportId
+        report_id: reportId,
+        scale: scale
       }, token || '');
 
       if (onComplete) {

@@ -8,9 +8,9 @@ from app.schemas.surveys import (
     AssessmentResponse,
     AssessmentSearch,
     MultipleAssessmentsCreate,
-    PrivateSurveySearch,
-    PrivateSurveyResponse,
-    PrivateSurvey
+    SurveySearch,
+    SurveyResponse,
+    Survey
 )
 from app.crud import surveys as crud_surveys
 from app.models.models import HeritageResource
@@ -23,8 +23,7 @@ router = APIRouter()
 @router.post("/survey/create/assessments", response_model=AssessmentResponse)
 def create_assessments(
     assessments_data: MultipleAssessmentsCreate,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """
     Crear múltiples valoraciones para una encuesta.
@@ -35,7 +34,7 @@ def create_assessments(
             assessments_data.stakeholder_id,
             assessments_data.assessments,
             assessments_data.report_id,
-            scale=5  # TODO: Obtener scale del reporte
+            assessments_data.scale
         )
         return {
             "items": created_assessments,
@@ -84,11 +83,10 @@ def search_assessments(
             detail=f"Error al buscar valoraciones: {str(e)}"
         )
 
-@router.post("/surveys/search/private", response_model=PrivateSurveyResponse)
-async def search_private_surveys_endpoint(
-    search_params: PrivateSurveySearch,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
+@router.post("/survey/search/", response_model=SurveyResponse)
+async def search_surveys_endpoint(
+    search_params: SurveySearch,
+    db: Session = Depends(get_db)
 ):
     """
     Buscar encuestas privadas activas con filtros opcionales.
@@ -101,7 +99,7 @@ async def search_private_surveys_endpoint(
         year = str(search_params.year) if search_params.year is not None else None
 
         # Buscar las encuestas
-        reports, total = crud_surveys.search_private_surveys(
+        reports, total = crud_surveys.search_surveys(
             db=db,
             search_term=search_params.search_term,
             heritage_resource_name=search_params.heritage_resource_name,
@@ -119,7 +117,7 @@ async def search_private_surveys_endpoint(
 
         # Convertir los reportes a esquema Pydantic
         surveys = [
-            PrivateSurvey(
+            Survey(
                 id=report.id,
                 heritage_resource_id=report.heritage_resource_id,
                 heritage_resource_name=resources_dict.get(report.heritage_resource_id).name if report.heritage_resource_id in resources_dict else None,

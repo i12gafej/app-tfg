@@ -498,7 +498,7 @@ const Regulations = () => {
           {successMessage}
         </Alert>
       )}
-
+      
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -521,7 +521,7 @@ const Regulations = () => {
                   No se encontraron normativas
                 </TableCell>
               </TableRow>
-            ) : (
+      ) : (
               paginatedRegulations.map((norm) => {
                 const text = extractText(norm.norm);
                 const urls = extractUrls(norm.norm);
@@ -545,16 +545,16 @@ const Regulations = () => {
                       <IconButton onClick={() => handleView(norm)} sx={{ color: 'grey.600' }}>
                         <VisibilityIcon />
                       </IconButton>
-                      {!readOnly && (
+              {!readOnly && (
                         <>
                           <IconButton onClick={() => handleEdit(norm)} sx={{ color: 'grey.600' }}>
                             <EditIcon />
                           </IconButton>
                           <IconButton onClick={() => handleDelete(norm)} sx={{ color: 'grey.600' }}>
-                            <DeleteOutlineIcon />
-                          </IconButton>
+            <DeleteOutlineIcon />
+          </IconButton>
                         </>
-                      )}
+              )}
                     </TableCell>
                   </TableRow>
                 );

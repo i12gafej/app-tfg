@@ -12,6 +12,8 @@ from app.schemas.diagnosis_indicators import (
 from app.api.deps import get_db, get_current_user
 from app.schemas.auth import TokenData
 from app.services.user import check_user_permissions
+from app.models.models import MaterialTopic
+
 router = APIRouter()
 
 @router.get("/diagnosis-indicators/get-all/{report_id}", response_model=List[DiagnosticIndicator])
@@ -38,8 +40,13 @@ def create_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    # Obtener el report_id a través del material_topic_id
+    material_topic = db.query(MaterialTopic).filter(MaterialTopic.id == indicator.material_topic_id).first()
+    if not material_topic:
+        raise HTTPException(status_code=404, detail="Asunto de materialidad no encontrado")
+    
+    report_id = material_topic.report_id
 
-    report_id = crud.get_report_id_by_indicator(db, indicator.id)
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
             db=db,

@@ -17,13 +17,22 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, MaterialityMatrixResponse } from '@/services/materialTopicService';
+import DownloadIcon from '@mui/icons-material/Download';
+
+type MaterialityMatrixDataWithLegend = MaterialityMatrixResponse & {
+  matrix_data: {
+    leyenda_order?: number[];
+    legend_numbers?: Record<number, number>;
+    [key: string]: any;
+  };
+};
 
 const MaterialityMatrix = () => {
   const { token } = useAuth();
   const { report } = useReport();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [matrixData, setMatrixData] = useState<MaterialityMatrixResponse | null>(null);
+  const [matrixData, setMatrixData] = useState<MaterialityMatrixDataWithLegend | null>(null);
 
   const handleGenerateMatrix = async () => {
     if (!token || !report) return;
@@ -41,6 +50,16 @@ const MaterialityMatrix = () => {
     }
   };
 
+  const handleDownloadMatrix = () => {
+    if (!matrixData?.matrix_image) return;
+    const link = document.createElement('a');
+    link.href = matrixData.matrix_image;
+    link.download = 'matriz_materialidad.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Generar matriz automáticamente al cargar el componente
   useEffect(() => {
     if (token && report) {
@@ -55,21 +74,31 @@ const MaterialityMatrix = () => {
       </Typography>
 
       <Box sx={{ mb: 3 }}>
-        <Button
-          variant="contained"
-          onClick={handleGenerateMatrix}
-          disabled={loading}
-          sx={{ mb: 2 }}
-        >
-          {loading ? (
-            <>
-              <CircularProgress size={24} sx={{ mr: 1 }} />
-              Generando matriz...
-            </>
-          ) : (
-            'Regenerar Matriz'
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={handleGenerateMatrix}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={24} sx={{ mr: 1 }} />
+                Generando matriz...
+              </>
+            ) : (
+              'Regenerar Matriz'
+            )}
+          </Button>
+          {matrixData?.matrix_image && (
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={handleDownloadMatrix}
+            >
+              Descargar Matriz
+            </Button>
           )}
-        </Button>
+        </Box>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -103,33 +132,33 @@ const MaterialityMatrix = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Leyenda
               </Typography>
-              {matrixData?.matrix_data ? (
+              {matrixData?.matrix_data && matrixData.matrix_data.leyenda_order && matrixData.matrix_data.legend_numbers ? (
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontSize: '0.75rem' }}>ID</TableCell>
+                        <TableCell sx={{ fontSize: '0.75rem' }}>Nº</TableCell>
                         <TableCell sx={{ fontSize: '0.75rem' }}>Asunto</TableCell>
                         <TableCell sx={{ fontSize: '0.75rem' }}>Dimensión</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {Object.entries(matrixData.matrix_data.topic_names).map(([id, name]) => (
+                      {matrixData.matrix_data.leyenda_order.map((id: number) => (
                         <TableRow key={id}>
-                          <TableCell sx={{ fontSize: '0.75rem' }}>{id}</TableCell>
-                          <TableCell sx={{ fontSize: '0.75rem' }}>{name}</TableCell>
+                          <TableCell sx={{ fontSize: '0.75rem' }}>{matrixData.matrix_data.legend_numbers![id]}</TableCell>
+                          <TableCell sx={{ fontSize: '0.75rem' }}>{matrixData.matrix_data.topic_names[id]}</TableCell>
                           <TableCell sx={{ fontSize: '0.75rem' }}>
                             <Box
                               sx={{
                                 width: 12,
                                 height: 12,
                                 borderRadius: '50%',
-                                backgroundColor: matrixData.matrix_data.dimension_colors[matrixData.matrix_data.dimensions[Number(id)]],
+                                backgroundColor: matrixData.matrix_data.dimension_colors[matrixData.matrix_data.dimensions[id]],
                                 display: 'inline-block',
                                 mr: 1
                               }}
                             />
-                            {matrixData.matrix_data.dimensions[Number(id)]}
+                            {matrixData.matrix_data.dimensions[id]}
                           </TableCell>
                         </TableRow>
                       ))}

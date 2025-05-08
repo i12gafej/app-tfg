@@ -35,24 +35,18 @@ def search_material_topics(
         if not team_member:
             raise HTTPException(
                 status_code=403,
-                    detail="No tienes permisos para acceder a los asuntos relevantes"
+                detail="No tienes permisos para acceder a los asuntos relevantes"
             )
 
-    # Paginación
-    page = search_params.page or 1
-    per_page = search_params.per_page or 10
-    skip = (page - 1) * per_page
-
+    # Quitar paginación: obtener todos los asuntos que cumplan los filtros
     material_topics, total = crud_material_topic.search(
         db=db,
         search_term=search_params.search_term,
         name=search_params.name,
         report_id=search_params.report_id,
-        skip=skip,
-        limit=per_page
+        skip=0,
+        limit=None
     )
-
-    total_pages = (total + per_page - 1) // per_page
 
     # Convertir los material topics a esquema Pydantic
     material_topics_schema = [
@@ -71,10 +65,10 @@ def search_material_topics(
 
     return {
         "items": material_topics_schema,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
+        "total": len(material_topics_schema),
+        "page": 1,
+        "per_page": len(material_topics_schema),
+        "total_pages": 1
     }
 
 @router.post("/material-topics/create", response_model=MaterialTopic)
@@ -203,26 +197,11 @@ def delete_material_topic(
 @router.get("/material-topics/get-all/{report_id}", response_model=List[MaterialTopic])
 def get_all_material_topics(
     report_id: int,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """
     Obtener todos los asuntos relevantes de un reporte.
     """
-    # Verificar si el usuario es admin o tiene un rol en el reporte
-    if not current_user.admin:
-        # Buscar el rol del usuario en el reporte
-        team_member = db.query(SustainabilityTeamMember).filter(
-            SustainabilityTeamMember.report_id == report_id,
-            SustainabilityTeamMember.user_id == current_user.id
-        ).first()
-        
-        if not team_member:
-            raise HTTPException(
-                status_code=403,
-                    detail="No tienes permisos para acceder a los asuntos relevantes"
-            )
-
     try:
         material_topics = crud_material_topic.get_all_by_report(db, report_id)
         return material_topics

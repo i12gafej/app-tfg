@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, PriorityLevel } from '@/services/materialTopicService';
+import { getBackgroundColor } from '@/services/odsService';
 
 interface MaterialTopic {
   id: number;
   name: string;
   main_objective?: string;
   priority?: string;
+  goal_ods_id?: number | null;
 }
 
 const priorityOptions = [
@@ -35,7 +37,14 @@ const MainObjective = () => {
           throw new Error('No se encontró el token de autenticación');
         }
         const topics = await materialTopicService.getAllByReport(report.id, token);
-        setMaterialTopics(topics);
+        // Ordenar los topics por goal_ods_id
+        const sortedTopics = [...topics].sort((a, b) => {
+          if (!a.goal_ods_id && !b.goal_ods_id) return 0;
+          if (!a.goal_ods_id) return 1;
+          if (!b.goal_ods_id) return -1;
+          return a.goal_ods_id - b.goal_ods_id;
+        });
+        setMaterialTopics(sortedTopics);
       } catch (error) {
         console.error('Error al cargar asuntos de materialidad:', error);
         setError('Error al cargar los asuntos de materialidad');
@@ -128,6 +137,17 @@ const MainObjective = () => {
                   button
                   selected={selectedTopic?.id === topic.id}
                   onClick={() => setSelectedTopic(topic)}
+                  sx={{
+                    backgroundColor: getBackgroundColor(topic.goal_ods_id ?? undefined),
+                    '&.Mui-selected': {
+                      backgroundColor: `${getBackgroundColor(topic.goal_ods_id ?? undefined)} !important`,
+                      opacity: 0.8,
+                    },
+                    '&:hover': {
+                      backgroundColor: `${getBackgroundColor(topic.goal_ods_id ?? undefined)} !important`,
+                      opacity: 0.9,
+                    },
+                  }}
                 >
                   <ListItemText primary={topic.name} />
                 </ListItem>

@@ -35,15 +35,16 @@ class MultipleAssessmentsCreate(BaseModel):
     stakeholder_id: int
     assessments: List[dict] = Field(..., description="Lista de {material_topic_id: int, score: int}")
     report_id: int  # Para validar que la encuesta está activa
+    scale: int
 
-class PrivateSurveySearch(BaseModel):
+class SurveySearch(BaseModel):
     search_term: Optional[str] = None
     heritage_resource_name: Optional[str] = None
     year: Optional[Union[str, int]] = None
     page: Optional[int] = 1
     per_page: Optional[int] = 10
 
-class PrivateSurvey(BaseModel):
+class Survey(BaseModel):
     id: int
     heritage_resource_id: int
     heritage_resource_name: str
@@ -54,8 +55,8 @@ class PrivateSurvey(BaseModel):
     class Config:
         from_attributes = True
 
-class PrivateSurveyResponse(BaseModel):
-    items: List[PrivateSurvey]
+class SurveyResponse(BaseModel):
+    items: List[Survey]
     total: int
     page: int
     per_page: int

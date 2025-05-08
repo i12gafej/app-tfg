@@ -14,7 +14,15 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Divider
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/context/ReportContext';
@@ -25,6 +33,7 @@ import { surveyService, Assessment } from '@/services/surveyService';
 import EditIcon from '@mui/icons-material/Edit';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
+import CompareIcon from '@mui/icons-material/Compare';
 import SurveyEnableDialog from './Survey/SurveyEnableDialog';
 import SurveyDisableDialog from './Survey/SurveyDisableDialog';
 
@@ -37,7 +46,6 @@ const Surveys = () => {
   const [enableDialogOpen, setEnableDialogOpen] = useState(false);
   const [disableDialogOpen, setDisableDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [localReport, setLocalReport] = useState(report);
   const expectedStateRef = useRef<'active' | 'inactive' | null>(null);
 
   // Estados para la tabla comparativa
@@ -45,6 +53,8 @@ const Surveys = () => {
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
+  const [compareDialogOpen, setCompareDialogOpen] = useState(false);
+  const [selectedStakeholders, setSelectedStakeholders] = useState<number[]>([]);
 
   // Efecto para cargar los datos de la tabla cuando el reporte está activo
   useEffect(() => {
@@ -80,48 +90,30 @@ const Surveys = () => {
     loadTableData();
   }, [token, report]);
 
-  useEffect(() => {
-    if (report && (expectedStateRef.current === null || report.survey_state === expectedStateRef.current)) {
-      console.log('Reporte actualizado en useEffect:', report.survey_state, 'Estado esperado:', expectedStateRef.current);
-      setLocalReport(report);
-      expectedStateRef.current = null;
-    }
-  }, [report]);
-
   const handleActivate = async (scale: number) => {
     if (!token || !report) return;
 
     try {
       setLoading(true);
       setError(null);
-      
-      console.log('Estado antes de activar:', localReport?.survey_state);
-      
       expectedStateRef.current = 'active';
-      
-      const updatedLocalReport = {
-        ...report,
-        survey_state: 'active' as const,
-        scale: scale
-      };
-      console.log('Nuevo estado local a establecer:', updatedLocalReport.survey_state);
-      setLocalReport(updatedLocalReport);
-
-      await reportService.updateReport(report.id, { 
-        survey_state: 'active',
-        scale: scale
-      }, token);
-      
+      const updatedReport = await reportService.updateReport(
+        report.id,
+        { 
+          survey_state: 'active',
+          scale: scale
+        },
+        token
+      );
+      console.log('Respuesta del backend (updateReport):', updatedReport);
       await updateFullReport({
         survey_state: 'active',
         scale: scale
       });
-      
       setSuccess('Encuesta activada correctamente');
       setEnableDialogOpen(false);
     } catch (error) {
       expectedStateRef.current = null;
-      setLocalReport(report);
       console.error('Error al activar la encuesta:', error);
       setError('Error al activar la encuesta');
     } finally {
@@ -135,28 +127,22 @@ const Surveys = () => {
     try {
       setLoading(true);
       setError(null);
-      
       expectedStateRef.current = 'inactive';
-      
-      const updatedLocalReport = {
-        ...report,
-        survey_state: 'inactive' as const
-      };
-      setLocalReport(updatedLocalReport);
-
-      await reportService.updateReport(report.id, { 
-        survey_state: 'inactive'
-      }, token);
-      
+      const updatedReport = await reportService.updateReport(
+        report.id,
+        { 
+          survey_state: 'inactive'
+        },
+        token
+      );
+      console.log('Respuesta del backend (updateReport):', updatedReport);
       await updateFullReport({
         survey_state: 'inactive'
       });
-      
       setSuccess('Encuesta desactivada correctamente');
       setDisableDialogOpen(false);
     } catch (error) {
       expectedStateRef.current = null;
-      setLocalReport(report);
       console.error('Error al desactivar la encuesta:', error);
       setError('Error al desactivar la encuesta');
     } finally {
@@ -170,25 +156,17 @@ const Surveys = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const updatedLocalReport = {
-        ...report,
-        scale: scale
-      };
-      setLocalReport(updatedLocalReport);
 
-      await reportService.updateReport(report.id, { 
-        scale: scale
-      }, token);
-      
-      await updateFullReport({
-        scale: scale
+      // Solo una llamada, y siempre con el estado actual
+      const updatedReport = await updateFullReport({
+        scale: scale,
+        survey_state: report.survey_state
       });
-      
+      console.log('Respuesta del backend (updateReport):', updatedReport);
+
       setSuccess('Escala actualizada correctamente');
       setEnableDialogOpen(false);
     } catch (error) {
-      setLocalReport(report);
       console.error('Error al actualizar la escala:', error);
       setError('Error al actualizar la escala');
     } finally {
@@ -228,12 +206,69 @@ const Surveys = () => {
     return validScores.reduce((a, b) => a + b, 0) / validScores.length;
   };
 
+  const calculateStandardDeviation = (scores: (number | null)[]): number => {
+    const validScores = scores.filter((score): score is number => score !== null);
+    if (validScores.length === 0) return 0;
+    const mean = calculateAverage(validScores);
+    const squareDiffs = validScores.map(score => Math.pow(score - mean, 2));
+    const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / validScores.length;
+    return Math.sqrt(avgSquareDiff);
+  };
+
+  const calculateCoefficientOfVariation = (scores: (number | null)[]): number => {
+    const mean = calculateAverage(scores);
+    if (mean === 0) return 0;
+    const stdDev = calculateStandardDeviation(scores);
+    return (stdDev / mean) * 100; // Retorna como porcentaje
+  };
+
+  const calculateValuationBias = (scores: (number | null)[], scale: number): number => {
+    const mean = calculateAverage(scores);
+    const theoreticalMean = (scale + 1) / 2; // Punto medio de la escala
+    return ((mean - theoreticalMean) / theoreticalMean) * 100; // Retorna como porcentaje
+  };
+
+  const getValuationStatus = (cv: number, bias: number): { status: string; color: string } => {
+    if (cv > 50) {
+      return { status: 'Alta dispersión', color: '#f44336' }; // Rojo
+    } else if (cv > 30) {
+      return { status: 'Dispersión moderada', color: '#ff9800' }; // Naranja
+    } else if (Math.abs(bias) > 30) {
+      return { status: 'Sesgo significativo', color: '#ff9800' }; // Naranja
+    } else {
+      return { status: 'Normalizado', color: '#4caf50' }; // Verde
+    }
+  };
+
   const internalStakeholders = stakeholders.filter(s => s.type === 'internal');
   const externalStakeholders = stakeholders.filter(s => s.type === 'external');
 
-  console.log('Estado actual en el render:', localReport?.survey_state);
+  console.log('Estado actual en el render:', report?.survey_state);
 
-  if (!localReport) return null;
+  const handleOpenCompareDialog = () => {
+    setSelectedStakeholders(stakeholders.map(s => s.id));
+    setCompareDialogOpen(true);
+  };
+
+  const handleCloseCompareDialog = () => {
+    setCompareDialogOpen(false);
+  };
+
+  const handleStakeholderSelection = (event: any) => {
+    const value = event.target.value;
+    if (value.includes('all')) {
+      // Si se selecciona "Todos", seleccionar todos los stakeholders
+      setSelectedStakeholders(stakeholders.map(s => s.id));
+    } else if (value.includes('none')) {
+      // Si se selecciona "Ninguno", deseleccionar todos
+      setSelectedStakeholders([]);
+    } else {
+      // Si se seleccionan stakeholders individuales
+      setSelectedStakeholders(value);
+    }
+  };
+
+  if (!report) return null;
 
   return (
     <Box sx={{ p: 2 }}>
@@ -242,7 +277,7 @@ const Surveys = () => {
       </Typography>
 
       <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-        {!readOnly && localReport.survey_state === 'inactive' ? (
+        {!readOnly && report.survey_state === 'inactive' ? (
           <Button
             variant="contained"
             color="primary"
@@ -252,7 +287,7 @@ const Surveys = () => {
           >
             Activar Encuesta
           </Button>
-        ) : !readOnly && localReport.survey_state === 'active' ? (
+        ) : !readOnly && report.survey_state === 'active' ? (
           <>
             <Button
               variant="contained"
@@ -276,7 +311,7 @@ const Surveys = () => {
         ) : null}
       </Stack>
 
-      {localReport.survey_state === 'active' && (
+      {report.survey_state === 'active' && (
         <>
           <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
             Tabla Comparativa de Valoraciones
@@ -295,94 +330,55 @@ const Surveys = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Grupo de Interés</TableCell>
-                    {materialTopics.map(topic => (
-                      <TableCell key={topic.id} sx={{ maxWidth: 150, fontSize: '0.8rem' }}>
-                        {topic.name}
-                      </TableCell>
-                    ))}
+                    <TableCell>Asunto Relevante</TableCell>
+                    <TableCell align="center">Media Interna</TableCell>
+                    <TableCell align="center">Media Externa</TableCell>
+                    <TableCell align="center">Media Total</TableCell>
+                    <TableCell align="center">Dispersión (CV%)</TableCell>
+                    <TableCell align="center">Sesgo (%)</TableCell>
+                    <TableCell align="center">Estado</TableCell>
+                    <TableCell align="center" width="100px">
+                      <Tooltip title="Comparar votaciones">
+                        <IconButton onClick={handleOpenCompareDialog} size="small">
+                          <CompareIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {/* Grupos de interés internos */}
-                  {internalStakeholders.map(stakeholder => (
-                    <TableRow key={stakeholder.id}>
-                      <TableCell>{stakeholder.name} (Internal)</TableCell>
-                      {materialTopics.map(topic => (
-                        <TableCell key={topic.id}>
-                          {getAssessmentScore(stakeholder.id, topic.id)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
+                  {materialTopics.map(topic => {
+                    const internalScores = internalStakeholders.map(s => 
+                      getAssessmentScore(s.id, topic.id)
+                    );
+                    const externalScores = externalStakeholders.map(s => 
+                      getAssessmentScore(s.id, topic.id)
+                    );
+                    const allScores = [...internalScores, ...externalScores];
+                    const internalAvg = calculateAverage(internalScores);
+                    const externalAvg = calculateAverage(externalScores);
+                    const totalAvg = (internalAvg + externalAvg) / 2;
+                    const cv = calculateCoefficientOfVariation(allScores);
+                    const bias = calculateValuationBias(allScores, report.scale);
+                    const { status, color } = getValuationStatus(cv, bias);
 
-                  {/* Línea divisoria */}
-                  <TableRow>
-                    <TableCell colSpan={materialTopics.length + 1}>
-                      <Divider sx={{ my: 1, borderWidth: 2 }} />
-                    </TableCell>
-                  </TableRow>
-
-                  {/* Grupos de interés externos */}
-                  {externalStakeholders.map(stakeholder => (
-                    <TableRow key={stakeholder.id}>
-                      <TableCell>{stakeholder.name}</TableCell>
-                      {materialTopics.map(topic => (
-                        <TableCell key={topic.id}>
-                          {getAssessmentScore(stakeholder.id, topic.id)}
+                    return (
+                      <TableRow key={topic.id}>
+                        <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {topic.name}
                         </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-
-                  {/* Medias */}
-                  <TableRow sx={{ backgroundColor: 'grey.100' }}>
-                    <TableCell><strong>Media Interna</strong></TableCell>
-                    {materialTopics.map(topic => {
-                      const scores = internalStakeholders.map(s => 
-                        getAssessmentScore(s.id, topic.id)
-                      );
-                      return (
-                        <TableCell key={topic.id}>
-                          {calculateAverage(scores).toFixed(2)}
+                        <TableCell align="center">{internalAvg.toFixed(2)}</TableCell>
+                        <TableCell align="center">{externalAvg.toFixed(2)}</TableCell>
+                        <TableCell align="center">{totalAvg.toFixed(2)}</TableCell>
+                        <TableCell align="center">{cv.toFixed(1)}%</TableCell>
+                        <TableCell align="center">{bias.toFixed(1)}%</TableCell>
+                        <TableCell align="center" sx={{ color }}>
+                          {status}
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
-
-                  <TableRow sx={{ backgroundColor: 'grey.100' }}>
-                    <TableCell><strong>Media Externa</strong></TableCell>
-                    {materialTopics.map(topic => {
-                      const scores = externalStakeholders.map(s => 
-                        getAssessmentScore(s.id, topic.id)
-                      );
-                      return (
-                        <TableCell key={topic.id}>
-                          {calculateAverage(scores).toFixed(2)}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-
-                  <TableRow sx={{ backgroundColor: 'grey.200' }}>
-                    <TableCell><strong>Media Total</strong></TableCell>
-                    {materialTopics.map(topic => {
-                      const internalScores = internalStakeholders.map(s => 
-                        getAssessmentScore(s.id, topic.id)
-                      );
-                      const externalScores = externalStakeholders.map(s => 
-                        getAssessmentScore(s.id, topic.id)
-                      );
-                      const internalAvg = calculateAverage(internalScores);
-                      const externalAvg = calculateAverage(externalScores);
-                      const totalAvg = (internalAvg + externalAvg) / 2;
-                      return (
-                        <TableCell key={topic.id}>
-                          {totalAvg.toFixed(2)}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
+                        <TableCell />
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -390,11 +386,112 @@ const Surveys = () => {
         </>
       )}
 
+      {/* Diálogo de comparación */}
+      <Dialog
+        open={compareDialogOpen}
+        onClose={handleCloseCompareDialog}
+        maxWidth="xl"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">Comparación de Votaciones</Typography>
+            <FormControl sx={{ minWidth: 200 }}>
+              <InputLabel>Grupos de Interés</InputLabel>
+              <Select
+                multiple
+                value={selectedStakeholders}
+                onChange={handleStakeholderSelection}
+                label="Grupos de Interés"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      '& .MuiMenuItem-root': {
+                        '&.Mui-selected': {
+                          backgroundColor: '#1976d2',
+                          color: 'white',
+                          '&:hover': {
+                            backgroundColor: '#1976d2',
+                          },
+                        },
+                        '&:hover': {
+                          backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                        },
+                      },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="all">Todos</MenuItem>
+                <MenuItem value="none">Ninguno</MenuItem>
+                {stakeholders.map(stakeholder => (
+                  <MenuItem key={stakeholder.id} value={stakeholder.id}>
+                    {stakeholder.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Asunto Relevante</TableCell>
+                  {stakeholders
+                    .filter(s => selectedStakeholders.includes(s.id))
+                    .map(stakeholder => (
+                      <TableCell 
+                        key={stakeholder.id} 
+                        align="center" 
+                        sx={{ 
+                          maxWidth: 150, 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis', 
+                          whiteSpace: 'nowrap',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {stakeholder.name}
+                      </TableCell>
+                    ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {materialTopics.map(topic => (
+                  <TableRow key={topic.id}>
+                    <TableCell 
+                      sx={{ 
+                        maxWidth: 200, 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis', 
+                        whiteSpace: 'nowrap',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {topic.name}
+                    </TableCell>
+                    {stakeholders
+                      .filter(s => selectedStakeholders.includes(s.id))
+                      .map(stakeholder => (
+                        <TableCell key={stakeholder.id} align="center">
+                          {getAssessmentScore(stakeholder.id, topic.id)?.toFixed(2) || '-'}
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+      </Dialog>
+
       <SurveyEnableDialog
         open={enableDialogOpen}
         onClose={handleCloseEnableDialog}
         onConfirm={isEditMode ? handleEdit : handleActivate}
-        currentScale={localReport.scale}
+        currentScale={report.scale}
         isEdit={isEditMode}
       />
 

@@ -28,14 +28,10 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useReport } from '@/context/ReportContext';
-import { materialTopicService } from '@/services/materialTopicService';
+import { materialTopicService, sortMaterialTopics, MaterialTopic } from '@/services/materialTopicService';
 import { actionPlanService, SpecificObjective, SpecificObjectiveCreate, SpecificObjectiveUpdate, Action, ActionCreate, ActionUpdate, PerformanceIndicator, PerformanceIndicatorCreate, PerformanceIndicatorUpdate } from '@/services/actionPlanService';
 import { useAuth } from '@/hooks/useAuth';
-
-interface MaterialTopic {
-  id: number;
-  name: string;
-}
+import { getBackgroundColor } from '@/services/odsService';
 
 const SpecificObjectives = () => {
   const { report, readOnly } = useReport();
@@ -115,7 +111,7 @@ const SpecificObjectives = () => {
       try {
         setLoading(true);
         const topics = await materialTopicService.getAllByReport(report.id, token);
-        setMaterialTopics(topics);
+        setMaterialTopics(sortMaterialTopics<MaterialTopic>(topics));
       } catch (error) {
         console.error('Error al cargar asuntos de materialidad:', error);
         setError('Error al cargar los asuntos de materialidad');
@@ -487,7 +483,7 @@ const SpecificObjectives = () => {
             }}
           >
             {materialTopics.map((topic) => (
-              <MenuItem key={topic.id} value={topic.id}>
+              <MenuItem key={topic.id} value={topic.id} style={{ backgroundColor: getBackgroundColor((topic as any).goal_ods_id ?? undefined) }}>
                 {topic.name}
               </MenuItem>
             ))}

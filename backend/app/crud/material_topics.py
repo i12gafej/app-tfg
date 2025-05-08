@@ -46,7 +46,14 @@ def update(db: Session, db_material_topic: MaterialTopic, material_topic_data: M
     try:
         if hasattr(material_topic_data, 'dict'):
             material_topic_data = material_topic_data.dict(exclude_unset=True)
-            
+
+        # Si goal_ods_id se actualiza a None, goal_number debe ser None
+        if (
+            ('goal_ods_id' in material_topic_data and material_topic_data['goal_ods_id'] is None)
+        ):
+            material_topic_data['goal_ods_id'] = None
+            material_topic_data['goal_number'] = None
+
         for field, value in material_topic_data.items():
             if hasattr(db_material_topic, field):
                 setattr(db_material_topic, field, value)

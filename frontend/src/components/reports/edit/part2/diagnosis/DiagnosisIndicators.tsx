@@ -24,14 +24,10 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/context/ReportContext';
-import { materialTopicService } from '@/services/materialTopicService';
+import { materialTopicService, sortMaterialTopics, MaterialTopic } from '@/services/materialTopicService';
+import { getBackgroundColor } from '@/services/odsService';
 import { diagnosisIndicatorService, DiagnosticIndicator, DiagnosticIndicatorCreate, DiagnosticIndicatorUpdate } from '@/services/diagnosisIndicatorService';
 import DiagnosisIndicatorsDeleteDialog from './DiagnosisIndicators/DiagnosisIndicatorsDeleteDialog';
-
-interface MaterialTopic {
-  id: number;
-  name: string;
-}
 
 const DiagnosisIndicators: React.FC = () => {
   const { token } = useAuth();
@@ -80,7 +76,7 @@ const DiagnosisIndicators: React.FC = () => {
           materialTopicService.getAllByReport(report.id, token),
           diagnosisIndicatorService.getAllByReport(report.id, token)
         ]);
-        setMaterialTopics(topicsResponse || []);
+        setMaterialTopics(sortMaterialTopics<MaterialTopic>(topicsResponse || []));
         setAllIndicators(indicatorsResponse);
       } catch (error) {
         console.error('Error al cargar datos:', error);
@@ -250,6 +246,7 @@ const DiagnosisIndicators: React.FC = () => {
                   button
                   selected={selectedTopic?.id === topic.id}
                   onClick={() => setSelectedTopic(topic)}
+                  sx={{ backgroundColor: getBackgroundColor((topic as any).goal_ods_id ?? undefined) }}
                 >
                   <ListItemText primary={topic.name} />
                 </ListItem>

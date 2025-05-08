@@ -39,6 +39,18 @@ interface MaterialTopicSearchProps {
 
 type Order = 'asc' | 'desc';
 
+// Orden personalizado para las dimensiones
+const DIMENSION_ORDER = ['SIN_DIMENSION', 'PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'];
+function getDimensionOrder(goal_ods_id: number | undefined): string {
+  if (!goal_ods_id) return 'SIN_DIMENSION';
+  if (goal_ods_id >= 1 && goal_ods_id <= 5) return 'PERSONAS';
+  if ([6, 12, 13, 14, 15].includes(goal_ods_id)) return 'PLANETA';
+  if (goal_ods_id >= 7 && goal_ods_id <= 11) return 'PROSPERIDAD';
+  if (goal_ods_id === 16) return 'PAZ';
+  if (goal_ods_id === 17) return 'ALIANZAS';
+  return 'SIN_DIMENSION';
+}
+
 const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, readOnly = false }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -91,17 +103,27 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
       setLoading(true);
       setError(null);
       
-      const searchParams = {
-        page: newPage + 1,
-        per_page: rowsPerPage,
-        report_id: reportId,
-        ...(searchTerm && { search_term: searchTerm })
-      };
-
-      const response = await materialTopicService.searchMaterialTopics(searchParams, token);
-      setMaterialTopics(response.items);
-      setTotalMaterialTopics(response.total);
+      // Traer todos los asuntos de materialidad sin paginación
+      const response = await materialTopicService.getAllByReport(reportId, token);
+      // Ordenar todos los elementos según el criterio solicitado
+      const sortedMaterialTopics = [...response].sort((a, b) => {
+        const dimA = getDimensionOrder(a.goal_ods_id ?? undefined);
+        const dimB = getDimensionOrder(b.goal_ods_id ?? undefined);
+        const indexA = DIMENSION_ORDER.indexOf(dimA);
+        const indexB = DIMENSION_ORDER.indexOf(dimB);
+        if (indexA !== indexB) return indexA - indexB;
+        return a.id - b.id;
+      });
+      // Filtrar por búsqueda si hay término
+      const filtered = searchTerm
+        ? sortedMaterialTopics.filter(topic => topic.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        : sortedMaterialTopics;
+      setTotalMaterialTopics(filtered.length);
       setPage(newPage);
+      // Paginar localmente
+      const start = newPage * rowsPerPage;
+      const end = start + rowsPerPage;
+      setMaterialTopics(filtered.slice(start, end));
     } catch (err) {
       console.error('Error en la búsqueda:', err);
       setError('Error al buscar asuntos de materialidad. Por favor, inténtalo de nuevo.');
@@ -282,11 +304,11 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
                 <TableRow 
                   key={materialTopic.id}
                   sx={{
-                    backgroundColor: getBackgroundColor(materialTopic.goal_ods_id),
+                    backgroundColor: getBackgroundColor(materialTopic.goal_ods_id ?? undefined),
                     '&:hover': {
                       backgroundColor: theme.palette.mode === 'light' 
-                        ? `${getBackgroundColor(materialTopic.goal_ods_id)}dd`
-                        : `${getBackgroundColor(materialTopic.goal_ods_id)}99`
+                        ? `${getBackgroundColor(materialTopic.goal_ods_id ?? undefined)}dd`
+                        : `${getBackgroundColor(materialTopic.goal_ods_id ?? undefined)}99`
                     }
                   }}
                 >

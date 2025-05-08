@@ -21,10 +21,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '@/hooks/useAuth';
-import { surveyService, PrivateSurveySearch, PrivateSurveyResponse } from '@/services/surveyService';
+import { surveyService, SurveysSearch, SurveyResponse } from '@/services/surveyService';
 
 interface SurveySearchProps {
-  onSearch?: (searchResults: PrivateSurveyResponse) => void;
+  onSearch?: (searchResults: SurveyResponse) => void;
 }
 
 interface SearchFilters {
@@ -50,7 +50,7 @@ const SurveySearch = ({ onSearch }: SurveySearchProps) => {
       setLoading(true);
       setError(null);
       
-      const searchParams: PrivateSurveySearch = {
+      const searchParams: SurveysSearch = {
         search_term: searchTerm || undefined,
         heritage_resource_name: filters.resource_name || undefined,
         year: filters.year || undefined,
@@ -58,7 +58,7 @@ const SurveySearch = ({ onSearch }: SurveySearchProps) => {
         per_page: 10
       };
 
-      const results = await surveyService.searchPrivateSurveys(searchParams, token || '');
+      const results = await surveyService.searchSurveys(searchParams, token || '');
       
       if (onSearch) {
         onSearch(results);

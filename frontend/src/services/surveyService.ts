@@ -14,6 +14,7 @@ export interface AssessmentCreate {
         score: number;
     }>;
     report_id: number;
+    scale: number;
 }
 
 export interface AssessmentSearch {
@@ -27,7 +28,7 @@ export interface AssessmentResponse {
     total: number;
 }
 
-export interface PrivateSurvey {
+export interface Survey {
     id: number;
     heritage_resource_id: number;
     heritage_resource_name: string;
@@ -36,7 +37,7 @@ export interface PrivateSurvey {
     scale: number;
 }
 
-export interface PrivateSurveySearch {
+export interface SurveysSearch {
     search_term?: string;
     heritage_resource_name?: string;
     year?: string;
@@ -44,8 +45,8 @@ export interface PrivateSurveySearch {
     per_page?: number;
 }
 
-export interface PrivateSurveyResponse {
-    items: PrivateSurvey[];
+export interface SurveyResponse {
+    items: Survey[];
     total: number;
     page: number;
     per_page: number;
@@ -76,13 +77,9 @@ export const surveyService = {
 
     
 
-    searchPrivateSurveys: async (params: PrivateSurveySearch, token: string): Promise<PrivateSurveyResponse> => {
+    searchSurveys: async (params: SurveysSearch, token: string): Promise<SurveyResponse> => {
         try {
-            const response = await api.post<PrivateSurveyResponse>('/surveys/search/private', params, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const response = await api.post<SurveyResponse>('/survey/search/', params);
             return response.data;
         } catch (error) {
             console.error('Error al buscar encuestas privadas:', error);

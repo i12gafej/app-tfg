@@ -4,10 +4,10 @@ import PageContainer from '../../components/layout/PageContainer';
 import SurveySearch from '@/components/surveys/SurveySearch';
 import SurveyComplete from '@/components/surveys/SurveyComplete';
 import { Container } from '@mui/material';
-import { PrivateSurveyResponse } from '@/services/surveyService';
+import { SurveyResponse } from '@/services/surveyService';
 
 const Surveys = () => {
-  const [searchResults, setSearchResults] = useState<PrivateSurveyResponse>({
+  const [searchResults, setSearchResults] = useState<SurveyResponse>({
     items: [],
     total: 0,
     page: 1,
@@ -17,7 +17,7 @@ const Surveys = () => {
   const [selectedSurvey, setSelectedSurvey] = useState<number | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
 
-  const handleSearch = (results: PrivateSurveyResponse) => {
+  const handleSearch = (results: SurveyResponse) => {
     setSearchResults(results);
   };
 

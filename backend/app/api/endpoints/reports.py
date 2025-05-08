@@ -32,7 +32,7 @@ from app.schemas.reports import (
     ReportResponse
 )
 from app.schemas.auth import TokenData
-from app.models.models import SustainabilityReport as SustainabilityReportModel, HeritageResource, ReportNorm as ReportNormModel, ReportLogo as ReportLogoModel, ReportAgreement as ReportAgreementModel, ReportBibliography as ReportBibliographyModel, ReportPhoto as ReportPhotoModel, SustainabilityTeamMember
+from app.models.models import SustainabilityReport as SustainabilityReportModel, HeritageResource as HeritageResourceModel, ReportNorm as ReportNormModel, ReportLogo as ReportLogoModel, ReportAgreement as ReportAgreementModel, ReportBibliography as ReportBibliographyModel, ReportPhoto as ReportPhotoModel, SustainabilityTeamMember
 from app.services.user import check_user_permissions
 import logging
 from PIL import Image
@@ -193,7 +193,7 @@ async def search_reports_endpoint(
 
         # Obtener los recursos asociados a las memorias
         resource_ids = [report.heritage_resource_id for report in reports]
-        resources = db.query(HeritageResource).filter(HeritageResource.id.in_(resource_ids)).all()
+        resources = db.query(HeritageResourceModel).filter(HeritageResourceModel.id.in_(resource_ids)).all()
         
         # Crear un diccionario para acceder rápidamente a los recursos por ID
         resources_dict = {resource.id: resource for resource in resources}
@@ -262,7 +262,7 @@ async def create_report_endpoint(
         logger.info(f"Memoria creada en la base de datos: {db_report}")
         
         # Obtener el recurso asociado
-        resource = db.query(HeritageResource).filter(HeritageResource.id == db_report.heritage_resource_id).first()
+        resource = db.query(HeritageResourceModel).filter(HeritageResourceModel.id == db_report.heritage_resource_id).first()
         
         # Convertir el modelo a esquema Pydantic
         return SustainabilityReport(
@@ -310,7 +310,6 @@ async def update_report_endpoint(
     Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
     logger.info(f"Recibida petición de actualización: {update_request}")
-    
     try:
         # Verificar permisos
         if not current_user.admin:
@@ -333,35 +332,14 @@ async def update_report_endpoint(
                 status_code=404,
                 detail="Memoria no encontrada"
             )
-        
-        # Obtener el recurso asociado
-        resource = db.query(HeritageResource).filter(HeritageResource.id == db_report.heritage_resource_id).first()
-        
-        # Convertir el modelo a esquema Pydantic
-        return SustainabilityReport(
-            id=db_report.id,
-            heritage_resource_id=db_report.heritage_resource_id,
-            heritage_resource_name=resource.name if resource else None,
-            year=db_report.year,
-            state=db_report.state,
-            observation=db_report.observation,
-            cover_photo=db_report.cover_photo,
-            commitment_letter=db_report.commitment_letter,
-            mission=db_report.mission,
-            vision=db_report.vision,
-            values=db_report.values,
-            org_chart_text=db_report.org_chart_text,
-            org_chart_figure=db_report.org_chart_figure,
-            diagnosis_description=db_report.diagnosis_description,
-            scale=db_report.scale,
-            permissions=db_report.permissions,
-            action_plan_description=db_report.action_plan_description,
-            internal_coherence_description=db_report.internal_coherence_description,
-            main_impact_weight=db_report.main_impact_weight,
-            secondary_impact_weight=db_report.secondary_impact_weight,
-            roadmap_description=db_report.roadmap_description,
-            data_tables_text=db_report.data_tables_text
-        )
+
+        # Obtener el recurso asociado (opcional, si quieres añadir el nombre)
+        resource = db.query(HeritageResourceModel).filter(HeritageResourceModel.id == db_report.heritage_resource_id).first()
+        if resource:
+            db_report.heritage_resource_name = resource.name
+
+        # Devolver el objeto completo usando Pydantic v2
+        return SustainabilityReport.model_validate(db_report, from_attributes=True)
 
     except Exception as e:
         logger.error(f"Error al actualizar la memoria: {str(e)}", exc_info=True)
