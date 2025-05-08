@@ -133,9 +133,13 @@ export const materialTopicService = {
     }
   },
 
-  async getMaterialityMatrix(reportId: number, token: string): Promise<MaterialityMatrixResponse> {
+  getMaterialityMatrix: async (reportId: number, token: string, normalize: boolean = false, scale: number) => {
     try {
-      const response = await api.get<MaterialityMatrixResponse>(`/material-topics/get/materiality-matrix/${reportId}`, {
+      const response = await api.post('/material-topics/get/materiality-matrix', {
+        report_id: reportId,
+        normalize: normalize,
+        scale: scale
+      }, {
         headers: {
           Authorization: `Bearer ${token}`
         }

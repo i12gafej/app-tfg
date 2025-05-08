@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
 from app.api.deps import get_db, get_current_user
 from app.schemas.material_topics import (
@@ -211,36 +211,31 @@ def get_all_material_topics(
             detail=f"Error al obtener asuntos relevantes: {str(e)}"
         )
 
-@router.get("/material-topics/get/materiality-matrix/{report_id}")
+@router.post("/material-topics/get/materiality-matrix", response_model=dict)
 async def get_materiality_matrix(
-    report_id: int,
+    data: dict = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
-    """
-    Obtener los datos de la matriz de materialidad para un reporte específico.
-    """
+    report_id = data.get('report_id')
+    normalize = data.get('normalize', False)
+    scale = data.get('scale', None)
+    if report_id is None:
+        raise HTTPException(status_code=400, detail="report_id es requerido")
     # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        # Buscar el rol del usuario en el reporte
         team_member = db.query(SustainabilityTeamMember).filter(
             SustainabilityTeamMember.report_id == report_id,
             SustainabilityTeamMember.user_id == current_user.id
         ).first()
-        
         if not team_member:
             raise HTTPException(
                 status_code=403,
                 detail="No tienes permisos para acceder a la matriz de materialidad"
             )
-
     try:
-        # Obtener los datos de la matriz
-        matrix_data = create_materiality_matrix_data(db, report_id)
-        
-        # Generar la imagen de la matriz
-        matrix_image = generate_matrix_image(matrix_data)
-        
+        matrix_data = create_materiality_matrix_data(db, report_id, normalize=normalize, scale=scale)
+        matrix_image = generate_matrix_image(matrix_data, scale=scale)
         return {
             "matrix_data": matrix_data,
             "matrix_image": matrix_image

@@ -60,7 +60,7 @@ def calculate_averages(assessments: List[Assessment], stakeholders: Dict[int, St
 
     return averages
 
-def create_materiality_matrix_data(db: Session, report_id: int) -> Dict:
+def create_materiality_matrix_data(db: Session, report_id: int, normalize: bool = False, scale: int = None) -> Dict:
     """Genera los datos para la matriz de materialidad."""
     try:
         # Obtener todos los datos necesarios
@@ -71,8 +71,33 @@ def create_materiality_matrix_data(db: Session, report_id: int) -> Dict:
             .filter(MaterialTopic.report_id == report_id)\
             .all()
 
+        # Usar el scale recibido o buscarlo en la base de datos
+        if scale is None:
+            print("scale is None")
+            report = db.execute(
+                f"SELECT scale FROM sustainability_reports WHERE id = {report_id}"
+            ).fetchone()
+            scale = report[0] if report else 10  # Por defecto 10 si no se encuentra
+
         # Calcular medias
         averages = calculate_averages(assessments, stakeholders)
+
+        # Si normalize es True, normalizar los datos en [1, scale]
+        if normalize and averages:
+            all_x = [avg[0] for avg in averages.values()]
+            all_y = [avg[1] for avg in averages.values()]
+            min_x, max_x = min(all_x), max(all_x)
+            min_y, max_y = min(all_y), max(all_y)
+            def norm(val, min_val, max_val):
+                if max_val - min_val == 0:
+                    return (scale + 1) / 2  # Centro del rango
+                return ((val - min_val) / (max_val - min_val)) * (scale - 1) + 1
+            for topic_id in averages:
+                x, y = averages[topic_id]
+                averages[topic_id] = (
+                    norm(x, min_x, max_x),
+                    norm(y, min_y, max_y)
+                )
 
         # Organizar asuntos por dimensión y ordenar por id
         dimension_topics = {}
@@ -108,7 +133,8 @@ def create_materiality_matrix_data(db: Session, report_id: int) -> Dict:
             "topic_names": {},
             "dimension_colors": DIMENSION_COLORS,
             "legend_numbers": legend_numbers,
-            "leyenda_order": leyenda_order
+            "leyenda_order": leyenda_order,
+            "scale": scale
         }
 
         for topic in material_topics:
@@ -127,7 +153,7 @@ def create_materiality_matrix_data(db: Session, report_id: int) -> Dict:
         logger.error(f"Error al generar datos de la matriz de materialidad: {str(e)}")
         raise
 
-def generate_matrix_image(matrix_data: Dict) -> str:
+def generate_matrix_image(matrix_data: Dict, scale: int = None) -> str:
     """Genera la imagen de la matriz de materialidad."""
     try:
         # Verificar si hay datos de valoraciones
@@ -139,13 +165,9 @@ def generate_matrix_image(matrix_data: Dict) -> str:
         
         # Configurar el gráfico
         fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
-        
-        # Encontrar la escala máxima
-        max_coord = max(
-            max(point["x"] for point in matrix_data["points"].values()),
-            max(point["y"] for point in matrix_data["points"].values())
-        )
-        max_escala = math.ceil(max_coord)
+
+        # Usar el scale recibido o el del matrix_data
+        max_escala = scale if scale is not None else matrix_data.get("scale", 10)
 
         # Calcular proporciones exactas
         baja_lim = max_escala * 0.6

@@ -34,13 +34,13 @@ const MaterialityMatrix = () => {
   const [error, setError] = useState<string | null>(null);
   const [matrixData, setMatrixData] = useState<MaterialityMatrixDataWithLegend | null>(null);
 
-  const handleGenerateMatrix = async () => {
+  const handleGenerateMatrix = async (normalize = false) => {
     if (!token || !report) return;
 
     try {
       setLoading(true);
       setError(null);
-      const response = await materialTopicService.getMaterialityMatrix(report.id, token);
+      const response = await materialTopicService.getMaterialityMatrix(report.id, token, normalize, report.scale);
       setMatrixData(response);
     } catch (error) {
       console.error('Error al generar matriz de materialidad:', error);
@@ -77,7 +77,7 @@ const MaterialityMatrix = () => {
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
           <Button
             variant="contained"
-            onClick={handleGenerateMatrix}
+            onClick={() => handleGenerateMatrix(false)}
             disabled={loading}
           >
             {loading ? (
@@ -87,6 +87,21 @@ const MaterialityMatrix = () => {
               </>
             ) : (
               'Regenerar Matriz'
+            )}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => handleGenerateMatrix(true)}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={24} sx={{ mr: 1 }} />
+                Generando matriz...
+              </>
+            ) : (
+              'Generar Matriz Normalizada'
             )}
           </Button>
           {matrixData?.matrix_image && (
