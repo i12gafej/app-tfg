@@ -41,6 +41,13 @@ const MaterialityMatrix = () => {
     }
   };
 
+  // Generar matriz automáticamente al cargar el componente
+  useEffect(() => {
+    if (token && report) {
+      handleGenerateMatrix();
+    }
+  }, [token, report]);
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
@@ -60,7 +67,7 @@ const MaterialityMatrix = () => {
               Generando matriz...
             </>
           ) : (
-            'Generar Matriz'
+            'Regenerar Matriz'
           )}
         </Button>
 
@@ -141,5 +148,5 @@ const MaterialityMatrix = () => {
     </Box>
   );
 };
- 
+
 export default MaterialityMatrix; 

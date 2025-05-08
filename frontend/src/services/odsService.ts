@@ -52,6 +52,36 @@ export const DIMENSION_COLORS = {
   PARTNERSHIP: '#DCCAE4',   // ODS 17
 };
 
+export const DIMENSION_NAMES = {
+  PEOPLE: 'Personas',
+  PLANET: 'Planeta',
+  PROSPERITY: 'Prosperidad',
+  PEACE: 'Paz',
+  PARTNERSHIP: 'Alianzas'
+};
+
+export const getDimension = (odsId: number | undefined): string => {
+  if (!odsId) return '-';
+  
+  if (odsId >= 1 && odsId <= 5) {
+    return DIMENSION_NAMES.PEOPLE;
+  }
+  if ([6, 12, 13, 14, 15].includes(odsId)) {
+    return DIMENSION_NAMES.PLANET;
+  }
+  if (odsId >= 7 && odsId <= 11) {
+    return DIMENSION_NAMES.PROSPERITY;
+  }
+  if (odsId === 16) {
+    return DIMENSION_NAMES.PEACE;
+  }
+  if (odsId === 17) {
+    return DIMENSION_NAMES.PARTNERSHIP;
+  }
+  
+  return '-';
+};
+
 export const getBackgroundColor = (odsId: number | undefined): string => {
   if (!odsId) return 'transparent';
   

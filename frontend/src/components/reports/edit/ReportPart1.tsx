@@ -47,6 +47,7 @@ const ReportPart1 = () => {
         items={PART1_SECTIONS}
         activeItem={activeSection}
         onItemClick={setActiveSection}
+        activeColor="#a2d2e9"
       />
       <Box sx={{ 
         flex: 1, 

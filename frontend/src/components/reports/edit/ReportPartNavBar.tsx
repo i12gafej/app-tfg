@@ -22,6 +22,7 @@ interface ReportPartNavBarProps {
   items: NavItem[];
   activeItem: string;
   onItemClick: (id: string) => void;
+  activeColor?: string;
 }
 
 const DRAWER_WIDTH = 240;
@@ -30,6 +31,7 @@ const ReportPartNavBar: React.FC<ReportPartNavBarProps> = ({
   items,
   activeItem,
   onItemClick,
+  activeColor
 }) => {
   const [open, setOpen] = useState(true);
   const theme = useTheme();
@@ -85,10 +87,10 @@ const ReportPartNavBar: React.FC<ReportPartNavBarProps> = ({
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
                   '&.Mui-selected': {
-                    backgroundColor: theme.palette.secondary.main,
-                    color: theme.palette.primary.contrastText,
+                    backgroundColor: activeColor || theme.palette.secondary.main,
+                    color: '#000000',
                     '&:hover': {
-                      backgroundColor: theme.palette.secondary.main,
+                      backgroundColor: activeColor || theme.palette.secondary.main,
                     }
                   }
                 }}

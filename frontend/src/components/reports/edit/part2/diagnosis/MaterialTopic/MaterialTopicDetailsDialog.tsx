@@ -78,7 +78,7 @@ export const MaterialTopicDetailsDialog: React.FC<MaterialTopicDetailsDialogProp
           {materialTopic.main_objective && (
             <Grid item xs={12}>
               <Typography variant="subtitle1" gutterBottom>
-                Objetivo Principal
+                Objetivo de los Asuntos de Materialidad
               </Typography>
               <Typography variant="body1">
                 {materialTopic.main_objective}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -6,8 +6,11 @@ import {
   CircularProgress,
   Grid,
   Paper,
-  Alert
+  Alert,
+  IconButton,
+  Tooltip
 } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/context/ReportContext';
 import { graphsService } from '@/services/graphsService';
@@ -27,24 +30,41 @@ const Graphs = () => {
       setLoading(true);
       setError(null);
 
-      // Obtener las gráficas secuencialmente
+      // Obtener las gráficos secuencialmente
       const mainResponse = await graphsService.getMainImpactsGraph(report.id, token);
       setMainImpactsGraph(mainResponse.graph_data_url);
 
       const secondaryResponse = await graphsService.getSecondaryImpactsGraph(report.id, token);
       setSecondaryImpactsGraph(secondaryResponse.graph_data_url);
     } catch (error) {
-      console.error('Error al generar gráficas:', error);
-      setError('Error al generar las gráficas. Por favor, inténtalo de nuevo.');
+      console.error('Error al generar gráficos:', error);
+      setError('Error al generar las gráficos. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Generar gráficas automáticamente al cargar el componente
+  useEffect(() => {
+    if (token && report) {
+      handleGenerateGraphs();
+    }
+  }, [token, report]);
+
+  const handleDownload = (imageUrl: string, filename: string) => {
+    // Crear un enlace temporal
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
-        Gráficas de Impactos
+        Gráficos de Impactos ODS
       </Typography>
 
       <Box sx={{ mb: 3 }}>
@@ -57,10 +77,10 @@ const Graphs = () => {
           {loading ? (
             <>
               <CircularProgress size={24} sx={{ mr: 1 }} />
-              Generando gráficas...
+              Generando gráficos...
             </>
           ) : (
-            'Generar Gráficas'
+            'Regenerar Gráficos'
           )}
         </Button>
 
@@ -73,19 +93,31 @@ const Graphs = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="subtitle1" gutterBottom>
-                Impactos Principales
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle1">
+                  Impactos Principales ODS
+                </Typography>
+                {mainImpactsGraph && (
+                  <Tooltip title="Descargar gráfico">
+                    <IconButton 
+                      onClick={() => handleDownload(mainImpactsGraph, 'impactos_principales_ods.png')}
+                      color="primary"
+                    >
+                      <DownloadIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
               {mainImpactsGraph ? (
                 <Box
                   component="img"
                   src={mainImpactsGraph}
-                  alt="Gráfica de Impactos Principales"
+                  alt="Gráfico de Impactos Principales ODS"
                   sx={{ width: '100%', height: 'auto' }}
                 />
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  No hay gráfica generada
+                  No hay gráfico generado
                 </Typography>
               )}
             </Paper>
@@ -93,19 +125,31 @@ const Graphs = () => {
 
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="subtitle1" gutterBottom>
-                Impactos Secundarios
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle1">
+                  Impactos Secundarios ODS
+                </Typography>
+                {secondaryImpactsGraph && (
+                  <Tooltip title="Descargar gráfico">
+                    <IconButton 
+                      onClick={() => handleDownload(secondaryImpactsGraph, 'impactos_secundarios_ods.png')}
+                      color="primary"
+                    >
+                      <DownloadIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
               {secondaryImpactsGraph ? (
                 <Box
                   component="img"
                   src={secondaryImpactsGraph}
-                  alt="Gráfica de Impactos Secundarios"
+                  alt="Gráfico de Impactos Secundarios ODS"
                   sx={{ width: '100%', height: 'auto' }}
                 />
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  No hay gráfica generada
+                  No hay gráfico generado
                 </Typography>
               )}
             </Paper>

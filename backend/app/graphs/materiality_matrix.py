@@ -101,6 +101,10 @@ def create_materiality_matrix_data(db: Session, report_id: int) -> Dict:
 def generate_matrix_image(matrix_data: Dict) -> str:
     """Genera la imagen de la matriz de materialidad."""
     try:
+        # Verificar si hay datos de valoraciones
+        if not matrix_data["points"]:
+            raise ValueError("No hay datos de valoraciones disponibles para generar la matriz de materialidad. Por favor, asegúrese de que existen valoraciones para los asuntos materiales.")
+
         # Limpiar cualquier figura existente
         plt.close('all')
         

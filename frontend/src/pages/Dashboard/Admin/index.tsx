@@ -3,6 +3,7 @@ import { Box, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import PageContainer from '@/components/layout/PageContainer';
+import { Container } from '@mui/material';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -21,28 +22,17 @@ const Dashboard: React.FC = () => {
 
   return (
     <PageContainer>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        mb: 4
-      }}>
+      <Container maxWidth="xl">
         <Typography variant="h4" component="h1">
           Dashboard
         </Typography>
-        <Button 
-          variant="contained" 
-          color="primary"
-          onClick={handleLogout}
-        >
-          Cerrar Sesión
-        </Button>
-      </Box>
-      <Box>
+        <Box>
         <Typography variant="body1">
           ¡Bienvenido al Dashboard!
         </Typography>
       </Box>
+      </Container>
+      
     </PageContainer>
   );
 };

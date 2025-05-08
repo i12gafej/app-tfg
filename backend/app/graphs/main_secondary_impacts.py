@@ -34,10 +34,20 @@ def generate_graph(values: List[int], title: str) -> str:
         # Configurar el fondo y las líneas
         ax.set_facecolor('none')
         max_val = max(values)
-        step = 2 if max_val >= 10 else 1
+        
+        # Determinar el número de líneas horizontales y el step
+        if max_val < 10:
+            # Para valores menores a 10, una línea por cada valor
+            step = 1
+            upper_limit = max_val
+        else:
+            # Para valores mayores o iguales a 10, step de 2
+            step = 2
+            # Si es impar, añadir una línea más
+            upper_limit = max_val + 1 if max_val % 2 != 0 else max_val
         
         # Líneas horizontales punteadas (detrás de las barras)
-        for y in range(0, max_val + 1, step):
+        for y in range(0, upper_limit + 1, step):
             ax.axhline(y=y, linestyle=':', color='gray', linewidth=0.8, zorder=1)
         
         # Crear las barras (encima de las líneas)
@@ -46,8 +56,8 @@ def generate_graph(values: List[int], title: str) -> str:
         ax.bar(ods_labels, values, color=colors, width=1.0, edgecolor='none', zorder=2)
         
         # Configurar ejes y ticks
-        ax.set_yticks(range(0, max_val + 1, step))
-        ax.set_ylim(0, max_val + 1)
+        ax.set_yticks(range(0, upper_limit + 1, step))
+        ax.set_ylim(0, upper_limit + 1)
         ax.tick_params(axis='x', rotation=45, labelsize=10)
         ax.tick_params(axis='y', labelsize=10)
         ax.tick_params(axis='x', length=0)

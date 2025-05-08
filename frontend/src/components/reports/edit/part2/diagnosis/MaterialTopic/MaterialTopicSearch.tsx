@@ -18,8 +18,9 @@ import {
   useMediaQuery,
   useTheme,
   TablePagination,
-  TableSortLabel
+  SxProps
 } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +30,7 @@ import { MaterialTopicEditDialog } from './MaterialTopicEditDialog';
 import { MaterialTopicDeleteDialog } from './MaterialTopicDeleteDialog';
 import { MaterialTopicCreateDialog } from './MaterialTopicCreateDialog';
 import { stakeholderService } from '@/services/stakeholderService';
+import { getBackgroundColor } from '@/services/odsService';
 
 interface MaterialTopicSearchProps {
   reportId: number;
@@ -146,23 +148,6 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
   const handleMaterialTopicCreated = () => {
     handleSearch(page);
   };
-
-  const handleRequestSort = (property: keyof MaterialTopic) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  const sortedMaterialTopics = React.useMemo(() => {
-    return [...materialTopics].sort((a, b) => {
-      if (orderBy === 'name') {
-        return order === 'asc' 
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      }
-      return 0;
-    });
-  }, [materialTopics, order, orderBy]);
 
   const canEdit = (user?.admin || userRole === 'manager') && !readOnly;
 
@@ -288,28 +273,24 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === 'name'}
-                    direction={orderBy === 'name' ? order : 'asc'}
-                    onClick={() => handleRequestSort('name')}
-                  >
-                    Nombre
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>ODS</TableCell>
+                <TableCell>Nombre</TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedMaterialTopics.map((materialTopic) => (
-                <TableRow key={materialTopic.id}>
+              {materialTopics.map((materialTopic) => (
+                <TableRow 
+                  key={materialTopic.id}
+                  sx={{
+                    backgroundColor: getBackgroundColor(materialTopic.goal_ods_id),
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'light' 
+                        ? `${getBackgroundColor(materialTopic.goal_ods_id)}dd`
+                        : `${getBackgroundColor(materialTopic.goal_ods_id)}99`
+                    }
+                  }}
+                >
                   <TableCell>{materialTopic.name}</TableCell>
-                  <TableCell>
-                    {materialTopic.goal_ods_id && materialTopic.goal_number 
-                      ? `${materialTopic.goal_ods_id}.${materialTopic.goal_number}`
-                      : '-'}
-                  </TableCell>
                   <TableCell align="right">
                     <Box sx={{ 
                       display: 'flex', 
@@ -323,7 +304,8 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
                         fullWidth={isMobile}
                         sx={{ 
                           mr: isMobile ? 0 : 1,
-                          minWidth: isMobile ? '100%' : 'auto'
+                          minWidth: isMobile ? '100%' : 'auto',
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)'
                         }}
                         onClick={() => handleView(materialTopic)}
                       >
@@ -334,11 +316,12 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
                       <Button 
                         variant="outlined" 
                         size="small" 
-                            color="view"
+                        color="view"
                         fullWidth={isMobile}
                         sx={{ 
                           mr: isMobile ? 0 : 1,
-                          minWidth: isMobile ? '100%' : 'auto'
+                          minWidth: isMobile ? '100%' : 'auto',
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)'
                         }}
                         onClick={() => handleEdit(materialTopic)}
                       >
@@ -350,7 +333,8 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
                         color="error"
                         fullWidth={isMobile}
                         sx={{ 
-                          minWidth: isMobile ? '100%' : 'auto'
+                          minWidth: isMobile ? '100%' : 'auto',
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)'
                         }}
                         onClick={() => handleDelete(materialTopic)}
                       >

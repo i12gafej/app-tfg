@@ -17,8 +17,8 @@ interface ReportPart3Props {
 
 const PART3_SECTIONS = [
   { id: 'context', label: 'Contexto y Periodo Temporal' },
-  { id: 'main-objective', label: 'Objetivo Principal' },
-  { id: 'specific-objectives', label: 'Objetivos Específicos' },
+  { id: 'main-objective', label: 'Objetivos de los Asuntos de Materialidad' },
+  { id: 'specific-objectives', label: 'Objetivos de la Acción' },
   { id: 'action-impacts', label: 'Impactos de las Acciones' },
   { id: 'internal-consistency', label: 'Coherencia Interna' },
   { id: 'internal-consistency-graph', label: 'Gráfico Coherencia Interna' },
@@ -57,6 +57,7 @@ const ReportPart3: React.FC<ReportPart3Props> = ({ section = 'context' }) => {
         items={PART3_SECTIONS}
         activeItem={activeSection}
         onItemClick={(id) => setActiveSection(id as typeof activeSection)}
+        activeColor="#f5b2c0"
       />
       <Box sx={{ 
         flex: 1, 

@@ -465,7 +465,7 @@ const SpecificObjectives = () => {
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
-        Objetivos Específicos
+        Objetivos de la Acción
       </Typography>
 
       {error && (

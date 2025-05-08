@@ -30,14 +30,20 @@ export const StakeholderCreateDialog: React.FC<StakeholderCreateDialogProps> = (
   token,
   reportId,
 }) => {
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     name: '',
     description: '',
     type: 'internal' as StakeholderType,
-  });
+  };
 
+  const [formData, setFormData] = useState(initialFormData);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setError(null);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
@@ -72,6 +78,7 @@ export const StakeholderCreateDialog: React.FC<StakeholderCreateDialogProps> = (
 
       const newStakeholder = await response.json();
       onStakeholderCreated(newStakeholder);
+      resetForm();
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido al crear el grupo de interés');
@@ -80,8 +87,13 @@ export const StakeholderCreateDialog: React.FC<StakeholderCreateDialogProps> = (
     }
   };
 
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>Crear Nuevo Grupo de Interés</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -124,7 +136,7 @@ export const StakeholderCreateDialog: React.FC<StakeholderCreateDialogProps> = (
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} disabled={loading}>
+          <Button onClick={handleClose} disabled={loading}>
             Cancelar
           </Button>
           <Button type="submit" variant="contained" disabled={loading}>

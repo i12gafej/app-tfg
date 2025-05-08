@@ -179,7 +179,7 @@ const AssignResponsibles = () => {
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2, height: '500px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" gutterBottom>
-              Objetivos Específicos
+              Objetivos de la Acción
       </Typography>
             <List sx={{ 
               flexGrow: 1, 

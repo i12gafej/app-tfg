@@ -69,6 +69,7 @@ const ReportPart5: React.FC<ReportPart5Props> = ({ section = 'cover' }) => {
         items={PART5_SECTIONS}
         activeItem={activeSection}
         onItemClick={setActiveSection}
+        activeColor="#fbc38a"
       />
       <Box sx={{ 
         flex: 1, 

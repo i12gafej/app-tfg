@@ -147,7 +147,10 @@ def get_norms_by_report_id(db: Session, report_id: int) -> List[ReportNorm]:
     return db.query(ReportNormModel).filter(ReportNormModel.report_id == report_id).all()
 
 def create_norm(db: Session, norm: ReportNormCreate) -> ReportNorm:
-    db_norm = ReportNorm(**norm.dict())
+    db_norm = ReportNormModel(
+        norm=norm.norm,
+        report_id=norm.report_id
+    )
     db.add(db_norm)
     db.commit()
     db.refresh(db_norm)

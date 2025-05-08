@@ -41,6 +41,7 @@ const ReportPart4: React.FC<ReportPart4Props> = ({ section = 'monitoring-templat
         items={PART4_SECTIONS}
         activeItem={activeSection}
         onItemClick={setActiveSection}
+        activeColor="#aeabd7"
       />
       <Box sx={{ 
         flex: 1, 

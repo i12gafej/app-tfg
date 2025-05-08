@@ -22,7 +22,7 @@ import {
   useTheme
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
-import { odsService, ODS, getBackgroundColor } from '@/services/odsService';
+import { odsService, ODS, getBackgroundColor, getDimension } from '@/services/odsService';
 import { goalsService, Goal } from '@/services/goalsService';
 import { materialTopicService } from '@/services/materialTopicService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -187,7 +187,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
-        Impactos Principal y Secundarios
+        Impactos Principal y Secundario de los ODS
       </Typography>
 
       <Box sx={{ mb: 3 }}>
@@ -203,10 +203,11 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell width="25%">Asunto de Materialidad</TableCell>
-                <TableCell width="30%">Impacto Principal</TableCell>
-                <TableCell width="35%">Impactos Secundarios</TableCell>
-                <TableCell width="10%">Acciones</TableCell>
+                <TableCell width="15%">Dimensión</TableCell>
+                <TableCell width="20%">Asunto de Materialidad</TableCell>
+                <TableCell width="25%">Impacto Principal ODS</TableCell>
+                <TableCell width="30%">Impactos Secundarios ODS</TableCell>
+                <TableCell width="10%"></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -220,6 +221,9 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                     }
                   }}
                 >
+                  <TableCell>
+                    {getDimension(topic.goal_ods_id)}
+                  </TableCell>
                   <TableCell>{topic.name}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -264,6 +268,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
                       </FormControl>
                     </Box>
                   </TableCell>
+                  
                   <TableCell>
                     <FormControl sx={{ width: 300 }} disabled={!topic.goal_number}>
                       <InputLabel>Impactos Secundarios</InputLabel>

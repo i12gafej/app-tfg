@@ -94,7 +94,7 @@ const MainObjective = () => {
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
-        Objetivo Principal
+        Objetivos de los Asuntos de Materialidad
       </Typography>
 
       <Grid container spacing={2}>
@@ -146,7 +146,7 @@ const MainObjective = () => {
               mb: 2 
             }}>
               <Typography variant="subtitle1">
-                Objetivo Principal
+                Objetivo de los Asuntos de Materialidad
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 {readOnly ? (

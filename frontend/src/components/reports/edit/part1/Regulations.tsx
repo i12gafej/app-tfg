@@ -7,33 +7,320 @@ import {
   Button,
   Paper,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
-  Divider
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Link,
+  InputAdornment,
+  CircularProgress
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import SearchIcon from '@mui/icons-material/Search';
 import { useReport } from '@/context/ReportContext';
 import { reportService } from '@/services/reportServices';
 import { useAuth } from '@/hooks/useAuth';
 import { ReportNorm } from '@/services/reportServices';
 
-interface PendingChange {
-  type: 'create' | 'update' | 'delete';
-  norm: ReportNorm;
-  originalNorm?: ReportNorm;
-}
+// Función para extraer URLs del texto
+const extractUrls = (text: string): string[] => {
+  const lines = text.split('\n');
+  const urls: string[] = [];
+  let isUrlSection = false;
+
+  for (const line of lines) {
+    if (line.trim() === '') {
+      isUrlSection = true;
+      continue;
+    }
+    if (isUrlSection) {
+      const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
+      if (urlMatch) {
+        urls.push(urlMatch[0]);
+      }
+    }
+  }
+  return urls;
+};
+
+// Función para extraer el texto sin URLs
+const extractText = (text: string): string => {
+  const lines = text.split('\n');
+  const textLines: string[] = [];
+  
+  for (const line of lines) {
+    if (line.trim() === '') break;
+    textLines.push(line);
+  }
+  
+  return textLines.join('\n');
+};
+
+// Función para truncar texto
+const truncateText = (text: string, maxLength: number = 100): string => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
+
+// Función para truncar URLs
+const truncateUrl = (url: string, maxLength: number = 50): string => {
+  if (url.length <= maxLength) return url;
+  return url.substring(0, maxLength) + '...';
+};
+
+// Diálogo de consulta
+const ViewDialog = ({ open, onClose, norm }: { open: boolean; onClose: () => void; norm: ReportNorm }) => {
+  const text = extractText(norm.norm);
+  const urls = extractUrls(norm.norm);
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Consultar Normativa</DialogTitle>
+      <DialogContent>
+        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
+          {text}
+        </Typography>
+        {urls.length > 0 && (
+          <>
+            <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Enlaces:</Typography>
+            {urls.map((url, index) => (
+              <Link key={index} href={url} target="_blank" rel="noopener noreferrer" display="block" sx={{ mb: 1 }}>
+                {url}
+              </Link>
+            ))}
+          </>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cerrar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Diálogo de edición
+const EditDialog = ({ 
+  open, 
+  onClose, 
+  norm, 
+  onSave 
+}: { 
+  open: boolean; 
+  onClose: () => void; 
+  norm: ReportNorm; 
+  onSave: (norm: ReportNorm) => void;
+}) => {
+  const [text, setText] = useState(extractText(norm.norm));
+  const [urls, setUrls] = useState<string[]>(extractUrls(norm.norm));
+  const [newUrl, setNewUrl] = useState('');
+
+  const handleAddUrl = () => {
+    if (newUrl.trim()) {
+      setUrls([...urls, newUrl.trim()]);
+      setNewUrl('');
+    }
+  };
+
+  const handleRemoveUrl = (index: number) => {
+    setUrls(urls.filter((_, i) => i !== index));
+  };
+
+  const handleSave = () => {
+    const fullText = text + '\n\n' + urls.join('\n');
+    onSave({ ...norm, norm: fullText });
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Editar Normativa</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="Texto de la normativa"
+          value={text}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+          sx={{ mb: 2, mt: 1 }}
+        />
+        <Typography variant="h6" sx={{ mb: 1 }}>Enlaces:</Typography>
+        {urls.map((url, index) => (
+          <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <TextField
+              fullWidth
+              value={url}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const newUrls = [...urls];
+                newUrls[index] = e.target.value;
+                setUrls(newUrls);
+              }}
+              sx={{ mr: 1 }}
+            />
+            <IconButton onClick={() => handleRemoveUrl(index)} color="error">
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Box>
+        ))}
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Nueva URL"
+            value={newUrl}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewUrl(e.target.value)}
+            sx={{ mr: 1 }}
+          />
+          <Button onClick={handleAddUrl} variant="outlined">
+            Añadir URL
+          </Button>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained">Guardar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Diálogo de creación
+const CreateDialog = ({ 
+  open, 
+  onClose, 
+  onSave 
+}: { 
+  open: boolean; 
+  onClose: () => void; 
+  onSave: (norm: Omit<ReportNorm, 'id'>) => void;
+}) => {
+  const [text, setText] = useState('');
+  const [urls, setUrls] = useState<string[]>([]);
+  const [newUrl, setNewUrl] = useState('');
+
+  const handleAddUrl = () => {
+    if (newUrl.trim()) {
+      setUrls([...urls, newUrl.trim()]);
+      setNewUrl('');
+    }
+  };
+
+  const handleRemoveUrl = (index: number) => {
+    setUrls(urls.filter((_, i) => i !== index));
+  };
+
+  const handleSave = () => {
+    const fullText = text + '\n\n' + urls.join('\n');
+    onSave({ norm: fullText, report_id: 0 });
+    onClose();
+    setText('');
+    setUrls([]);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Crear Normativa</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="Texto de la normativa"
+          value={text}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+          sx={{ mb: 2, mt: 1 }}
+        />
+        <Typography variant="h6" sx={{ mb: 1 }}>Enlaces:</Typography>
+        {urls.map((url, index) => (
+          <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <TextField
+              fullWidth
+              value={url}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const newUrls = [...urls];
+                newUrls[index] = e.target.value;
+                setUrls(newUrls);
+              }}
+              sx={{ mr: 1 }}
+            />
+            <IconButton onClick={() => handleRemoveUrl(index)} color="error">
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Box>
+        ))}
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Nueva URL"
+            value={newUrl}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewUrl(e.target.value)}
+            sx={{ mr: 1 }}
+          />
+          <Button onClick={handleAddUrl} variant="outlined">
+            Añadir URL
+          </Button>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained">Guardar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Diálogo de confirmación de eliminación
+const DeleteDialog = ({ 
+  open, 
+  onClose, 
+  onConfirm 
+}: { 
+  open: boolean; 
+  onClose: () => void; 
+  onConfirm: () => void;
+}) => {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Confirmar eliminación</DialogTitle>
+      <DialogContent>
+        <Typography>¿Estás seguro de que deseas eliminar esta normativa?</Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={onConfirm} color="error" variant="contained">
+          Eliminar
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 const Regulations = () => {
   const { report, loading: reportLoading, readOnly } = useReport();
   const { token } = useAuth();
   const [regulations, setRegulations] = useState<ReportNorm[]>([]);
-  const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  // Estados para los diálogos
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedNorm, setSelectedNorm] = useState<ReportNorm | null>(null);
 
   // Cargar normativas iniciales
   useEffect(() => {
@@ -41,131 +328,128 @@ const Regulations = () => {
       if (!report?.id || !token) return;
       
       try {
+        setLoading(true);
         const norms = await reportService.getReportNorms(report.id, token);
         setRegulations(norms);
       } catch (err) {
         console.error('Error al cargar las normativas:', err);
         setError('Error al cargar las normativas. Por favor, recarga la página.');
+      } finally {
+        setLoading(false);
       }
     };
 
     loadNorms();
   }, [report?.id, token]);
 
-  const addRegulation = () => {
-    const newNorm: ReportNorm = {
-      id: Date.now(), // ID temporal para cambios pendientes
-      norm: '',
-      report_id: report?.id || 0
-    };
-    
-    setRegulations([...regulations, newNorm]);
-    setPendingChanges([...pendingChanges, { type: 'create', norm: newNorm }]);
+  // Filtrar normativas según el término de búsqueda
+  const filteredRegulations = regulations.filter(norm => 
+    norm.norm.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Paginar normativas
+  const paginatedRegulations = filteredRegulations.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
   };
 
-  const removeRegulation = (id: number) => {
-    const normToRemove = regulations.find(r => r.id === id);
-    if (!normToRemove) return;
-
-    setRegulations(regulations.filter(r => r.id !== id));
-    
-    // Si es una normativa nueva (creada en esta sesión), la eliminamos de los cambios pendientes
-    if (id > 1000000) { // IDs temporales son grandes
-      setPendingChanges(pendingChanges.filter(change => change.norm.id !== id));
-    } else {
-      // Si es una normativa existente, la marcamos para eliminación
-      setPendingChanges([...pendingChanges, { type: 'delete', norm: normToRemove }]);
-    }
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
-  const handleRegulationChange = (id: number, newText: string) => {
-    const normToUpdate = regulations.find(r => r.id === id);
-    if (!normToUpdate) return;
-
-    const updatedNorm = { ...normToUpdate, norm: newText };
-    setRegulations(regulations.map(r => r.id === id ? updatedNorm : r));
-
-    // Si es una normativa nueva, actualizamos el cambio pendiente de creación
-    if (id > 1000000) {
-      setPendingChanges(pendingChanges.map(change => 
-        change.norm.id === id ? { ...change, norm: updatedNorm } : change
-      ));
-    } else {
-      // Si es una normativa existente, la marcamos para actualización
-      const existingChange = pendingChanges.find(change => 
-        change.type === 'update' && change.norm.id === id
-      );
-
-      if (existingChange) {
-        setPendingChanges(pendingChanges.map(change => 
-          change.norm.id === id ? { ...change, norm: updatedNorm } : change
-        ));
-      } else {
-        setPendingChanges([...pendingChanges, { 
-          type: 'update', 
-          norm: updatedNorm,
-          originalNorm: normToUpdate
-        }]);
-      }
-    }
+  const handleCloseViewDialog = () => {
+    setViewDialogOpen(false);
+    setSelectedNorm(null);
   };
 
-  const saveChanges = async () => {
-    if (!report || !token || pendingChanges.length === 0) return;
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setSelectedNorm(null);
+  };
 
-    setIsSaving(true);
-    setError(null);
-    setSuccessMessage(null);
+  const handleCloseCreateDialog = () => {
+    setCreateDialogOpen(false);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setSelectedNorm(null);
+  };
+
+  const handleView = (norm: ReportNorm) => {
+    setSelectedNorm(norm);
+    setViewDialogOpen(true);
+  };
+
+  const handleEdit = (norm: ReportNorm) => {
+    setSelectedNorm(norm);
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = (norm: ReportNorm) => {
+    setSelectedNorm(norm);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (updatedNorm: ReportNorm) => {
+    if (!token || !report) return;
 
     try {
-      // Filtrar normativas vacías
-      const validChanges = pendingChanges.filter(change => {
-        const normText = change.norm.norm.trim();
-        return normText.length > 0;
-      });
-
-      if (validChanges.length === 0) {
-        setError('No hay cambios válidos para guardar. Las normativas no pueden estar vacías.');
-        setIsSaving(false);
-        return;
-      }
-
-      // Procesar cambios en orden: primero eliminaciones, luego actualizaciones, finalmente creaciones
-      const deletions = validChanges.filter(change => change.type === 'delete');
-      const updates = validChanges.filter(change => change.type === 'update');
-      const creations = validChanges.filter(change => change.type === 'create');
-
-      // Ejecutar eliminaciones
-      for (const change of deletions) {
-        await reportService.deleteNorm(change.norm.id, token);
-      }
-
-      // Ejecutar actualizaciones
-      for (const change of updates) {
-        await reportService.updateNorm(report.id, change.norm.id, change.norm.norm, token);
-      }
-
-      // Ejecutar creaciones
-      for (const change of creations) {
-        await reportService.createNorm(report.id, change.norm.norm, token);
-      }
-
-      // Obtener las normativas actualizadas
-      const updatedNorms = await reportService.getReportNorms(report.id, token);
-      setRegulations(updatedNorms);
-
-      setPendingChanges([]);
-      setSuccessMessage('Cambios guardados correctamente');
+      setLoading(true);
+      await reportService.updateNorm(report.id, updatedNorm.id, updatedNorm.norm, token);
+      const norms = await reportService.getReportNorms(report.id, token);
+      setRegulations(norms);
+      setSuccessMessage('Normativa actualizada correctamente');
     } catch (err) {
-      console.error('Error al guardar los cambios:', err);
-      setError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+      console.error('Error al actualizar la normativa:', err);
+      setError('Error al actualizar la normativa');
     } finally {
-      setIsSaving(false);
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = async (newNorm: Omit<ReportNorm, 'id'>) => {
+    if (!token || !report) return;
+
+    try {
+      setLoading(true);
+      await reportService.createNorm(report.id, newNorm.norm, token);
+      const norms = await reportService.getReportNorms(report.id, token);
+      setRegulations(norms);
+      setSuccessMessage('Normativa creada correctamente');
+    } catch (err) {
+      console.error('Error al crear la normativa:', err);
+      setError('Error al crear la normativa');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!token || !selectedNorm) return;
+
+    try {
+      setLoading(true);
+      await reportService.deleteNorm(selectedNorm.id, token);
+      const norms = await reportService.getReportNorms(report?.id || 0, token);
+      setRegulations(norms);
+      setSuccessMessage('Normativa eliminada correctamente');
+    } catch (err) {
+      console.error('Error al eliminar la normativa:', err);
+      setError('Error al eliminar la normativa');
+    } finally {
+      setLoading(false);
+      setDeleteDialogOpen(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: '800px', margin: '0 auto' }}>
+    <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 2 }}>
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -173,20 +457,35 @@ const Regulations = () => {
         mb: 2 
       }}>
         <Typography variant="h6">
-          Normativa
+          Normativas
         </Typography>
-        {!readOnly && pendingChanges.length > 0 && (
+        {!readOnly && (
           <Button
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={() => setCreateDialogOpen(true)}
             variant="contained"
-            color="primary"
-            startIcon={<SaveIcon />}
-            onClick={saveChanges}
-            disabled={isSaving}
+            disabled={reportLoading}
           >
-            {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+            Añadir normativa
           </Button>
         )}
       </Box>
+
+      <Paper sx={{ mb: 2, p: 2 }}>
+        <TextField
+          fullWidth
+          placeholder="Buscar normativas..."
+          value={searchTerm}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -199,84 +498,109 @@ const Regulations = () => {
           {successMessage}
         </Alert>
       )}
-      
-      {readOnly ? (
-        <List sx={{ 
-          width: '100%',
-          bgcolor: 'background.paper',
-          border: '1px solid #e0e0e0',
-          borderRadius: '4px',
-          overflow: 'hidden'
-        }}>
-          {regulations.map((regulation, index) => (
-            <React.Fragment key={regulation.id}>
-              <ListItem>
-                <ListItemText 
-                  primary={regulation.norm}
-                  sx={{
-                    '& .MuiListItemText-primary': {
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word'
-                    }
-                  }}
-                />
-              </ListItem>
-              {index < regulations.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-        </List>
-      ) : (
-        <>
-      {regulations.map((regulation) => (
-        <Paper 
-          key={regulation.id}
-          elevation={0}
-          sx={{ 
-            p: 2, 
-            mb: 2, 
-            border: '1px solid #e0e0e0',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 1
-          }}
-        >
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            placeholder="Introduce la normativa..."
-            value={regulation.norm}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleRegulationChange(regulation.id, e.target.value)}
-            sx={{ flex: 1 }}
-                disabled={readOnly}
-          />
-              {!readOnly && (
-          <IconButton 
-            onClick={() => removeRegulation(regulation.id)}
-            color="error"
-            size="small"
-            sx={{ mt: 1 }}
-          >
-            <DeleteOutlineIcon />
-          </IconButton>
-              )}
-        </Paper>
-      ))}
 
-          {!readOnly && (
-      <Button
-        startIcon={<AddCircleOutlineIcon />}
-        onClick={addRegulation}
-        variant="outlined"
-        sx={{ mt: 1 }}
-        disabled={reportLoading}
-      >
-        Añadir normativa
-      </Button>
-          )}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Normativa</TableCell>
+              <TableCell>URLs</TableCell>
+              <TableCell align="right">Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            ) : paginatedRegulations.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  No se encontraron normativas
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedRegulations.map((norm) => {
+                const text = extractText(norm.norm);
+                const urls = extractUrls(norm.norm);
+                
+                return (
+                  <TableRow key={norm.id}>
+                    <TableCell sx={{ maxWidth: '500px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {truncateText(text)}
+                    </TableCell>
+                    <TableCell sx={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {urls.length > 0 ? (
+                        <>
+                          <Link href={urls[0]} target="_blank" rel="noopener noreferrer" title={urls[0]} sx={{ display: 'inline-block', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {truncateUrl(urls[0])}
+                          </Link>
+                          {urls.length > 1 && ` (+${urls.length - 1})`}
+                        </>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton onClick={() => handleView(norm)} sx={{ color: 'grey.600' }}>
+                        <VisibilityIcon />
+                      </IconButton>
+                      {!readOnly && (
+                        <>
+                          <IconButton onClick={() => handleEdit(norm)} sx={{ color: 'grey.600' }}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton onClick={() => handleDelete(norm)} sx={{ color: 'grey.600' }}>
+                            <DeleteOutlineIcon />
+                          </IconButton>
+                        </>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 20]}
+          component="div"
+          count={filteredRegulations.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Filas por página:"
+          labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
+        />
+      </TableContainer>
+
+      {selectedNorm && (
+        <>
+          <ViewDialog
+            open={viewDialogOpen}
+            onClose={handleCloseViewDialog}
+            norm={selectedNorm}
+          />
+          <EditDialog
+            open={editDialogOpen}
+            onClose={handleCloseEditDialog}
+            norm={selectedNorm}
+            onSave={handleSaveEdit}
+          />
+          <DeleteDialog
+            open={deleteDialogOpen}
+            onClose={handleCloseDeleteDialog}
+            onConfirm={handleConfirmDelete}
+          />
         </>
       )}
+
+      <CreateDialog
+        open={createDialogOpen}
+        onClose={handleCloseCreateDialog}
+        onSave={handleCreate}
+      />
     </Box>
   );
 };

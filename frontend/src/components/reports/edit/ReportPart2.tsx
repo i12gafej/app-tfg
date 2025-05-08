@@ -4,48 +4,43 @@ import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/context/ReportContext';
 import StakeholderSearch from './part2/stakeholders/StakeholderSearch';
 import MaterialTopicSearch from './part2/diagnosis/MaterialTopic/MaterialTopicSearch';
+import Surveys from './part2/diagnosis/Surveys';
 
 // Importar componentes del diagnóstico
-import Description from './part2/diagnosis/Description';
-
 import MainSecondaryImpacts from './part2/diagnosis/MainSecondaryImpacts';
 import Graphs from './part2/diagnosis/Graphs';
-import Surveys from './part2/diagnosis/Surveys';
 import MaterialityMatrix from './part2/diagnosis/MaterialityMatrix';
+import MaterialTopicValidation from './part2/diagnosis/MaterialTopicValidation';
 import DiagnosisIndicators from './part2/diagnosis/DiagnosisIndicators';
 
+type Part2Section = 'stakeholders' | 'material-topics' | 'surveys' | 'diagnostic';
+
 interface ReportPart2Props {
-  section?: 'stakeholders' | 'diagnostic';
+  section?: Part2Section;
 }
 
 const DIAGNOSIS_SECTIONS = [
-  //{ id: 'description', label: 'Descripción' },
-  { id: 'material-topics', label: 'Asuntos de Materialidad' },
-  { id: 'impacts', label: 'Impactos Principal y Secundario' },
-  { id: 'graphs', label: 'Gráficos' },
-  { id: 'surveys', label: 'Encuestas' },
+  { id: 'impacts', label: 'Impactos Principal y Secundario de los ODS' },
+  { id: 'graphs', label: 'Gráficos Impactos ODS' },
   { id: 'materiality-matrix', label: 'Matriz de materialidad' },
+  { id: 'validation', label: 'Validación de Asuntos de Materialidad' },
   { id: 'indicators', label: 'Indicadores' },
 ];
 
-const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
+const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'stakeholders' }) => {
   const { report, readOnly } = useReport();
   const [activeDiagnosisSection, setActiveDiagnosisSection] = useState(DIAGNOSIS_SECTIONS[0].id);
 
   const renderDiagnosisContent = () => {
     switch (activeDiagnosisSection) {
-      //case 'description':
-      //  return <Description />;
-      case 'material-topics':
-        return <MaterialTopicSearch reportId={report?.id || 0} readOnly={readOnly} />;
       case 'impacts':
         return <MainSecondaryImpacts reportId={report?.id || 0} onUpdate={() => {}} readOnly={readOnly} />;
       case 'graphs':
         return <Graphs />;
-      case 'surveys':
-        return <Surveys />;
       case 'materiality-matrix':
         return <MaterialityMatrix />;
+      case 'validation':
+        return <MaterialTopicValidation />;
       case 'indicators':
         return <DiagnosisIndicators />;
       default:
@@ -61,6 +56,18 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
             <StakeholderSearch reportId={report?.id || 0} />
           </Box>
         );
+      case 'material-topics':
+        return (
+          <Box sx={{ p: 3 }}>
+            <MaterialTopicSearch reportId={report?.id || 0} readOnly={readOnly} />
+          </Box>
+        );
+      case 'surveys':
+        return (
+          <Box sx={{ p: 3 }}>
+            <Surveys />
+          </Box>
+        );
       case 'diagnostic':
         return (
           <Box sx={{ 
@@ -72,6 +79,7 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'main' }) => {
               items={DIAGNOSIS_SECTIONS}
               activeItem={activeDiagnosisSection}
               onItemClick={setActiveDiagnosisSection}
+              activeColor="#a1c854"
             />
             <Box sx={{ 
               flex: 1, 

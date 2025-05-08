@@ -210,7 +210,7 @@ const ActionMainSecondaryImpact = () => {
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2, height: '400px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" gutterBottom>
-              Objetivos Específicos
+              Objetivos de la Acción
             </Typography>
             <Box sx={{ 
               flexGrow: 1, 

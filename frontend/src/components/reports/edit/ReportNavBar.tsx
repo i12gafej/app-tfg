@@ -7,12 +7,20 @@ import ReportPart4 from './ReportPart4';
 import ReportPart5 from './ReportPart5';
 import { useReport } from '@/context/ReportContext';
 
-type Part2Section = 'main' | 'stakeholders' | 'diagnostic';
+type Part2Section = 'stakeholders' | 'material-topics' | 'surveys' | 'diagnostic';
+
+const STEP_COLORS = {
+  1: '#a2d2e9',
+  2: '#a1c854',
+  3: '#f5b2c0',
+  4: '#aeabd7',
+  5: '#fbc38a'
+};
 
 const ReportNavBar = () => {
   const { report } = useReport();
   const [activePart, setActivePart] = useState<number>(1);
-  const [part2Section, setPart2Section] = useState<'stakeholders' | 'diagnostic'>('stakeholders');
+  const [part2Section, setPart2Section] = useState<Part2Section>('stakeholders');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -62,23 +70,16 @@ const ReportNavBar = () => {
             variant={activePart === part ? 'contained' : 'outlined'}
             onClick={() => handlePartClick(part)}
             sx={{
-              backgroundColor: theme.palette.primary.contrastText,
-              color: theme.palette.text.black,
-              borderColor: theme.palette.text.black,
+              backgroundColor: activePart === part ? STEP_COLORS[part as keyof typeof STEP_COLORS] : theme.palette.primary.contrastText,
+              color: activePart === part ? '#000000' : theme.palette.text.black,
+              borderColor: STEP_COLORS[part as keyof typeof STEP_COLORS],
               padding: isMobile ? '4px 8px' : '8px 24px',
               fontSize: isMobile ? '0.75rem' : '0.875rem',
               minWidth: isMobile ? '40px' : '64px',
               '&:hover': {
-                backgroundColor: '#F5F5F5',
-                borderColor: theme.palette.text.black,
-              },
-              ...(activePart === part && {
-                backgroundColor: theme.palette.secondary.main,
-                color: theme.palette.primary.contrastText,
-                '&:hover': {
-                  backgroundColor: theme.palette.secondary.main,
-                }
-              })
+                backgroundColor: activePart === part ? STEP_COLORS[part as keyof typeof STEP_COLORS] : '#F5F5F5',
+                borderColor: STEP_COLORS[part as keyof typeof STEP_COLORS],
+              }
             }}
           >
             Paso {part}
@@ -92,52 +93,73 @@ const ReportNavBar = () => {
           gap: isMobile ? 0.5 : 1, 
           mb: isMobile ? 1 : 2,
           width: '100%',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          flexWrap: 'wrap'
         }}>
           <Button
             variant={part2Section === 'stakeholders' ? 'contained' : 'outlined'}
             onClick={() => setPart2Section('stakeholders')}
             sx={{
-              backgroundColor: theme.palette.primary.contrastText,
-              color: theme.palette.text.black,
-              borderColor: theme.palette.text.black,
+              backgroundColor: part2Section === 'stakeholders' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+              color: part2Section === 'stakeholders' ? '#000000' : theme.palette.text.black,
+              borderColor: STEP_COLORS[2],
               padding: isMobile ? '4px 8px' : '8px 24px',
               fontSize: isMobile ? '0.75rem' : '0.875rem',
               '&:hover': {
-                backgroundColor: '#F5F5F5',
-                borderColor: theme.palette.text.black,
-              },
-              ...(part2Section === 'stakeholders' && {
-                backgroundColor: theme.palette.secondary.main,
-                color: theme.palette.primary.contrastText,
-                '&:hover': {
-                  backgroundColor: theme.palette.secondary.main,
-                }
-              })
+                backgroundColor: part2Section === 'stakeholders' ? STEP_COLORS[2] : '#F5F5F5',
+                borderColor: STEP_COLORS[2],
+              }
             }}
           >
             Grupos de Interés
           </Button>
           <Button
-            variant={part2Section === 'diagnostic' ? 'contained' : 'outlined'}
-            onClick={() => setPart2Section('diagnostic')}
+            variant={part2Section === 'material-topics' ? 'contained' : 'outlined'}
+            onClick={() => setPart2Section('material-topics')}
             sx={{
-              backgroundColor: theme.palette.primary.contrastText,
-              color: theme.palette.text.black,
-              borderColor: theme.palette.text.black,
+              backgroundColor: part2Section === 'material-topics' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+              color: part2Section === 'material-topics' ? '#000000' : theme.palette.text.black,
+              borderColor: STEP_COLORS[2],
               padding: isMobile ? '4px 8px' : '8px 24px',
               fontSize: isMobile ? '0.75rem' : '0.875rem',
               '&:hover': {
-                backgroundColor: '#F5F5F5',
-                borderColor: theme.palette.text.black,
-              },
-              ...(part2Section === 'diagnostic' && {
-                backgroundColor: theme.palette.secondary.main,
-                color: theme.palette.primary.contrastText,
-                '&:hover': {
-                  backgroundColor: theme.palette.secondary.main,
-                }
-              })
+                backgroundColor: part2Section === 'material-topics' ? STEP_COLORS[2] : '#F5F5F5',
+                borderColor: STEP_COLORS[2],
+              }
+            }}
+          >
+            Asuntos de Materialidad
+          </Button>
+          <Button
+            variant={part2Section === 'surveys' ? 'contained' : 'outlined'}
+            onClick={() => setPart2Section('surveys')}
+            sx={{
+              backgroundColor: part2Section === 'surveys' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+              color: part2Section === 'surveys' ? '#000000' : theme.palette.text.black,
+              borderColor: STEP_COLORS[2],
+              padding: isMobile ? '4px 8px' : '8px 24px',
+              fontSize: isMobile ? '0.75rem' : '0.875rem',
+              '&:hover': {
+                backgroundColor: part2Section === 'surveys' ? STEP_COLORS[2] : '#F5F5F5',
+                borderColor: STEP_COLORS[2],
+              }
+            }}
+          >
+            Encuesta
+          </Button>
+          <Button
+            variant={part2Section === 'diagnostic' ? 'contained' : 'outlined'}
+            onClick={() => setPart2Section('diagnostic')}
+            sx={{
+              backgroundColor: part2Section === 'diagnostic' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+              color: part2Section === 'diagnostic' ? '#000000' : theme.palette.text.black,
+              borderColor: STEP_COLORS[2],
+              padding: isMobile ? '4px 8px' : '8px 24px',
+              fontSize: isMobile ? '0.75rem' : '0.875rem',
+              '&:hover': {
+                backgroundColor: part2Section === 'diagnostic' ? STEP_COLORS[2] : '#F5F5F5',
+                borderColor: STEP_COLORS[2],
+              }
             }}
           >
             Diagnóstico
