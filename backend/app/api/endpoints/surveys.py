@@ -124,7 +124,8 @@ async def search_private_surveys_endpoint(
                 heritage_resource_id=report.heritage_resource_id,
                 heritage_resource_name=resources_dict.get(report.heritage_resource_id).name if report.heritage_resource_id in resources_dict else None,
                 year=str(report.year),  # Asegurarnos de que el año es string
-                survey_state=report.survey_state
+                survey_state=report.survey_state,
+                scale=report.scale
             )
             for report in reports
         ]

@@ -12,18 +12,20 @@ import {
   MenuItem,
   Card,
   CardContent,
-  Rating,
   CircularProgress,
   Alert,
   Paper,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Rating
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { materialTopicService, MaterialTopic } from '@/services/materialTopicService';
 import { odsService, Dimension } from '@/services/odsService';
 import { surveyService } from '@/services/surveyService';
 import { stakeholderService, Stakeholder } from '@/services/stakeholderService';
+import CircleIcon from '@mui/icons-material/Circle';
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 interface SurveyCompleteProps {
   reportId: number;
@@ -222,7 +224,20 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
                     value={ratings[topic.id] || 0}
                     onChange={(event: React.SyntheticEvent, value: number | null) => handleRatingChange(topic.id, value || 0)}
                     max={scale}
+                    icon={<CircleIcon fontSize="small" />}
+                    emptyIcon={<CircleOutlinedIcon fontSize="small" />}
+                    sx={{
+                      '& .MuiRating-iconFilled': {
+                        color: 'primary.main',
+                      },
+                      '& .MuiRating-iconEmpty': {
+                        color: 'grey.400',
+                      },
+                    }}
                   />
+                  <Typography variant="body2" color="text.secondary">
+                    ({ratings[topic.id] || 0} de {scale})
+                  </Typography>
                 </Box>
               </CardContent>
             </Card>

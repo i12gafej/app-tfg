@@ -49,6 +49,7 @@ class PrivateSurvey(BaseModel):
     heritage_resource_name: str
     year: Union[str, int]
     survey_state: str
+    scale: int
 
     class Config:
         from_attributes = True

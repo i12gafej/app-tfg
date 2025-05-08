@@ -103,7 +103,7 @@ const Surveys = () => {
               <Box sx={{ p: { xs: 0, sm: 1, md: 2 } }}>
                 <SurveyComplete
                   reportId={selectedSurvey}
-                  scale={5}
+                  scale={searchResults.items[0].scale}
                   onComplete={handleSurveyComplete}
                 />
               </Box>

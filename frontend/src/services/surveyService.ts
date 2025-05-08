@@ -33,6 +33,7 @@ export interface PrivateSurvey {
     heritage_resource_name: string;
     year: string;
     survey_state: string;
+    scale: number;
 }
 
 export interface PrivateSurveySearch {
