@@ -8,9 +8,10 @@ import { ReportProvider } from '@/context/ReportContext';
 interface ReportEditProps {
   readOnly?: boolean;
   reportName?: string;
+  isExternalAdvisor?: boolean;
 }
 
-const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false }) => {
+const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdvisor = false }) => {
   const { id, name, year } = useParams();
   const navigate = useNavigate();
   const reportId = id ? parseInt(id, 10) : null;
@@ -32,7 +33,7 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false }) => {
   }
 
   return (
-    <ReportProvider reportId={reportId} readOnly={readOnly}>
+    <ReportProvider reportId={reportId} readOnly={readOnly} isExternalAdvisor={isExternalAdvisor}>
       <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ 
           display: 'flex', 

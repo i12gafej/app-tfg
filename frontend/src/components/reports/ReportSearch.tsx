@@ -230,7 +230,11 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   };
 
   const handleView = (report: SustainabilityReport) => {
-    navigate(`/memorias/consultar/${report.id}/${report.heritage_resource_name}/${report.year}`);
+    if (report.user_role?.role === 'external_advisor') {
+      navigate(`/memorias/asesorar/${report.id}/${report.heritage_resource_name}/${report.year}`);
+    } else {
+      navigate(`/memorias/consultar/${report.id}/${report.heritage_resource_name}/${report.year}`);
+    }
   };
 
   const getRoleLabel = (role: string) => {

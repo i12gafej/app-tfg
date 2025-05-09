@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
-import { materialTopicService, PriorityLevel } from '@/services/materialTopicService';
+import { materialTopicService, PriorityLevel, sortMaterialTopics } from '@/services/materialTopicService';
 import { getBackgroundColor } from '@/services/odsService';
 
 interface MaterialTopic {
@@ -37,13 +37,9 @@ const MainObjective = () => {
           throw new Error('No se encontró el token de autenticación');
         }
         const topics = await materialTopicService.getAllByReport(report.id, token);
-        // Ordenar los topics por goal_ods_id
-        const sortedTopics = [...topics].sort((a, b) => {
-          if (!a.goal_ods_id && !b.goal_ods_id) return 0;
-          if (!a.goal_ods_id) return 1;
-          if (!b.goal_ods_id) return -1;
-          return a.goal_ods_id - b.goal_ods_id;
-        });
+        console.log('Material Topics antes de ordenar:', topics);
+        const sortedTopics = sortMaterialTopics<MaterialTopic>(topics);
+        console.log('Material Topics después de ordenar:', sortedTopics);
         setMaterialTopics(sortedTopics);
       } catch (error) {
         console.error('Error al cargar asuntos de materialidad:', error);

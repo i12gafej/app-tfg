@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/context/ReportContext';
 import StakeholderSearch from './part2/stakeholders/StakeholderSearch';
@@ -20,18 +20,48 @@ interface ReportPart2Props {
 }
 
 const DIAGNOSIS_SECTIONS = [
-  { id: 'impacts', label: 'Impactos Principal y Secundario de los ODS' },
-  { id: 'graphs', label: 'Gráficos Impactos ODS' },
-  { id: 'materiality-matrix', label: 'Matriz de materialidad' },
-  { id: 'validation', label: 'Validación de Asuntos de Materialidad' },
-  { id: 'indicators', label: 'Indicadores' },
+  { id: 'impacts', label: 'Impactos Principal y Secundario de los ODS', permissionIndex: 8 },
+  { id: 'graphs', label: 'Gráficos Impactos ODS', permissionIndex: 9 },
+  { id: 'materiality-matrix', label: 'Matriz de materialidad', permissionIndex: 10 },
+  { id: 'validation', label: 'Validación de Asuntos de Materialidad', permissionIndex: 11 },
+  { id: 'indicators', label: 'Indicadores', permissionIndex: 12 },
 ];
 
+// Función para convertir decimal a array de booleanos
+function decimalToBoolArray(decimal: number, length: number): boolean[] {
+  const bin = decimal.toString(2).padStart(length, '0');
+  return bin.split('').map(x => x === '1');
+}
+
 const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'stakeholders' }) => {
-  const { report, readOnly } = useReport();
+  const { report, readOnly, isExternalAdvisor } = useReport();
   const [activeDiagnosisSection, setActiveDiagnosisSection] = useState(DIAGNOSIS_SECTIONS[0].id);
+  const [permissions, setPermissions] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    if (report && isExternalAdvisor && typeof report.permissions === 'number') {
+      setPermissions(decimalToBoolArray(report.permissions, 29));
+    }
+  }, [report, isExternalAdvisor]);
+
+  const hasDiagnosisSectionPermission = (sectionId: string): boolean => {
+    if (!isExternalAdvisor) return true;
+    
+    const section = DIAGNOSIS_SECTIONS.find(s => s.id === sectionId);
+    if (!section) return false;
+    
+    return permissions[section.permissionIndex];
+  };
+
+  const getVisibleDiagnosisSections = () => {
+    return DIAGNOSIS_SECTIONS.filter(section => hasDiagnosisSectionPermission(section.id));
+  };
 
   const renderDiagnosisContent = () => {
+    if (!hasDiagnosisSectionPermission(activeDiagnosisSection)) {
+      return null;
+    }
+
     switch (activeDiagnosisSection) {
       case 'impacts':
         return <MainSecondaryImpacts reportId={report?.id || 0} onUpdate={() => {}} readOnly={readOnly} />;
@@ -69,6 +99,18 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'stakeholders' }) =
           </Box>
         );
       case 'diagnostic':
+        const visibleSections = getVisibleDiagnosisSections();
+        if (visibleSections.length === 0) {
+          return (
+            <Box sx={{ p: 3 }}>
+              <Typography>No tienes acceso a ninguna sección del diagnóstico.</Typography>
+            </Box>
+          );
+        }
+        // Si no hay sección activa o la sección activa no está en las visibles, seleccionar la primera visible
+        if (!visibleSections.find(s => s.id === activeDiagnosisSection)) {
+          setActiveDiagnosisSection(visibleSections[0].id);
+        }
         return (
           <Box sx={{ 
             display: 'flex', 
@@ -76,7 +118,7 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'stakeholders' }) =
             backgroundColor: 'background.paper' 
           }}>
             <ReportPartNavBar
-              items={DIAGNOSIS_SECTIONS}
+              items={visibleSections}
               activeItem={activeDiagnosisSection}
               onItemClick={setActiveDiagnosisSection}
               activeColor="#a1c854"

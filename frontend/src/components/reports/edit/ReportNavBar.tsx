@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, useTheme, useMediaQuery } from '@mui/material';
 import ReportPart1 from './ReportPart1';
 import ReportPart2 from './ReportPart2';
@@ -17,21 +17,96 @@ const STEP_COLORS = {
   5: '#fbc38a'
 };
 
+// Función para convertir decimal a array de booleanos
+function decimalToBoolArray(decimal: number, length: number): boolean[] {
+  const bin = decimal.toString(2).padStart(length, '0');
+  return bin.split('').map(x => x === '1');
+}
+
 const ReportNavBar = () => {
-  const { report } = useReport();
+  const { report, readOnly, isExternalAdvisor } = useReport();
   const [activePart, setActivePart] = useState<number>(1);
   const [part2Section, setPart2Section] = useState<Part2Section>('stakeholders');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [permissions, setPermissions] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    if (report && isExternalAdvisor && typeof report.permissions === 'number') {
+      setPermissions(decimalToBoolArray(report.permissions, 29));
+    }
+  }, [report, isExternalAdvisor]);
 
   const handlePartClick = (part: number) => {
-    setActivePart(part);
-    if (part === 2) {
-      setPart2Section('stakeholders');
+    if (isExternalAdvisor) {
+      // Verificar si el asesor tiene permiso para ver esta parte
+      const partStart = getPartStartIndex(part);
+      const partEnd = getPartEndIndex(part);
+      const hasPermission = permissions.slice(partStart, partEnd + 1).some(Boolean);
+      
+      if (hasPermission) {
+        setActivePart(part);
+        if (part === 2) {
+          setPart2Section('stakeholders');
+        }
+      }
+    } else {
+      setActivePart(part);
+      if (part === 2) {
+        setPart2Section('stakeholders');
+      }
     }
   };
 
+  const getPartStartIndex = (part: number): number => {
+    switch (part) {
+      case 1: return 0;
+      case 2: return 5;
+      case 3: return 13;
+      case 4: return 19;
+      case 5: return 21;
+      default: return 0;
+    }
+  };
+
+  const getPartEndIndex = (part: number): number => {
+    switch (part) {
+      case 1: return 4;
+      case 2: return 12;
+      case 3: return 18;
+      case 4: return 20;
+      case 5: return 28;
+      default: return 0;
+    }
+  };
+
+  const hasPartPermission = (part: number): boolean => {
+    if (!isExternalAdvisor) return true;
+    const start = getPartStartIndex(part);
+    const end = getPartEndIndex(part);
+    return permissions.slice(start, end + 1).some(Boolean);
+  };
+
+  const hasPart2SectionPermission = (section: Part2Section): boolean => {
+    if (!isExternalAdvisor) return true;
+    
+    if (section === 'diagnostic') {
+      // Verificar si tiene permiso en cualquiera de las secciones del diagnóstico (bits 9-13)
+      return permissions.slice(8, 13).some(Boolean);
+    }
+
+    const sectionIndex = {
+      'stakeholders': 5,
+      'material-topics': 6,
+      'surveys': 7
+    }[section];
+
+    return permissions[sectionIndex];
+  };
+
   const renderPart = () => {
+    if (!hasPartPermission(activePart)) return null;
+
     switch (activePart) {
       case 1:
         return <ReportPart1 />;
@@ -65,25 +140,27 @@ const ReportNavBar = () => {
         justifyContent: 'center'
       }}>
         {[1, 2, 3, 4, 5].map((part) => (
-          <Button
-            key={part}
-            variant={activePart === part ? 'contained' : 'outlined'}
-            onClick={() => handlePartClick(part)}
-            sx={{
-              backgroundColor: activePart === part ? STEP_COLORS[part as keyof typeof STEP_COLORS] : theme.palette.primary.contrastText,
-              color: activePart === part ? '#000000' : theme.palette.text.black,
-              borderColor: STEP_COLORS[part as keyof typeof STEP_COLORS],
-              padding: isMobile ? '4px 8px' : '8px 24px',
-              fontSize: isMobile ? '0.75rem' : '0.875rem',
-              minWidth: isMobile ? '40px' : '64px',
-              '&:hover': {
-                backgroundColor: activePart === part ? STEP_COLORS[part as keyof typeof STEP_COLORS] : '#F5F5F5',
+          hasPartPermission(part) && (
+            <Button
+              key={part}
+              variant={activePart === part ? 'contained' : 'outlined'}
+              onClick={() => handlePartClick(part)}
+              sx={{
+                backgroundColor: activePart === part ? STEP_COLORS[part as keyof typeof STEP_COLORS] : theme.palette.primary.contrastText,
+                color: activePart === part ? '#000000' : theme.palette.text.black,
                 borderColor: STEP_COLORS[part as keyof typeof STEP_COLORS],
-              }
-            }}
-          >
-            Paso {part}
-          </Button>
+                padding: isMobile ? '4px 8px' : '8px 24px',
+                fontSize: isMobile ? '0.75rem' : '0.875rem',
+                minWidth: isMobile ? '40px' : '64px',
+                '&:hover': {
+                  backgroundColor: activePart === part ? STEP_COLORS[part as keyof typeof STEP_COLORS] : '#F5F5F5',
+                  borderColor: STEP_COLORS[part as keyof typeof STEP_COLORS],
+                }
+              }}
+            >
+              Paso {part}
+            </Button>
+          )
         ))}
       </Box>
 
@@ -96,74 +173,82 @@ const ReportNavBar = () => {
           justifyContent: 'center',
           flexWrap: 'wrap'
         }}>
-          <Button
-            variant={part2Section === 'stakeholders' ? 'contained' : 'outlined'}
-            onClick={() => setPart2Section('stakeholders')}
-            sx={{
-              backgroundColor: part2Section === 'stakeholders' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
-              color: part2Section === 'stakeholders' ? '#000000' : theme.palette.text.black,
-              borderColor: STEP_COLORS[2],
-              padding: isMobile ? '4px 8px' : '8px 24px',
-              fontSize: isMobile ? '0.75rem' : '0.875rem',
-              '&:hover': {
-                backgroundColor: part2Section === 'stakeholders' ? STEP_COLORS[2] : '#F5F5F5',
+          {hasPart2SectionPermission('stakeholders') && (
+            <Button
+              variant={part2Section === 'stakeholders' ? 'contained' : 'outlined'}
+              onClick={() => setPart2Section('stakeholders')}
+              sx={{
+                backgroundColor: part2Section === 'stakeholders' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+                color: part2Section === 'stakeholders' ? '#000000' : theme.palette.text.black,
                 borderColor: STEP_COLORS[2],
-              }
-            }}
-          >
-            Grupos de Interés
-          </Button>
-          <Button
-            variant={part2Section === 'material-topics' ? 'contained' : 'outlined'}
-            onClick={() => setPart2Section('material-topics')}
-            sx={{
-              backgroundColor: part2Section === 'material-topics' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
-              color: part2Section === 'material-topics' ? '#000000' : theme.palette.text.black,
-              borderColor: STEP_COLORS[2],
-              padding: isMobile ? '4px 8px' : '8px 24px',
-              fontSize: isMobile ? '0.75rem' : '0.875rem',
-              '&:hover': {
-                backgroundColor: part2Section === 'material-topics' ? STEP_COLORS[2] : '#F5F5F5',
+                padding: isMobile ? '4px 8px' : '8px 24px',
+                fontSize: isMobile ? '0.75rem' : '0.875rem',
+                '&:hover': {
+                  backgroundColor: part2Section === 'stakeholders' ? STEP_COLORS[2] : '#F5F5F5',
+                  borderColor: STEP_COLORS[2],
+                }
+              }}
+            >
+              Grupos de Interés
+            </Button>
+          )}
+          {hasPart2SectionPermission('material-topics') && (
+            <Button
+              variant={part2Section === 'material-topics' ? 'contained' : 'outlined'}
+              onClick={() => setPart2Section('material-topics')}
+              sx={{
+                backgroundColor: part2Section === 'material-topics' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+                color: part2Section === 'material-topics' ? '#000000' : theme.palette.text.black,
                 borderColor: STEP_COLORS[2],
-              }
-            }}
-          >
-            Asuntos de Materialidad
-          </Button>
-          <Button
-            variant={part2Section === 'surveys' ? 'contained' : 'outlined'}
-            onClick={() => setPart2Section('surveys')}
-            sx={{
-              backgroundColor: part2Section === 'surveys' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
-              color: part2Section === 'surveys' ? '#000000' : theme.palette.text.black,
-              borderColor: STEP_COLORS[2],
-              padding: isMobile ? '4px 8px' : '8px 24px',
-              fontSize: isMobile ? '0.75rem' : '0.875rem',
-              '&:hover': {
-                backgroundColor: part2Section === 'surveys' ? STEP_COLORS[2] : '#F5F5F5',
+                padding: isMobile ? '4px 8px' : '8px 24px',
+                fontSize: isMobile ? '0.75rem' : '0.875rem',
+                '&:hover': {
+                  backgroundColor: part2Section === 'material-topics' ? STEP_COLORS[2] : '#F5F5F5',
+                  borderColor: STEP_COLORS[2],
+                }
+              }}
+            >
+              Asuntos de Materialidad
+            </Button>
+          )}
+          {hasPart2SectionPermission('surveys') && (
+            <Button
+              variant={part2Section === 'surveys' ? 'contained' : 'outlined'}
+              onClick={() => setPart2Section('surveys')}
+              sx={{
+                backgroundColor: part2Section === 'surveys' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+                color: part2Section === 'surveys' ? '#000000' : theme.palette.text.black,
                 borderColor: STEP_COLORS[2],
-              }
-            }}
-          >
-            Encuesta
-          </Button>
-          <Button
-            variant={part2Section === 'diagnostic' ? 'contained' : 'outlined'}
-            onClick={() => setPart2Section('diagnostic')}
-            sx={{
-              backgroundColor: part2Section === 'diagnostic' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
-              color: part2Section === 'diagnostic' ? '#000000' : theme.palette.text.black,
-              borderColor: STEP_COLORS[2],
-              padding: isMobile ? '4px 8px' : '8px 24px',
-              fontSize: isMobile ? '0.75rem' : '0.875rem',
-              '&:hover': {
-                backgroundColor: part2Section === 'diagnostic' ? STEP_COLORS[2] : '#F5F5F5',
+                padding: isMobile ? '4px 8px' : '8px 24px',
+                fontSize: isMobile ? '0.75rem' : '0.875rem',
+                '&:hover': {
+                  backgroundColor: part2Section === 'surveys' ? STEP_COLORS[2] : '#F5F5F5',
+                  borderColor: STEP_COLORS[2],
+                }
+              }}
+            >
+              Encuesta
+            </Button>
+          )}
+          {hasPart2SectionPermission('diagnostic') && (
+            <Button
+              variant={part2Section === 'diagnostic' ? 'contained' : 'outlined'}
+              onClick={() => setPart2Section('diagnostic')}
+              sx={{
+                backgroundColor: part2Section === 'diagnostic' ? STEP_COLORS[2] : theme.palette.primary.contrastText,
+                color: part2Section === 'diagnostic' ? '#000000' : theme.palette.text.black,
                 borderColor: STEP_COLORS[2],
-              }
-            }}
-          >
-            Diagnóstico
-          </Button>
+                padding: isMobile ? '4px 8px' : '8px 24px',
+                fontSize: isMobile ? '0.75rem' : '0.875rem',
+                '&:hover': {
+                  backgroundColor: part2Section === 'diagnostic' ? STEP_COLORS[2] : '#F5F5F5',
+                  borderColor: STEP_COLORS[2],
+                }
+              }}
+            >
+              Diagnóstico
+            </Button>
+          )}
         </Box>
       )}
 

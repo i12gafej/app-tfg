@@ -35,6 +35,11 @@ const ReportNavController = () => {
                 <ReportEdit readOnly={true} />
               </ProtectedRoute>
             } />
+            <Route path="/asesorar/:id/:name/:year" element={
+              <ProtectedRoute>
+                <ReportEdit readOnly={true} isExternalAdvisor={true} />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<Navigate to="/memorias" replace />} />
           </Routes>
         </Box>

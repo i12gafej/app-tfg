@@ -38,10 +38,11 @@ const PARTS = [
     sections: [
       'Grupos de Interés',
       'Asuntos de Materialidad',
-      'Impactos principales y Secundarios ODS',
-      'Gráficos',
       'Encuestas',
+      'Impactos principales y Secundarios ODS',
+      'Gráficos Impactos ODS',
       'Matriz de materialidad',
+      'Validación de Asuntos de Materialidad',
       'Indicadores'
     ]
   },
@@ -51,11 +52,11 @@ const PARTS = [
     end: 18,
     sections: [
       'Contexto y periodo temporal',
-      'Objetivo Principal',
-      'Objetivo Específico',
+      'Objetivos de los Asuntos de Materialidad',
+      'Objetivos de la Acción',
       'Impactos de las acciones',
-      'Coherencia interna',
-      'Gráfico coherencia interna'
+      'Coherencia Interna',
+      'Gráfico Coherencia Interna'
     ]
   },
   {
@@ -76,7 +77,7 @@ const PARTS = [
       'Carta de compromiso',
       'Organigrama',
       'Descripción de Diagnóstico',
-      'Descripción de la hoja de ruta',
+      'Descripción de la Hoja de Ruta',
       'Colaboraciones',
       'Bibliografía',
       'Galería',
