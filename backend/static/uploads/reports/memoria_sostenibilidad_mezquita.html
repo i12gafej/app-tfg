@@ -1,0 +1,687 @@
+
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Memoria de Sostenibilidad</title>
+        <style>
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Poppins', sans-serif;
+                box-sizing: border-box;
+            }
+
+            /* Estilos para el botón de descarga */
+            .download-button {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #3498db;
+                color: white;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .download-button:hover {
+                background-color: #2980b9;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .download-button:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .download-icon {
+                width: 20px;
+                height: 20px;
+                fill: currentColor;
+            }
+
+
+            
+
+            @media print {
+                body, .page {
+                    background-color: #F3DCB8 !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                .download-button {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <button class="download-button" onclick="window.print()">
+            <svg class="download-icon" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            Descargar PDF
+        </button>
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria de Sostenibilidad de la Mezquita-Catedral de Córdoba</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .cover-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title-container {
+            position: absolute;
+            top: 15%;
+            left: 36%;
+            width: 75%;
+            transform: translate(-50%, -50%);
+            min-width: 300px;
+            min-height: 80px;
+            height: auto;
+            color: white;
+            background: rgba(255,255,255,0.7);
+            border-radius: 0 1.5em 1.5em 0;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            box-sizing: border-box;
+            padding: 2cm;
+            padding: 1.2em 2em 1.2em 2em;
+        }
+
+        .title {
+            color: #222 !important;
+            background: none !important;
+            text-shadow: none !important;
+            font-size: clamp(1.2em, 2.5vw, 2em);
+            font-weight: 600;
+            margin: 0;
+            margin-bottom: 20px;
+            padding: 0;
+            border-radius: 0;
+            letter-spacing: 1px;
+            word-break: break-word;
+            white-space: normal;
+            text-align: left;
+            width: 100%;
+            display: inline-block;
+        }
+
+        .year {
+            font-size: 1.8em;
+        }
+
+        .logos-container {
+            position: absolute;
+            bottom: 2cm;
+            right: 2cm;
+            display: flex;
+            gap: 1cm;
+        }
+
+        .logo {
+            height: 3cm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+            }
+
+            .cover-container {
+                page-break-after: always;
+            }
+
+            .title, .year {
+                color: #222 !important;
+                background: none !important;
+                text-shadow: none !important;
+                font-size: clamp(1.2em, 2.5vw, 2em);
+                font-weight: 600;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+                letter-spacing: 1px;
+                word-break: break-word;
+                white-space: normal;
+                text-align: left;
+                width: 100%;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cover-container">
+        <img src="c:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\static\uploads\covers\report_5_cover_b5a4e4b3-1357-495b-b28f-bbc9dee2cc0f.jpg" alt="Portada" class="cover-image">
+        <div class="title-container">
+            <h1 class="title">Memoria de Sostenibilidad de la Mezquita-Catedral de Córdoba - Año 2024</h1>
+        </div>
+        <div class="year">2024</div>
+        <div class="logos-container">
+            
+            <img src="c:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\static\uploads\logos\report_5_logo_9b749bc4-2d5a-4410-8d8d-c6112131e8b6.jpg" alt="Logo" class="logo">
+            
+            <img src="c:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\static\uploads\logos\report_5_logo_74d82581-240e-4881-a2d7-7b010c9e4cbb.jpg" alt="Logo" class="logo">
+            
+        </div>
+    </div>
+</body>
+</html> 
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorización del Recurso Patrimonial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        .page {
+            padding: 2cm;
+            height: 100%;
+            box-sizing: border-box;
+            background-color: #F3DCB8;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2cm;
+            color: #000;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin: 0;
+            padding-bottom: 0.5cm;
+            border-bottom: 2px solid #000000;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-section {
+            margin-bottom: 1cm;
+        }
+
+        .info-section h2 {
+            color: #000000;
+            font-size: 1.2em;
+            margin-bottom: 0.5cm;
+            border-bottom: 1px solid #F3DCB8;
+            padding-bottom: 0.2cm;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0.5cm;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-value {
+            color: #000;
+        }
+
+        .social-networks {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .social-networks li {
+            margin-bottom: 0.2cm;
+        }
+
+        .social-networks a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .social-networks a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+                background-color: #F3DCB8 !important;
+            }
+            .page {
+                page-break-after: always;
+                background-color: #F3DCB8 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>Categorización del Recurso Patrimonial</h1>
+        </div>
+
+        <div class="info-section">
+            <h2>Información Básica</h2>
+            <div class="info-grid">
+                <div class="info-label">Nombre:</div>
+                <div class="info-value">Mezquita-Catedral de Córdoba</div>
+
+                <div class="info-label">Tipología:</div>
+                <div class="info-value">
+                <div class="info-value">Patrimonio Cultural, Patrimonio Religioso, Patrimonio Arquitectónico</div>
+                </div>
+
+                <div class="info-label">Titularidad:</div>
+                <div class="info-value">Cabildo Catedral de Córdoba</div>
+
+                <div class="info-label">Modelo de Gestión:</div>
+                <div class="info-value">Híbrido (Público-Privado)</div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Información de Contacto</h2>
+            <div class="info-grid">
+                <div class="info-label">Dirección Postal:</div>
+                <div class="info-value">Calle Cardenal Herrero, 1, 14003 Córdoba</div>
+
+                <div class="info-label">Sitio Web:</div>
+                <div class="info-value">
+                    <a href="https://mezquita-catedraldecordoba.es" target="_blank">https://mezquita-catedraldecordoba.es</a>
+                </div>
+
+                <div class="info-label">Teléfono:</div>
+                <div class="info-value">+34 957 47 05 12</div>
+
+                <div class="info-label">Redes Sociales:</div>
+                <div class="info-value">
+                    <ul class="social-networks">
+                        
+                        <li>
+                            <strong>Facebook:</strong>
+                            <a href="https://www.facebook.com/mezquitacordoba" target="_blank">https://www.facebook.com/mezquitacordoba</a>
+                        </li>
+                        
+                        <li>
+                            <strong>Twitter:</strong>
+                            <a href="https://twitter.com/mezquitacordoba" target="_blank">https://twitter.com/mezquitacordoba</a>
+                        </li>
+                        
+                        <li>
+                            <strong>Instagram:</strong>
+                            <a href="https://www.instagram.com/mezquitacordoba" target="_blank">https://www.instagram.com/mezquitacordoba</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:right; margin-top: 2cm; font-size:1em; color:#000; font-family: 'Poppins', sans-serif;">
+            Fecha de publicación: 11 de mayo del 2025
+        </div>
+    </div>
+</body>
+</html> 
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta de compromiso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+        .page {
+            padding: 2.5cm 2cm 2.5cm 2cm;
+            min-height: 100%;
+            box-sizing: border-box;
+            background-color: #F3DCB8;
+        }
+        .simple-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+        .simple-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #222;
+        }
+        @media print {
+            body, .page {
+                background-color: #F3DCB8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="simple-title">Carta de compromiso</div>
+        <div class="simple-content">
+<p>Estimado Sr. Deán-Presidente,</p>
+<p>Por medio de la presente, yo, Ana Pérez García, deseo expresar mi profundo respeto y admiración por la Mezquita-Catedral de Córdoba, un monumento que considero un tesoro invaluable para la historia, la cultura y el patrimonio no solo de Córdoba y Andalucía, sino del mundo entero. Reconozco la trascendental importancia de este lugar como testimonio de la convivencia histórica y su actual relevancia como espacio de culto, conservación del patrimonio y promoción cultural. Consciente de la responsabilidad colectiva de preservar y apoyar este emblemático monumento, me comprometo a contribuir de la siguiente manera:</p>
+<ol start="1"><li>A visitar y tratar la Mezquita-Catedral con el máximo respeto, siguiendo las normativas establecidas para su conservación y el bienestar de los visitantes y fieles.</li><li>A difundir y promover la riqueza histórica, artística y cultural de la Mezquita-Catedral entre mi círculo personal y a través de los medios a mi alcance.</li><li>A considerar la posibilidad de realizar una donación puntual para contribuir a sus labores de mantenimiento y conservación.</li><li>A mostrar interés en participar en futuras actividades culturales que el Cabildo pudiera organizar.</li></ol>
+<p>Entiendo y apoyo la triple misión de la Mezquita-Catedral como lugar de culto cristiano, espacio de conservación del patrimonio y centro de promoción cultural. Mi compromiso se alinea con el deseo de asegurar que este legado perdure para las generaciones futuras.</p>
+</div>
+    </div>
+</body>
+</html> <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta de compromiso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+        .page {
+            padding: 2.5cm 2cm 2.5cm 2cm;
+            min-height: 100%;
+            box-sizing: border-box;
+            background-color: #F3DCB8;
+        }
+        .simple-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+        .simple-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #222;
+        }
+        @media print {
+            body, .page {
+                background-color: #F3DCB8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="simple-title">Carta de compromiso</div>
+        <div class="simple-content"><p>Agradezco de antemano la labor que el Cabildo Catedral realiza en la custodia y promoción de este magnífico monumento. Espero que mi humilde compromiso pueda ser de alguna utilidad para alcanzar sus importantes objetivos.</p>
+<p>Quedo a su disposición para cualquier aclaración o colaboración que consideren oportuna.</p>
+<p>Atentamente,</p>
+<p>[Firma Ficticia]</p>
+<p>Ana Pérez García</p></div>
+    </div>
+</body>
+</html> 
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de items</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+        .page {
+            padding: 2.5cm 2cm 2.5cm 2cm;
+            min-height: 100%;
+            box-sizing: border-box;
+            background-color: #F3DCB8;
+        }
+        .simple-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+        .simple-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #222;
+        }
+        @media print {
+            body, .page {
+                background-color: #F3DCB8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="simple-title">Lista de items</div>
+        <div class="simple-content"><ul><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li></ul></div>
+    </div>
+</body>
+</html> <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de items</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+        .page {
+            padding: 2.5cm 2cm 2.5cm 2cm;
+            min-height: 100%;
+            box-sizing: border-box;
+            background-color: #F3DCB8;
+        }
+        .simple-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+        .simple-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #222;
+        }
+        @media print {
+            body, .page {
+                background-color: #F3DCB8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="simple-title">Lista de items</div>
+        <div class="simple-content"><ul><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1Item 1 Item 1 <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li></ul></div>
+    </div>
+</body>
+</html> <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de items</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+        .page {
+            padding: 2.5cm 2cm 2.5cm 2cm;
+            min-height: 100%;
+            box-sizing: border-box;
+            background-color: #F3DCB8;
+        }
+        .simple-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+        .simple-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #222;
+        }
+        @media print {
+            body, .page {
+                background-color: #F3DCB8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="simple-title">Lista de items</div>
+        <div class="simple-content"><ul><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1 Item 1  <a href="https://www.google.com" target="_blank">https://www.google.com</a></li><li>Item 2</li><li>Item 3</li><li>Item 4</li><li>Item 5</li></ul> </div>
+    </div>
+</body>
+</html> 
+    </body>
+    </html>
+    

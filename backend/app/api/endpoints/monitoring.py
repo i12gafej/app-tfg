@@ -10,7 +10,7 @@ from app.schemas.action_plan import SpecificObjective, Action, PerformanceIndica
 from app.crud import material_topics as crud_material_topics
 from app.crud import action_plan as crud_action_plan
 from app.crud import ods as crud_ods
-from app.templates.monitoring_templates import generate_monitoring_template
+from app.utils.monitoring_templates import generate_monitoring_template
 
 
 router = APIRouter()
