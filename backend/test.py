@@ -11,6 +11,7 @@ def test_report_generation():
     
     # Construir rutas de las imágenes
     cover_image = os.path.join(settings.COVERS_DIR, "report_5_cover_b5a4e4b3-1357-495b-b28f-bbc9dee2cc0f.jpg")
+    ods = os.path.join(settings.COVERS_DIR, "image.png")
     logo1 = os.path.join(settings.LOGOS_DIR, "report_5_logo_9b749bc4-2d5a-4410-8d8d-c6112131e8b6.jpg")
     logo2 = os.path.join(settings.LOGOS_DIR, "report_5_logo_74d82581-240e-4881-a2d7-7b010c9e4cbb.jpg")
     
@@ -30,6 +31,16 @@ def test_report_generation():
         "year": "2024"
     }
     
+    photo_data = {
+        "photo_url": cover_image,
+        "description": "Foto de la Mezquita-Catedral de Córdoba"
+    }
+
+    photo_data_2 = {
+        "photo_url": ods,
+        "description": ""
+    }
+
     # Datos para la página de categorización
     resource_data = {
         "name": "Mezquita-Catedral de Córdoba",
@@ -114,17 +125,26 @@ def test_report_generation():
     # Paginar el texto simple
     pages = generator.paginate_html_text(simple_text_data["text"], max_lines=60, chars_per_line=35)  # Puedes ajustar el límite
     simple_text_html = ""
-    for page in pages:
-        simple_text_html += generator.generate_simple_text({"title": simple_text_data["title"], "text": page})
+    for page,i in zip(pages, range(1, len(pages) + 1)):
+        if i == 1:
+            simple_text_html += generator.generate_simple_text({"title": simple_text_data["title"], "text": page})
+        else:
+            simple_text_html += generator.generate_simple_text({"title": "", "text": page})
     
     lista_items_html = generator.generate_list_text({"items": lista_items})
     pages = generator.paginate_html_text(lista_items_html, max_lines=60, chars_per_line=40)  # Puedes ajustar el límite
     lista_items_html = ""
-    for page in pages:
-        lista_items_html += generator.generate_simple_text({"title": "Lista de items", "text": page})
+    for page,i in zip(pages, range(1, len(pages) + 1)):
+        if i == 1:
+            lista_items_html += generator.generate_simple_text({"title": "Lista de items", "text": page})
+        else:
+            lista_items_html += generator.generate_simple_text({"title": "", "text": page})
 
     # Generar las páginas
     cover_html = generator.generate_cover(cover_data)
+    photo_html = generator.generate_photo(photo_data)
+    text_ods = generator.generate_simple_text({"title": "", "text": "Personas (People). Poner fin a la pobreza y el hambre en todas sus formas y asegurar la dignidad e igualdad de todas las personas. En este apartado se engloban los siguientes ODS: <p>1.1. Poner fin a la pobreza en todas sus formas y en todos los países.</p>"})
+    ods_html = generator.generate_photo(photo_data_2)
     resource_html = generator.generate_resource_info(resource_data)
     
     # Combinar las páginas en un solo HTML con todos los estilos
@@ -211,6 +231,9 @@ def test_report_generation():
         {resource_html}
         {simple_text_html}
         {lista_items_html}
+        {photo_html}
+        {text_ods}
+        {ods_html}
     </body>
     </html>
     """
