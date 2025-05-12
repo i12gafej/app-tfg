@@ -24,6 +24,9 @@ class Settings(BaseModel):
     REPORTS_DIR: Path = UPLOADS_DIR / "reports"
     ORGANIZATION_CHART_DIR: Path = UPLOADS_DIR / "organization_charts"
 
+    # Rutas de imágenes para reportes
+    ON_REPORT_DIR: str = STATIC_DIR / "on_report"
+
     # Constantes para el procesamiento de imágenes
     A4_RATIO: float = 1.4142  # Ratio de A4 (297mm/210mm)
     A4_WIDTH: int = 2480    # Ancho en píxeles para 300 DPI
@@ -37,12 +40,16 @@ class Settings(BaseModel):
     MYSQL_PORT: str = "3306"
     #BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+    
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         escaped_password = quote_plus(self.MYSQL_PASSWORD)
         uri = f"mysql+pymysql://{self.MYSQL_USER}:{escaped_password}@{self.MYSQL_SERVER}:{self.MYSQL_PORT}/{self.MYSQL_DB}"
         logger.info(f"URI de conexión a la base de datos: {uri}")
         return uri
+
+   
 
     class Config:
         case_sensitive = True

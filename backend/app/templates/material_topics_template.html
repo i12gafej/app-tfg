@@ -1,0 +1,39 @@
+<style>
+    .material-topics {
+        margin: 20px 0;
+    }
+    .dimension-title {
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 5px;
+    }
+    .topic-list {
+        padding-left: 20px;
+    }
+    .topic-title {
+        font-weight: bold;
+        color: #444;
+    }
+    .topic-description {
+        color: #666;
+        margin-top: 5px;
+    }
+</style>
+    {% set dimensions = ['PLANETA', 'PERSONAS', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'] %}
+    {% for dimension in dimensions %}
+        {% set dimension_topics = material_topics|selectattr('dimension', 'equalto', dimension)|list %}
+        {% if dimension_topics %}
+            <h2 class="dimension-title">{{ dimension }}</h2>
+            <ul class="topic-list">
+                {% for topic in dimension_topics %}
+                    <li>
+                        <span class="topic-title">{{ topic.title }}</span>
+                        <p class="topic-description">{{ topic.description }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        </br>
+    {% endfor %}

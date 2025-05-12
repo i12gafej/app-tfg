@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODS y Dimensiones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        .page {
+            padding: 2cm;
+            height: 100%;
+            box-sizing: border-box;
+            background-color: #F3DCB8;
+        }
+
+        .container-fluid {
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+
+        .col-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        .col {
+            flex: 1 0 0%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        h2, h3, h4 {
+            color: #000000;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .small {
+            font-size: 0.875em;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+                background-color: #F3DCB8 !important;
+            }
+            .page {
+                page-break-after: always;
+                background-color: #F3DCB8 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Introducción -->
+        <h2>Introducción a los ODS</h2>
+        <p>Con la adopción de la Agenda 2030 el 25 de septiembre de 2015 en Asamblea General de las Naciones Unidas, se estableció una visión transformadora para alcanzar el equilibrio en tres dimensiones: económica, social y ambiental; recogida en el documento final "Transformar nuestro mundo: la Agenda 2030 para el Desarrollo Sostenible". Donde además, se reconocía por primera vez el papel de la cultura en el desarrollo sostenible. Así, sus 17 objetivos y 169 metas, de alcance mundial y aplicación universal, serán la guía para la toma de decisiones en todos los países firmantes. Estos objetivos se engloban en cinco dimensiones interconectadas entre sí y cuyo fin es alcanzar el desarrollo sostenible.</p>
+        <p>Los 17 ODS se desarrollan en 169 metas y a su vez se miden por 244 indicadores, estableciendo un marco de acción global para el desarrollo sostenible. Esta iniciativa representa el compromiso más ambicioso de la comunidad internacional para abordar los desafíos más apremiantes de nuestro tiempo, desde la erradicación de la pobreza hasta la lucha contra el cambio climático, pasando por la promoción de la igualdad de género y la protección de los ecosistemas.</p>
+
+        <!-- Descripción de la Agenda 2030 -->
+        <p>Con la adopción de la Agenda 2030 el 25 de septiembre de 2015 en Asamblea General de las Naciones Unidas, se estableció una visión transformadora para alcanzar el equilibrio en tres dimensiones: económica, social y ambiental; recogida en el documento final "Transformar nuestro mundo: la Agenda 2030 para el Desarrollo Sostenible". Donde además, se reconocía por primera vez el papel de la cultura en el desarrollo sostenible. Así, sus 17 objetivos y 169 metas, de alcance mundial y aplicación universal, serán la guía para la toma de decisiones en todos los países firmantes. Estos objetivos se engloban en cinco dimensiones interconectadas entre sí y cuyo fin es alcanzar el desarrollo sostenible.</p>
+    </div>
+    <div class="page">
+        <!-- Imagen 5P -->
+        <div class="text-center mb-4">
+            <img src="{{ ods['5p'] }}" alt="Las 5 P del Desarrollo Sostenible" class="img-fluid">
+        </div>
+
+        <!-- Texto de interconexión -->
+        <p>El mundo está interconectado y, por esta razón, se considera que los ODS están integrados, lo que significa que la acción en un área afectará a los resultados de otras; factor muy importante que ha de tenerse en cuenta cuando el desarrollo sostenible busca encontrar el equilibrio entre el desarrollo social, el crecimiento económico y la protección del medioambiente.</p>
+        <p>Todos los ODS son igual de prioritarios y no podrán alcanzarse sin lograr cada uno de ellos.</p>
+        <p>Los objetivos son universalmente aplicables a países en desarrollo y desarrollados. Los países se han comprometido a priorizar el progreso de los más rezagados.</p>
+    </div>
+    <div class="page">
+        <p>Además, los ODS son el resultado del proceso de consultas más amplio y participativo de la historia de Naciones Unidas y representa el consenso multilateral entre gobiernos y actores diversos, como la sociedad civil, el sector privado y la academia.</p>
+        <p>La creatividad, el conocimiento, la tecnología y los recursos financieros de todo el mundo son necesarios para alcanzar los ODS en todos los contextos.</p>
+    
+        <!-- Dimensiones y ODS -->
+        <h3>Dimensiones y ODS</h3>
+        <p>Por lo tanto, entendemos por asuntos de materialidad aquellos temas relevantes en materia de sostenibilidad de un recurso patrimonial, prestando especial atención a sus principales impactos y riesgos, estando estrechamente ligados con los Objetivos de Desarrollo Sostenible (ODS). Estos condicionantes es necesario gestionarlos y transmitir la información obtenida.</p>
+        <p>Estos ODS, a su vez, se han agrupado en las cinco dimensiones que plantea la Agenda 2030 del Desarrollo Sostenible, "Las 5 Ps del desarrollo: People, Planet, Prosperity, Peace and Partnership", alineadas con los 17 ODS.</p>
+
+        <!-- PERSONAS -->
+        <h4>PERSONAS</h4>
+        <div class="text-center">
+            
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['1'] }}" alt="ODS 1" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['2'] }}" alt="ODS 2" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['3'] }}" alt="ODS 3" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['4'] }}" alt="ODS 4" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['5'] }}" alt="ODS 5" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            
+        </div>
+        <div class="mt-3">
+            <p><strong>ODS 1</strong>. Poner fin a la pobreza en todas sus formas en todo el mundo.</p>
+            <p><strong>ODS 2</strong>. Poner fin al hambre, lograr la seguridad alimentaria y la mejora de la nutrición y promover la agricultura sostenible.</p>
+            <p><strong>ODS 3</strong>. Garantizar una vida sana y promover el bienestar para todos en todas las edades.</p>
+            <p><strong>ODS 4</strong>. Garantizar una educación inclusiva, equitativa y de calidad y promover oportunidades de aprendizaje durante toda la vida para todos.</p>
+            <p><strong>ODS 5</strong>. Lograr la igualdad entre los géneros y empoderar a todas las mujeres y niñas.</p>
+        </div>
+    </div>
+    <div class="page">
+        <!-- PLANETA -->
+        <h4>PLANETA</h4>
+        <div class="text-center">
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['6'] }}" alt="ODS 6" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['12'] }}" alt="ODS 12" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['13'] }}" alt="ODS 13" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['14'] }}" alt="ODS 14" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['15'] }}" alt="ODS 15" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            
+            
+            
+        </div>
+        <div class="mt-3">
+            <p><strong>ODS 6</strong>. Garantizar la disponibilidad de agua y su gestión sostenible y el saneamiento para todos.</p>
+            <p><strong>ODS 12</strong>. Garantizar modalidades de consumo y producción sostenibles.</p>
+            <p><strong>ODS 13</strong>. Adoptar medidas urgentes para combatir el cambio climático y sus efectos.</p>
+            <p><strong>ODS 14</strong>. Conservar y utilizar en formas sostenibles los océanos, los mares y los recursos marinos para el desarrollo sostenible.</p>
+            <p><strong>ODS 15</strong>. Proteger, restablecer y promover el uso sostenible de los ecosistemas terrestres, efectuar una ordenación sostenible de los bosques, luchar contra la desertificación, detener y revertir la degradación de las tierras y poner freno a la pérdida de diversidad biológica.</p>
+        </div>
+
+        <!-- PROSPERIDAD -->
+        <h4>PROSPERIDAD</h4>
+        <div class="text-center">
+            
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['7'] }}" alt="ODS 7" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['8'] }}" alt="ODS 8" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['9'] }}" alt="ODS 9" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['10'] }}" alt="ODS 10" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['11'] }}" alt="ODS 11" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+            
+        </div>
+        <div class="mt-3">
+            <p><strong>ODS 7</strong>. Garantizar el acceso a una energía asequible, segura, sostenible y moderna para todos.</p>
+            <p><strong>ODS 8</strong>. Promover el crecimiento económico sostenido, inclusivo y sostenible, el empleo pleno y productivo y el trabajo decente para todos.</p>
+            <p><strong>ODS 9</strong>. Construir infraestructuras resilientes, promover la industrialización inclusiva y sostenible y fomentar la innovación.</p>
+            <p><strong>ODS 10</strong>. Reducir la desigualdad en y entre los países.</p>
+            <p><strong>ODS 11</strong>. Conseguir que las ciudades y los asentamientos humanos sean inclusivos, seguros, resilientes y sostenibles.</p>
+        </div>
+    </div>
+    <div class="page">
+
+        <!-- PAZ -->
+        <h4>PAZ</h4>
+        <div class="text-center">
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['16'] }}" alt="ODS 16" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+        </div>
+        <div class="mt-3">
+            <p><strong>ODS 16</strong>. Promover sociedades pacíficas e inclusivas para el desarrollo sostenible, facilitar el acceso a la justicia para todos y crear instituciones eficaces, responsables e inclusivas a todos los niveles.</p>
+        </div>
+
+        <!-- ALIANZAS -->
+        <h4>ALIANZAS</h4>
+        <div class="text-center">
+            <span style="display:inline-block; margin:0 10px;">
+                <img src="{{ ods['17'] }}" alt="ODS 17" class="img-fluid mb-2" style="max-width: 100px;">
+                
+            </span>
+        </div>
+        <div class="mt-3">
+            <p><strong>ODS 17</strong>. Fortalecer los medios de ejecución y revitalizar la alianza mundial para el desarrollo sostenible.</p>
+        </div>
+    </div>
+    <div class="page">
+
+        <!-- Contribución del patrimonio a los ODS -->
+        <h3>Contribución del patrimonio a los ODS</h3>
+        <p>La Agenda 2030 se refiere por primera vez a la cultura en el marco de los 17 ODS adoptados en septiembre de 2015 por Naciones Unidas.</p>
+        <p>La salvaguardia y la promoción de la cultura son dos fines de la agenda para el desarrollo sostenible y, al mismo tiempo, medios que contribuyen a la consecución de muchos ODS.</p>
+        <p>Los ODS trascienden el propósito exclusivo del crecimiento económico para idear un futuro mejor basado en la prosperidad, equidad, inclusión, paz y protección del medioambiente. Esta visión audaz sobre las capacidades del patrimonio requiere respuestas creativas que sustituyan los enfoques lineales y sectoriales habituales.</p>
+        <p>El programa internacional de desarrollo refleja una visión más amplia de la cultura, que incluye su papel en el desarrollo sostenible a través del patrimonio cultural y natural, las industrias culturales y creativas, la cultura y los productos locales, la creatividad y la innovación, las comunidades autóctonas, los materiales tradicionales y la diversidad cultural.</p>
+        <p>Además, la experiencia y la investigación han demostrado la importancia de los conocimientos y de la participación de las comunidades para lograr el desarrollo sostenible.</p>
+        <p>De esta manera, el patrimonio puede considerarse como un motor que contribuye directamente a la obtención de beneficios sociales, económicos y medioambientales, y también como un instrumento que mejora la eficacia de los programas de desarrollo, tal y como vamos a describir con ejemplos a continuación:</p>
+    
+        <ul>
+            <li>El patrimonio puede contribuir a erradicar la pobreza extrema mediante la rehabilitación de edificios urbanos históricos, con pleno respeto a los valores patrimoniales y proporcionando acceso a infraestructuras y servicios básicos, como energía, agua potable y sistemas de saneamiento.</li>
+            <li>El patrimonio inmaterial, incluyendo los conocimientos y habilidades locales, puede ayudar a reducir la exposición y la vulnerabilidad a fenómenos extremos relacionados con el clima y otros problemas y desastres ambientales.</li>
+        </ul>
+    </div>
+    <div class="page">
+        <ul>
+            <li>El patrimonio, en particular los paisajes agrícolas y culturales, puede proporcionar servicios y beneficios a los ecosistemas, así como seguridad alimentaria y de sustento para millones de personas.</li>
+            <li>El patrimonio es fundamental para garantizar vidas saludables y el bienestar para todo el mundo, en todas las edades, incluso en paisajes culturales, espacios públicos y áreas urbanas históricas.</li>
+            <li>Es importante que un recurso patrimonial se gestione de forma sostenible para asegurar su conservación y que las generaciones presentes y futuras no dejen de desarrollar sus capacidades ligadas al bienestar y a la calidad de vida.</li>
+            <li>El patrimonio, material e inmaterial, proporciona oportunidades de aprendizaje enriquecidas a través de objetos, lugares y experiencias que involucran el intelecto, las emociones y sentidos, proporcionando oportunidades vívidas y vivenciales para descubrir el pasado, entender el mundo que nos rodea y fortalecer un sentido de identidad.</li>
+            <li>El patrimonio proporciona ejemplos claros de cómo la mujer contribuye al desarrollo local y global como profesional del sector y como transmisora de las prácticas, saberes y otras expresiones culturales a las generaciones futuras.</li>
+            <li>El uso viable y continuado del agua, basado en métodos tradicionales, ofrece valiosas lecciones a sus responsables –profesionales de la ingeniería ambiental, de la arquitectura, paisajistas y responsables de la planificación del urbanismo–, demostrando cómo los sistemas de agua funcionaron en el pasado y brindan oportunidades de adopción o adaptación de iniciativas para apoyar o diseñar prácticas sostenibles para el futuro.</li>
+            <li>El mantenimiento y la gestión adecuados y una cuidadosa adaptación de los edificios existentes conduce a una mayor eficiencia energética, mientras se reduce parcialmente la necesidad de nuevos edificios que consumen energía en todas las fases de construcción y requieren estrategias de gestión de residuos.</li>
+            <li>También puede reducir el consumo de energía la adopción de métodos, materiales y técnicas de construcción sostenibles tradicionales diseñadas en su momento para combatir el clima y compatibles con el estilo de vida local, y que además utilizaban materiales renovables y de origen local. Cuando los enfoques tradicionales no son sostenibles, se deben considerar las soluciones energéticas alternativas y respetuosas con el medioambiente.</li>
+        </ul>
+    </div>
+    <div class="page">
+        <ul>
+            
+            <li>El capital social, cultural y natural de los lugares patrimoniales juega un papel importante en la atracción de industrias creativas, empresas, habitantes y visitantes, fomentando el crecimiento económico y la prosperidad. Estas actividades económicas deben ser una oportunidad para crear empleo decente, fomentar el desarrollo económico inclusivo y local, y evitar la gentrificación.</li>
+            <li>Las prácticas y los sitios patrimoniales pueden ofrecer plataformas de intercambio para compartir identidades y experiencias, que ayudan a paliar las desigualdades sociales y favorecen la cohesión social y la dignidad de las comunidades.</li>
+            <li>Los sitios y prácticas patrimoniales encarnan muchos patrones de consumo y producción sostenibles, basados en una comprensión del uso razonable y reutilización de los recursos naturales y en la confianza en los materiales locales.</li>
+            <li>En la búsqueda de sociedades más justas, inclusivas y pacíficas, el patrimonio puede ofrecer oportunidades de acercamiento cultural entre las personas, fomentando el entendimiento mutuo, la tolerancia y la paz.</li>
+            <li>Además, los vínculos identitarios que generan los bienes culturales contribuyen a la participación de la ciudadanía en los procesos de toma de decisiones sobre su entorno local y territorial.</li>
+            <li>Los procesos de conservación y gestión del patrimonio cultural y natural aseguran alianzas, es decir, colaboraciones interdisciplinares, intergeneracionales e intersectoriales entre las administraciones, mundo académico, organizaciones públicas y privadas, personal experto y sociedad civil.</li>
+            <li>La sostenibilidad es un estilo de vida, es un compromiso del individuo en su escala personal y profesional con las futuras generaciones. Viviendo y sintiendo el patrimonio se trabajan valores como la responsabilidad, respeto, empatía, solidaridad, esfuerzo, creatividad, austeridad, tolerancia, diálogo, diversidad, compromiso, fraternidad, sentido común; actitudes necesarias para modificar nuestros hábitos y comportamientos a favor de las personas y la naturaleza.</li>
+        </ul>
+    </div>
+    
+</body>
+</html>

@@ -84,11 +84,32 @@ class ReportGenerator:
     def generate_diagnosis_text(self, data: Dict[str, Any]) -> str:
         """
         Genera el texto de diagnóstico con imágenes de ODS y dimensiones.
+        Args:
+            data: Diccionario con los datos necesarios para el diagnóstico
+                - ods: Diccionario con las rutas de las imágenes de ODS y 5P
         Returns:
             str: HTML renderizado del diagnóstico
         """
-        template = self.template_env.get_template("diagnosis_text_template.html")
-        return template.render(data=data)
+        # Renderizar el template principal de ODS y dimensiones
+        ods_template = self.template_env.get_template("ods_dimension_template.html")
+        
+        # Preparar los datos para el template
+        template_data = {
+            'ods': data.get('ods')
+        }
+        
+        return ods_template.render(**template_data)
+
+    def generate_material_topics_text(self, material_topics: List[Dict[str, Any]]) -> str:
+        """
+        Genera el texto de los asuntos de materialidad.
+        Args:
+            material_topics: Lista de asuntos de materialidad
+        Returns:
+            str: HTML renderizado de los asuntos de materialidad
+        """
+        template = self.template_env.get_template("material_topics_template.html")
+        return template.render(material_topics=material_topics)
 
     def generate_diagnosis_impact_tables(self, data: Dict[str, Any]) -> str:
         """
