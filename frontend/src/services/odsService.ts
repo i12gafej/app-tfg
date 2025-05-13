@@ -235,3 +235,16 @@ export const odsService = {
     }
   }
 };
+
+export const ODS_COLORS: { [key: string]: string } = {
+  "ODS 1": "#EB1C2D",   "ODS 2": "#D3A029",   "ODS 3": "#279B48",
+  "ODS 4": "#C31F33",   "ODS 5": "#EF412C",   "ODS 6": "#01AED9",
+  "ODS 7": "#fcc30b",   "ODS 8": "#8F1A39",   "ODS 9": "#F36F28",
+  "ODS 10": "#E21A87",  "ODS 11": "#F99D28",  "ODS 12": "#CF8D2A",
+  "ODS 13": "#49793F",  "ODS 14": "#007DBC",  "ODS 15": "#3FB04A",
+  "ODS 16": "#04568C",  "ODS 17": "#1A386A"
+};
+
+export function getODSColor(odsNumber: number): string {
+  return ODS_COLORS[`ODS ${odsNumber}`] || "#ccc";
+}

@@ -14,6 +14,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/context/ReportContext';
 import { graphsService } from '@/services/graphsService';
+import { odsService, getODSColor, ODS } from '@/services/odsService';
 
 const Graphs = () => {
   const { token } = useAuth();
@@ -22,6 +23,7 @@ const Graphs = () => {
   const [error, setError] = useState<string | null>(null);
   const [mainImpactsGraph, setMainImpactsGraph] = useState<string | null>(null);
   const [secondaryImpactsGraph, setSecondaryImpactsGraph] = useState<string | null>(null);
+  const [odsList, setOdsList] = useState<ODS[]>([]);
 
   const handleGenerateGraphs = async () => {
     if (!token || !report) return;
@@ -44,6 +46,20 @@ const Graphs = () => {
     }
   };
 
+  // Obtener ODS dinámicamente
+  useEffect(() => {
+    const fetchODS = async () => {
+      if (!token) return;
+      try {
+        const data = await odsService.getAllODS(token);
+        setOdsList(data.items);
+      } catch (e) {
+        // Manejo de error opcional
+      }
+    };
+    fetchODS();
+  }, [token]);
+
   // Generar gráficas automáticamente al cargar el componente
   useEffect(() => {
     if (token && report) {
@@ -61,11 +77,81 @@ const Graphs = () => {
     document.body.removeChild(link);
   };
 
+  // Leyenda dinámica de ODS
+  const ODSLegend = () => (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(6, 1fr)',
+        gap: 2,
+        background: '#eaf3d2',
+        borderRadius: 2,
+        p: 2,
+        mb: 3,
+        alignItems: 'center',
+        justifyItems: 'center'
+      }}
+    >
+      {odsList.map(ods => (
+        <Tooltip
+          key={ods.id}
+          title={`ODS ${ods.id}: ${ods.name}`}
+          arrow
+          placement="top"
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              minWidth: 90,
+              maxWidth: 130,
+              p: 0.5
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+              <Box
+                sx={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: 2,
+                  background: getODSColor(ods.id),
+                  mr: 1,
+                  border: '1px solid #888',
+                  flexShrink: 0
+                }}
+              />
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                ODS {ods.id}
+              </Typography>
+            </Box>
+            <Typography
+              variant="body2"
+              sx={{
+                color: '#222',
+                fontSize: '0.85em',
+                whiteSpace: 'normal',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: 110
+              }}
+            >
+              {ods.name}
+            </Typography>
+          </Box>
+        </Tooltip>
+      ))}
+    </Box>
+  );
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
         Gráficos de Impactos ODS
       </Typography>
+
+      
 
       <Box sx={{ mb: 3 }}>
         <Button
@@ -156,6 +242,8 @@ const Graphs = () => {
           </Grid>
         </Grid>
       </Box>
+      {/* Leyenda de ODS */}
+      <ODSLegend />
     </Box>
   );
 };

@@ -385,12 +385,7 @@ async def delete_report_endpoint(
             detail=f"Error al eliminar la memoria: {str(e)}"
         )
 
-@router.post("/reports/publish/{report_id}")
-async def publish_report_endpoint(
-    report_id: int,
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
+
     
 
 @router.get("/reports/norms/{report_id}", response_model=List[ReportNorm])
