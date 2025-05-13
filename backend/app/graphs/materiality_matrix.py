@@ -14,12 +14,13 @@ logger = logging.getLogger(__name__)
 
 # Definición de dimensiones y colores
 DIMENSION_COLORS = {
-    "PERSONAS": "#7ec7f4",
-    "PLANETA": "#81c43b",
-    "PROSPERIDAD": "#f3c244",
-    "PAZ": "#a897d4",
-    "ALIANZAS": "#e379c1"
+    "PERSONAS": "#d8dcf4",
+    "PLANETA": "#c8dcb4",
+    "PROSPERIDAD": "#ffe4c4",
+    "PAZ": "#c8e4f4",
+    "ALIANZAS": "#e0cce4"
 }
+
 
 def get_dimension_by_ods(ods_id: int) -> str:
     """Determina la dimensión basada en el ODS."""

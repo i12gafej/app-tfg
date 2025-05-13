@@ -36,11 +36,11 @@ interface ODSImpact {
 
 // Definir los colores por dimensión
 const DIMENSION_COLORS: { [key in Dimension]: string } = {
-  'Personas': '#D3DDF2',
-  'Planeta': '#C1DDB0',
-  'Prosperidad': '#F9E4C7',
-  'Paz': '#C6E6F5',
-  'Alianzas': '#DCCAE4'
+  'Personas': '#d8dcf4',
+  'Planeta': '#c8dcb4',
+  'Prosperidad': '#ffe4c4',
+  'Paz': '#c8e4f4',
+  'Alianzas': '#e0cce4'
 };
 
 // Mapeo de ODS a dimensiones

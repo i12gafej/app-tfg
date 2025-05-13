@@ -1,81 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foto</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-            width: 21cm;
-            height: 29.7cm;
-            margin: 0 auto;
-            box-sizing: border-box;
-            background-color: #ffffff;
-            color: #000;
-        }
-        .photo-page {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            padding: 2cm;
-            background: #F3DCB8;
-        }
-        .photo-container {
-            max-width: 15cm;
-            max-height: 20cm;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-        .photo-img {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto;
-            border-radius: 0.5em;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        }
-        .photo-caption {
-            margin-top: 1em;
-            text-align: center;
-            font-size: 1.1em;
-            color: #333;
-        }
-        @media print {
-            body, .photo-page {
-                background-color: #F3DCB8 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="photo-page">
-        <div class="photo-container">
-            <img src="{{ data.photo_url }}" alt="{{ data.description }}" class="photo-img">
-        </div>
-        {% if data.description %}
-        <div class="photo-caption">{{ data.description }}</div>
-        {% endif %}
+
+<div class="photo-page" {% if background_color %}style="background-color: {{ background_color }};"{% endif %}>
+    <div class="photo-container">
+        <img src="{{ data.photo_url }}" alt="{{ data.description }}" class="photo-img">
     </div>
-</body>
-</html> 
+    {% if data.description %}
+    <div class="photo-caption">{{ data.description }}</div>
+    {% endif %}
+</div>

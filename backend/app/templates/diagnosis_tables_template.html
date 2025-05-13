@@ -1,0 +1,68 @@
+{% set dimension_colors = {
+    'Personas': '#d8dcf4',
+    'Planeta': '#c8dcb4',
+    'Prosperidad': '#ffe4c4',
+    'Paz': '#c8e4f4',
+    'Alianzas': '#e0cce4'
+} %}
+
+{% set ordered_dimensions = ['Planeta', 'Personas', 'Prosperidad', 'Paz', 'Alianzas'] %}
+
+{{ intro_text | safe }}
+
+{% for dimension in ordered_dimensions %}
+    {% for item in data['material_topics'] if item['dimension'] == dimension %}
+        <a id="diagnosis-{{ item['topic']|replace(' ', '-') }}"></a>
+        <h2 class="dimension-title">{{ item['dimension'] }}</h2>
+        <table class="table" style="border: 3px solid #000;">
+            <tr>
+                <th class="narrow-th">Dimensión</th>
+                <td class="subheader" style="background-color: {{ dimension_colors[item['dimension']] }};">
+                    {{ item['dimension'] }}
+                </td>
+            </tr>
+            <tr>
+                <th  class="narrow-th">Asunto de Materialidad</th>
+                <td>{{ item['topic'] }}</td>
+            </tr>
+            <tr>
+                <th class="narrow-th">ODS principal</th>
+                <td>{{ item['main_ODS'] }}</td>
+            </tr>
+            {% if not show_indicators %}
+            <tr>
+                <th class="narrow-th">Meta ODS principal</th>
+                <td>{{ item['main_ODS_goal'] }}</td>
+            </tr>
+            <tr>
+                <th class="narrow-th">ODS secundarios</th>
+                <td>
+                    {% for ods in item['secondary_ODS'] %}
+                        {{ ods }}{% if not loop.last %} <br> {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endif %}
+            {% if show_indicators %}
+            <tr>
+                <th colspan="2" class="category">Indicadores cualitativos</th>
+            </tr>
+            {% for indicator in item['qualitative_indicators'] %}
+            <tr>
+                <td>{{ indicator['name'] }}</td>
+                <td>{{ indicator['response'] }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th colspan="2" class="category">Indicadores cuantitativos</th>
+            </tr>
+            {% for indicator in item['quantitative_indicators'] %}
+            <tr>
+                <td>{{ indicator['name'] }}</td>
+                <td>{{ indicator['response'] }} {% if indicator['unit'] %} <span style="color: #888;">({{ indicator['unit'] }})</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </table>
+    {% endfor %}
+{% endfor %}

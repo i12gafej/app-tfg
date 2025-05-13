@@ -1,0 +1,131 @@
+{% for item in data['action_plan'] %}
+<a id="actionplan-{{ item['topic']|replace(' ', '-') }}"></a>
+<table class="table" style="border: 1px solid #f8b4c4;">
+    <tr>
+        <th colspan="5" class="narrow-th">Dimensión</th>
+        <td class="subheader">{{ item['dimension'] }}</td>
+    </tr>
+    <tr>
+        <th colspan="5" class="narrow-th">Asunto de Materialidad</th>
+        <td>{{ item['topic'] }}</td>
+    </tr>
+    <tr>
+        <th colspan="5" class="narrow-th">Prioridad</th>
+        <td>{{ item['priority'] }}</td>
+    </tr>
+    <tr>
+        <th colspan="5" class="narrow-th">Objetivo principal</th>
+        <td>{{ item['main_objective'] }}</td>
+    </tr>
+    <tr>
+        <th colspan="6" class="category">Objetivos específicos, acciones e indicadores</th>
+    </tr>
+    {% for obj in item['specific_objectives'] %}
+    <!-- Objetivo específico -->
+    <tr style="border-top: 4px solid #000;">
+        <td class="tab-cell first-empty-cell"></td>
+        <td colspan="4"><strong>Objetivo específico:</strong></td>
+        <td>{{ obj['objective'] }}</td>
+    </tr>
+    {% if show_responsible %}
+    <tr>
+        <td class="tab-cell first-empty-cell"></td>
+        <td class="tab-cell empty-cell"></td>
+        <td colspan="3"><strong>Responsable:</strong></td>
+        <td>{{ obj['responsible'] }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td class="tab-cell first-empty-cell"></td>
+        <td class="tab-cell empty-cell"></td>
+        <td colspan="3"><strong>Tiempo de ejecución:</strong></td>
+        <td>{{ obj['execution_time'] }}</td>
+    </tr>
+        {% for action in obj['actions'] %}
+        <!-- Nombre de acción -->
+        <tr>
+            <td class="tab-cell first-empty-cell"></td>
+            <td class="tab-cell empty-cell"></td>
+            <td colspan="3"><strong>Acción:</strong></td>
+            <td>{{ action['action'] }}</td>
+        </tr>
+        <!-- Dificultad de acción -->
+        <tr>
+            <td class="tab-cell first-empty-cell"></td>
+            <td class="tab-cell empty-cell"></td>
+            <td class="tab-cell empty-cell"></td>
+            <td colspan="2"><strong>Dificultad:</strong></td>
+            <td>{{ action['difficulty'] }}</td>
+        </tr>
+
+        {% if show_indicators %}
+            {% for indicator in action['indicators'] %}
+            <!-- Nombre de indicador -->
+            <tr>
+                <td class="tab-cell first-empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td colspan="2"><strong>Indicador:</strong></td>
+                <td>{{ indicator['name'] }}</td>
+            </tr>
+            <!-- Tipo de indicador -->
+            <tr>
+                <td class="tab-cell first-empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td><strong>Tipo:</strong></td>
+                <td>{{ indicator['type'] }}</td>
+            </tr>
+            <!-- Recursos humanos -->
+            <tr>
+                <td class="tab-cell first-empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td><strong>Recursos humanos:</strong></td>
+                <td>{{ indicator['human_resources'] }}</td>
+            </tr>
+            <!-- Recursos materiales -->
+            <tr>
+                <td class="tab-cell first-empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td><strong>Recursos materiales:</strong></td>
+                <td>{{ indicator['material_resources'] }}</td>
+            </tr>
+            <tr>
+                <td class="tab-cell first-empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td><strong>Respuesta:</strong></td>
+                <td>{{ indicator['response'] }} {% if indicator['unit'] %} <span style="color: #888;">({{ indicator['unit'] }})</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="tab-cell first-empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td colspan="2"><strong>ODS Principal :</strong></td>
+                <td>{{ action['main_ODS'] }}</td>
+            </tr>
+            <tr>
+                <td class="tab-cell first-empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td class="tab-cell empty-cell"></td>
+                <td colspan="2"><strong>ODS Secundarios:</strong></td>
+                <td>
+                {% for ods in action['secondary_ODS'] %}
+                    {{ ods }}<br>
+                {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
+
+        {% endfor %}
+    {% endfor %}
+</table>
+{% endfor %}
