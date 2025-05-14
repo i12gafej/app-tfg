@@ -58,7 +58,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(isMobile ? 5 : 10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalStakeholders, setTotalStakeholders] = useState(0);
   const [selectedStakeholder, setSelectedStakeholder] = useState<Stakeholder | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -68,10 +68,11 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof Stakeholder>('name');
   const [userRole, setUserRole] = useState<'manager' | 'consultant' | 'external_advisor' | null>(null);
+  const [allStakeholders, setAllStakeholders] = useState<Stakeholder[]>([]);
 
   useEffect(() => {
-    setRowsPerPage(isMobile ? 5 : 10);
-  }, [isMobile]);
+    setRowsPerPage(5);
+  }, []);
 
   useEffect(() => {
     // Obtener el rol del usuario para este reporte
@@ -91,12 +92,12 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
 
   useEffect(() => {
     if (token) {
-      handleSearch(0);
+      handleSearch();
     }
     // eslint-disable-next-line
   }, [token, reportId]);
 
-  const handleSearch = async (newPage: number = 0) => {
+  const handleSearch = async () => {
     if (!token) return;
 
     try {
@@ -104,8 +105,6 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
       setError(null);
       
       const searchParams = {
-        page: newPage + 1,
-        per_page: rowsPerPage,
         report_id: reportId,
         ...(searchTerm && { search_term: searchTerm }),
         ...(filters.name && { name: filters.name }),
@@ -113,9 +112,9 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
       };
 
       const response = await stakeholderService.searchStakeholders(searchParams, token);
-      setStakeholders(response.items);
+      setAllStakeholders(response.items);
       setTotalStakeholders(response.total);
-      setPage(newPage);
+      setPage(0);
     } catch (err) {
       console.error('Error en la búsqueda:', err);
       setError('Error al buscar grupos de interés. Por favor, inténtalo de nuevo.');
@@ -124,15 +123,40 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
     }
   };
 
+  const handleRequestSort = (property: keyof Stakeholder) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const sortedStakeholders = React.useMemo(() => {
+    return [...allStakeholders].sort((a, b) => {
+      if (orderBy === 'name') {
+        return order === 'asc' 
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      }
+      if (orderBy === 'type') {
+        return order === 'asc'
+          ? a.type.localeCompare(b.type)
+          : b.type.localeCompare(a.type);
+      }
+      return 0;
+    });
+  }, [allStakeholders, order, orderBy]);
+
+  const paginatedStakeholders = React.useMemo(() => {
+    const start = page * rowsPerPage;
+    return sortedStakeholders.slice(start, start + rowsPerPage);
+  }, [sortedStakeholders, page, rowsPerPage]);
+
   const handleChangePage = (event: unknown, newPage: number) => {
-    handleSearch(newPage);
+    setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newRowsPerPage = parseInt(event.target.value, 10);
-    setRowsPerPage(newRowsPerPage);
+    setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-    handleSearch(0);
   };
 
   const handleFilterChange = (field: keyof SearchFilters, value: string | undefined) => {
@@ -145,7 +169,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
   const handleClearSearch = () => {
     setSearchTerm('');
     setFilters({});
-    handleSearch(0);
+    handleSearch();
   };
 
   const handleView = (stakeholder: Stakeholder) => {
@@ -168,25 +192,8 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
   };
 
   const handleStakeholderCreated = () => {
-    handleSearch(page);
+    handleSearch();
   };
-
-  const handleRequestSort = (property: keyof Stakeholder) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  const sortedStakeholders = React.useMemo(() => {
-    return [...stakeholders].sort((a, b) => {
-      if (orderBy === 'name') {
-        return order === 'asc' 
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      }
-      return 0;
-    });
-  }, [stakeholders, order, orderBy]);
 
   const isManager = userRole === 'manager';
 
@@ -214,7 +221,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
           height: '50px'
         }}>
           <IconButton 
-            onClick={() => handleSearch(page)}
+            onClick={handleSearch}
             sx={{ 
               color: 'primary.main',
               '&:hover': {
@@ -233,7 +240,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
-                handleSearch(0);
+                handleSearch();
               }
             }}
             InputProps={{
@@ -347,7 +354,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                   variant="contained"
-                  onClick={() => handleSearch(0)}
+                  onClick={handleSearch}
                   startIcon={<SearchIcon />}
                   size="small"
                 >
@@ -371,7 +378,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
         </Alert>
       )}
 
-      {stakeholders.length > 0 && (
+      {allStakeholders.length > 0 && (
         <TableContainer component={Paper} sx={{ mt: 2 }}>
           <Table>
             <TableHead>
@@ -385,12 +392,20 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
                     Nombre
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>Tipo</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'type'}
+                    direction={orderBy === 'type' ? order : 'asc'}
+                    onClick={() => handleRequestSort('type')}
+                  >
+                    Tipo
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedStakeholders.map((stakeholder) => (
+              {paginatedStakeholders.map((stakeholder) => (
                 <TableRow key={stakeholder.id}>
                   <TableCell>{stakeholder.name}</TableCell>
                   <TableCell>
@@ -417,31 +432,31 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
                       </Button>
                       {isManager && !readOnly && (
                         <>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
+                          <Button 
+                            variant="outlined" 
+                            size="small" 
                             color="view"
-                        fullWidth={isMobile}
-                        sx={{ 
-                          mr: isMobile ? 0 : 1,
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                        onClick={() => handleEdit(stakeholder)}
-                      >
-                        Editar
-                      </Button>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        color="error"
-                        fullWidth={isMobile}
-                        sx={{ 
-                          minWidth: isMobile ? '100%' : 'auto'
-                        }}
-                        onClick={() => handleDelete(stakeholder)}
-                      >
-                        Eliminar
-                      </Button>
+                            fullWidth={isMobile}
+                            sx={{ 
+                              mr: isMobile ? 0 : 1,
+                              minWidth: isMobile ? '100%' : 'auto'
+                            }}
+                            onClick={() => handleEdit(stakeholder)}
+                          >
+                            Editar
+                          </Button>
+                          <Button 
+                            variant="outlined" 
+                            size="small" 
+                            color="error"
+                            fullWidth={isMobile}
+                            sx={{ 
+                              minWidth: isMobile ? '100%' : 'auto'
+                            }}
+                            onClick={() => handleDelete(stakeholder)}
+                          >
+                            Eliminar
+                          </Button>
                         </>
                       )}
                     </Box>
@@ -465,7 +480,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
         </TableContainer>
       )}
 
-      {!loading && !error && stakeholders.length === 0 && searchTerm && (
+      {!loading && !error && allStakeholders.length === 0 && searchTerm && (
         <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
           No se encontraron grupos de interés que coincidan con la búsqueda.
         </Typography>
@@ -486,14 +501,14 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
             onClose={() => setEditOpen(false)}
             stakeholder={selectedStakeholder}
             token={token || ''}
-            onUpdate={() => handleSearch(page)}
+            onUpdate={() => handleSearch()}
           />
           <StakeholderDeleteDialog
             open={deleteOpen}
             onClose={() => setDeleteOpen(false)}
             stakeholder={selectedStakeholder}
             token={token || ''}
-            onDelete={() => handleSearch(page)}
+            onDelete={() => handleSearch()}
           />
             </>
           )}

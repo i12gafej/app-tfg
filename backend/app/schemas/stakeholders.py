@@ -33,8 +33,6 @@ class StakeholderSearch(BaseModel):
     name: Optional[str] = None
     type: Optional[StakeholderType] = None
     report_id: Optional[int] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
 
     class Config:
         json_schema_extra = {
@@ -42,8 +40,6 @@ class StakeholderSearch(BaseModel):
                 "search_term": "grupo",
                 "name": "Grupo A",
                 "type": "internal",
-                "report_id": 1,
-                "page": 1,
-                "per_page": 10
+                "report_id": 1
             }
         }

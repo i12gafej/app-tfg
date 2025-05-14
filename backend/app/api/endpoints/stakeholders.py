@@ -29,24 +29,14 @@ def search_stakeholders(
     Buscar grupos de interés con filtros opcionales.
     """
     try:
-        # Paginación
-        page = search_params.page or 1
-        per_page = search_params.per_page or 10
-        skip = (page - 1) * per_page
-
         stakeholders, total = crud_stakeholder.search(
             db=db,
             search_term=search_params.search_term,
             name=search_params.name,
             type=search_params.type,
-            report_id=search_params.report_id,
-            skip=skip,
-            limit=per_page
+            report_id=search_params.report_id
         )
 
-        total_pages = (total + per_page - 1) // per_page
-
-        # Convertir los stakeholders a esquema Pydantic
         stakeholders_schema = [
             Stakeholder(
                 id=stakeholder.id,
@@ -60,10 +50,7 @@ def search_stakeholders(
 
         return {
             "items": stakeholders_schema,
-            "total": total,
-            "page": page,
-            "per_page": per_page,
-            "total_pages": total_pages
+            "total": total
         }
 
     except Exception as e:

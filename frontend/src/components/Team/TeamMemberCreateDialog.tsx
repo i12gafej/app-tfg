@@ -14,7 +14,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { createTeamMember } from '@/services/teamService';
+import { teamService } from '@/services/teamService';
 
 interface TeamMemberCreateDialogProps {
   open: boolean;
@@ -75,7 +75,7 @@ const TeamMemberCreateDialog = ({
     setError(null);
 
     try {
-      await createTeamMember(resourceId, reportId, formData);
+      await teamService.createTeamMember(resourceId, reportId, formData);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al crear miembro del equipo');

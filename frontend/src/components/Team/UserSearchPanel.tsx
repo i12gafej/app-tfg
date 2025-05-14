@@ -19,7 +19,8 @@ import {
   CircularProgress,
   Alert,
   Typography,
-  alpha
+  alpha,
+  TablePagination
 } from '@mui/material';
 import { 
   Search as SearchIcon, 
@@ -30,8 +31,8 @@ import {
   ArrowUpward as ArrowUpwardIcon,
   ArrowDownward as ArrowDownwardIcon
 } from '@mui/icons-material';
-import { useState, useEffect, ChangeEvent } from 'react';
-import { searchAvailableUsers, User, TeamMember } from '@/services/teamService';
+import { useState, useEffect, ChangeEvent, useMemo } from 'react';
+import { teamService, User, TeamMember } from '@/services/teamService';
 import UserList from '@/components/Team/UserList';
 import TeamMemberAssignDialog from '@/components/Team/TeamMemberAssignDialog';
 import { DndProvider } from 'react-dnd';
@@ -61,7 +62,7 @@ const UserSearchPanel = ({
   teamMembers 
 }: UserSearchPanelProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [users, setUsers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -72,55 +73,20 @@ const UserSearchPanel = ({
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [sortField, setSortField] = useState<'name' | 'surname' | 'email'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [allUsers, setAllUsers] = useState<User[]>([]);
 
-  // Efecto para actualizar la lista de usuarios cuando cambien los miembros del equipo
-  useEffect(() => {
-    if (users.length > 0) {
-      // Si hay usuarios cargados, los filtramos de nuevo
-      const filteredUsers = users.filter(user => {
-        const isTeamMember = teamMembers.some(member => member.user_id === parseInt(user.id));
-        if (isTeamMember) return false;
-
-        if (filters.name && !user.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
-        if (filters.surname && !user.surname.toLowerCase().includes(filters.surname.toLowerCase())) return false;
-        if (filters.email && !user.email.toLowerCase().includes(filters.email.toLowerCase())) return false;
-        return true;
-      });
-      setUsers(filteredUsers);
-    }
-  }, [teamMembers]);
-
+  // Buscar usuarios disponibles
   const handleSearch = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const searchParams: any = {
-        page: 1,
-        per_page: 1000
-      };
-
-      if (searchTerm) {
-        searchParams.search_term = searchTerm;
-      }
-      if (filters.name) {
-        searchParams.name = filters.name;
-      }
-      if (filters.surname) {
-        searchParams.surname = filters.surname;
-      }
-      if (filters.email) {
-        searchParams.email = filters.email;
-      }
-
-      const response = await searchAvailableUsers(searchParams);
-      // Filtrar usuarios que ya son miembros del equipo
-      const availableUsers = response.items.filter(user => 
-        !teamMembers.some(member => member.user_id === parseInt(user.id))
-      );
-      setAllUsers(availableUsers);
-      
+      const searchParams: any = {};
+      if (searchTerm) searchParams.search_term = searchTerm;
+      if (filters.name) searchParams.name = filters.name;
+      if (filters.surname) searchParams.surname = filters.surname;
+      if (filters.email) searchParams.email = filters.email;
+      const response = await teamService.searchAvailableUsers(searchParams);
+      setAllUsers(response.items);
+      setPage(0);
     } catch (err) {
       console.error('Error en la búsqueda:', err);
       setError('Error al buscar usuarios. Por favor, inténtalo de nuevo.');
@@ -129,9 +95,35 @@ const UserSearchPanel = ({
     }
   };
 
+  // Filtrar usuarios que NO están en ningún miembro del equipo
+  const availableUsers = useMemo(() => {
+    return allUsers.filter(user =>
+      !teamMembers.some(member => member.user_id === parseInt(user.id))
+    );
+  }, [allUsers, teamMembers]);
+
+  // Ordenar
+  const sortedUsers = useMemo(() => {
+    return [...availableUsers].sort((a, b) => {
+      const aValue = a[sortField]?.toLowerCase() || '';
+      const bValue = b[sortField]?.toLowerCase() || '';
+      if (sortOrder === 'asc') {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+  }, [availableUsers, sortField, sortOrder]);
+
+  // Paginar
+  const paginatedUsers = useMemo(() => {
+    const start = page * rowsPerPage;
+    return sortedUsers.slice(start, start + rowsPerPage);
+  }, [sortedUsers, page, rowsPerPage]);
+
   const handleClearSearch = () => {
     setSearchTerm('');
-    setUsers([]);
+    setAllUsers([]);
   };
 
   const handleFilterChange = (field: keyof Filters, value: string) => {
@@ -154,37 +146,6 @@ const UserSearchPanel = ({
       setSortOrder('asc');
     }
   };
-
-  const sortUsers = (users: User[], field: 'name' | 'surname' | 'email', order: 'asc' | 'desc'): User[] => {
-    return [...users].sort((a, b) => {
-      const aValue = a[field]?.toLowerCase() || '';
-      const bValue = b[field]?.toLowerCase() || '';
-      if (order === 'asc') {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (allUsers.length > 0) {
-      const sorted = sortUsers(allUsers, sortField, sortOrder);
-      const start = page * rowsPerPage;
-      const end = start + rowsPerPage;
-      setUsers(sorted.slice(start, end));
-    }
-  }, [page, rowsPerPage, allUsers, sortField, sortOrder]);
-
-  const filteredUsers = users.filter(user => {
-    const isTeamMember = teamMembers.some(member => member.user_id === parseInt(user.id));
-    if (isTeamMember) return false;
-
-    if (filters.name && !user.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
-    if (filters.surname && !user.surname.toLowerCase().includes(filters.surname.toLowerCase())) return false;
-    if (filters.email && !user.email.toLowerCase().includes(filters.email.toLowerCase())) return false;
-    return true;
-  });
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -358,14 +319,14 @@ const UserSearchPanel = ({
           </Alert>
         )}
 
-        {!isLoading && !error && users.length === 0 && searchTerm && (
+        {!isLoading && !error && availableUsers.length === 0 && searchTerm && (
           <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
             No se encontraron usuarios que coincidan con la búsqueda.
           </Typography>
         )}
 
         <UserList 
-          users={filteredUsers} 
+          users={paginatedUsers} 
           isLoading={isLoading}
           onUserSelect={handleUserSelect}
         />
@@ -387,6 +348,21 @@ const UserSearchPanel = ({
             }}
           />
         )}
+
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 20]}
+          component="div"
+          count={availableUsers.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => setPage(newPage)}
+          onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Usuarios por página:"
+          labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
+        />
       </Box>
     </DndProvider>
   );

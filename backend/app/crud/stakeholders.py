@@ -71,9 +71,7 @@ def search(
     search_term: Optional[str] = None,
     name: Optional[str] = None,
     type: Optional[str] = None,
-    report_id: Optional[int] = None,
-    skip: int = 0,
-    limit: int = 100
+    report_id: Optional[int] = None
 ) -> tuple[List[Stakeholder], int]:
     try:
         query = db.query(Stakeholder)
@@ -97,7 +95,7 @@ def search(
             query = query.filter(Stakeholder.type == type)
 
         total = query.count()
-        stakeholders = query.offset(skip).limit(limit).all()
+        stakeholders = query.all()
 
         return stakeholders, total
     except Exception as e:

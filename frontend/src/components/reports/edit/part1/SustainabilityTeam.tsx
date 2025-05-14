@@ -8,10 +8,9 @@ import {
 } from '@mui/material';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { TeamMember } from '@/services/teamService';
 import { useReport } from '@/context/ReportContext';
 import { useAuth } from '@/hooks/useAuth';
-import { getTeamMembers, searchAvailableUsers, createTeamMember, assignUserToTeam, updateTeamMember, deleteTeamMember } from '@/services/teamService';
+import { teamService, TeamMember } from '@/services/teamService';
 import UserSearchPanel from '@/components/Team/UserSearchPanel';
 import TeamMemberSearchPanel from '@/components/Team/TeamMemberSearchPanel';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
@@ -29,7 +28,7 @@ const SustainabilityTeam = () => {
     if (!report?.id || !token) return;
     
     try {
-      const members = await getTeamMembers(report.id.toString());
+      const members = await teamService.getTeamMembers(report.id.toString());
       setTeamMembers(members);
     } catch (err) {
       console.error('Error al cargar los miembros del equipo:', err);

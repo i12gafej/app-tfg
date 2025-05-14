@@ -8,7 +8,7 @@ import {
   Box
 } from '@mui/material';
 import { useState } from 'react';
-import { TeamMember, deleteTeamMember } from '@/services/teamService';
+import { teamService, TeamMember } from '@/services/teamService';
 
 interface TeamMemberDeleteDialogProps {
   open: boolean;
@@ -35,7 +35,7 @@ const TeamMemberDeleteDialog = ({
     setError(null);
 
     try {
-      await deleteTeamMember(member.id);
+      await teamService.deleteTeamMember(member.id);
       onDelete();
       onClose();
     } catch (err) {

@@ -14,7 +14,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useState } from 'react';
-import { User, assignUserToTeam } from '@/services/teamService';
+import { teamService, User } from '@/services/teamService';
 
 interface TeamMemberAssignDialogProps {
   open: boolean;
@@ -50,7 +50,7 @@ const TeamMemberAssignDialog = ({
     setError(null);
 
     try {
-      await assignUserToTeam(resourceId!, reportId!, user.id, {
+      await teamService.assignUserToTeam(resourceId!, reportId!, user.id, {
         role,
         organization
       });

@@ -14,7 +14,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { TeamMember, updateTeamMember } from '@/services/teamService';
+import { teamService, TeamMember } from '@/services/teamService';
 
 interface TeamMemberEditDialogProps {
   open: boolean;
@@ -59,7 +59,7 @@ const TeamMemberEditDialog = ({
     setError(null);
 
     try {
-      await updateTeamMember(member.id, {
+      await teamService.updateTeamMember(member.id, {
         role,
         organization
       });

@@ -1,11 +1,11 @@
 import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, Grid, CircularProgress } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { useState, useEffect, useCallback } from 'react';
-import { getResources, getReports, getTeamMembers, TeamMember, Resource, Report } from '@/services/teamService';
+import { teamService, TeamMember, Resource, Report } from '@/services/teamService';
 import TeamMemberList from '@/components/Team/TeamMemberList';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
-import UserSearchPanel from '@/components/Team/UserSearchPanel';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import TablePagination from '@mui/material/TablePagination';
 
 interface TeamMemberSearchPanelProps {
   resourceId: string | null;
@@ -54,6 +54,8 @@ const TeamMemberSearchPanel = ({
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoadingResources, setIsLoadingResources] = useState(false);
   const [isLoadingReports, setIsLoadingReports] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const fetchTeamMembers = async () => {
     if (!reportId) {
@@ -65,7 +67,7 @@ const TeamMemberSearchPanel = ({
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getTeamMembers(reportId);
+      const data = await teamService.getTeamMembers(reportId);
       setTeamMembers(data);
       onTeamMembersUpdate(data);
       console.log('Miembros actualizados:', data);
@@ -89,7 +91,7 @@ const TeamMemberSearchPanel = ({
 
       setIsLoadingResources(true);
       try {
-        const data = await getResources();
+        const data = await teamService.getResources();
         setResources(data);
       } catch (error) {
         console.error('Error al cargar recursos:', error);
@@ -115,7 +117,7 @@ const TeamMemberSearchPanel = ({
 
       setIsLoadingReports(true);
       try {
-        const data = await getReports(resourceId);
+        const data = await teamService.getReports(resourceId);
         setReports(data);
       } catch (error) {
         console.error('Error al cargar reportes:', error);
@@ -144,6 +146,8 @@ const TeamMemberSearchPanel = ({
 
     return matchesFilters;
   });
+
+  const paginatedTeamMembers = filteredTeamMembers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleUpdate = useCallback(() => {
     fetchTeamMembers();
@@ -299,13 +303,30 @@ const TeamMemberSearchPanel = ({
       )}
 
       <TeamMemberList 
-        teamMembers={filteredTeamMembers} 
+        teamMembers={paginatedTeamMembers} 
         isLoading={isLoading}
         resourceId={resourceId}
         reportId={reportId}
         onUpdate={handleUpdate}
         readOnly={readOnly}
       />
+
+      {filteredTeamMembers.length > 0 && (
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 20]}
+          component="div"
+          count={filteredTeamMembers.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => setPage(newPage)}
+          onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Miembros por página:"
+          labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
+        />
+      )}
 
       {!readOnly && resourceId && reportId && (
         <TeamMemberCreateDialog

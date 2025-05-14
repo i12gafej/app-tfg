@@ -7,8 +7,6 @@ interface StakeholderSearchParams {
   name?: string;
   type?: StakeholderType;
   report_id?: number;
-  page?: number;
-  per_page?: number;
 }
 
 export interface Stakeholder {
@@ -19,12 +17,9 @@ export interface Stakeholder {
   report_id: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
+export interface StakeholderResponse {
+  items: Stakeholder[];
   total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
 }
 
 // Crear una instancia de axios con la configuración base
@@ -36,9 +31,9 @@ const api = axios.create({
 });
 
 export const stakeholderService = {
-  async searchStakeholders(params: StakeholderSearchParams, token: string): Promise<PaginatedResponse<Stakeholder>> {
+  async searchStakeholders(params: StakeholderSearchParams, token: string): Promise<StakeholderResponse> {
     try {
-      const response = await api.post<PaginatedResponse<Stakeholder>>('/stakeholders/search', params, {
+      const response = await api.post<StakeholderResponse>('/stakeholders/search', params, {
         headers: {
           Authorization: `Bearer ${token}`
         }

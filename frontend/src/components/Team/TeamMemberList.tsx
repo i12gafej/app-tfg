@@ -45,8 +45,6 @@ const TeamMemberList = ({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [droppedUser, setDroppedUser] = useState<User | null>(null);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'user',
@@ -59,15 +57,6 @@ const TeamMemberList = ({
       isOver: !!monitor.isOver(),
     }),
   }));
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   const handleViewDetails = (member: TeamMember) => {
     setSelectedMember(member);
@@ -97,8 +86,6 @@ const TeamMemberList = ({
       </Box>
     );
   }
-
-  const paginatedMembers = teamMembers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const renderEmptyState = () => (
     <Box
@@ -147,7 +134,7 @@ const TeamMemberList = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedMembers.map((member) => (
+              {teamMembers.map((member) => (
                 <TableRow key={member.id}>
                   <TableCell>{member.name}</TableCell>
                   <TableCell>{member.surname}</TableCell>
@@ -183,17 +170,6 @@ const TeamMemberList = ({
               ))}
             </TableBody>
           </Table>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 20]}
-            component="div"
-            count={teamMembers.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="Miembros por página:"
-            labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
-          />
         </TableContainer>
       )}
 
