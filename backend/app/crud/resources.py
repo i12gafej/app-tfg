@@ -74,28 +74,50 @@ def get(db: Session, resource_id: int) -> Optional[HeritageResource]:
 
 def search(
     db: Session,
+    search_term: Optional[str] = None,
     name: Optional[str] = None,
     ownership: Optional[str] = None,
     management_model: Optional[str] = None,
-    postal_address: Optional[str] = None,
-    typology: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100
+    postal_address: Optional[str] = None
 ) -> List[HeritageResource]:
     query = db.query(HeritageResource)
 
-    if name:
-        query = query.filter(HeritageResource.name.ilike(f"%{name}%"))
-    if ownership:
-        query = query.filter(HeritageResource.ownership.ilike(f"%{ownership}%"))
-    if management_model:
-        query = query.filter(HeritageResource.management_model.ilike(f"%{management_model}%"))
-    if postal_address:
-        query = query.filter(HeritageResource.postal_address.ilike(f"%{postal_address}%"))
-    if typology:
-        query = query.join(HeritageResourceTypology).filter(HeritageResourceTypology.typology.ilike(f"%{typology}%"))
+    def normalize_text(text: str) -> Optional[str]:
+        if not text or text.isspace():
+            return None
+        return text.strip()
 
-    return query.offset(skip).limit(limit).all()
+    # Filtro general
+    if search_term:
+        search = normalize_text(search_term)
+        if search:
+            search = f"%{search}%"
+            query = query.filter(
+                HeritageResource.name.ilike(search) |
+                HeritageResource.ownership.ilike(search) |
+                HeritageResource.management_model.ilike(search) |
+                HeritageResource.postal_address.ilike(search)
+            )
+
+    # Filtros específicos
+    if name:
+        name_val = normalize_text(name)
+        if name_val:
+            query = query.filter(HeritageResource.name.ilike(f"%{name_val}%"))
+    if ownership:
+        ownership_val = normalize_text(ownership)
+        if ownership_val:
+            query = query.filter(HeritageResource.ownership.ilike(f"%{ownership_val}%"))
+    if management_model:
+        management_model_val = normalize_text(management_model)
+        if management_model_val:
+            query = query.filter(HeritageResource.management_model.ilike(f"%{management_model_val}%"))
+    if postal_address:
+        postal_address_val = normalize_text(postal_address)
+        if postal_address_val:
+            query = query.filter(HeritageResource.postal_address.ilike(f"%{postal_address_val}%"))
+
+    return query.all()
 
 def update(
     db: Session,

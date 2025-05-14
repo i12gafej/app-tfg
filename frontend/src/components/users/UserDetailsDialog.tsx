@@ -7,9 +7,10 @@ interface UserDetailsDialogProps {
   onClose: () => void;
   onEdit: () => void;
   user: User | null;
+  readOnly?: boolean;
 }
 
-const UserDetailsDialog = ({ open, onClose, onEdit, user }: UserDetailsDialogProps) => {
+const UserDetailsDialog = ({ open, onClose, onEdit, user, readOnly }: UserDetailsDialogProps) => {
   if (!user) return null;
 
   return (
@@ -46,13 +47,15 @@ const UserDetailsDialog = ({ open, onClose, onEdit, user }: UserDetailsDialogPro
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button 
-          variant="contained" 
-          onClick={onEdit}
-          sx={{ minWidth: 120 }}
-        >
-          Editar
-        </Button>
+        {!readOnly && (
+          <Button 
+            variant="contained" 
+            onClick={onEdit}
+            sx={{ minWidth: 120 }}
+          >
+            Editar
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

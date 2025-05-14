@@ -74,8 +74,6 @@ export interface ReportSearchParams {
     heritage_resource_name?: string;
     year?: number;
     state?: 'Draft' | 'Published';
-    page?: number;
-    per_page?: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -183,9 +181,9 @@ export const reportService = {
         }
     },
 
-    searchReports: async (params: ReportSearchParams, token: string): Promise<PaginatedResponse<SustainabilityReport>> => {
+    searchReports: async (params: ReportSearchParams, token: string): Promise<{items: SustainabilityReport[], total: number}> => {
         try {
-            const response = await api.post<PaginatedResponse<SustainabilityReport>>('/reports/search', {
+            const response = await api.post<{items: SustainabilityReport[], total: number}>('/reports/search', {
                 search_params: params
             }, {
                 headers: {

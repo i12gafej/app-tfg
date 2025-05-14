@@ -26,7 +26,9 @@ import {
   Close as CloseIcon,
   FilterList as FilterListIcon,
   Visibility as VisibilityIcon,
-  DragIndicator as DragIndicatorIcon
+  DragIndicator as DragIndicatorIcon,
+  ArrowUpward as ArrowUpwardIcon,
+  ArrowDownward as ArrowDownwardIcon
 } from '@mui/icons-material';
 import { useState, useEffect, ChangeEvent } from 'react';
 import { searchAvailableUsers, User, TeamMember } from '@/services/teamService';
@@ -66,6 +68,11 @@ const UserSearchPanel = ({
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>({});
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortField, setSortField] = useState<'name' | 'surname' | 'email'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   // Efecto para actualizar la lista de usuarios cuando cambien los miembros del equipo
   useEffect(() => {
@@ -112,7 +119,7 @@ const UserSearchPanel = ({
       const availableUsers = response.items.filter(user => 
         !teamMembers.some(member => member.user_id === parseInt(user.id))
       );
-      setUsers(availableUsers);
+      setAllUsers(availableUsers);
       
     } catch (err) {
       console.error('Error en la búsqueda:', err);
@@ -138,6 +145,36 @@ const UserSearchPanel = ({
     setSelectedUser(user);
     setIsAssignDialogOpen(true);
   };
+
+  const handleSort = (field: 'name' | 'surname' | 'email') => {
+    if (field === sortField) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortUsers = (users: User[], field: 'name' | 'surname' | 'email', order: 'asc' | 'desc'): User[] => {
+    return [...users].sort((a, b) => {
+      const aValue = a[field]?.toLowerCase() || '';
+      const bValue = b[field]?.toLowerCase() || '';
+      if (order === 'asc') {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (allUsers.length > 0) {
+      const sorted = sortUsers(allUsers, sortField, sortOrder);
+      const start = page * rowsPerPage;
+      const end = start + rowsPerPage;
+      setUsers(sorted.slice(start, end));
+    }
+  }, [page, rowsPerPage, allUsers, sortField, sortOrder]);
 
   const filteredUsers = users.filter(user => {
     const isTeamMember = teamMembers.some(member => member.user_id === parseInt(user.id));

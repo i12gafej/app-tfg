@@ -35,8 +35,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import SortIcon from '@mui/icons-material/Sort';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useAuth } from '@/hooks/useAuth';
-import { userService, type User, type PaginatedResponse } from '@/services/userService';
+import { userService, type User } from '@/services/userService';
 import UserDetailsDialog from './UserDetailsDialog';
 import UserEditDialog from './UserEditDialog';
 import UserDeleteDialog from './UserDeleteDialog';
@@ -72,14 +74,11 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(isMobile ? 5 : 10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalUsers, setTotalUsers] = useState(0);
   const { token } = useAuth();
-  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  const [tempSortField, setTempSortField] = useState<SortField>('name');
-  const [tempSortOrder, setTempSortOrder] = useState<SortOrder>('asc');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -88,19 +87,16 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   useEffect(() => {
-    setRowsPerPage(isMobile ? 5 : 10);
-  }, [isMobile]);
+    setRowsPerPage(5);
+  }, []);
 
-  const handleSearch = async (newPage: number = 0) => {
+  const handleSearch = async () => {
     try {
       setLoading(true);
       setError(null);
       
       // Crear un objeto con los parámetros de búsqueda
-      const searchParams: any = {
-        page: 1,
-        per_page: 1000
-      };
+      const searchParams: any = {};
 
       // Solo agregar los parámetros que tienen valores
       if (searchTerm) {
@@ -126,14 +122,13 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
       // Actualizar los estados
       setAllUsers(response.items);
       setTotalUsers(response.total);
+      setPage(0); // Resetear a la primera página
+      // Mostrar los usuarios de la primera página
+      const start = 0;
+      const end = rowsPerPage;
+      setUsers(response.items.slice(start, end));
       
-      // Actualizar los usuarios visibles inmediatamente
-      const start = newPage * rowsPerPage;
-      const end = start + rowsPerPage;
-      const visibleUsers = response.items.slice(start, end);
-      setUsers(visibleUsers);
-      
-      console.log('Usuarios visibles:', visibleUsers);
+      console.log('Usuarios visibles:', response.items.slice(start, end));
     } catch (err) {
       console.error('Error en la búsqueda:', err);
       setError('Error al buscar usuarios. Por favor, inténtalo de nuevo.');
@@ -144,12 +139,12 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
 
   useEffect(() => {
     if (allUsers.length > 0) {
+      const sorted = sortUsers(allUsers, sortField, sortOrder);
       const start = page * rowsPerPage;
       const end = start + rowsPerPage;
-      const visibleUsers = allUsers.slice(start, end);
-      setUsers(visibleUsers);
+      setUsers(sorted.slice(start, end));
     }
-  }, [page, rowsPerPage, allUsers]);
+  }, [page, rowsPerPage, allUsers, sortField, sortOrder]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -251,56 +246,33 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
     handleSearch(); // Actualizar la lista de usuarios
   };
 
-  const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
-    setSortAnchorEl(event.currentTarget);
-  };
-
-  const handleSortClose = () => {
-    setSortAnchorEl(null);
-  };
-
-  const handleSortFieldChange = (field: SortField) => {
-    setTempSortField(field);
-    if (field !== 'admin') {
-      setTempSortOrder('asc');
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
     }
-  };
-
-  const handleSortOrderChange = (order: SortOrder) => {
-    setTempSortOrder(order);
-  };
-
-  const handleApplySort = () => {
-    setSortField(tempSortField);
-    setSortOrder(tempSortOrder);
-    const sortedUsers = sortUsers(allUsers, tempSortField, tempSortOrder);
-    setAllUsers(sortedUsers);
-    handleSortClose();
   };
 
   const sortUsers = (users: User[], field: SortField, order: SortOrder): User[] => {
     return [...users].sort((a, b) => {
       let comparison = 0;
-      
       if (field === 'admin') {
-        // Para el campo admin, primero los que coinciden con el orden
         if (order === 'asc') {
           comparison = (a.admin ? 1 : 0) - (b.admin ? 1 : 0);
         } else {
           comparison = (b.admin ? 1 : 0) - (a.admin ? 1 : 0);
         }
       } else {
-        // Para los demás campos, ordenación alfabética
         const aValue = a[field]?.toLowerCase() || '';
         const bValue = b[field]?.toLowerCase() || '';
-        
         if (order === 'asc') {
           comparison = aValue.localeCompare(bValue);
         } else {
           comparison = bValue.localeCompare(aValue);
         }
       }
-      
       return comparison;
     });
   };
@@ -513,33 +485,52 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell width="50px">
-                  <IconButton 
-                    size="small"
-                    onClick={handleSortClick}
-                    sx={{ 
-                      color: sortAnchorEl ? 'primary.main' : 'inherit',
-                      '&:hover': {
-                        backgroundColor: 'transparent'
-                      }
-                    }}
-                  >
-                    <SortIcon />
-                  </IconButton>
+                <TableCell
+                  onClick={() => handleSort('name')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Nombre
+                  {sortField === 'name' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
                 </TableCell>
-                <TableCell>Nombre</TableCell>
-                <TableCell>Apellidos</TableCell>
-                <TableCell>Correo</TableCell>
+                <TableCell
+                  onClick={() => handleSort('surname')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Apellidos
+                  {sortField === 'surname' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
+                </TableCell>
+                <TableCell
+                  onClick={() => handleSort('email')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Correo
+                  {sortField === 'email' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
+                </TableCell>
+                <TableCell
+                  onClick={() => handleSort('admin')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Rol
+                  {sortField === 'admin' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
+                </TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell></TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.surname}</TableCell>
                   <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.admin ? 'Administrador' : 'Usuario'}</TableCell>
                   <TableCell align="right">
                     <Box sx={{ 
                       display: 'flex', 
@@ -590,89 +581,6 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
               ))}
             </TableBody>
           </Table>
-
-          <Popover
-            open={Boolean(sortAnchorEl)}
-            anchorEl={sortAnchorEl}
-            onClose={handleSortClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
-            }}
-          >
-            <Box sx={{ p: 2, minWidth: 200 }}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Ordenar por
-              </Typography>
-              <List dense>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('name')}
-                  selected={tempSortField === 'name'}
-                >
-                  <ListItemText primary="Nombre" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('surname')}
-                  selected={tempSortField === 'surname'}
-                >
-                  <ListItemText primary="Apellidos" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('email')}
-                  selected={tempSortField === 'email'}
-                >
-                  <ListItemText primary="Correo" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('admin')}
-                  selected={tempSortField === 'admin'}
-                >
-                  <ListItemText primary="Rol" />
-                </ListItem>
-              </List>
-              {tempSortField !== 'admin' && (
-                <>
-                  <Divider sx={{ my: 1 }} />
-                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                    Orden
-                  </Typography>
-                  <List dense>
-                    <ListItem 
-                      button 
-                      onClick={() => handleSortOrderChange('asc')}
-                      selected={tempSortOrder === 'asc'}
-                    >
-                      <ListItemText primary="A-Z" />
-                    </ListItem>
-                    <ListItem 
-                      button 
-                      onClick={() => handleSortOrderChange('desc')}
-                      selected={tempSortOrder === 'desc'}
-                    >
-                      <ListItemText primary="Z-A" />
-                    </ListItem>
-                  </List>
-                </>
-              )}
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="contained"
-                  onClick={handleApplySort}
-                  size="small"
-                >
-                  Ordenar
-                </Button>
-              </Box>
-            </Box>
-          </Popover>
 
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

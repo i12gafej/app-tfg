@@ -6,8 +6,6 @@ interface UserSearchParams {
   surname?: string;
   email?: string;
   is_admin?: boolean;
-  page?: number;
-  per_page?: number;
 }
 
 export interface User {
@@ -19,14 +17,6 @@ export interface User {
   phone_number?: string;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
-}
-
 // Crear una instancia de axios con la configuración base
 const api = axios.create({
   baseURL: '/api',
@@ -36,9 +26,9 @@ const api = axios.create({
 });
 
 export const userService = {
-  async searchUsers(params: UserSearchParams, token: string): Promise<PaginatedResponse<User>> {
+  async searchUsers(params: UserSearchParams, token: string): Promise<{items: User[], total: number}> {
     try {
-      const response = await api.post<PaginatedResponse<User>>('/users/search', params, {
+      const response = await api.post<{items: User[], total: number}>('/users/search', params, {
         headers: {
           Authorization: `Bearer ${token}`
         }

@@ -156,6 +156,7 @@ const UserList = ({ users, isLoading, onUserSelect }: UserListProps) => {
           onClose={() => setIsDetailsOpen(false)}
           user={selectedUser}
           onEdit={() => {}}
+          readOnly={true}
         />
       )}
     </>

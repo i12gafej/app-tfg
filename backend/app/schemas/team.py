@@ -34,8 +34,6 @@ class TeamMemberSearch(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
     organization: Optional[str] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
 
 # Esquema para recibir los datos del frontend
 class TeamMemberCreateParams(BaseModel):
@@ -65,22 +63,11 @@ class TeamMemberUpdate(BaseModel):
 class ResourceSearch(BaseModel):
     search_term: Optional[str] = None
     name: Optional[str] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
 
 class ReportSearch(BaseModel):
     resource_id: int
     search_term: Optional[str] = None
     year: Optional[str] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
-
-class PaginatedResponse(BaseModel):
-    items: List[BaseModel]
-    total: int
-    page: int
-    per_page: int
-    total_pages: int
 
 class TeamMemberList(BaseModel):
     id: int

@@ -35,8 +35,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import SortIcon from '@mui/icons-material/Sort';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useAuth } from '@/hooks/useAuth';
-import { resourceService, type Resource, type ResourceSearchParams, type PaginatedResponse } from '@/services/resourceService';
+import { resourceService, type Resource, type ResourceSearchParams } from '@/services/resourceService';
 import ResourceDetailsDialog from './ResourceDetailsDialog';
 import ResourceEditDialog from './ResourceEditDialog';
 import ResourceDeleteDialog from './ResourceDeleteDialog';
@@ -72,14 +74,11 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(isMobile ? 5 : 10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalResources, setTotalResources] = useState(0);
   const { token } = useAuth();
-  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  const [tempSortField, setTempSortField] = useState<SortField>('name');
-  const [tempSortOrder, setTempSortOrder] = useState<SortOrder>('asc');
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -88,19 +87,12 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
   const [resourceToDelete, setResourceToDelete] = useState<Resource | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
-  useEffect(() => {
-    setRowsPerPage(isMobile ? 5 : 10);
-  }, [isMobile]);
-
-  const handleSearch = async (newPage: number = 0) => {
+  const handleSearch = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const searchParams: ResourceSearchParams = {
-        page: newPage + 1,
-        per_page: rowsPerPage
-      };
+      const searchParams: ResourceSearchParams = {};
 
       if (searchTerm) {
         searchParams.search_term = searchTerm;
@@ -112,12 +104,12 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
       }
 
       const response = await resourceService.searchResources(searchParams, token || '');
-      
       setAllResources(response.items);
       setTotalResources(response.total);
-      setResources(response.items);
-      setPage(newPage);
-      
+      setPage(0);
+      const start = 0;
+      const end = rowsPerPage;
+      setResources(response.items.slice(start, end));
     } catch (err) {
       console.error('Error en la búsqueda:', err);
       setError('Error al buscar recursos. Por favor, inténtalo de nuevo.');
@@ -128,22 +120,20 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
 
   useEffect(() => {
     if (allResources.length > 0) {
+      const sorted = sortResources(allResources, sortField, sortOrder);
       const start = page * rowsPerPage;
       const end = start + rowsPerPage;
-      const visibleResources = allResources.slice(start, end);
-      setResources(visibleResources);
+      setResources(sorted.slice(start, end));
     }
-  }, [page, rowsPerPage, allResources]);
+  }, [page, rowsPerPage, allResources, sortField, sortOrder]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
-    handleSearch();
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-    handleSearch();
   };
 
   const handleFilterChange = (field: keyof SearchFilters, value: string) => {
@@ -235,35 +225,18 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
     handleSearch();
   };
 
-  const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
-    setSortAnchorEl(event.currentTarget);
-  };
-
-  const handleSortClose = () => {
-    setSortAnchorEl(null);
-  };
-
-  const handleSortFieldChange = (field: SortField) => {
-    setTempSortField(field);
-    setTempSortOrder('asc');
-  };
-
-  const handleSortOrderChange = (order: SortOrder) => {
-    setTempSortOrder(order);
-  };
-
-  const handleApplySort = () => {
-    setSortField(tempSortField);
-    setSortOrder(tempSortOrder);
-    const sortedResources = sortResources(allResources, tempSortField, tempSortOrder);
-    setResources(sortedResources);
-    handleSortClose();
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
   };
 
   const sortResources = (resources: Resource[], field: SortField, order: SortOrder): Resource[] => {
     return [...resources].sort((a, b) => {
       let comparison = 0;
-      
       if (field === 'name') {
         comparison = a.name.localeCompare(b.name);
       } else if (field === 'ownership') {
@@ -273,7 +246,6 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
       } else if (field === 'postal_address') {
         comparison = (a.postal_address || '').localeCompare(b.postal_address || '');
       }
-      
       return order === 'asc' ? comparison : -comparison;
     });
   };
@@ -478,36 +450,52 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell width="50px">
-                  <IconButton 
-                    size="small"
-                    onClick={handleSortClick}
-                    sx={{ 
-                      color: sortAnchorEl ? 'primary.main' : 'inherit',
-                      '&:hover': {
-                        backgroundColor: 'transparent'
-                      }
-                    }}
-                  >
-                    <SortIcon />
-                  </IconButton>
+                <TableCell
+                  onClick={() => handleSort('name')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Nombre
+                  {sortField === 'name' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
                 </TableCell>
-                <TableCell>Nombre</TableCell>
-                <TableCell>Titularidad</TableCell>
-                <TableCell>Modelo de Gestión</TableCell>
-                
+                <TableCell
+                  onClick={() => handleSort('ownership')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Titularidad
+                  {sortField === 'ownership' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
+                </TableCell>
+                <TableCell
+                  onClick={() => handleSort('management_model')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Modelo de Gestión
+                  {sortField === 'management_model' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
+                </TableCell>
+                <TableCell
+                  onClick={() => handleSort('postal_address')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Dirección Postal
+                  {sortField === 'postal_address' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
+                  )}
+                </TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {resources.map((resource) => (
                 <TableRow key={resource.id}>
-                  <TableCell></TableCell>
                   <TableCell>{resource.name}</TableCell>
                   <TableCell>{resource.ownership}</TableCell>
                   <TableCell>{resource.management_model}</TableCell>
-                  
-                  
+                  <TableCell>{resource.postal_address}</TableCell>
                   <TableCell align="right">
                     <Box sx={{ 
                       display: 'flex', 
@@ -558,85 +546,6 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
               ))}
             </TableBody>
           </Table>
-
-          <Popover
-            open={Boolean(sortAnchorEl)}
-            anchorEl={sortAnchorEl}
-            onClose={handleSortClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
-            }}
-          >
-            <Box sx={{ p: 2, minWidth: 200 }}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Ordenar por
-              </Typography>
-              <List dense>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('name')}
-                  selected={tempSortField === 'name'}
-                >
-                  <ListItemText primary="Nombre" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('ownership')}
-                  selected={tempSortField === 'ownership'}
-                >
-                  <ListItemText primary="Titularidad" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('management_model')}
-                  selected={tempSortField === 'management_model'}
-                >
-                  <ListItemText primary="Modelo de Gestión" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('postal_address')}
-                  selected={tempSortField === 'postal_address'}
-                >
-                  <ListItemText primary="Dirección Postal" />
-                </ListItem>
-              </List>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Orden
-              </Typography>
-              <List dense>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortOrderChange('asc')}
-                  selected={tempSortOrder === 'asc'}
-                >
-                  <ListItemText primary="Ascendente" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortOrderChange('desc')}
-                  selected={tempSortOrder === 'desc'}
-                >
-                  <ListItemText primary="Descendente" />
-                </ListItem>
-              </List>
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="contained"
-                  onClick={handleApplySort}
-                  size="small"
-                >
-                  Ordenar
-                </Button>
-              </Box>
-            </Box>
-          </Popover>
 
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.orm import Session
 from app.core.security import verify_password
 from app.models.models import User
@@ -104,3 +104,50 @@ def delete(db: Session, db_user: User) -> None:
         db.rollback()
         logging.error(f"Error al eliminar usuario: {str(e)}")
         raise e 
+
+def search(
+    db: Session,
+    search_term: Optional[str] = None,
+    name: Optional[str] = None,
+    surname: Optional[str] = None,
+    email: Optional[str] = None,
+    is_admin: Optional[bool] = None
+) -> List[User]:
+    """
+    Buscar usuarios con filtros opcionales.
+    """
+    query = db.query(User)
+
+    def normalize_text(text: str) -> Optional[str]:
+        if not text or text.isspace():
+            return None
+        return text.strip()
+
+    # Filtro por término de búsqueda general
+    if search_term:
+        search = normalize_text(search_term)
+        if search:
+            search = f"%{search}%"
+            query = query.filter(
+                User.name.ilike(search) |
+                User.surname.ilike(search) |
+                User.email.ilike(search)
+            )
+
+    # Filtros específicos
+    if name:
+        name_val = normalize_text(name)
+        if name_val:
+            query = query.filter(User.name.ilike(f"%{name_val}%"))
+    if surname:
+        surname_val = normalize_text(surname)
+        if surname_val:
+            query = query.filter(User.surname.ilike(f"%{surname_val}%"))
+    if email:
+        email_val = normalize_text(email)
+        if email_val:
+            query = query.filter(User.email.ilike(f"%{email_val}%"))
+    if is_admin is not None:
+        query = query.filter(User.admin == is_admin)
+
+    return query.all() 

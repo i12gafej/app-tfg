@@ -37,16 +37,6 @@ interface UserSearchParams {
   email?: string;
   role?: string;
   organization?: string;
-  page?: number;
-  per_page?: number;
-}
-
-interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
 }
 
 // Crear una instancia de axios con la configuración base
@@ -95,14 +85,14 @@ export const getReports = async (resourceId: string): Promise<Report[]> => {
 export const getTeamMembers = async (reportId: string): Promise<TeamMember[]> => {
   const response = await api.post(`/team/search/members`, {
     report_id: parseInt(reportId),
-    page: 1,
-    per_page: 1000
+    // page: 1,
+    // per_page: 1000
   });
   return response.data.items;
 };
 
 // Buscar usuarios disponibles para el equipo
-export const searchAvailableUsers = async (params: UserSearchParams): Promise<PaginatedResponse<User>> => {
+export const searchAvailableUsers = async (params: UserSearchParams): Promise<{items: User[], total: number}> => {
   const response = await api.post('/team/users/search', params);
   return response.data;
 };

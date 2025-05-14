@@ -25,13 +25,11 @@ def search_resources(
     """
     query = db.query(HeritageResource)
 
-    # Función para limpiar y normalizar el texto
     def normalize_text(text: str) -> str:
         if not text or text.isspace():
             return None
         return text.strip()
 
-    # Aplicar filtros solo si tienen valores
     if search_params.search_term:
         search = normalize_text(search_params.search_term)
         if search:
@@ -43,21 +41,11 @@ def search_resources(
         if name:
             query = query.filter(HeritageResource.name.ilike(f"%{name}%"))
 
-    # Paginación
-    page = search_params.page or 1
-    per_page = search_params.per_page or 10
-    total = query.count()
-    total_pages = (total + per_page - 1) // per_page
-
-    # Aplicar paginación
-    resources = query.offset((page - 1) * per_page).limit(per_page).all()
-
+    resources = query.all()
+    total = len(resources)
     return {
         "items": resources,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
+        "total": total
     }
 
 def search_reports(
@@ -69,13 +57,11 @@ def search_reports(
     """
     query = db.query(SustainabilityReport).filter(SustainabilityReport.heritage_resource_id == search_params.resource_id)
 
-    # Función para limpiar y normalizar el texto
     def normalize_text(text: str) -> str:
         if not text or text.isspace():
             return None
         return text.strip()
 
-    # Aplicar filtros solo si tienen valores
     if search_params.search_term:
         search = normalize_text(search_params.search_term)
         if search:
@@ -87,21 +73,11 @@ def search_reports(
         if year:
             query = query.filter(SustainabilityReport.year.ilike(f"%{year}%"))
 
-    # Paginación
-    page = search_params.page or 1
-    per_page = search_params.per_page or 10
-    total = query.count()
-    total_pages = (total + per_page - 1) // per_page
-
-    # Aplicar paginación
-    reports = query.offset((page - 1) * per_page).limit(per_page).all()
-
+    reports = query.all()
+    total = len(reports)
     return {
         "items": reports,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
+        "total": total
     }
 
 def search_team_members(
@@ -114,13 +90,11 @@ def search_team_members(
     """
     query = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.report_id == report_id)
 
-    # Función para limpiar y normalizar el texto
     def normalize_text(text: str) -> str:
         if not text or text.isspace():
             return None
         return text.strip()
 
-    # Aplicar filtros solo si tienen valores
     if search_params.search_term:
         search = normalize_text(search_params.search_term)
         if search:
@@ -160,21 +134,11 @@ def search_team_members(
         if organization:
             query = query.filter(SustainabilityTeamMember.organization.ilike(f"%{organization}%"))
 
-    # Paginación
-    page = search_params.page or 1
-    per_page = search_params.per_page or 10
-    total = query.count()
-    total_pages = (total + per_page - 1) // per_page
-
-    # Aplicar paginación
-    members = query.offset((page - 1) * per_page).limit(per_page).all()
-
+    members = query.all()
+    total = len(members)
     return {
         "items": members,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
+        "total": total
     }
 
 def create_team_member(
@@ -237,3 +201,41 @@ def delete_team_member(
     # Eliminar el miembro
     db.delete(member)
     db.commit()
+
+def search_available_users(
+    db: Session,
+    search_term: Optional[str] = None,
+    name: Optional[str] = None,
+    surname: Optional[str] = None,
+    email: Optional[str] = None
+) -> List[User]:
+    query = db.query(User).filter(User.admin == False)
+
+    def normalize_text(text: str) -> Optional[str]:
+        if not text or text.isspace():
+            return None
+        return text.strip()
+
+    if search_term:
+        search = normalize_text(search_term)
+        if search:
+            search = f"%{search}%"
+            query = query.filter(
+                User.name.ilike(search) |
+                User.surname.ilike(search) |
+                User.email.ilike(search)
+            )
+    if name:
+        name_val = normalize_text(name)
+        if name_val:
+            query = query.filter(User.name.ilike(f"%{name_val}%"))
+    if surname:
+        surname_val = normalize_text(surname)
+        if surname_val:
+            query = query.filter(User.surname.ilike(f"%{surname_val}%"))
+    if email:
+        email_val = normalize_text(email)
+        if email_val:
+            query = query.filter(User.email.ilike(f"%{email_val}%"))
+
+    return query.all()

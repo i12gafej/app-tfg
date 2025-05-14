@@ -30,8 +30,6 @@ class UserSearch(BaseModel):
     surname: Optional[str] = None
     email: Optional[str] = None
     is_admin: Optional[bool] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
 
     class Config:
         json_schema_extra = {
@@ -40,9 +38,7 @@ class UserSearch(BaseModel):
                 "name": "Juan",
                 "surname": "Pérez",
                 "email": "juan@example.com",
-                "is_admin": True,
-                "page": 1,
-                "per_page": 10
+                "is_admin": True
             }
         } 
 

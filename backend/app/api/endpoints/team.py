@@ -34,64 +34,18 @@ def search_available_users(
     Buscar usuarios disponibles para el equipo.
     Este endpoint siempre filtra por admin=false y no requiere permisos de administrador.
     """
-    query = db.query(UserModel)
-
-    # Función para limpiar y normalizar el texto
-    def normalize_text(text: str) -> str:
-        if not text or text.isspace():
-            return None
-        return text.strip()
-
-    # Aplicar filtros solo si tienen valores
-    if search_params.search_term:
-        search = normalize_text(search_params.search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(
-                or_(
-                    UserModel.name.ilike(search),
-                    UserModel.surname.ilike(search),
-                    UserModel.email.ilike(search)
-                )
-            )
-
-    # Aplicar filtros específicos solo si tienen valores
-    if search_params.name:
-        name = normalize_text(search_params.name)
-        if name:
-            query = query.filter(UserModel.name.ilike(f"%{name}%"))
-    
-    if search_params.surname:
-        surname = normalize_text(search_params.surname)
-        if surname:
-            query = query.filter(UserModel.surname.ilike(f"%{surname}%"))
-    
-    if search_params.email:
-        email = normalize_text(search_params.email)
-        if email:
-            query = query.filter(UserModel.email.ilike(f"%{email}%"))
-    
-    # Siempre filtrar por admin=false
-    query = query.filter(UserModel.admin == False)
-
-    # Paginación
-    page = search_params.page or 1
-    per_page = search_params.per_page or 10
-    total = query.count()
-    total_pages = (total + per_page - 1) // per_page
-
-    # Aplicar paginación
-    users = query.offset((page - 1) * per_page).limit(per_page).all()
-
-    # Convertir los usuarios a esquema Pydantic
+    users = crud_team.search_available_users(
+        db=db,
+        search_term=search_params.search_term,
+        name=search_params.name,
+        surname=search_params.surname,
+        email=search_params.email
+    )
+    total = len(users)
     users_schema = [User.from_orm(user) for user in users]
-
     return {
         "items": users_schema,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
+        "total": total
     }
 
 @router.post("/team/search/resources", response_model=dict)
@@ -104,16 +58,10 @@ def search_resources(
     Buscar recursos patrimoniales con filtros opcionales.
     """
     result = crud_team.search_resources(db, search_params)
-    
-    # Convertir los recursos a esquema Pydantic
     resources_schema = [ResourceBase.from_orm(resource) for resource in result["items"]]
-    
     return {
         "items": resources_schema,
-        "total": result["total"],
-        "page": result["page"],
-        "per_page": result["per_page"],
-        "total_pages": result["total_pages"]
+        "total": result["total"]
     }
 
 @router.post("/team/search/reports", response_model=dict)
@@ -126,8 +74,6 @@ def search_reports(
     Buscar reportes de un recurso patrimonial con filtros opcionales.
     """
     result = crud_team.search_reports(db, search_params)
-    
-    # Convertir los reportes a esquema Pydantic
     reports_schema = []
     for report in result["items"]:
         report_dict = {
@@ -136,13 +82,9 @@ def search_reports(
             "heritage_resource_id": report.heritage_resource_id
         }
         reports_schema.append(ReportBase(**report_dict))
-    
     return {
         "items": reports_schema,
-        "total": result["total"],
-        "page": result["page"],
-        "per_page": result["per_page"],
-        "total_pages": result["total_pages"]
+        "total": result["total"]
     }
 
 @router.post("/team/search/members", response_model=dict)
@@ -155,17 +97,12 @@ def search_team_members(
     Buscar miembros del equipo de un reporte con filtros opcionales.
     Carga los datos de usuario para cada miembro del equipo.
     """
-    # Obtener los miembros del equipo
     result = crud_team.search_team_members(db, search_params.report_id, search_params)
-    
-    # Mapeo de roles en inglés a español
     role_mapping = {
         'manager': 'Gestor de Sostenibilidad',
         'consultant': 'Consultor',
         'external_advisor': 'Asesor Externo'
     }
-    
-    # Para cada miembro, cargar los datos de usuario
     members_with_user_data = []
     for member in result["items"]:
         user = crud_user.get(db, member.user_id)
@@ -176,19 +113,15 @@ def search_team_members(
                 "surname": user.surname,
                 "email": user.email,
                 "phone_number": user.phone_number,
-                "role": role_mapping.get(member.type, member.type),  # Usar el mapeo para el rol
+                "role": role_mapping.get(member.type, member.type),
                 "organization": member.organization,
                 "report_id": member.report_id,
                 "user_id": member.user_id
             }
             members_with_user_data.append(TeamMemberList(**member_dict))
-    
     return {
         "items": members_with_user_data,
-        "total": result["total"],
-        "page": result["page"],
-        "per_page": result["per_page"],
-        "total_pages": result["total_pages"]
+        "total": result["total"]
     }
 
 @router.post("/team/create/member", response_model=TeamMemberBase)

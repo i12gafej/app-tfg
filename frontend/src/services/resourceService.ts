@@ -24,8 +24,6 @@ export interface ResourceSearchParams {
   management_model?: string;
   postal_address?: string;
   typology?: string;
-  page?: number;
-  per_page?: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -55,9 +53,9 @@ export const getResourceById = async (id: number): Promise<Resource> => {
 };
 
 export const resourceService = {
-  async searchResources(params: ResourceSearchParams, token: string): Promise<PaginatedResponse<Resource>> {
+  async searchResources(params: ResourceSearchParams, token: string): Promise<{items: Resource[], total: number}> {
     try {
-      const response = await api.post<PaginatedResponse<Resource>>('/resources/search', {
+      const response = await api.post<{items: Resource[], total: number}>('/resources/search', {
         search_params: params
       }, {
         headers: {

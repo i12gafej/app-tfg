@@ -78,60 +78,16 @@ async def search_resources_endpoint(
             detail="No tienes permisos para realizar esta acción"
         )
 
-    query = db.query(HeritageResourceModel).options(
-        joinedload(HeritageResourceModel.typologies),
-        joinedload(HeritageResourceModel.social_networks)
+    # Llamar al crud para buscar recursos
+    resources = search(
+        db=db,
+        search_term=search_params.search_term,
+        name=search_params.name,
+        ownership=search_params.ownership,
+        management_model=search_params.management_model,
+        postal_address=search_params.postal_address
     )
-
-    # Función para limpiar y normalizar el texto
-    def normalize_text(text: str) -> str:
-        if not text or text.isspace():
-            return None
-        return text.strip()
-
-    # Aplicar filtros solo si tienen valores
-    if search_params.search_term:
-        search = normalize_text(search_params.search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(
-                or_(
-                    HeritageResourceModel.name.ilike(search),
-                    HeritageResourceModel.ownership.ilike(search),
-                    HeritageResourceModel.management_model.ilike(search),
-                    HeritageResourceModel.postal_address.ilike(search)
-                )
-            )
-
-    # Aplicar filtros específicos solo si tienen valores
-    if search_params.name:
-        name = normalize_text(search_params.name)
-        if name:
-            query = query.filter(HeritageResourceModel.name.ilike(f"%{name}%"))
-    
-    if search_params.ownership:
-        ownership = normalize_text(search_params.ownership)
-        if ownership:
-            query = query.filter(HeritageResourceModel.ownership.ilike(f"%{ownership}%"))
-    
-    if search_params.management_model:
-        management_model = normalize_text(search_params.management_model)
-        if management_model:
-            query = query.filter(HeritageResourceModel.management_model.ilike(f"%{management_model}%"))
-    
-    if search_params.postal_address:
-        postal_address = normalize_text(search_params.postal_address)
-        if postal_address:
-            query = query.filter(HeritageResourceModel.postal_address.ilike(f"%{postal_address}%"))
-
-    # Paginación
-    page = search_params.page or 1
-    per_page = search_params.per_page or 10
-    total = query.count()
-    total_pages = (total + per_page - 1) // per_page
-
-    # Aplicar paginación
-    resources = query.offset((page - 1) * per_page).limit(per_page).all()
+    total = len(resources)
 
     # Convertir los recursos a esquema Pydantic
     resources_schema = [
@@ -151,10 +107,7 @@ async def search_resources_endpoint(
 
     return {
         "items": resources_schema,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
+        "total": total
     }
 
 @router.post("/resources/update", response_model=HeritageResource)

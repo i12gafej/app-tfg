@@ -36,6 +36,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import SortIcon from '@mui/icons-material/Sort';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useAuth } from '@/hooks/useAuth';
 import { reportService, type SustainabilityReport, type ReportSearchParams } from '@/services/reportServices';
 import { ReportCreateDialog } from './ReportCreateDialog';
@@ -51,7 +53,7 @@ interface SearchFilters {
   state?: 'Draft' | 'Published';
 }
 
-type SortField = 'year' | 'state';
+type SortField = 'heritage_resource_name' | 'year' | 'state';
 type SortOrder = 'asc' | 'desc';
 
 const ReportSearch = ({ onSearch }: ReportSearchProps) => {
@@ -70,37 +72,28 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(isMobile ? 5 : 10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalReports, setTotalReports] = useState(0);
   const { token, user } = useAuth();
   const isAdmin = user?.admin || false;
-  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [sortField, setSortField] = useState<SortField>('year');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  const [tempSortField, setTempSortField] = useState<SortField>('year');
-  const [tempSortOrder, setTempSortOrder] = useState<SortOrder>('asc');
+  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<SustainabilityReport | null>(null);
-
-  useEffect(() => {
-    setRowsPerPage(isMobile ? 5 : 10);
-  }, [isMobile]);
 
   useEffect(() => {
     handleSearch();
     // eslint-disable-next-line
   }, []);
 
-  const handleSearch = async (newPage: number = 0) => {
+  const handleSearch = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const searchParams: ReportSearchParams = {
-        page: 1,
-        per_page: 1000
-      };
+      const searchParams: ReportSearchParams = {};
 
       if (searchTerm || filters.heritage_resource_name || filters.year || filters.state) {
         if (searchTerm) {
@@ -126,8 +119,9 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
       setAllReports(response.items);
       setTotalReports(response.total);
       
-      const start = newPage * rowsPerPage;
-      const end = start + rowsPerPage;
+      // Aplicar paginación inicial
+      const start = 0;
+      const end = rowsPerPage;
       const visibleReports = response.items.slice(start, end);
       setReports(visibleReports);
       
@@ -140,14 +134,16 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
     }
   };
 
+  // Efecto para manejar la paginación cuando cambian los parámetros
   useEffect(() => {
     if (allReports.length > 0) {
+      const sortedReports = sortReports(allReports, sortField, sortOrder);
       const start = page * rowsPerPage;
       const end = start + rowsPerPage;
-      const visibleReports = allReports.slice(start, end);
+      const visibleReports = sortedReports.slice(start, end);
       setReports(visibleReports);
     }
-  }, [page, rowsPerPage, allReports]);
+  }, [page, rowsPerPage, allReports, sortField, sortOrder]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -156,7 +152,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newRowsPerPage = parseInt(event.target.value, 10);
     setRowsPerPage(newRowsPerPage);
-    setPage(0);
+    setPage(0); // Resetear a la primera página cuando cambia el número de filas por página
   };
 
   const handleFilterChange = (field: keyof SearchFilters, value: string | number | undefined) => {
@@ -174,29 +170,15 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
     }
   };
 
-  const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
-    setSortAnchorEl(event.currentTarget);
-  };
-
-  const handleSortClose = () => {
-    setSortAnchorEl(null);
-  };
-
-  const handleSortFieldChange = (field: SortField) => {
-    setTempSortField(field);
-    setTempSortOrder('asc');
-  };
-
-  const handleSortOrderChange = (order: SortOrder) => {
-    setTempSortOrder(order);
-  };
-
-  const handleApplySort = () => {
-    setSortField(tempSortField);
-    setSortOrder(tempSortOrder);
-    const sortedReports = sortReports(allReports, tempSortField, tempSortOrder);
-    setReports(sortedReports);
-    handleSortClose();
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      // Si se hace clic en la misma columna, cambiar el orden
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Si se hace clic en una nueva columna, ordenar ascendente por defecto
+      setSortField(field);
+      setSortOrder('asc');
+    }
   };
 
   const sortReports = (reports: SustainabilityReport[], field: SortField, order: SortOrder): SustainabilityReport[] => {
@@ -207,6 +189,10 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
         comparison = a.year - b.year;
       } else if (field === 'state') {
         comparison = a.state.localeCompare(b.state);
+      } else if (field === 'heritage_resource_name') {
+        const nameA = a.heritage_resource_name || '';
+        const nameB = b.heritage_resource_name || '';
+        comparison = nameA.localeCompare(nameB);
       }
       
       return order === 'asc' ? comparison : -comparison;
@@ -458,23 +444,33 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell width="50px">
-                  <IconButton 
-                    size="small"
-                    onClick={handleSortClick}
-                    sx={{ 
-                      color: sortAnchorEl ? 'primary.main' : 'inherit',
-                      '&:hover': {
-                        backgroundColor: 'transparent'
-                      }
-                    }}
-                  >
-                    <SortIcon />
-                  </IconButton>
+                <TableCell 
+                  onClick={() => handleSort('heritage_resource_name')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Recurso Patrimonial
+                  {sortField === 'heritage_resource_name' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/>
+                  )}
                 </TableCell>
-                <TableCell>Recurso Patrimonial</TableCell>
-                <TableCell>Año</TableCell>
-                <TableCell>Estado</TableCell>
+                <TableCell 
+                  onClick={() => handleSort('year')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Año
+                  {sortField === 'year' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/>
+                  )}
+                </TableCell>
+                <TableCell 
+                  onClick={() => handleSort('state')}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Estado
+                  {sortField === 'state' && (
+                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/>
+                  )}
+                </TableCell>
                 {!isAdmin && <TableCell>Rol</TableCell>}
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
@@ -482,7 +478,6 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
             <TableBody>
               {reports.map((report) => (
                 <TableRow key={report.id}>
-                  <TableCell></TableCell>
                   <TableCell>{report.heritage_resource_name || 'Sin nombre'}</TableCell>
                   <TableCell>{report.year}</TableCell>
                   <TableCell>{report.state === 'Draft' ? 'Borrador' : 'Publicado'}</TableCell>
@@ -559,75 +554,10 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
             </TableBody>
           </Table>
 
-          <Popover
-            open={Boolean(sortAnchorEl)}
-            anchorEl={sortAnchorEl}
-            onClose={handleSortClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
-            }}
-          >
-            <Box sx={{ p: 2, minWidth: 200 }}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Ordenar por
-              </Typography>
-              <List dense>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('year')}
-                  selected={tempSortField === 'year'}
-                >
-                  <ListItemText primary="Año" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortFieldChange('state')}
-                  selected={tempSortField === 'state'}
-                >
-                  <ListItemText primary="Estado" />
-                </ListItem>
-              </List>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Orden
-              </Typography>
-              <List dense>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortOrderChange('asc')}
-                  selected={tempSortOrder === 'asc'}
-                >
-                  <ListItemText primary="Ascendente" />
-                </ListItem>
-                <ListItem 
-                  button 
-                  onClick={() => handleSortOrderChange('desc')}
-                  selected={tempSortOrder === 'desc'}
-                >
-                  <ListItemText primary="Descendente" />
-                </ListItem>
-              </List>
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="contained"
-                  onClick={handleApplySort}
-                  size="small"
-                >
-                  Ordenar
-                </Button>
-              </Box>
-            </Box>
-          </Popover>
-
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 20]}
             component="div"
-            count={totalReports}
+            count={allReports.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

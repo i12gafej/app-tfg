@@ -30,6 +30,4 @@ class ResourceSearch(BaseModel):
     name: Optional[str] = None
     ownership: Optional[str] = None
     management_model: Optional[str] = None
-    postal_address: Optional[str] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10 
+    postal_address: Optional[str] = None 

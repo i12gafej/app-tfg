@@ -99,8 +99,6 @@ async def search_reports_endpoint(
         heritage_resource_name = params.get('heritage_resource_name')
         year = params.get('year')
         state = params.get('state')
-        page = params.get('page', 1)
-        per_page = params.get('per_page', 10)
 
         logger.info(f"Parámetros de búsqueda recibidos: {params}")
 
@@ -119,10 +117,7 @@ async def search_reports_endpoint(
                 logger.info("No se encontraron recursos con ese nombre")
                 return {
                     "items": [],
-                    "total": 0,
-                    "page": page,
-                    "per_page": per_page,
-                    "total_pages": 0
+                    "total": 0
                 }
             
             # Obtener IDs de recursos
@@ -137,8 +132,8 @@ async def search_reports_endpoint(
                 heritage_resource_ids=resource_ids,
                 year=year,
                 state=state,
-                skip=(page - 1) * per_page,
-                limit=per_page
+                skip=0,
+                limit=1000
             )
         
         # Caso 2: Búsqueda por año y/o estado
@@ -150,8 +145,8 @@ async def search_reports_endpoint(
                 is_admin=current_user.admin,
                 year=year,
                 state=state,
-                skip=(page - 1) * per_page,
-                limit=per_page
+                skip=0,
+                limit=100
             )
         
         # Caso 3: Búsqueda por término de búsqueda
@@ -162,7 +157,7 @@ async def search_reports_endpoint(
                 db=db,
                 name=search_term,
                 skip=0,
-                limit=1000
+                limit=100
             )
             
             # Obtener IDs de recursos
@@ -174,8 +169,8 @@ async def search_reports_endpoint(
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
                 heritage_resource_ids=resource_ids,
-                skip=(page - 1) * per_page,
-                limit=per_page
+                skip=0,
+                limit=100
             )
         
         # Caso 4: Sin filtros, devolver todas las memorias
@@ -185,8 +180,8 @@ async def search_reports_endpoint(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
-                skip=(page - 1) * per_page,
-                limit=per_page
+                skip=0,
+                limit=100
             )
 
         logger.info(f"Memorias encontradas: {len(reports)}")
@@ -205,13 +200,8 @@ async def search_reports_endpoint(
 
         response = {
             "items": reports,
-            "total": total,
-            "page": page,
-            "per_page": per_page,
-            "total_pages": (total + per_page - 1) // per_page
+            "total": total
         }
-
-        
 
         return response
 

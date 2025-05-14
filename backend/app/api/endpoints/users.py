@@ -27,64 +27,23 @@ def search_users(
             detail="No tienes permisos para realizar esta acción"
         )
 
-    query = db.query(UserModel)
-
-    # Función para limpiar y normalizar el texto
-    def normalize_text(text: str) -> str:
-        if not text or text.isspace():
-            return None
-        return text.strip()
-
-    # Aplicar filtros solo si tienen valores
-    if search_params.search_term:
-        search = normalize_text(search_params.search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(
-                or_(
-                    UserModel.name.ilike(search),
-                    UserModel.surname.ilike(search),
-                    UserModel.email.ilike(search)
-                )
-            )
-
-    # Aplicar filtros específicos solo si tienen valores
-    if search_params.name:
-        name = normalize_text(search_params.name)
-        if name:
-            query = query.filter(UserModel.name.ilike(f"%{name}%"))
-    
-    if search_params.surname:
-        surname = normalize_text(search_params.surname)
-        if surname:
-            query = query.filter(UserModel.surname.ilike(f"%{surname}%"))
-    
-    if search_params.email:
-        email = normalize_text(search_params.email)
-        if email:
-            query = query.filter(UserModel.email.ilike(f"%{email}%"))
-    
-    if search_params.is_admin is not None:
-        query = query.filter(UserModel.admin == search_params.is_admin)
-
-    # Paginación
-    page = search_params.page or 1
-    per_page = search_params.per_page or 10
-    total = query.count()
-    total_pages = (total + per_page - 1) // per_page
-
-    # Aplicar paginación
-    users = query.offset((page - 1) * per_page).limit(per_page).all()
+    # Usar la función search del crud
+    users = crud_user.search(
+        db=db,
+        search_term=search_params.search_term,
+        name=search_params.name,
+        surname=search_params.surname,
+        email=search_params.email,
+        is_admin=search_params.is_admin
+    )
+    total = len(users)
 
     # Convertir los usuarios a esquema Pydantic
     users_schema = [User.from_orm(user) for user in users]
 
     return {
         "items": users_schema,
-        "total": total,
-        "page": page,
-        "per_page": per_page,
-        "total_pages": total_pages
+        "total": total
     }
 
 @router.post("/users/update", response_model=User)
