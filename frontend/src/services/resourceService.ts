@@ -23,15 +23,6 @@ export interface ResourceSearchParams {
   ownership?: string;
   management_model?: string;
   postal_address?: string;
-  typology?: string;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
 }
 
 
@@ -41,16 +32,6 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 })
-
-export const searchResources = async (params: ResourceSearchParams): Promise<PaginatedResponse<Resource>> => {
-  const response = await api.post('/team/search/resources', params);
-  return response.data;
-};
-
-export const getResourceById = async (id: number): Promise<Resource> => {
-  const response = await api.get(`/team/resources/${id}`);
-  return response.data;
-};
 
 export const resourceService = {
   async searchResources(params: ResourceSearchParams, token: string): Promise<{items: Resource[], total: number}> {

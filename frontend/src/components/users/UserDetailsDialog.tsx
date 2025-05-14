@@ -48,13 +48,13 @@ const UserDetailsDialog = ({ open, onClose, onEdit, user, readOnly }: UserDetail
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         {!readOnly && (
-          <Button 
-            variant="contained" 
-            onClick={onEdit}
-            sx={{ minWidth: 120 }}
-          >
-            Editar
-          </Button>
+        <Button 
+          variant="contained" 
+          onClick={onEdit}
+          sx={{ minWidth: 120 }}
+        >
+          Editar
+        </Button>
         )}
       </DialogActions>
     </Dialog>

@@ -104,7 +104,7 @@ def search_team_members(
         'external_advisor': 'Asesor Externo'
     }
     members_with_user_data = []
-    for member in result["items"]:
+    for member in result:
         user = crud_user.get(db, member.user_id)
         if user:
             member_dict = {
@@ -119,9 +119,10 @@ def search_team_members(
                 "user_id": member.user_id
             }
             members_with_user_data.append(TeamMemberList(**member_dict))
+    total = len(members_with_user_data)
     return {
         "items": members_with_user_data,
-        "total": result["total"]
+        "total": total
     }
 
 @router.post("/team/create/member", response_model=TeamMemberBase)
@@ -135,7 +136,7 @@ def create_team_member(
     Primero crea el usuario y luego crea el miembro del equipo asociado.
     """
     # Verificar si el email ya está en uso
-    existing_user = db.query(UserModel).filter(UserModel.email == data.email).first()
+    existing_user = crud_user.get_by_email(db, data.email)
     if existing_user:
         raise HTTPException(
             status_code=400,

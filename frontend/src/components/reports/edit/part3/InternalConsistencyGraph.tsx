@@ -30,17 +30,17 @@ const InternalConsistencyGraph = () => {
 
   useEffect(() => {
     const fetchGraph = async () => {
-      if (!report || !token) return;
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await actionPlanService.getInternalConsistencyGraph(report.id, token);
-        setGraphData(response);
-      } catch (error) {
-        console.error('Error al generar la gráfica:', error);
-        setError('Error al generar la gráfica');
-      } finally {
-        setLoading(false);
+    if (!report || !token) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await actionPlanService.getInternalConsistencyGraph(report.id, token);
+      setGraphData(response);
+    } catch (error) {
+      console.error('Error al generar la gráfica:', error);
+      setError('Error al generar la gráfica');
+    } finally {
+      setLoading(false);
       }
     };
     fetchGraph();
@@ -82,9 +82,9 @@ const InternalConsistencyGraph = () => {
       )}
 
       {loading && (
-        <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3 }}>
           <CircularProgress />
-        </Box>
+      </Box>
       )}
 
       {graphData && (

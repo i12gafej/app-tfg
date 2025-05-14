@@ -68,12 +68,21 @@ def search_surveys(
     db: Session,
     search_term: Optional[str] = None,
     heritage_resource_name: Optional[str] = None,
-    year: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 10
-) -> Tuple[List[SustainabilityReport], int]:
+    year: Optional[str] = None
+) -> List[SustainabilityReport]:
     try:
-        query = db.query(SustainabilityReport).filter(SustainabilityReport.survey_state == 'active')
+        query = db.query(
+            SustainabilityReport.id,
+            SustainabilityReport.heritage_resource_id,
+            SustainabilityReport.year,
+            SustainabilityReport.survey_state,
+            SustainabilityReport.scale,
+            HeritageResource.name.label('heritage_resource_name')
+        ).join(
+            HeritageResource, SustainabilityReport.heritage_resource_id == HeritageResource.id
+        ).filter(
+            SustainabilityReport.survey_state == 'active'
+        )
 
         # Aplicar filtros si se proporcionan
         if heritage_resource_name:
@@ -101,13 +110,9 @@ def search_surveys(
             else:
                 return [], 0
 
-        # Obtener el total antes de aplicar la paginación
-        total = query.count()
+        return query.all()
 
-        # Aplicar paginación
-        reports = query.offset(skip).limit(limit).all()
-
-        return reports, total
+        
     except Exception as e:
         logger.error(f"Error al buscar encuestas privadas: {str(e)}")
         raise

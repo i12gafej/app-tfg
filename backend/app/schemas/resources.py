@@ -31,3 +31,6 @@ class ResourceSearch(BaseModel):
     ownership: Optional[str] = None
     management_model: Optional[str] = None
     postal_address: Optional[str] = None 
+
+
+

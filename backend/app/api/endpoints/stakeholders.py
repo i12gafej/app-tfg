@@ -12,6 +12,7 @@ from app.schemas.auth import TokenData
 from app.models.models import Stakeholder as StakeholderModel, SustainabilityTeamMember
 from app.crud import stakeholders as crud_stakeholder
 from app.services.user import check_user_permissions
+from app.schemas.stakeholders import StakeholderSearch
 import logging
 
 # Configurar el logger
@@ -22,14 +23,14 @@ router = APIRouter()
 
 @router.post("/stakeholders/search", response_model=dict)
 def search_stakeholders(
-    search_params: StakeholderSearch = Body(...),
+    search_params: StakeholderSearch,
     db: Session = Depends(get_db)
 ):
     """
     Buscar grupos de interés con filtros opcionales.
     """
     try:
-        stakeholders, total = crud_stakeholder.search(
+        stakeholders = crud_stakeholder.search(
             db=db,
             search_term=search_params.search_term,
             name=search_params.name,
@@ -47,6 +48,8 @@ def search_stakeholders(
             )
             for stakeholder in stakeholders
         ]
+
+        total = len(stakeholders_schema)
 
         return {
             "items": stakeholders_schema,

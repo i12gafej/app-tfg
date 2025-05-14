@@ -72,6 +72,11 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
 def get(db: Session, resource_id: int) -> Optional[HeritageResource]:
     return db.query(HeritageResource).filter(HeritageResource.id == resource_id).first()
 
+def get_all_by_resources_ids(db: Session, resource_ids: list) -> list:
+    if not resource_ids:
+        return []
+    return db.query(HeritageResource).filter(HeritageResource.id.in_(resource_ids)).all()
+
 def search(
     db: Session,
     search_term: Optional[str] = None,

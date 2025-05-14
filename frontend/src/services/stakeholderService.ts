@@ -17,11 +17,6 @@ export interface Stakeholder {
   report_id: number;
 }
 
-export interface StakeholderResponse {
-  items: Stakeholder[];
-  total: number;
-}
-
 // Crear una instancia de axios con la configuración base
 const api = axios.create({
   baseURL: '/api',
@@ -31,9 +26,9 @@ const api = axios.create({
 });
 
 export const stakeholderService = {
-  async searchStakeholders(params: StakeholderSearchParams, token: string): Promise<StakeholderResponse> {
+  async searchStakeholders(params: StakeholderSearchParams, token: string): Promise<{items: Stakeholder[], total: number}> {
     try {
-      const response = await api.post<StakeholderResponse>('/stakeholders/search', params, {
+      const response = await api.post<{items: Stakeholder[], total: number}>('/stakeholders/search', params, {
         headers: {
           Authorization: `Bearer ${token}`
         }

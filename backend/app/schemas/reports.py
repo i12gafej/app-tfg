@@ -168,3 +168,10 @@ class ReportResponse(BaseModel):
     report: SustainabilityReport
     user_role_response: UserRoleResponse 
     permissions: int 
+
+class ReportSearch(BaseModel):
+    search_term: Optional[str] = None
+    heritage_resource_name: Optional[str] = None
+    year: Optional[int] = None
+    state: Optional[str] = None
+

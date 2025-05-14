@@ -94,10 +94,9 @@ def search(
         if type:
             query = query.filter(Stakeholder.type == type)
 
-        total = query.count()
-        stakeholders = query.all()
-
-        return stakeholders, total
+        
+        return query.all()
+        
     except Exception as e:
         logger.error(f"Error en la búsqueda de grupos de interés: {str(e)}")
         raise

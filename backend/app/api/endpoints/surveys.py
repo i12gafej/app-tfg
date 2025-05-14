@@ -5,14 +5,12 @@ from app.api.deps import get_db, get_current_user
 from app.schemas.auth import TokenData
 from app.schemas.surveys import (
     Assessment,
-    AssessmentResponse,
-    AssessmentSearch,
     MultipleAssessmentsCreate,
     SurveySearch,
-    SurveyResponse,
     Survey
 )
 from app.crud import surveys as crud_surveys
+from app.crud import resources as crud_resources
 from app.models.models import HeritageResource
 import logging
 
@@ -20,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/survey/create/assessments", response_model=AssessmentResponse)
+@router.post("/survey/create/assessments", response_model=dict)
 def create_assessments(
     assessments_data: MultipleAssessmentsCreate,
     db: Session = Depends(get_db)
@@ -51,39 +49,7 @@ def create_assessments(
             detail=f"Error al crear las valoraciones: {str(e)}"
         )
 
-@router.get("/survey/search/assessments", response_model=AssessmentResponse)
-def search_assessments(
-    search_params: AssessmentSearch = Depends(),
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """
-    Buscar valoraciones según diferentes criterios.
-    """
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="No tienes permisos para realizar esta acción"
-        )
-
-    try:
-        assessments = crud_surveys.search_assessments(
-            db,
-            material_topic_id=search_params.material_topic_id,
-            stakeholder_id=search_params.stakeholder_id,
-            is_internal=search_params.is_internal
-        )
-        return {
-            "items": assessments,
-            "total": len(assessments)
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error al buscar valoraciones: {str(e)}"
-        )
-
-@router.post("/survey/search/", response_model=SurveyResponse)
+@router.post("/survey/search/", response_model=dict)
 async def search_surveys_endpoint(
     search_params: SurveySearch,
     db: Session = Depends(get_db)
@@ -92,28 +58,17 @@ async def search_surveys_endpoint(
     Buscar encuestas privadas activas con filtros opcionales.
     """
     try:
-        # Calcular skip para la paginación
-        skip = (search_params.page - 1) * search_params.per_page
 
         # Convertir el año a string si es un número
         year = str(search_params.year) if search_params.year is not None else None
 
         # Buscar las encuestas
-        reports, total = crud_surveys.search_surveys(
+        reports = crud_surveys.search_surveys(
             db=db,
             search_term=search_params.search_term,
             heritage_resource_name=search_params.heritage_resource_name,
-            year=year,
-            skip=skip,
-            limit=search_params.per_page
+            year=year
         )
-
-        # Obtener los recursos asociados a las memorias
-        resource_ids = [report.heritage_resource_id for report in reports]
-        resources = db.query(HeritageResource).filter(HeritageResource.id.in_(resource_ids)).all()
-        
-        # Crear un diccionario para acceder rápidamente a los recursos por ID
-        resources_dict = {resource.id: resource for resource in resources}
 
         # Convertir los reportes a esquema Pydantic
         surveys = [
@@ -128,12 +83,11 @@ async def search_surveys_endpoint(
             for report in reports
         ]
 
+        total = len(surveys)
+
         return {
             "items": surveys,
-            "total": total,
-            "page": search_params.page,
-            "per_page": search_params.per_page,
-            "total_pages": (total + search_params.per_page - 1) // search_params.per_page
+            "total": total
         }
 
     except Exception as e:

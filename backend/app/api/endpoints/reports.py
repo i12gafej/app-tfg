@@ -7,8 +7,8 @@ import os
 import uuid
 from pathlib import Path
 from app.api.deps import get_db, get_current_user
-from app.crud import reports as reports_crud
-from app.crud import resources as resources_crud
+from app.crud import reports as crud_resports
+from app.crud import resources as crud_resources
 from app.schemas.reports import (
     SustainabilityReport, 
     SustainabilityReportCreate, 
@@ -29,7 +29,8 @@ from app.schemas.reports import (
     ReportPhotoResponse,
     ReportPhotoUpdate,
     UserRoleResponse,
-    ReportResponse
+    ReportResponse,
+    ReportSearch
 )
 from app.schemas.auth import TokenData
 from app.models.models import SustainabilityReport as SustainabilityReportModel, HeritageResource as HeritageResourceModel, ReportNorm as ReportNormModel, ReportLogo as ReportLogoModel, ReportAgreement as ReportAgreementModel, ReportBibliography as ReportBibliographyModel, ReportPhoto as ReportPhotoModel, SustainabilityTeamMember
@@ -68,7 +69,7 @@ async def get_report_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        report = reports_crud.get_report(db=db, report_id=report_id)
+        report = crud_resports.get_report(db=db, report_id=report_id)
         if not report:
             raise HTTPException(
                 status_code=404,
@@ -85,7 +86,7 @@ async def get_report_endpoint(
 
 @router.post("/reports/search", response_model=dict)
 async def search_reports_endpoint(
-    search_params: dict = Body(...),
+    search_params: ReportSearch,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
@@ -94,19 +95,19 @@ async def search_reports_endpoint(
     """
     try:
         # Extraer parámetros de búsqueda del objeto search_params
-        params = search_params.get('search_params', {})
-        search_term = params.get('search_term')
-        heritage_resource_name = params.get('heritage_resource_name')
-        year = params.get('year')
-        state = params.get('state')
+        
+        search_term = search_params.search_term
+        heritage_resource_name = search_params.heritage_resource_name
+        year = search_params.year
+        state = search_params.state
 
-        logger.info(f"Parámetros de búsqueda recibidos: {params}")
+        logger.info(f"Parámetros de búsqueda recibidos: {search_params}")
 
         # Caso 1: Búsqueda por nombre de recurso
         if heritage_resource_name:
             logger.info(f"Realizando búsqueda por nombre de recurso: {heritage_resource_name}")
             # Buscar recursos por nombre
-            resources = resources_crud.search(
+            resources = crud_resources.search(
                 db=db,
                 name=heritage_resource_name
             )
@@ -123,7 +124,7 @@ async def search_reports_endpoint(
             logger.info(f"IDs de recursos encontrados: {resource_ids}")
             
             # Buscar memorias por IDs de recursos y otros filtros
-            reports, total = reports_crud.search_reports(
+            reports, total = crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
@@ -135,7 +136,7 @@ async def search_reports_endpoint(
         # Caso 2: Búsqueda por año y/o estado
         elif year or state:
             logger.info(f"Realizando búsqueda por año: {year} y estado: {state}")
-            reports, total = reports_crud.search_reports(
+            reports, total = crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
@@ -147,7 +148,7 @@ async def search_reports_endpoint(
         elif search_term:
             logger.info(f"Realizando búsqueda por término: {search_term}")
             # Buscar recursos por nombre
-            resources = resources_crud.search(
+            resources = crud_resources.search(
                 db=db,
                 name=search_term
             )
@@ -156,7 +157,7 @@ async def search_reports_endpoint(
             resource_ids = [r.id for r in resources]
             
             # Buscar memorias por IDs de recursos
-            reports, total = reports_crud.search_reports(
+            reports, total = crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
@@ -166,7 +167,7 @@ async def search_reports_endpoint(
         # Caso 4: Sin filtros, devolver todas las memorias
         else:
             logger.info("No se proporcionaron filtros de búsqueda, devolviendo todas las memorias")
-            reports, total = reports_crud.search_reports(
+            reports, total = crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin
@@ -176,7 +177,7 @@ async def search_reports_endpoint(
 
         # Obtener los recursos asociados a las memorias
         resource_ids = [report.heritage_resource_id for report in reports]
-        resources = db.query(HeritageResourceModel).filter(HeritageResourceModel.id.in_(resource_ids)).all()
+        resources = crud_resources.get_all_by_resources_ids(db, resource_ids)
         
         # Crear un diccionario para acceder rápidamente a los recursos por ID
         resources_dict = {resource.id: resource for resource in resources}
@@ -236,7 +237,7 @@ async def create_report_endpoint(
                 detail=f"Ya existe una memoria para el recurso {report.heritage_resource_id} en el año {report.year}"
             )
         
-        db_report = reports_crud.create_report(db=db, report=report)
+        db_report = crud_resports.create_report(db=db, report=report)
         logger.info(f"Memoria creada en la base de datos: {db_report}")
         
         # Obtener el recurso asociado
@@ -300,7 +301,7 @@ async def update_report_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        db_report = reports_crud.update_report(
+        db_report = crud_resports.update_report(
             db=db, 
             report_id=update_request.report_id, 
             report=update_request.report_data
@@ -348,7 +349,7 @@ async def delete_report_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        success = reports_crud.delete_report(db=db, report_id=report_id)
+        success = crud_resports.delete_report(db=db, report_id=report_id)
         if not success:
             raise HTTPException(
                 status_code=404,
@@ -388,7 +389,7 @@ async def get_report_norms_endpoint(
                 raise HTTPException(status_code=403, detail=error_message)
 
         # Verificar que el reporte existe
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report:
             raise HTTPException(
                 status_code=404,
@@ -396,7 +397,7 @@ async def get_report_norms_endpoint(
             )
 
         # Obtener todas las normativas del reporte
-        norms = reports_crud.get_norms_by_report_id(db, report_id)
+        norms = crud_resports.get_norms_by_report_id(db, report_id)
         return norms
 
     except Exception as e:
@@ -428,7 +429,7 @@ async def create_norm_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        db_norm = reports_crud.create_norm(db=db, norm=norm)
+        db_norm = crud_resports.create_norm(db=db, norm=norm)
         return db_norm
 
     except Exception as e:
@@ -461,14 +462,14 @@ async def update_norm_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        db_norm = reports_crud.get_norm_by_id(db, norm_id)
+        db_norm = crud_resports.get_norm_by_id(db, norm_id)
         if not db_norm:
             raise HTTPException(
                 status_code=404,
                 detail="Normativa no encontrada"
             )
 
-        db_norm = reports_crud.update_norm(db, norm_id, norm)
+        db_norm = crud_resports.update_norm(db, norm_id, norm)
         return db_norm
 
     except Exception as e:
@@ -508,7 +509,7 @@ async def delete_norm_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        reports_crud.delete_norm(db, norm_id)
+        crud_resports.delete_norm(db, norm_id)
         return {"message": "Normativa eliminada correctamente"}
 
     except Exception as e:
@@ -541,7 +542,7 @@ async def update_cover_photo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria de sostenibilidad no encontrada")
         # Verificar extensión del archivo
@@ -563,7 +564,7 @@ async def update_cover_photo(
         # Leer el contenido del archivo
         content = await file.read()
         
-        file_url = reports_crud.update_cover_photo(db, report, content)
+        file_url = crud_resports.update_cover_photo(db, report, content)
 
         return {"url": file_url}
 
@@ -594,7 +595,7 @@ async def upload_logo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria no encontrada")
 
@@ -606,7 +607,7 @@ async def upload_logo(
         # Leer el contenido del archivo
         content = await file.read()
 
-        new_logo = reports_crud.upload_logo(db, report, content, file_extension)
+        new_logo = crud_resports.upload_logo(db, report, content, file_extension)
 
         return ReportLogoResponse(
             id=new_logo.id,
@@ -639,7 +640,7 @@ async def get_report_logos(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        logo_responses = reports_crud.get_report_logos(db, report_id)
+        logo_responses = crud_resports.get_report_logos(db, report_id)
 
         return logo_responses
 
@@ -659,7 +660,7 @@ async def delete_logo(
     """
     try:
         # Primero obtener el logo para saber a qué reporte pertenece
-        logo = reports_crud.get_logo_by_id(db, logo_id)
+        logo = crud_resports.get_logo_by_id(db, logo_id)
         if not logo:
             raise HTTPException(status_code=404, detail="Logo no encontrado")
 
@@ -674,7 +675,7 @@ async def delete_logo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        reports_crud.delete_logo(db, logo_id, logo)
+        crud_resports.delete_logo(db, logo_id, logo)
 
         return {"message": "Logo eliminado correctamente"}
 
@@ -704,7 +705,7 @@ async def get_cover_photo(
                 raise HTTPException(status_code=403, detail=error_message)
 
         # Verificar que el reporte existe y tiene foto de portada
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report or not report.cover_photo:
             raise HTTPException(status_code=404, detail="Imagen no encontrada")
 
@@ -748,7 +749,7 @@ async def get_report_agreements_endpoint(
                 raise HTTPException(status_code=403, detail=error_message)
 
         # Verificar que el reporte existe
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report:
             raise HTTPException(
                 status_code=404,
@@ -756,7 +757,7 @@ async def get_report_agreements_endpoint(
             )
 
         # Obtener todos los acuerdos del reporte
-        agreements = reports_crud.get_report_agreements(db, report_id)
+        agreements = crud_resports.get_report_agreements(db, report_id)
         return agreements
 
     except Exception as e:
@@ -788,7 +789,7 @@ async def create_agreement_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        db_agreement = reports_crud.create_agreement(db, agreement)
+        db_agreement = crud_resports.create_agreement(db, agreement)
         return db_agreement
 
     except Exception as e:
@@ -821,14 +822,14 @@ async def update_agreement_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        db_agreement = reports_crud.get_agreement_by_id(db, agreement_id)
+        db_agreement = crud_resports.get_agreement_by_id(db, agreement_id)
         if not db_agreement:
             raise HTTPException(
                 status_code=404,
                 detail="Acuerdo no encontrado"
             )
 
-        db_agreement = reports_crud.update_agreement(db, agreement_id, agreement)
+        db_agreement = crud_resports.update_agreement(db, agreement_id, agreement)
         return db_agreement
 
     except Exception as e:
@@ -850,7 +851,7 @@ async def delete_agreement_endpoint(
     """
     try:
         # Primero obtener el acuerdo para saber a qué reporte pertenece
-        db_agreement = reports_crud.get_agreement_by_id(db, agreement_id)
+        db_agreement = crud_resports.get_agreement_by_id(db, agreement_id)
         if not db_agreement:
             raise HTTPException(
                 status_code=404,
@@ -868,7 +869,7 @@ async def delete_agreement_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        reports_crud.delete_agreement(db, agreement_id, db_agreement)
+        crud_resports.delete_agreement(db, agreement_id, db_agreement)
         return {"message": "Acuerdo eliminado correctamente"}
 
     except Exception as e:
@@ -900,7 +901,7 @@ async def create_bibliography_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        db_bibliography = reports_crud.create_bibliography(db, bibliography)
+        db_bibliography = crud_resports.create_bibliography(db, bibliography)
         return db_bibliography
 
     except Exception as e:
@@ -933,14 +934,14 @@ async def update_bibliography_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        db_bibliography = reports_crud.get_bibliography_by_id(db, bibliography_id)
+        db_bibliography = crud_resports.get_bibliography_by_id(db, bibliography_id)
         if not db_bibliography:
             raise HTTPException(
                 status_code=404,
                 detail="Bibliografía no encontrada"
             )
 
-        db_bibliography = reports_crud.update_bibliography(db, bibliography_id, bibliography)
+        db_bibliography = crud_resports.update_bibliography(db, bibliography_id, bibliography)
         return db_bibliography
 
     except Exception as e:
@@ -980,7 +981,7 @@ async def delete_bibliography_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        reports_crud.delete_bibliography(db, bibliography_id, db_bibliography)
+        crud_resports.delete_bibliography(db, bibliography_id, db_bibliography)
         return {"message": "Bibliografía eliminada correctamente"}
 
     except Exception as e:
@@ -1020,7 +1021,7 @@ async def get_report_bibliographies_endpoint(
             )
 
         # Obtener todas las referencias bibliográficas del reporte
-        bibliographies = reports_crud.get_report_bibliographies(db, report_id)
+        bibliographies = crud_resports.get_report_bibliographies(db, report_id)
         return bibliographies
 
     except Exception as e:
@@ -1053,7 +1054,7 @@ async def update_organization_chart(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria de sostenibilidad no encontrada")
         # Verificar extensión del archivo
@@ -1075,7 +1076,7 @@ async def update_organization_chart(
         # Leer el contenido del archivo
             content = await file.read()
 
-        file_url = reports_crud.update_organization_chart(db, report, content)
+        file_url = crud_resports.update_organization_chart(db, report, content)
 
         return {"url": file_url}
 
@@ -1108,7 +1109,7 @@ async def upload_photo(
                 raise HTTPException(status_code=403, detail=error_message)
 
         # Verificar que el reporte existe
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria no encontrada")
 
@@ -1120,7 +1121,7 @@ async def upload_photo(
         if file_extension not in ['.jpg', '.jpeg', '.png']:
             raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
 
-        new_photo = reports_crud.upload_photo(db, report, content, file_extension, description)
+        new_photo = crud_resports.upload_photo(db, report, content, file_extension, description)
 
         return ReportPhotoResponse(
             id=new_photo.id,
@@ -1154,7 +1155,7 @@ async def get_report_photos(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        photo_responses = reports_crud.get_report_photos(db, report_id)
+        photo_responses = crud_resports.get_report_photos(db, report_id)
 
         return photo_responses
 
@@ -1174,7 +1175,7 @@ async def delete_photo(
     """
     try:
         # Primero obtener la foto para saber a qué reporte pertenece
-        photo = reports_crud.get_photo_by_id(db, photo_id)
+        photo = crud_resports.get_photo_by_id(db, photo_id)
         if not photo:
             raise HTTPException(status_code=404, detail="Foto no encontrada")
 
@@ -1189,7 +1190,7 @@ async def delete_photo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        reports_crud.delete_photo(db, photo_id, photo)
+        crud_resports.delete_photo(db, photo_id, photo)
 
         return {"message": "Foto eliminada correctamente"}
 
@@ -1210,7 +1211,7 @@ async def update_photo(
     """
     try:
         # Primero obtener la foto para saber a qué reporte pertenece
-        photo = reports_crud.get_photo_by_id(db, photo_id)
+        photo = crud_resports.get_photo_by_id(db, photo_id)
         if not photo:
             raise HTTPException(status_code=404, detail="Foto no encontrada")
 
@@ -1225,7 +1226,7 @@ async def update_photo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        photo = reports_crud.update_photo(db, photo_id, photo_update)
+        photo = crud_resports.update_photo(db, photo_id, photo_update)
 
         return ReportPhotoResponse(
             id=photo.id,
@@ -1252,7 +1253,7 @@ def get_user_role(
         return {"role": "manager"}
 
     # Obtener el rol del usuario en el reporte
-    team_member = reports_crud.get_team_member(db, current_user.id, report_id)
+    team_member = crud_resports.get_team_member(db, current_user.id, report_id)
 
     if not team_member:
         raise HTTPException(
@@ -1284,7 +1285,7 @@ async def get_organization_chart(
                 raise HTTPException(status_code=403, detail=error_message)
 
         # Verificar que el reporte existe y tiene organigrama
-        report = reports_crud.get_report(db, report_id)
+        report = crud_resports.get_report(db, report_id)
         if not report or not report.org_chart_figure:
             raise HTTPException(status_code=404, detail="Imagen no encontrada")
 

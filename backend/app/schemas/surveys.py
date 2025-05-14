@@ -22,15 +22,6 @@ class Assessment(AssessmentBase):
     class Config:
         from_attributes = True
 
-class AssessmentSearch(BaseModel):
-    material_topic_id: Optional[int] = None
-    stakeholder_id: Optional[int] = None
-    is_internal: Optional[bool] = None
-
-class AssessmentResponse(BaseModel):
-    items: List[Assessment]
-    total: int
-
 class MultipleAssessmentsCreate(BaseModel):
     stakeholder_id: int
     assessments: List[dict] = Field(..., description="Lista de {material_topic_id: int, score: int}")
@@ -41,8 +32,6 @@ class SurveySearch(BaseModel):
     search_term: Optional[str] = None
     heritage_resource_name: Optional[str] = None
     year: Optional[Union[str, int]] = None
-    page: Optional[int] = 1
-    per_page: Optional[int] = 10
 
 class Survey(BaseModel):
     id: int
@@ -54,10 +43,3 @@ class Survey(BaseModel):
 
     class Config:
         from_attributes = True
-
-class SurveyResponse(BaseModel):
-    items: List[Survey]
-    total: int
-    page: int
-    per_page: int
-    total_pages: int

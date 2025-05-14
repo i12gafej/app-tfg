@@ -41,16 +41,6 @@ export interface SurveysSearch {
     search_term?: string;
     heritage_resource_name?: string;
     year?: string;
-    page?: number;
-    per_page?: number;
-}
-
-export interface SurveyResponse {
-    items: Survey[];
-    total: number;
-    page: number;
-    per_page: number;
-    total_pages: number;
 }
 
 const api = axios.create({
@@ -77,9 +67,13 @@ export const surveyService = {
 
     
 
-    searchSurveys: async (params: SurveysSearch, token: string): Promise<SurveyResponse> => {
+    searchSurveys: async (params: SurveysSearch, token: string): Promise<{items: Survey[], total: number}> => {
         try {
-            const response = await api.post<SurveyResponse>('/survey/search/', params);
+            const response = await api.post<{items: Survey[], total: number}>('/survey/search/', params, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             return response.data;
         } catch (error) {
             console.error('Error al buscar encuestas privadas:', error);

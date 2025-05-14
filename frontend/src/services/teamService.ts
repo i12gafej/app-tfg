@@ -78,7 +78,8 @@ export const teamService = {
 
   // Obtener reportes de un recurso
   async getReports(resourceId: string): Promise<Report[]> {
-    const response = await api.post('/team/search/reports', { resource_id: parseInt(resourceId) });
+    const response = await api.post('/team/search/reports', { 
+      resource_id: parseInt(resourceId) });
     return response.data.items;
   },
 
@@ -91,9 +92,18 @@ export const teamService = {
   },
 
   // Buscar usuarios disponibles para el equipo
-  async searchAvailableUsers(params: UserSearchParams): Promise<{items: User[], total: number}> {
-    const response = await api.post('/team/users/search', params);
-    return response.data;
+  async searchAvailableUsers(params: UserSearchParams, token: string): Promise<{items: User[], total: number}> {
+    try {
+      const response = await api.post<{items: User[], total: number}>('/team/users/search', params, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al buscar usuarios disponibles para el equipo:', error);
+      throw error;
+    }
   },
 
   // Crear un nuevo miembro del equipo

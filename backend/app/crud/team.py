@@ -55,23 +55,11 @@ def search_reports(
     """
     Buscar reportes de un recurso patrimonial con filtros opcionales.
     """
-    query = db.query(SustainabilityReport).filter(SustainabilityReport.heritage_resource_id == search_params.resource_id)
-
-    def normalize_text(text: str) -> str:
-        if not text or text.isspace():
-            return None
-        return text.strip()
-
-    if search_params.search_term:
-        search = normalize_text(search_params.search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(SustainabilityReport.year.ilike(search))
-
-    if search_params.year:
-        year = normalize_text(search_params.year)
-        if year:
-            query = query.filter(SustainabilityReport.year.ilike(f"%{year}%"))
+    query = db.query(
+        SustainabilityReport.id,
+        SustainabilityReport.heritage_resource_id,
+        SustainabilityReport.year,
+    ).filter(SustainabilityReport.heritage_resource_id == search_params.resource_id)
 
     reports = query.all()
     total = len(reports)
@@ -134,12 +122,7 @@ def search_team_members(
         if organization:
             query = query.filter(SustainabilityTeamMember.organization.ilike(f"%{organization}%"))
 
-    members = query.all()
-    total = len(members)
-    return {
-        "items": members,
-        "total": total
-    }
+    return query.all()
 
 def create_team_member(
     db: Session,

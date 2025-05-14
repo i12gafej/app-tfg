@@ -64,7 +64,7 @@ async def create_resource_endpoint(
 
 @router.post("/resources/search", response_model=dict)
 async def search_resources_endpoint(
-    search_params: ResourceSearch = Body(...),
+    search_params: ResourceSearch,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):

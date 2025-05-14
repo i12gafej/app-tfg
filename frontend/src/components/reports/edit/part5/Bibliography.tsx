@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  TextField,
-  IconButton,
+import { 
+  Box, 
+  Typography, 
+  TextField, 
+  IconButton, 
   Button,
   Paper,
   Alert,
@@ -295,11 +295,11 @@ const Bibliography = () => {
 
   return (
     <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 2 }}>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
         alignItems: 'center',
-        mb: 2
+        mb: 2 
       }}>
         <Typography variant="h6">
           Referencias Bibliográficas
@@ -343,7 +343,7 @@ const Bibliography = () => {
           {successMessage}
         </Alert>
       )}
-
+      
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
