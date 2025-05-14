@@ -347,12 +347,10 @@ const Agreements = () => {
                   <TableCell align="right">
                     {!readOnly && (
                       <>
-                        <IconButton onClick={() => handleEdit(agreement)} sx={{ color: 'grey.600' }}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => handleDelete(agreement)} sx={{ color: 'grey.600' }}>
-                          <DeleteOutlineIcon />
-                        </IconButton>
+                        <Button onClick={() => handleEdit(agreement)} sx = {{mr: 1}} color="view" startIcon={<EditIcon />}>
+                        </Button>
+                        <Button onClick={() => handleDelete(agreement)} sx = {{mr: 1}} color="error" startIcon={<DeleteOutlineIcon />}>
+                        </Button>
                       </>
                     )}
                   </TableCell>

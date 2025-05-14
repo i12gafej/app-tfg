@@ -6,19 +6,20 @@ from app.schemas.user import UserCreate
 from app.core.security import get_password_hash
 import logging
 
-logger = logging.getLogger(__name__)
-
 
 def authenticate(db: Session, *, email: str, password: str) -> Optional[User]:
     """
     Authenticate a user by email and password
     """
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        return None
-    if not verify_password(password, user.password):
-        return None
-    return user
+    try:
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            return None
+        if not verify_password(password, user.password):
+            return None
+        return user
+    except Exception as e:
+        raise e
 
 def get_by_email(db: Session, *, email: str) -> Optional[User]:
     """
@@ -28,13 +29,9 @@ def get_by_email(db: Session, *, email: str) -> Optional[User]:
         # Realizar la búsqueda específica
         query = db.query(User).filter(User.email == email)
            
-        user = query.first()
-        
-        return user
+        return query.first()
     except Exception as e:
-        logger.error(f"Error al buscar usuario: {str(e)}")
-        logger.exception("Traceback completo:")
-        return None
+        raise e
 
 def create(db: Session, user_data: UserCreate) -> User:
     try:
@@ -42,7 +39,7 @@ def create(db: Session, user_data: UserCreate) -> User:
         hashed_password = get_password_hash(user_data.password)
         
         # Crear el objeto de usuario
-        db_user = User(
+        user = User(
             name=user_data.name,
             surname=user_data.surname,
             email=user_data.email,
@@ -52,13 +49,12 @@ def create(db: Session, user_data: UserCreate) -> User:
         )
         
         # Guardar en la base de datos
-        db.add(db_user)
+        db.add(user)
         db.commit()
-        db.refresh(db_user)
+        db.refresh(user)
         
-        return db_user
+        return user
     except Exception as e:
-        db.rollback()
         raise e
 
 def get(db: Session, user_id: int) -> Optional[User]:
@@ -71,7 +67,7 @@ def get(db: Session, user_id: int) -> Optional[User]:
         logger.error(f"Error al obtener usuario: {str(e)}")
         return None
 
-def update(db: Session, db_user: User, user_data: dict) -> User:
+def update(db: Session, user: User, user_data: dict) -> User:
     """
     Update a user
     """
@@ -81,28 +77,24 @@ def update(db: Session, db_user: User, user_data: dict) -> User:
             user_data = user_data.dict(exclude_unset=True)
             
         for field, value in user_data.items():
-            if hasattr(db_user, field):
-                setattr(db_user, field, value)
+            if hasattr(user, field):
+                setattr(user, field, value)
         
-        db.add(db_user)
+        db.add(user)
         db.commit()
-        db.refresh(db_user)
-        return db_user
+        db.refresh(user)
+        return user
     except Exception as e:
-        db.rollback()
-        logger.error(f"Error al actualizar usuario: {str(e)}")
-        raise 
+        raise e
 
-def delete(db: Session, db_user: User) -> None:
+def delete(db: Session, user: User) -> None:
     """
     Eliminar un usuario de la base de datos.
     """
     try:
-        db.delete(db_user)
+        db.delete(user)
         db.commit()
     except Exception as e:
-        db.rollback()
-        logging.error(f"Error al eliminar usuario: {str(e)}")
         raise e 
 
 def search(
@@ -116,50 +108,56 @@ def search(
     """
     Buscar usuarios con filtros opcionales.
     """
-    query = db.query(User)
+    try:
+        query = db.query(User)
 
-    def normalize_text(text: str) -> Optional[str]:
-        if not text or text.isspace():
-            return None
-        return text.strip()
+        def normalize_text(text: str) -> Optional[str]:
+            if not text or text.isspace():
+                return None
+            return text.strip()
 
-    # Filtro por término de búsqueda general
-    if search_term:
-        search = normalize_text(search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(
-                User.name.ilike(search) |
-                User.surname.ilike(search) |
-                User.email.ilike(search)
-            )
+        # Filtro por término de búsqueda general
+        if search_term:
+            search = normalize_text(search_term)
+            if search:
+                search = f"%{search}%"
+                query = query.filter(
+                    User.name.ilike(search) |
+                    User.surname.ilike(search) |
+                    User.email.ilike(search)
+                )
 
-    # Filtros específicos
-    if name:
-        name_val = normalize_text(name)
-        if name_val:
-            query = query.filter(User.name.ilike(f"%{name_val}%"))
-    if surname:
-        surname_val = normalize_text(surname)
-        if surname_val:
-            query = query.filter(User.surname.ilike(f"%{surname_val}%"))
-    if email:
-        email_val = normalize_text(email)
-        if email_val:
-            query = query.filter(User.email.ilike(f"%{email_val}%"))
-    if is_admin is not None:
-        query = query.filter(User.admin == is_admin)
+        # Filtros específicos
+        if name:
+            name_val = normalize_text(name)
+            if name_val:
+                query = query.filter(User.name.ilike(f"%{name_val}%"))
+        if surname:
+            surname_val = normalize_text(surname)
+            if surname_val:
+                query = query.filter(User.surname.ilike(f"%{surname_val}%"))
+        if email:
+            email_val = normalize_text(email)
+            if email_val:
+                query = query.filter(User.email.ilike(f"%{email_val}%"))
+        if is_admin is not None:
+            query = query.filter(User.admin == is_admin)
 
-    return query.all() 
+        return query.all() 
+    except Exception as e:
+        raise e
 
 def change_password(db: Session, user_id: int, old_password: str, new_password: str) -> Optional[User]:
-    user = get(db, user_id)
-    if not user:
-        return None
-    if not verify_password(old_password, user.password):
-        return None
-    user.password = get_password_hash(new_password)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user 
+    try:
+        user = get(db, user_id)
+        if not user:
+            return None
+        if not verify_password(old_password, user.password):
+            return None
+        user.password = get_password_hash(new_password)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user 
+    except Exception as e:
+        raise e

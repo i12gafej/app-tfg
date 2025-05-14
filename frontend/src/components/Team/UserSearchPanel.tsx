@@ -6,16 +6,6 @@ import {
   InputAdornment,
   Button,
   Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   CircularProgress,
   Alert,
   Typography,
@@ -32,6 +22,7 @@ import {
   ArrowDownward as ArrowDownwardIcon
 } from '@mui/icons-material';
 import { useState, useEffect, ChangeEvent, useMemo } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { teamService, User, TeamMember } from '@/services/teamService';
 import UserList from '@/components/Team/UserList';
 import TeamMemberAssignDialog from '@/components/Team/TeamMemberAssignDialog';
@@ -61,6 +52,7 @@ const UserSearchPanel = ({
   reportId,
   teamMembers 
 }: UserSearchPanelProps) => {
+  const { token } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +76,7 @@ const UserSearchPanel = ({
       if (filters.name) searchParams.name = filters.name;
       if (filters.surname) searchParams.surname = filters.surname;
       if (filters.email) searchParams.email = filters.email;
-      const response = await teamService.searchAvailableUsers(searchParams);
+      const response = await teamService.searchAvailableUsers(searchParams, token || '');
       setAllUsers(response.items);
       setPage(0);
     } catch (err) {

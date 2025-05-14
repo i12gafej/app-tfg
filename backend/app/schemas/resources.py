@@ -19,6 +19,16 @@ class HeritageResourceBase(BaseModel):
 class HeritageResourceCreate(HeritageResourceBase):
     pass
 
+class HeritageResourceUpdate(HeritageResourceBase):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    typology: Optional[List[str]] = None
+    ownership: Optional[str] = None
+    management_model: Optional[str] = None
+    postal_address: Optional[str] = None
+    web_address: Optional[str] = None
+    phone_number: Optional[str] = None
+
 class HeritageResource(HeritageResourceBase):
     id: int
 

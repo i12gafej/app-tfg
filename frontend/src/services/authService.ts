@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_URL = '/api';
+const api = axios.create({
+  baseURL: '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 export interface LoginCredentials {
   email: string;
@@ -23,8 +28,8 @@ export interface AuthResponse {
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await axios.post<AuthResponse>(
-        `${API_URL}/login/access-token`,
+      const response = await api.post<AuthResponse>(
+        `/login/access-token`,
         credentials
       );
       return response.data;

@@ -17,52 +17,58 @@ router = APIRouter()
 
 @router.post("/material-topics/search", response_model=dict)
 def search_material_topics(
-    search_params: MaterialTopicSearch = Body(...),
+    search_params: MaterialTopicSearch,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
     """
     Buscar asuntos relevantes con filtros opcionales.
     """
-    # Verificar si el usuario es admin o tiene un rol en el reporte
-    if not current_user.admin:
-        has_permission, error_message = check_user_permissions(
+    try:
+        # Verificar si el usuario es admin o tiene un rol en el reporte
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=search_params.report_id
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+
+        # Quitar paginación: obtener todos los asuntos que cumplan los filtros
+        material_topics = crud_material_topic.search(
             db=db,
-            user_id=current_user.id,
-            report_id=search_params.report_id
+            search_term=search_params.search_term,
+            name=search_params.name,
+            report_id=search_params.report_id,
+            
         )
-        if not has_permission:
-            raise HTTPException(status_code=403, detail=error_message)
 
-    # Quitar paginación: obtener todos los asuntos que cumplan los filtros
-    material_topics, total = crud_material_topic.search(
-        db=db,
-        search_term=search_params.search_term,
-        name=search_params.name,
-        report_id=search_params.report_id,
-        skip=0,
-        limit=None
-    )
+        # Convertir los material topics a esquema Pydantic
+        material_topics_schema = [
+            MaterialTopic(
+                id=material_topic.id,
+                name=material_topic.name,
+                description=material_topic.description,
+                priority=material_topic.priority,
+                main_objective=material_topic.main_objective,
+                goal_ods_id=material_topic.goal_ods_id,
+                goal_number=material_topic.goal_number,
+                report_id=material_topic.report_id
+            )
+            for material_topic in material_topics
+        ]
 
-    # Convertir los material topics a esquema Pydantic
-    material_topics_schema = [
-        MaterialTopic(
-            id=material_topic.id,
-            name=material_topic.name,
-            description=material_topic.description,
-            priority=material_topic.priority,
-            main_objective=material_topic.main_objective,
-            goal_ods_id=material_topic.goal_ods_id,
-            goal_number=material_topic.goal_number,
-            report_id=material_topic.report_id
+        total = len(material_topics_schema)
+        return {
+            "items": material_topics_schema,
+            "total": total,
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al buscar asuntos relevantes: {str(e)}"
         )
-        for material_topic in material_topics
-    ]
-
-    return {
-        "items": material_topics_schema,
-        "total": len(material_topics_schema),
-    }
 
 @router.post("/material-topics/create", response_model=MaterialTopic)
 def create_material_topic(
@@ -73,7 +79,6 @@ def create_material_topic(
     """
     Crear un nuevo asunto de materialidad.
     """
-    # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
             db=db,
@@ -83,7 +88,6 @@ def create_material_topic(
         if not has_permission:
             raise HTTPException(status_code=403, detail=error_message)
     
-    # Verificar si el nombre ya existe para este reporte
     existing_material_topic = crud_material_topic.get_by_name(db, material_topic_data.name)
     if existing_material_topic and existing_material_topic.report_id == material_topic_data.report_id:
         raise HTTPException(
@@ -100,8 +104,9 @@ def create_material_topic(
             detail=f"Error al crear el asunto de materialidad: {str(e)}"
         )
 
-@router.post("/material-topics/update", response_model=MaterialTopic)
+@router.put("/material-topics/update/{material_topic_id}", response_model=MaterialTopic)
 def update_material_topic(
+    material_topic_id: int,
     material_topic_data: MaterialTopicUpdate = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -110,7 +115,7 @@ def update_material_topic(
     Actualizar un asunto de materialidad.
     """
     # Obtener el asunto de materialidad existente
-    db_material_topic = crud_material_topic.get(db, material_topic_data.id)
+    db_material_topic = crud_material_topic.get(db, material_topic_id)
     if not db_material_topic:
         raise HTTPException(
             status_code=404,
@@ -136,7 +141,7 @@ def update_material_topic(
             detail=f"Error al actualizar el asunto de materialidad: {str(e)}"
         )
 
-@router.delete("/material-topics/{material_topic_id}")
+@router.delete("/material-topics/delete/{material_topic_id}")
 def delete_material_topic(
     material_topic_id: int,
     db: Session = Depends(get_db),

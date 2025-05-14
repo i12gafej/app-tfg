@@ -18,7 +18,7 @@ export const monitoringService = {
   async getMonitoringTemplate(reportId: number, token: string): Promise<string> {
     try {
       const response = await api.get<MonitoringTemplateResponse>(
-        `/monitoring-template/${reportId}`,
+        `/monitoring/get/template/${reportId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

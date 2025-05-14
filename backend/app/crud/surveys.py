@@ -2,9 +2,7 @@ from typing import List, Optional, Dict, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from app.models.models import Assessment, SustainabilityReport, MaterialTopic, Stakeholder, HeritageResource
-import logging
 
-logger = logging.getLogger(__name__)
 
 def create_assessments(
     db: Session,
@@ -37,9 +35,7 @@ def create_assessments(
         db.commit()
         return created_assessments
     except Exception as e:
-        db.rollback()
-        logger.error(f"Error al crear valoraciones: {str(e)}")
-        raise
+        raise e
 
 def search_assessments(
     db: Session,
@@ -61,8 +57,7 @@ def search_assessments(
 
         return query.all()
     except Exception as e:
-        logger.error(f"Error al buscar valoraciones: {str(e)}")
-        raise
+        raise e
 
 def search_surveys(
     db: Session,
@@ -114,8 +109,7 @@ def search_surveys(
 
         
     except Exception as e:
-        logger.error(f"Error al buscar encuestas privadas: {str(e)}")
-        raise
+        raise e
 
 def get_all_assessments(
     db: Session,
@@ -130,5 +124,4 @@ def get_all_assessments(
         
         return assessments
     except Exception as e:
-        logger.error(f"Error al obtener todas las valoraciones: {str(e)}")
-        raise
+        raise e

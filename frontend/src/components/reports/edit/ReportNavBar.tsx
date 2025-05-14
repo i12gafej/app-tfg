@@ -129,7 +129,7 @@ const ReportNavBar = () => {
       flexDirection: 'column', 
       alignItems: 'center', 
       p: isMobile ? 0.5 : 0,
-      py: 1 
+      py: 1
     }}>
       
       <Box sx={{ 
@@ -252,7 +252,7 @@ const ReportNavBar = () => {
         </Box>
       )}
 
-      <Box sx={{ width: '100%', px: isMobile ? 0.5 : 2 }}>
+      <Box sx={{ width: '100%', px: 0 }}>
         {renderPart()}
       </Box>
     </Box>

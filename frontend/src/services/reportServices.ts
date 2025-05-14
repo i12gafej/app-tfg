@@ -100,7 +100,7 @@ export const reportService = {
 
     getReportNorms: async (reportId: number, token: string): Promise<ReportNorm[]> => {
         try {
-            const response = await api.get<ReportNorm[]>(`/reports/norms/${reportId}`, {
+            const response = await api.get<ReportNorm[]>(`/reports/get-all/norms/${reportId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -114,7 +114,7 @@ export const reportService = {
 
     getReportAgreements: async (reportId: number, token: string): Promise<ReportAgreement[]> => {
         try {
-            const response = await api.get<ReportAgreement[]>(`/reports/agreements/${reportId}`, {
+            const response = await api.get<ReportAgreement[]>(`/reports/get-all/agreements/${reportId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -128,7 +128,7 @@ export const reportService = {
 
     updateNorm: async (reportId: number, normId: number, norm: string, token: string): Promise<ReportNorm> => {
         try {
-            const response = await api.put<ReportNorm>(`/reports/norms/${normId}`, {
+            const response = await api.put<ReportNorm>(`/reports/update/norm/${normId}`, {
                 norm,
                 report_id: reportId
             }, {
@@ -145,7 +145,7 @@ export const reportService = {
 
     createNorm: async (reportId: number, norm: string, token: string): Promise<ReportNorm> => {
         try {
-            const response = await api.post<ReportNorm>('/reports/norms', {
+            const response = await api.post<ReportNorm>('/reports/create/norm', {
                 norm,
                 report_id: reportId
             }, {
@@ -162,7 +162,7 @@ export const reportService = {
 
     deleteNorm: async (normId: number, token: string): Promise<void> => {
         try {
-            await api.delete(`/reports/norms/${normId}`, {
+            await api.delete(`/reports/delete/norm/${normId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -203,13 +203,10 @@ export const reportService = {
         }
     },
 
-    updateReport: async (id: number, report: Partial<SustainabilityReport>, token: string): Promise<SustainabilityReport> => {
+    updateReport: async (reportId: number, report: Partial<SustainabilityReport>, token: string): Promise<SustainabilityReport> => {
         try {
-            console.log('Enviando actualización:', { report_id: id, report_data: report });
-            const response = await api.post<SustainabilityReport>('/reports/update', {
-                report_id: id,
-                report_data: report
-            }, {
+            
+            const response = await api.put<SustainabilityReport>(`/reports/update/${reportId}`, report, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -387,7 +384,7 @@ export const reportService = {
 
     createAgreement: async (reportId: number, agreement: string, token: string): Promise<ReportAgreement> => {
         try {
-            const response = await api.post<ReportAgreement>('/reports/agreements', {
+            const response = await api.post<ReportAgreement>('/reports/create/agreements', {
                 agreement,
                 report_id: reportId
             }, {
@@ -404,7 +401,7 @@ export const reportService = {
 
     updateAgreement: async (reportId: number, agreementId: number, agreement: string, token: string): Promise<ReportAgreement> => {
         try {
-            const response = await api.put<ReportAgreement>(`/reports/agreements/${agreementId}`, {
+            const response = await api.put<ReportAgreement>(`/reports/update/agreements/${agreementId}`, {
                 agreement,
                 report_id: reportId
             }, {
@@ -421,7 +418,7 @@ export const reportService = {
 
     deleteAgreement: async (agreementId: number, token: string): Promise<void> => {
         try {
-            await api.delete(`/reports/agreements/${agreementId}`, {
+            await api.delete(`/reports/delete/agreements/${agreementId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -434,7 +431,7 @@ export const reportService = {
 
     getReportBibliographies: async (reportId: number, token: string): Promise<ReportBibliography[]> => {
         try {
-            const response = await api.get<ReportBibliography[]>(`/reports/bibliographies/${reportId}`, {
+            const response = await api.get<ReportBibliography[]>(`/reports/get-all/bibliographies/${reportId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -448,7 +445,7 @@ export const reportService = {
 
     createBibliography: async (reportId: number, reference: string, token: string): Promise<ReportBibliography> => {
         try {
-            const response = await api.post<ReportBibliography>('/reports/bibliographies', {
+            const response = await api.post<ReportBibliography>('/reports/create/bibliographies', {
                 reference,
                 report_id: reportId
             }, {
@@ -465,7 +462,7 @@ export const reportService = {
 
     updateBibliography: async (reportId: number, bibliographyId: number, reference: string, token: string): Promise<ReportBibliography> => {
         try {
-            const response = await api.put<ReportBibliography>(`/reports/bibliographies/${bibliographyId}`, {
+            const response = await api.put<ReportBibliography>(`/reports/update/bibliographies/${bibliographyId}`, {
                 reference,
                 report_id: reportId
             }, {
@@ -482,7 +479,7 @@ export const reportService = {
 
     deleteBibliography: async (bibliographyId: number, token: string): Promise<void> => {
         try {
-            await api.delete(`/reports/bibliographies/${bibliographyId}`, {
+            await api.delete(`/reports/delete/bibliographies/${bibliographyId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

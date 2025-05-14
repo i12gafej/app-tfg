@@ -542,17 +542,17 @@ const Regulations = () => {
                       ) : '-'}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton onClick={() => handleView(norm)} sx={{ color: 'grey.600' }}>
-                        <VisibilityIcon />
-                      </IconButton>
-              {!readOnly && (
+                      <Button onClick={() => handleView(norm)} 
+                         
+                          color="primary"
+                          startIcon={<VisibilityIcon />}>
+                      </Button>
+                    {!readOnly && (
                         <>
-                          <IconButton onClick={() => handleEdit(norm)} sx={{ color: 'grey.600' }}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton onClick={() => handleDelete(norm)} sx={{ color: 'grey.600' }}>
-            <DeleteOutlineIcon />
-          </IconButton>
+                          <Button onClick={() => handleEdit(norm)} sx = {{ ml: 1, mr: 1}} color="view" startIcon={<EditIcon />}>
+                          </Button>
+                          <Button onClick={() => handleDelete(norm)} sx = {{ mr: 1}} color="error" startIcon={<DeleteOutlineIcon />}>
+                          </Button>
                         </>
               )}
                     </TableCell>

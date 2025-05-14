@@ -13,17 +13,12 @@ from app.models.models import Stakeholder as StakeholderModel, SustainabilityTea
 from app.crud import stakeholders as crud_stakeholder
 from app.services.user import check_user_permissions
 from app.schemas.stakeholders import StakeholderSearch
-import logging
-
-# Configurar el logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 @router.post("/stakeholders/search", response_model=dict)
 def search_stakeholders(
-    search_params: StakeholderSearch,
+    search_params: StakeholderSearch = Body(...),
     db: Session = Depends(get_db)
 ):
     """
@@ -64,7 +59,7 @@ def search_stakeholders(
 
 @router.post("/stakeholders/create", response_model=Stakeholder)
 def create_stakeholder(
-    stakeholder_data: StakeholderCreate,
+    stakeholder_data: StakeholderCreate = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
@@ -101,8 +96,9 @@ def create_stakeholder(
             detail=f"Error al crear el grupo de interés: {str(e)}"
         )
 
-@router.post("/stakeholders/update", response_model=Stakeholder)
+@router.put("/stakeholders/update/{stakeholder_id}", response_model=Stakeholder)
 def update_stakeholder(
+    stakeholder_id: int,
     stakeholder_data: StakeholderUpdate = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -112,8 +108,6 @@ def update_stakeholder(
     Solo permite la actualización si el usuario es admin o si es gestor del reporte.
     """
     try:
-        logger.info(f"Recibida petición de actualización de stakeholder: {stakeholder_data}")
-        logger.info(f"Usuario actual: {current_user}")
 
         # Verificar permisos
         if not current_user.admin:
@@ -126,10 +120,8 @@ def update_stakeholder(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
         
-        logger.info(f"Buscando stakeholder con ID: {stakeholder_data.id}")
-        db_stakeholder = crud_stakeholder.get(db, stakeholder_data.id)
+        db_stakeholder = crud_stakeholder.get(db, stakeholder_id)
         if not db_stakeholder:
-            logger.warning(f"Stakeholder no encontrado con ID: {stakeholder_data.id}")
             raise HTTPException(
                 status_code=404,
                 detail="Grupo de interés no encontrado"
@@ -137,29 +129,23 @@ def update_stakeholder(
     
         # Verificar que el stakeholder pertenece al reporte correcto
         if db_stakeholder.report_id != stakeholder_data.report_id:
-            logger.warning(f"El stakeholder {stakeholder_data.id} no pertenece al reporte {stakeholder_data.report_id}")
             raise HTTPException(
                 status_code=400,
                 detail="El grupo de interés no pertenece al reporte especificado"
             )
         
-        logger.info(f"Stakeholder encontrado: {db_stakeholder}")
-        logger.info("Intentando actualizar stakeholder")
         updated_stakeholder = crud_stakeholder.update(db, db_stakeholder, stakeholder_data)
-        logger.info(f"Stakeholder actualizado exitosamente: {updated_stakeholder}")
         return updated_stakeholder
 
     except Exception as e:
-        logger.error(f"Error al actualizar el stakeholder: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al actualizar el grupo de interés: {str(e)}"
         )
 
-@router.delete("/stakeholders/{stakeholder_id}")
+@router.delete("/stakeholders/delete/{stakeholder_id}")
 def delete_stakeholder(
     stakeholder_id: int,
-    report_id: int = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):

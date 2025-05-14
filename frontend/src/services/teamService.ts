@@ -47,48 +47,60 @@ const api = axios.create({
   },
 });
 
-// Interceptor para añadir el token de autenticación
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Interceptor para manejar errores
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Redirigir al login si el token ha expirado
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
 export const teamService = {
   // Obtener recursos patrimoniales
-  async getResources(): Promise<Resource[]> {
-    const response = await api.post('/team/search/resources', {});
-    return response.data.items;
+  async getResources(token: string): Promise<Resource[]> {
+    try {
+      const response = await api.post('/team/search/resources', 
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data.items;
+    } catch (error) {
+      console.error('Error al obtener recursos patrimoniales:', error);
+      throw error;
+    }
   },
 
   // Obtener reportes de un recurso
-  async getReports(resourceId: string): Promise<Report[]> {
-    const response = await api.post('/team/search/reports', { 
-      resource_id: parseInt(resourceId) });
-    return response.data.items;
+  async getReports(resourceId: string, token: string): Promise<Report[]> {
+    try {
+      const response = await api.post('/team/search/reports', { 
+        resource_id: parseInt(resourceId) },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data.items;
+    } catch (error) {
+      console.error('Error al obtener reportes:', error);
+      throw error;
+    }
   },
 
   // Obtener miembros del equipo de un reporte
-  async getTeamMembers(reportId: string): Promise<TeamMember[]> {
-    const response = await api.post(`/team/search/members`, {
-      report_id: parseInt(reportId)
-    });
-    return response.data.items;
+  async getTeamMembers(reportId: string, token: string): Promise<TeamMember[]> {
+    try {
+      const response = await api.post(`/team/search/members`, {
+        report_id: parseInt(reportId)
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data.items;
+    } catch (error) {
+      console.error('Error al obtener miembros del equipo:', error);
+      throw error;
+    }
   },
 
   // Buscar usuarios disponibles para el equipo
@@ -119,18 +131,29 @@ export const teamService = {
       role: string;
       organization: string;
     }
-  ): Promise<TeamMember> {
-    const response = await api.post('/team/create/member', {
-      name: data.name,
-      surname: data.surname,
-      email: data.email,
-      phone_number: data.phone_number || undefined,
-      password: data.password,
-      role: data.role,
-      organization: data.organization,
-      report_id: parseInt(reportId)
-    });
-    return response.data;
+  ,token: string): Promise<TeamMember> {
+    try {
+      const response = await api.post('/team/create/member', {
+        name: data.name,
+        surname: data.surname,
+        email: data.email,
+        phone_number: data.phone_number || undefined,
+        password: data.password,
+        role: data.role,
+        organization: data.organization,
+        report_id: parseInt(reportId)
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al crear un nuevo miembro del equipo:', error);
+      throw error;
+    }
   },
 
   // Asignar un usuario al equipo
@@ -142,14 +165,25 @@ export const teamService = {
       role: string;
       organization: string;
     }
-  ): Promise<TeamMember> {
-    const response = await api.post('/team/assign/member', {
-      user_id: parseInt(userId),
-      report_id: parseInt(reportId),
-      role: data.role,
-      organization: data.organization
-    });
-    return response.data;
+  ,token: string): Promise<TeamMember> {
+    try {
+      const response = await api.post('/team/assign/member', {
+        user_id: parseInt(userId),
+        report_id: parseInt(reportId),
+        role: data.role,
+        organization: data.organization
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al asignar un usuario al equipo:', error);
+      throw error;
+    }
   },
 
   // Actualizar un miembro del equipo
@@ -159,14 +193,32 @@ export const teamService = {
       role: string;
       organization: string;
     }
-  ): Promise<TeamMember> {
-    const response = await api.put(`/team/update/member/${memberId}`, data);
-    return response.data;
+  ,token: string): Promise<TeamMember> {
+    try {
+      const response = await api.put(`/team/update/member/${memberId}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar un miembro del equipo:', error);
+      throw error;
+    }
   },
 
   // Eliminar un miembro del equipo
-  async deleteTeamMember(memberId: string): Promise<void> {
-    await api.delete(`/team/delete/member/${memberId}`);
+  async deleteTeamMember(memberId: string, token: string): Promise<void> {
+    try {
+      await api.delete(`/team/delete/member/${memberId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error('Error al eliminar un miembro del equipo:', error);
+      throw error;
+    }
   }
 };
 

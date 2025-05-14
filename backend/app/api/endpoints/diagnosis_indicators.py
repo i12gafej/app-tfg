@@ -31,8 +31,11 @@ def get_all_by_report(
         if not has_permission:
             raise HTTPException(status_code=403, detail=error_message)
 
-    indicators = crud.get_all_by_report(db, report_id)
-    return indicators
+    try:
+        indicators = crud.get_all_by_report(db, report_id)
+        return indicators
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/diagnosis-indicators/create", response_model=DiagnosticIndicator)
 def create_indicator(
@@ -68,13 +71,16 @@ def create_indicator(
             detail="Los indicadores cualitativos requieren una respuesta"
         )
     
-    return crud.create_indicator(
-        db, 
-        indicator,
-        indicator.numeric_response,
-        indicator.unit,
-        indicator.response
-    )
+    try:
+        return crud.create_indicator(
+            db, 
+            indicator,
+            indicator.numeric_response,
+            indicator.unit,
+                indicator.response
+            )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/diagnosis-indicators/update/{indicator_id}", response_model=DiagnosticIndicator)
 def update_indicator(
@@ -116,12 +122,15 @@ def delete_indicator(
         if not has_permission:
             raise HTTPException(status_code=403, detail=error_message)
 
-    success = crud.delete_indicator(db, indicator_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Indicador no encontrado")
-    return {"message": "Indicador eliminado exitosamente"}
+    try:
+        success = crud.delete_indicator(db, indicator_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Indicador no encontrado")
+        return {"message": "Indicador eliminado exitosamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/diagnosis-indicators/get-by-id/{indicator_id}", response_model=DiagnosticIndicator)
+@router.get("/diagnosis-indicators/get/{indicator_id}", response_model=DiagnosticIndicator)
 def get_indicator(
     indicator_id: int,
     db: Session = Depends(get_db),
@@ -137,9 +146,12 @@ def get_indicator(
         if not has_permission:
             raise HTTPException(status_code=403, detail=error_message)
 
-    indicator = crud.get_indicator(db, indicator_id)
-    if not indicator:
-        raise HTTPException(status_code=404, detail="Indicador no encontrado")
-    return indicator
+    try:
+        indicator = crud.get_indicator(db, indicator_id)
+        if not indicator:
+            raise HTTPException(status_code=404, detail="Indicador no encontrado")
+        return indicator
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 

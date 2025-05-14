@@ -372,17 +372,14 @@ const Bibliography = () => {
                     {bibliography.reference}
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleView(bibliography)} sx={{ color: 'grey.600' }}>
-                      <VisibilityIcon />
-                    </IconButton>
+                    <Button onClick={() => handleView(bibliography)}  color="primary" startIcon={<VisibilityIcon />}>
+                    </Button>
                     {!readOnly && (
                       <>
-                        <IconButton onClick={() => handleEdit(bibliography)} sx={{ color: 'grey.600' }}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => handleDelete(bibliography)} sx={{ color: 'grey.600' }}>
-                          <DeleteOutlineIcon />
-                        </IconButton>
+                        <Button onClick={() => handleEdit(bibliography)} sx={{ ml: 1, mr: 1 }}  color="view" startIcon={<EditIcon />}>
+                        </Button>
+                        <Button onClick={() => handleDelete(bibliography)} sx={{ mr: 1 }}  color="error" startIcon={<DeleteOutlineIcon />}>
+                        </Button>
                       </>
                     )}
                   </TableCell>

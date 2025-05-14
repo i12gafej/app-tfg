@@ -6,6 +6,7 @@ import TeamMemberList from '@/components/Team/TeamMemberList';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import TablePagination from '@mui/material/TablePagination';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TeamMemberSearchPanelProps {
   resourceId: string | null;
@@ -44,6 +45,7 @@ const TeamMemberSearchPanel = ({
   onUpdate,
   readOnly = false
 }: TeamMemberSearchPanelProps) => {
+  const { token } = useAuth();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -69,7 +71,7 @@ const TeamMemberSearchPanel = ({
     setIsLoading(true);
     setError(null);
     try {
-      const data = await teamService.getTeamMembers(reportId);
+      const data = await teamService.getTeamMembers(reportId, token || '');
       setTeamMembers(data);
       onTeamMembersUpdate(data);
       console.log('Miembros actualizados:', data);
@@ -93,7 +95,7 @@ const TeamMemberSearchPanel = ({
 
       setIsLoadingResources(true);
       try {
-        const data = await teamService.getResources();
+        const data = await teamService.getResources(token || '');
         setResources(data);
       } catch (error) {
         console.error('Error al cargar recursos:', error);
@@ -119,7 +121,7 @@ const TeamMemberSearchPanel = ({
 
       setIsLoadingReports(true);
       try {
-        const data = await teamService.getReports(resourceId);
+        const data = await teamService.getReports(resourceId, token || '');
         setReports(data);
       } catch (error) {
         console.error('Error al cargar reportes:', error);

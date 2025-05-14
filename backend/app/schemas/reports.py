@@ -129,10 +129,6 @@ class SustainabilityReportUpdate(BaseModel):
     heritage_resource_id: Optional[int] = None
     permissions: Optional[int] = None
 
-class ReportUpdateRequest(BaseModel):
-    report_id: int
-    report_data: SustainabilityReportUpdate
-
 class SustainabilityReport(SustainabilityReportBase):
     id: int
     heritage_resource_id: int
@@ -163,11 +159,6 @@ class SustainabilityReportWithRole(SustainabilityReport):
 
 class UserRoleResponse(BaseModel):
     role: str 
-
-class ReportResponse(BaseModel):
-    report: SustainabilityReport
-    user_role_response: UserRoleResponse 
-    permissions: int 
 
 class ReportSearch(BaseModel):
     search_term: Optional[str] = None

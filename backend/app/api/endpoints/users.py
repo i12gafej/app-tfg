@@ -26,29 +26,32 @@ def search_users(
             status_code=403,
             detail="No tienes permisos para realizar esta acción"
         )
+    try:
 
-    # Usar la función search del crud
-    users = crud_user.search(
-        db=db,
-        search_term=search_params.search_term,
-        name=search_params.name,
-        surname=search_params.surname,
-        email=search_params.email,
-        is_admin=search_params.is_admin
-    )
-    total = len(users)
+        # Usar la función search del crud
+        users = crud_user.search(
+            db=db,
+            search_term=search_params.search_term,
+            name=search_params.name,
+            surname=search_params.surname,
+            email=search_params.email,
+            is_admin=search_params.is_admin
+        )
+        total = len(users)
 
-    # Convertir los usuarios a esquema Pydantic
-    users_schema = [User.from_orm(user) for user in users]
+        # Convertir los usuarios a esquema Pydantic
+        users_schema = [User.from_orm(user) for user in users]
 
-    return {
-        "items": users_schema,
-        "total": total
-    }
+        return {
+                "items": users_schema,
+                "total": total
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/users/update", response_model=User)
+@router.put("/users/update/{user_id}", response_model=User)
 def update_user(
-    user_id: int = Body(...),
+    user_id: int,
     user_data: UserUpdate = Body(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -60,21 +63,23 @@ def update_user(
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Verificar si el usuario existe
-    db_user = crud_user.get(db, user_id)
-    if not db_user:
+    user = crud_user.get(db, user_id)
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     # Verificar si el email ya está en uso por otro usuario
-    if user_data.email and user_data.email != db_user.email:
+    if user_data.email and user_data.email != user.email:
         existing_user = crud_user.get_by_email(db, email=user_data.email)
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Actualizar el usuario
-    updated_user = crud_user.update(db, db_user, user_data)
-    return updated_user
+    try:
+        # Actualizar el usuario
+        updated_user = crud_user.update(db, user, user_data)
+        return updated_user
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.delete("/users/{user_id}", response_model=dict)
+@router.delete("/users/delete/{user_id}", response_model=dict)
 def delete_user(
     user_id: int,
     current_user: TokenData = Depends(get_current_user),
@@ -85,20 +90,22 @@ def delete_user(
     """
     if not current_user.admin:
         raise HTTPException(status_code=403, detail="No tienes permisos para realizar esta acción")
+    try:
+        # Verificar si el usuario existe
+        user = crud_user.get(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    # Verificar si el usuario existe
-    db_user = crud_user.get(db, user_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
-    # Eliminar el usuario
-    crud_user.delete(db, db_user)
-    
-    return {"message": "Usuario eliminado correctamente"} 
+        # Eliminar el usuario
+        crud_user.delete(db, user)
+        
+        return {"message": "Usuario eliminado correctamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/users/create", response_model=User)
 def create_user(
-    user_data: UserCreate,
+    user_data: UserCreate = Body(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -110,8 +117,8 @@ def create_user(
         )
     
     # Verificar si el email ya existe
-    db_user = crud_user.get_by_email(db, email=user_data.email)
-    if db_user:
+    user = crud_user.get_by_email(db, email=user_data.email)
+    if user:
         raise HTTPException(
             status_code=400,
             detail="El email ya está registrado"
@@ -129,7 +136,7 @@ def create_user(
 
 @router.put("/user/change-password", response_model=dict)
 def change_password(
-    user_id: int = Body(...),
+    user_id: int,
     old_password: str = Body(...),
     new_password: str = Body(...),
     db: Session = Depends(get_db),
@@ -141,9 +148,11 @@ def change_password(
     # Solo el propio usuario o un admin pueden cambiar la contraseña
     if not (current_user.admin or current_user.id == user_id):
         raise HTTPException(status_code=403, detail="No tienes permisos para cambiar esta contraseña")
-
-    user = crud_user.change_password(db, user_id, old_password, new_password)
-    if not user:
-        raise HTTPException(status_code=400, detail="Usuario no encontrado o contraseña incorrecta")
-    return {"message": "Contraseña actualizada correctamente"}
+    try:
+        user = crud_user.change_password(db, user_id, old_password, new_password)
+        if not user:
+            raise HTTPException(status_code=400, detail="Usuario no encontrado o contraseña incorrecta")
+        return {"message": "Contraseña actualizada correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 

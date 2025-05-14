@@ -12,12 +12,16 @@ import {
   Typography,
   alpha,
   TablePagination,
-  TableSortLabel
+  TableSortLabel,
+  Button
 } from '@mui/material';
 import { 
   Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  DeleteOutline as DeleteOutlineIcon,
   DragIndicator as DragIndicatorIcon
 } from '@mui/icons-material';
+
 import { useState } from 'react';
 import { User as TeamUser } from '@/services/teamService';
 import { User as UserServiceUser } from '@/services/userService';
@@ -60,13 +64,14 @@ const DraggableUserRow = ({ user, onSelect }: { user: TeamUser; onSelect: (user:
       <TableCell>{user.surname}</TableCell>
       <TableCell>{user.email}</TableCell>
       <TableCell align="right">
-        <IconButton 
+        <Button
           size="small" 
           onClick={() => onSelect(user)}
           title="Ver detalles"
+          startIcon={<VisibilityIcon />}
         >
-          <VisibilityIcon />
-        </IconButton>
+          
+        </Button>
       </TableCell>
     </TableRow>
   );

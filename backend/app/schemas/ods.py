@@ -12,6 +12,10 @@ class ODS(ODSBase):
     class Config:
         from_attributes = True
 
+class ODSList(BaseModel):
+    items: List[ODS]
+    total: int
+
 class SecondaryImpactUpdate(BaseModel):
     material_topic_id: int
     ods_ids: List[int]
@@ -19,10 +23,6 @@ class SecondaryImpactUpdate(BaseModel):
 class SecondaryImpactResponse(BaseModel):
     material_topic_id: int
     ods_ids: List[int]
-
-class ODSList(BaseModel):
-    items: List[ODS]
-    total: int
 
 class Dimension(BaseModel):
     name: str

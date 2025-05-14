@@ -8,9 +8,7 @@ from app.api import deps
 from app.core import security
 from app.core.config import settings
 from app.schemas.auth import Token, UserLogin
-import logging
 
-logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.post("/login", response_model=Token)
@@ -49,12 +47,10 @@ async def login_access_token(
     """
     Login for access token using email and password
     """
-    logger.info(f"Intento de login para el email: {form_data.email}")
-    
+
     # Obtener el usuario
     user = crud.user.get_by_email(db, email=form_data.email)
     if not user:
-        logger.warning(f"Usuario no encontrado: {form_data.email}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo electrónico o contraseña incorrectos"
@@ -62,13 +58,11 @@ async def login_access_token(
     
     # Verificar contraseña
     if not security.verify_password(form_data.password, user.password):
-        logger.warning(f"Contraseña incorrecta para el usuario: {form_data.email}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo electrónico o contraseña incorrectos"
         )
     
-    logger.info(f"Login exitoso para el usuario: {form_data.email}")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
         user.email, expires_delta=access_token_expires

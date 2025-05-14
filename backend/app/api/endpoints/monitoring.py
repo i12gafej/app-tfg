@@ -23,17 +23,7 @@ def translate_level(level: str) -> str:
     }
     return level_map.get(level, "No definida")
 
-def clean_html(text: str) -> str:
-    if not text:
-        return "No definido"
-    # Eliminar todas las etiquetas HTML
-    clean_text = re.sub(r'<[^>]+>', '', text)
-    # Reemplazar múltiples espacios en blanco por uno solo
-    clean_text = re.sub(r'\s+', ' ', clean_text)
-    # Eliminar espacios al inicio y final
-    return clean_text.strip()
-
-@router.get("/monitoring-template/{report_id}", response_model=MonitoringTemplateResponse)
+@router.get("/monitoring/get/template/{report_id}", response_model=MonitoringTemplateResponse)
 def get_monitoring_template(
     report_id: int,
     db: Session = Depends(get_db),
@@ -43,7 +33,7 @@ def get_monitoring_template(
     Genera una plantilla de monitorización para todas las acciones del reporte.
     """
     try:
-        logger.info(f"Iniciando generación de plantilla para report_id: {report_id}")
+        
 
         # 1. Obtener todos los asuntos relevantes
         material_topics = crud_material_topics.get_all_by_report(db, report_id)
@@ -110,7 +100,7 @@ def get_monitoring_template(
                 "id": topic.id,
                 "name": topic.name,
                 "priority": translate_level(topic.priority) if topic.priority else "No definida",
-                "main_objective": clean_html(topic.main_objective),
+                "main_objective": topic.main_objective,
                 "objectives": topic_objectives
             }
             template_data.append(topic_dict)
@@ -123,7 +113,6 @@ def get_monitoring_template(
         return MonitoringTemplateResponse(html_content=html_content)
 
     except Exception as e:
-        logger.error(f"Error en get_monitoring_template: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al generar la plantilla de monitorización: {str(e)}"

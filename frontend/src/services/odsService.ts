@@ -113,9 +113,9 @@ const api = axios.create({
 });
 
 export const odsService = {
-  async getAllODS(token: string): Promise<ODSList> {
+  async getAllODS(token: string): Promise<{items: ODS[], total: number}> {
     try {
-      const response = await api.get<ODSList>('/ods/get-all', {
+      const response = await api.get<{items: ODS[], total: number}>('/ods/get-all', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -221,7 +221,7 @@ export const odsService = {
   async getAllActionSecondaryImpacts(reportId: number, token: string): Promise<ActionSecondaryImpactCount[]> {
     try {
       const response = await api.get<ActionSecondaryImpactCountList>(
-        `/ods/get/all-action-secondary-impacts/${reportId}`,
+        `/ods/get-all/action-secondary-impacts/${reportId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

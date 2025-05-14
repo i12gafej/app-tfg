@@ -49,10 +49,7 @@ export const userService = {
 
   async updateUser(userId: number, userData: Partial<User>, token: string): Promise<User> {
     try {
-      const response = await api.post<User>('/users/update', {
-        user_id: userId,
-        user_data: userData
-      }, {
+      const response = await api.put<User>(`/users/update/${userId}`, userData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -66,7 +63,7 @@ export const userService = {
 
   async deleteUser(userId: number, token: string): Promise<void> {
     try {
-      await api.delete(`/users/${userId}`, {
+      await api.delete(`/users/delete/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -93,10 +90,7 @@ export const userService = {
 
   async updateAccount(userId: string, userData: Partial<Account>, token: string): Promise<User> {
     try {
-      const response = await api.post<User>('/users/update', {
-        user_id: userId,
-        user_data: userData
-      }, {
+      const response = await api.put<User>(`/users/update/${userId}`, userData, {
         headers: {
           Authorization: `Bearer ${token}`
         }

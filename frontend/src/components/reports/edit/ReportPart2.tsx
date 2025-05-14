@@ -82,19 +82,19 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'stakeholders' }) =
     switch (section) {
       case 'stakeholders':
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 0 }}>
             <StakeholderSearch reportId={report?.id || 0} />
           </Box>
         );
       case 'material-topics':
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 0 }}>
             <MaterialTopicSearch reportId={report?.id || 0} readOnly={readOnly} />
           </Box>
         );
       case 'surveys':
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 0 }}>
             <Surveys />
           </Box>
         );

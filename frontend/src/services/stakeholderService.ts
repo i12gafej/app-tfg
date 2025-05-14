@@ -11,10 +11,20 @@ interface StakeholderSearchParams {
 
 export interface Stakeholder {
   id: number;
+  report_id: number;
   name: string;
   description: string;
   type: StakeholderType;
+  
+}
+
+export interface StakeholderUpdate {
+  id: number;
   report_id: number;
+  name: string;
+  description: string;
+  type: StakeholderType;
+  
 }
 
 // Crear una instancia de axios con la configuración base
@@ -42,13 +52,7 @@ export const stakeholderService = {
 
   async updateStakeholder(stakeholderId: number, stakeholderData: Partial<Stakeholder>, token: string): Promise<Stakeholder> {
     try {
-      const response = await api.post<Stakeholder>('/stakeholders/update', {
-        id: stakeholderId,
-        report_id: stakeholderData.report_id,
-        name: stakeholderData.name,
-        description: stakeholderData.description,
-        type: stakeholderData.type
-      }, {
+      const response = await api.put<Stakeholder>(`/stakeholders/update/${stakeholderId}`, stakeholderData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -62,7 +66,7 @@ export const stakeholderService = {
 
   async deleteStakeholder(stakeholderId: number, token: string): Promise<void> {
     try {
-      await api.delete(`/stakeholders/${stakeholderId}`, {
+      await api.delete(`/stakeholders/delete/${stakeholderId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -88,11 +92,16 @@ export const stakeholderService = {
   },
 
   getUserRole: async (reportId: number, token: string): Promise<{ role: 'manager' | 'consultant' | 'external_advisor' }> => {
-    const response = await api.get(`/${reportId}/user-role`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return response.data;
+    try {
+      const response = await api.get(`/reports/get/user-role/${reportId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener el rol del usuario:', error);
+      throw error;
+    }
   },
 };

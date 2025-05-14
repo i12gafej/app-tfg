@@ -12,9 +12,6 @@ from app.schemas.surveys import (
 from app.crud import surveys as crud_surveys
 from app.crud import resources as crud_resources
 from app.models.models import HeritageResource
-import logging
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -61,7 +58,7 @@ async def search_surveys_endpoint(
 
         # Convertir el año a string si es un número
         year = str(search_params.year) if search_params.year is not None else None
-
+            
         # Buscar las encuestas
         reports = crud_surveys.search_surveys(
             db=db,
@@ -75,8 +72,8 @@ async def search_surveys_endpoint(
             Survey(
                 id=report.id,
                 heritage_resource_id=report.heritage_resource_id,
-                heritage_resource_name=resources_dict.get(report.heritage_resource_id).name if report.heritage_resource_id in resources_dict else None,
-                year=str(report.year),  # Asegurarnos de que el año es string
+                heritage_resource_name=report.heritage_resource_name,
+                year=str(report.year),
                 survey_state=report.survey_state,
                 scale=report.scale
             )
@@ -91,7 +88,6 @@ async def search_surveys_endpoint(
         }
 
     except Exception as e:
-        logger.error(f"Error al buscar encuestas privadas: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al buscar encuestas privadas: {str(e)}"
@@ -110,7 +106,6 @@ def get_all_assessments_endpoint(
         assessments = crud_surveys.get_all_assessments(db=db, report_id=report_id)
         return assessments
     except Exception as e:
-        logger.error(f"Error al obtener valoraciones: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener valoraciones: {str(e)}"

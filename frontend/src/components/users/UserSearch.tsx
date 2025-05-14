@@ -34,9 +34,9 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import SortIcon from '@mui/icons-material/Sort';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useAuth } from '@/hooks/useAuth';
 import { userService, type User } from '@/services/userService';
 import UserDetailsDialog from './UserDetailsDialog';
@@ -548,6 +548,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleView(user)}
+                        startIcon={<VisibilityIcon />}
                       >
                         Consultar
                       </Button>
@@ -561,6 +562,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleEdit(user)}
+                        startIcon={<EditIcon />}
                       >
                         Editar
                       </Button>
@@ -573,6 +575,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleDelete(user)}
+                        startIcon={<DeleteOutlineIcon />}
                       >
                         Eliminar
                       </Button>

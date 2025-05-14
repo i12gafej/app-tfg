@@ -2,15 +2,9 @@ from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 from app.models.models import HeritageResource, HeritageResourceTypology, HeritageResourceSocialNetwork, SustainabilityReport
 from datetime import datetime
-import logging
-
-# Configurar el logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
     try:
-        logger.info(f"Iniciando creación de recurso con datos: {resource_data}")
         
         # Crear el recurso principal
         db_resource = HeritageResource(
@@ -21,24 +15,19 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
             web_address=resource_data.get("web_address"),
             phone_number=resource_data.get("phone_number")
         )
-        logger.info(f"Recurso principal creado: {db_resource}")
         
         db.add(db_resource)
         db.flush()  # Para obtener el ID del recurso creado
-        logger.info(f"ID del recurso generado: {db_resource.id}")
 
         # Crear las tipologías
-        logger.info(f"Creando tipologías: {resource_data['typology']}")
         for typology in resource_data["typology"]:
             db_typology = HeritageResourceTypology(
                 typology=typology,
                 resource_id=db_resource.id
             )
             db.add(db_typology)
-            logger.info(f"Tipología creada: {db_typology}")
 
         # Crear las redes sociales
-        logger.info(f"Creando redes sociales: {resource_data['social_networks']}")
         for social_network in resource_data["social_networks"]:
             db_social = HeritageResourceSocialNetwork(
                 social_network=social_network["network"],
@@ -46,7 +35,6 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
                 resource_id=db_resource.id
             )
             db.add(db_social)
-            logger.info(f"Red social creada: {db_social}")
 
         # Crear memoria vacía para el año actual
         current_year = datetime.now().year
@@ -58,24 +46,27 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
             scale=0
         )
         db.add(db_report)
-        logger.info(f"Memoria vacía creada para el año {current_year}")
 
         db.commit()
         db.refresh(db_resource)
-        logger.info(f"Recurso final creado: {db_resource}")
         return db_resource
         
     except Exception as e:
-        logger.error(f"Error en la creación del recurso: {str(e)}", exc_info=True)
-        raise
+        raise e
 
 def get(db: Session, resource_id: int) -> Optional[HeritageResource]:
-    return db.query(HeritageResource).filter(HeritageResource.id == resource_id).first()
+    try:
+        return db.query(HeritageResource).filter(HeritageResource.id == resource_id).first()
+    except Exception as e:
+        raise e
 
-def get_all_by_resources_ids(db: Session, resource_ids: list) -> list:
-    if not resource_ids:
-        return []
-    return db.query(HeritageResource).filter(HeritageResource.id.in_(resource_ids)).all()
+def get_all_by_resources_ids(db: Session, resource_ids: list) -> List[HeritageResource]:
+    try:
+        if not resource_ids:
+            return []
+        return db.query(HeritageResource).filter(HeritageResource.id.in_(resource_ids)).all()
+    except Exception as e:
+        raise e
 
 def search(
     db: Session,
@@ -85,98 +76,107 @@ def search(
     management_model: Optional[str] = None,
     postal_address: Optional[str] = None
 ) -> List[HeritageResource]:
-    query = db.query(HeritageResource)
+    try:
+        query = db.query(HeritageResource)
 
-    def normalize_text(text: str) -> Optional[str]:
-        if not text or text.isspace():
-            return None
-        return text.strip()
+        def normalize_text(text: str) -> Optional[str]:
+            if not text or text.isspace():
+                return None
+            return text.strip()
 
-    # Filtro general
-    if search_term:
-        search = normalize_text(search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(
-                HeritageResource.name.ilike(search) |
-                HeritageResource.ownership.ilike(search) |
-                HeritageResource.management_model.ilike(search) |
-                HeritageResource.postal_address.ilike(search)
-            )
+        # Filtro general
+        if search_term:
+            search = normalize_text(search_term)
+            if search:
+                search = f"%{search}%"
+                query = query.filter(
+                    HeritageResource.name.ilike(search) |
+                    HeritageResource.ownership.ilike(search) |
+                    HeritageResource.management_model.ilike(search) |
+                    HeritageResource.postal_address.ilike(search)
+                )
 
-    # Filtros específicos
-    if name:
-        name_val = normalize_text(name)
-        if name_val:
-            query = query.filter(HeritageResource.name.ilike(f"%{name_val}%"))
-    if ownership:
-        ownership_val = normalize_text(ownership)
-        if ownership_val:
-            query = query.filter(HeritageResource.ownership.ilike(f"%{ownership_val}%"))
-    if management_model:
-        management_model_val = normalize_text(management_model)
-        if management_model_val:
-            query = query.filter(HeritageResource.management_model.ilike(f"%{management_model_val}%"))
-    if postal_address:
-        postal_address_val = normalize_text(postal_address)
-        if postal_address_val:
-            query = query.filter(HeritageResource.postal_address.ilike(f"%{postal_address_val}%"))
+        # Filtros específicos
+        if name:
+            name_val = normalize_text(name)
+            if name_val:
+                query = query.filter(HeritageResource.name.ilike(f"%{name_val}%"))
+        if ownership:
+            ownership_val = normalize_text(ownership)
+            if ownership_val:
+                query = query.filter(HeritageResource.ownership.ilike(f"%{ownership_val}%"))
+        if management_model:
+            management_model_val = normalize_text(management_model)
+            if management_model_val:
+                query = query.filter(HeritageResource.management_model.ilike(f"%{management_model_val}%"))
+        if postal_address:
+            postal_address_val = normalize_text(postal_address)
+            if postal_address_val:
+                query = query.filter(HeritageResource.postal_address.ilike(f"%{postal_address_val}%"))
 
-    return query.all()
+        return query.all()
+    except Exception as e:
+        raise e
 
 def update(
     db: Session,
     resource_id: int,
     resource_data: Dict[str, Any]
 ) -> Optional[HeritageResource]:
-    db_resource = get(db, resource_id)
-    if not db_resource:
-        return None
+    try:
+        db_resource = get(db, resource_id)
+        if not db_resource:
+            return None
 
-    # Actualizar campos del recurso principal
-    for field, value in resource_data.items():
-        if field not in ["typology", "social_networks"] and value is not None:
-            setattr(db_resource, field, value)
+        # Actualizar campos del recurso principal
+        for field, value in resource_data.items():
+            if field not in ["typology", "social_networks"] and value is not None:
+                setattr(db_resource, field, value)
 
-    # Actualizar tipologías
-    if "typology" in resource_data:
-        # Eliminar tipologías existentes
-        db.query(HeritageResourceTypology).filter(
-            HeritageResourceTypology.resource_id == resource_id
-        ).delete()
-        # Crear nuevas tipologías
-        for typology in resource_data["typology"]:
-            db_typology = HeritageResourceTypology(
-                typology=typology,
-                resource_id=resource_id
-            )
-            db.add(db_typology)
+        # Actualizar tipologías
+        if "typology" in resource_data:
+            # Eliminar tipologías existentes
+            db.query(HeritageResourceTypology).filter(
+                HeritageResourceTypology.resource_id == resource_id
+            ).delete()
+            # Crear nuevas tipologías
+            for typology in resource_data["typology"]:
+                db_typology = HeritageResourceTypology(
+                    typology=typology,
+                    resource_id=resource_id
+                )
+                db.add(db_typology)
 
-    # Actualizar redes sociales
-    if "social_networks" in resource_data:
-        # Eliminar redes sociales existentes
-        db.query(HeritageResourceSocialNetwork).filter(
-            HeritageResourceSocialNetwork.resource_id == resource_id
-        ).delete()
-        # Crear nuevas redes sociales
-        for social_network in resource_data["social_networks"]:
-            db_social = HeritageResourceSocialNetwork(
-                social_network=social_network["network"],
-                url=social_network["url"],
-                resource_id=resource_id
-            )
-            db.add(db_social)
+        # Actualizar redes sociales
+        if "social_networks" in resource_data:
+            # Eliminar redes sociales existentes
+            db.query(HeritageResourceSocialNetwork).filter(
+                HeritageResourceSocialNetwork.resource_id == resource_id
+            ).delete()
+            # Crear nuevas redes sociales
+            for social_network in resource_data["social_networks"]:
+                db_social = HeritageResourceSocialNetwork(
+                    social_network=social_network["network"],
+                    url=social_network["url"],
+                    resource_id=resource_id
+                )
+                db.add(db_social)
 
-    db.commit()
-    db.refresh(db_resource)
-    return db_resource
+        db.commit()
+        db.refresh(db_resource)
+        return db_resource
+    except Exception as e:
+        raise e
 
 def delete(db: Session, resource_id: int) -> bool:
-    db_resource = get(db, resource_id)
-    if not db_resource:
-        return False
+    try:
+        db_resource = get(db, resource_id)
+        if not db_resource:
+            return False
 
-    # Las relaciones tienen cascade="all, delete-orphan", así que se eliminarán automáticamente
-    db.delete(db_resource)
-    db.commit()
-    return True 
+        # Las relaciones tienen cascade="all, delete-orphan", así que se eliminarán automáticamente
+        db.delete(db_resource)
+        db.commit()
+        return True
+    except Exception as e:
+        raise e

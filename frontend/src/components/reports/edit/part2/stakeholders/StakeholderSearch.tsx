@@ -34,6 +34,9 @@ import { StakeholderDetailsDialog } from './StakeholderDetailsDialog';
 import { StakeholderEditDialog } from './StakeholderEditDialog';
 import { StakeholderDeleteDialog } from './StakeholderDeleteDialog';
 import { StakeholderCreateDialog } from './StakeholderCreateDialog';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 interface StakeholderSearchProps {
   reportId: number;
@@ -427,6 +430,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleView(stakeholder)}
+                        startIcon={<VisibilityIcon />}
                       >
                         Consultar
                       </Button>
@@ -442,6 +446,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
                               minWidth: isMobile ? '100%' : 'auto'
                             }}
                             onClick={() => handleEdit(stakeholder)}
+                            startIcon={<EditIcon />}
                           >
                             Editar
                           </Button>
@@ -454,6 +459,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
                               minWidth: isMobile ? '100%' : 'auto'
                             }}
                             onClick={() => handleDelete(stakeholder)}
+                            startIcon={<DeleteOutlineIcon />}
                           >
                             Eliminar
                           </Button>

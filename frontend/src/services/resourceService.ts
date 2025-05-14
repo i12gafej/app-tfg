@@ -78,12 +78,9 @@ export const resourceService = {
     }
   },
 
-  async updateResource(id: number, resourceData: Partial<Resource>, token: string): Promise<Resource> {
+  async updateResource(resourceId: number, resourceData: Partial<Resource>, token: string): Promise<Resource> {
     try {
-      const response = await api.post<Resource>('/resources/update', {
-        resource_id: id,
-        resource_data: resourceData
-      }, {
+      const response = await api.put<Resource>(`/resources/update/${resourceId}`, resourceData, {
         headers: {
           Authorization: `Bearer ${token}`
         }

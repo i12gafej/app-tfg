@@ -23,6 +23,7 @@ import TeamMemberEditDialog from '@/components/Team/TeamMemberEditDialog';
 import TeamMemberDeleteDialog from '@/components/Team/TeamMemberDeleteDialog';
 import TeamMemberAssignDialog from '@/components/Team/TeamMemberAssignDialog';
 import { useDrop, DropTargetMonitor } from 'react-dnd';
+import Button from '@mui/material/Button';
 
 interface TeamMemberListProps {
   teamMembers: TeamMember[];
@@ -172,29 +173,32 @@ const TeamMemberList = ({
                   <TableCell>{member.surname}</TableCell>
                   <TableCell>{member.role}</TableCell>
                   <TableCell align="right">
-                    <IconButton 
+                    <Button 
                       size="small" 
+                      color="primary"
                       onClick={() => handleViewDetails(member)}
                       title="Ver detalles"
+                      startIcon={<VisibilityIcon />}
                     >
-                      <VisibilityIcon />
-                    </IconButton>
+                    </Button>
                     {!readOnly && (
                       <>
-                    <IconButton 
+                    <Button 
                       size="small" 
+                      color="view"
                       onClick={() => handleEdit(member)}
                       title="Editar"
+                      startIcon={<EditIcon />}
                     >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton 
+                    </Button>
+                    <Button 
                       size="small" 
+                      color="error"
                       onClick={() => handleDelete(member)}
                       title="Eliminar"
+                      startIcon={<DeleteOutlineIcon />} 
                     >
-                      <DeleteOutlineIcon />
-                    </IconButton>
+                    </Button>
                       </>
                     )}
                   </TableCell>

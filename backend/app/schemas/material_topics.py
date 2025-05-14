@@ -19,7 +19,7 @@ class MaterialTopicCreate(MaterialTopicBase):
     report_id: int
 
 class MaterialTopicUpdate(BaseModel):
-    id: int
+    id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
     priority: Optional[PriorityLevel] = None

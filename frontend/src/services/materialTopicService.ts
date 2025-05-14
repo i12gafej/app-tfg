@@ -19,11 +19,6 @@ export interface MaterialTopic {
   report_id: number;
 }
 
-export interface MaterialTopicResponse {
-  items: MaterialTopic[];
-  total: number;
-}
-
 export interface MaterialityMatrixData {
   points: {
     [key: number]: {
@@ -56,9 +51,9 @@ const api = axios.create({
 });
 
 export const materialTopicService = {
-  async searchMaterialTopics(params: MaterialTopicSearchParams, token: string): Promise<MaterialTopicResponse> {
+  async searchMaterialTopics(params: MaterialTopicSearchParams, token: string): Promise<{items: MaterialTopic[], total: number}> {
     try {
-      const response = await api.post<MaterialTopicResponse>('/material-topics/search', params, {
+      const response = await api.post<{items: MaterialTopic[], total: number}>('/material-topics/search', params, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -72,10 +67,7 @@ export const materialTopicService = {
 
   async updateMaterialTopic(materialTopicId: number, materialTopicData: Partial<MaterialTopic>, token: string): Promise<MaterialTopic> {
     try {
-      const response = await api.post<MaterialTopic>('/material-topics/update', {
-        id: materialTopicId,
-        ...materialTopicData
-      }, {
+      const response = await api.put<MaterialTopic>(`/material-topics/update/${materialTopicId}`, materialTopicData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -89,7 +81,7 @@ export const materialTopicService = {
 
   async deleteMaterialTopic(materialTopicId: number, token: string): Promise<void> {
     try {
-      await api.delete(`/material-topics/${materialTopicId}`, {
+      await api.delete(`/material-topics/delete/${materialTopicId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

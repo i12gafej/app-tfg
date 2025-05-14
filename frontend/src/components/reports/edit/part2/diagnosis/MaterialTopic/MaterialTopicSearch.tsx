@@ -30,6 +30,9 @@ import { MaterialTopicDeleteDialog } from './MaterialTopicDeleteDialog';
 import { MaterialTopicCreateDialog } from './MaterialTopicCreateDialog';
 import { stakeholderService } from '@/services/stakeholderService';
 import { getBackgroundColor } from '@/services/odsService';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 interface MaterialTopicSearchProps {
   reportId: number;
@@ -326,6 +329,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
                           backgroundColor: 'rgba(255, 255, 255, 0.8)'
                         }}
                         onClick={() => handleView(materialTopic)}
+                        startIcon={<VisibilityIcon />}
                       >
                         Consultar
                       </Button>
@@ -342,6 +346,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
                           backgroundColor: 'rgba(255, 255, 255, 0.8)'
                         }}
                         onClick={() => handleEdit(materialTopic)}
+                        startIcon={<EditIcon />}
                       >
                         Editar
                       </Button>
@@ -355,6 +360,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
                           backgroundColor: 'rgba(255, 255, 255, 0.8)'
                         }}
                         onClick={() => handleDelete(materialTopic)}
+                        startIcon={<DeleteOutlineIcon />}
                       >
                         Eliminar
                       </Button>

@@ -1,16 +1,12 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.models import Goal, MaterialTopic
-import logging
-
-logger = logging.getLogger(__name__)
 
 def get_goals_by_ods(db: Session, ods_id: int) -> List[Goal]:
     try:
         return db.query(Goal).filter(Goal.ods_id == ods_id).all()
     except Exception as e:
-        logger.error(f"Error al obtener metas por ODS: {str(e)}")
-        raise
+        raise e
 
 def update_main_impact(
     db: Session,
@@ -29,13 +25,10 @@ def update_main_impact(
         db.add(material_topic)
         db.commit()
     except Exception as e:
-        db.rollback()
-        logger.error(f"Error al actualizar impacto principal: {str(e)}")
-        raise
+        raise e
 
 def get_all_goals(db: Session) -> List[Goal]:
     try:
         return db.query(Goal).all()
     except Exception as e:
-        logger.error(f"Error al obtener todas las metas: {str(e)}")
-        raise
+        raise e

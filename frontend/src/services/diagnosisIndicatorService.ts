@@ -68,7 +68,7 @@ export const diagnosisIndicatorService = {
       throw new Error('Se requiere un token de autenticación');
     }
     try {
-      const response = await api.get<DiagnosticIndicator>(`/diagnosis-indicators/get-by-id/${indicatorId}`, {
+      const response = await api.get<DiagnosticIndicator>(`/diagnosis-indicators/get/${indicatorId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

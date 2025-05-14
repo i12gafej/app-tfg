@@ -119,7 +119,7 @@ export const actionPlanService = {
   // Funciones para Objetivos Específicos
   async getSpecificObjectives(materialTopicId: number, token: string): Promise<SpecificObjective[]> {
     try {
-      const response = await api.get<SpecificObjective[]>(`/specific-objectives/${materialTopicId}`, {
+      const response = await api.get<SpecificObjective[]>(`/specific-objectives/get-all/${materialTopicId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -133,7 +133,7 @@ export const actionPlanService = {
 
   async createSpecificObjective(objective: SpecificObjectiveCreate, token: string): Promise<SpecificObjective> {
     try {
-      const response = await api.post<SpecificObjective>('/specific-objectives', objective, {
+      const response = await api.post<SpecificObjective>('/specific-objectives/create', objective, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -152,7 +152,7 @@ export const actionPlanService = {
   ): Promise<SpecificObjective> {
     try {
       const response = await api.put<SpecificObjective>(
-        `/specific-objectives/${objectiveId}`,
+        `/specific-objectives/update/${objectiveId}`,
         objectiveUpdate,
         {
           headers: {
@@ -169,7 +169,7 @@ export const actionPlanService = {
 
   async deleteSpecificObjective(objectiveId: number, token: string): Promise<void> {
     try {
-      await api.delete(`/specific-objectives/${objectiveId}`, {
+      await api.delete(`/specific-objectives/delete/${objectiveId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -183,7 +183,7 @@ export const actionPlanService = {
   // Funciones para Acciones
   async getActions(specificObjectiveId: number, token: string): Promise<Action[]> {
     try {
-      const response = await api.get<Action[]>(`/actions/${specificObjectiveId}`, {
+      const response = await api.get<Action[]>(`/actions/get-all/${specificObjectiveId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -197,7 +197,7 @@ export const actionPlanService = {
 
   async createAction(action: ActionCreate, token: string): Promise<Action> {
     try {
-      const response = await api.post<Action>('/actions', action, {
+      const response = await api.post<Action>('/actions/create', action, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -216,7 +216,7 @@ export const actionPlanService = {
   ): Promise<Action> {
     try {
       const response = await api.put<Action>(
-        `/actions/${actionId}`,
+        `/actions/update/${actionId}`,
         actionUpdate,
         {
           headers: {
@@ -233,7 +233,7 @@ export const actionPlanService = {
 
   async deleteAction(actionId: number, token: string): Promise<void> {
     try {
-      await api.delete(`/actions/${actionId}`, {
+      await api.delete(`/actions/delete/${actionId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -247,7 +247,7 @@ export const actionPlanService = {
   // Funciones para Indicadores de Rendimiento
   async getPerformanceIndicators(actionId: number, token: string): Promise<PerformanceIndicator[]> {
     try {
-      const response = await api.get<PerformanceIndicator[]>(`/performance-indicators/${actionId}`, {
+      const response = await api.get<PerformanceIndicator[]>(`/performance-indicators/get-all/${actionId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -264,7 +264,7 @@ export const actionPlanService = {
     token: string
   ): Promise<PerformanceIndicator> {
     try {
-      const response = await api.post<PerformanceIndicator>('/performance-indicators', indicator, {
+      const response = await api.post<PerformanceIndicator>('/performance-indicators/create', indicator, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -283,7 +283,7 @@ export const actionPlanService = {
   ): Promise<PerformanceIndicator> {
     try {
       const response = await api.put<PerformanceIndicator>(
-        `/performance-indicators/${indicatorId}`,
+        `/performance-indicators/update/${indicatorId}`,
         indicatorUpdate,
         {
           headers: {
@@ -300,7 +300,7 @@ export const actionPlanService = {
 
   async deletePerformanceIndicator(indicatorId: number, token: string): Promise<void> {
     try {
-      await api.delete(`/performance-indicators/${indicatorId}`, {
+      await api.delete(`/performance-indicators/delete/${indicatorId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -314,7 +314,7 @@ export const actionPlanService = {
   async getAllActionPrimaryImpacts(reportId: number, token: string): Promise<ActionPrimaryImpact[]> {
     try {
       const response = await api.get<ActionPrimaryImpactsList>(
-        `/actions/get/all-primary-impacts/${reportId}`,
+        `/actions/get-all/primary-impacts/${reportId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

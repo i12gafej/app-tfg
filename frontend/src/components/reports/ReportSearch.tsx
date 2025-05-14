@@ -39,6 +39,9 @@ import { ReportCreateDialog } from './ReportCreateDialog';
 import { ReportPermissionDialog } from './ReportPermissionDialog';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import ReportDeleteDialog from './ReportDeleteDialog';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 interface ReportSearchProps {
   onSearch?: (searchTerm: string, filters: SearchFilters) => void;
@@ -519,6 +522,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleView(report)}
+                        startIcon={<VisibilityIcon />}
                       >
                         Consultar
                       </Button>
@@ -533,6 +537,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                             mr: isMobile ? 0 : 1,
                             minWidth: isMobile ? '100%' : 'auto'
                           }}
+                          startIcon={<EditIcon />}
                         >
                           Editar
                         </Button>
@@ -548,6 +553,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                             minWidth: isMobile ? '100%' : 'auto'
                           }}
                           onClick={() => handleOpenDeleteDialog(report)}
+                          startIcon={<DeleteOutlineIcon />}
                         >
                           Eliminar
                         </Button>

@@ -4,17 +4,47 @@ from sqlalchemy import or_
 from app.models.models import HeritageResource, SustainabilityReport, SustainabilityTeamMember, User
 from app.schemas.team import ResourceSearch, ReportSearch, TeamMemberSearch, TeamMemberCreate
 
-def get_resources(db: Session) -> List[HeritageResource]:
-    """Obtener todos los recursos patrimoniales"""
-    return db.query(HeritageResource).all()
+def search_available_users(
+    db: Session,
+    search_term: Optional[str] = None,
+    name: Optional[str] = None,
+    surname: Optional[str] = None,
+    email: Optional[str] = None
+) -> List[User]:
+    """Buscar usuarios disponibles para agregar a un equipo"""
+    try:
+        query = db.query(User).filter(User.admin == False)
 
-def get_reports_by_resource(db: Session, resource_id: int) -> List[SustainabilityReport]:
-    """Obtener todas las memorias de un recurso"""
-    return db.query(SustainabilityReport).filter(SustainabilityReport.resource_id == resource_id).all()
+        def normalize_text(text: str) -> Optional[str]:
+            if not text or text.isspace():
+                return None
+            return text.strip()
 
-def get_team_members(db: Session, report_id: int) -> List[SustainabilityTeamMember]:
-    """Obtener todos los miembros del equipo de una memoria"""
-    return db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.report_id == report_id).all()
+        if search_term:
+            search = normalize_text(search_term)
+            if search:
+                search = f"%{search}%"
+                query = query.filter(
+                    User.name.ilike(search) |
+                    User.surname.ilike(search) |
+                    User.email.ilike(search)
+                )
+        if name:
+            name_val = normalize_text(name)
+            if name_val:
+                query = query.filter(User.name.ilike(f"%{name_val}%"))
+        if surname:
+            surname_val = normalize_text(surname)
+            if surname_val:
+                query = query.filter(User.surname.ilike(f"%{surname_val}%"))
+        if email:
+            email_val = normalize_text(email)
+            if email_val:
+                query = query.filter(User.email.ilike(f"%{email_val}%"))
+
+        return query.all()
+    except Exception as e:
+        raise e
 
 def search_resources(
     db: Session,
@@ -23,30 +53,33 @@ def search_resources(
     """
     Buscar recursos patrimoniales con filtros opcionales.
     """
-    query = db.query(HeritageResource)
+    try:
+        query = db.query(HeritageResource)
 
-    def normalize_text(text: str) -> str:
-        if not text or text.isspace():
-            return None
-        return text.strip()
+        def normalize_text(text: str) -> str:
+            if not text or text.isspace():
+                return None
+            return text.strip()
 
-    if search_params.search_term:
-        search = normalize_text(search_params.search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(HeritageResource.name.ilike(search))
+        if search_params.search_term:
+            search = normalize_text(search_params.search_term)
+            if search:
+                search = f"%{search}%"
+                query = query.filter(HeritageResource.name.ilike(search))
 
-    if search_params.name:
-        name = normalize_text(search_params.name)
-        if name:
-            query = query.filter(HeritageResource.name.ilike(f"%{name}%"))
+        if search_params.name:
+            name = normalize_text(search_params.name)
+            if name:
+                query = query.filter(HeritageResource.name.ilike(f"%{name}%"))
 
-    resources = query.all()
-    total = len(resources)
-    return {
-        "items": resources,
-        "total": total
-    }
+        resources = query.all()
+        total = len(resources)
+        return {
+            "items": resources,
+            "total": total
+        }
+    except Exception as e:
+        raise e
 
 def search_reports(
     db: Session,
@@ -55,18 +88,21 @@ def search_reports(
     """
     Buscar reportes de un recurso patrimonial con filtros opcionales.
     """
-    query = db.query(
-        SustainabilityReport.id,
-        SustainabilityReport.heritage_resource_id,
-        SustainabilityReport.year,
-    ).filter(SustainabilityReport.heritage_resource_id == search_params.resource_id)
+    try:
+        query = db.query(
+            SustainabilityReport.id,
+            SustainabilityReport.heritage_resource_id,
+            SustainabilityReport.year,
+        ).filter(SustainabilityReport.heritage_resource_id == search_params.resource_id)
 
-    reports = query.all()
-    total = len(reports)
-    return {
-        "items": reports,
-        "total": total
-    }
+        reports = query.all()
+        total = len(reports)
+        return {
+            "items": reports,
+            "total": total
+        }
+    except Exception as e:
+        raise e
 
 def search_team_members(
     db: Session,
@@ -76,80 +112,86 @@ def search_team_members(
     """
     Buscar miembros del equipo de un reporte con filtros opcionales.
     """
-    query = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.report_id == report_id)
+    try:
+        query = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.report_id == report_id)
 
-    def normalize_text(text: str) -> str:
-        if not text or text.isspace():
-            return None
-        return text.strip()
+        def normalize_text(text: str) -> str:
+            if not text or text.isspace():
+                return None
+            return text.strip()
 
-    if search_params.search_term:
-        search = normalize_text(search_params.search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(
-                or_(
-                    SustainabilityTeamMember.name.ilike(search),
-                    SustainabilityTeamMember.surname.ilike(search),
-                    SustainabilityTeamMember.email.ilike(search),
-                    SustainabilityTeamMember.role.ilike(search),
-                    SustainabilityTeamMember.organization.ilike(search)
+        if search_params.search_term:
+            search = normalize_text(search_params.search_term)
+            if search:
+                search = f"%{search}%"
+                query = query.filter(
+                    or_(
+                        SustainabilityTeamMember.name.ilike(search),
+                        SustainabilityTeamMember.surname.ilike(search),
+                        SustainabilityTeamMember.email.ilike(search),
+                        SustainabilityTeamMember.role.ilike(search),
+                        SustainabilityTeamMember.organization.ilike(search)
+                    )
                 )
-            )
 
-    if search_params.name:
-        name = normalize_text(search_params.name)
-        if name:
-            query = query.filter(SustainabilityTeamMember.name.ilike(f"%{name}%"))
+        if search_params.name:
+            name = normalize_text(search_params.name)
+            if name:
+                query = query.filter(SustainabilityTeamMember.name.ilike(f"%{name}%"))
 
-    if search_params.surname:
-        surname = normalize_text(search_params.surname)
-        if surname:
-            query = query.filter(SustainabilityTeamMember.surname.ilike(f"%{surname}%"))
+        if search_params.surname:
+            surname = normalize_text(search_params.surname)
+            if surname:
+                query = query.filter(SustainabilityTeamMember.surname.ilike(f"%{surname}%"))
 
-    if search_params.email:
-        email = normalize_text(search_params.email)
-        if email:
-            query = query.filter(SustainabilityTeamMember.email.ilike(f"%{email}%"))
+        if search_params.email:
+            email = normalize_text(search_params.email)
+            if email:
+                query = query.filter(SustainabilityTeamMember.email.ilike(f"%{email}%"))
 
-    if search_params.role:
-        role = normalize_text(search_params.role)
-        if role:
-            query = query.filter(SustainabilityTeamMember.role.ilike(f"%{role}%"))
+        if search_params.role:
+            role = normalize_text(search_params.role)
+            if role:
+                query = query.filter(SustainabilityTeamMember.role.ilike(f"%{role}%"))
 
-    if search_params.organization:
-        organization = normalize_text(search_params.organization)
-        if organization:
-            query = query.filter(SustainabilityTeamMember.organization.ilike(f"%{organization}%"))
+        if search_params.organization:
+            organization = normalize_text(search_params.organization)
+            if organization:
+                query = query.filter(SustainabilityTeamMember.organization.ilike(f"%{organization}%"))
 
-    return query.all()
+        return query.all()
+    except Exception as e:
+        raise e
 
 def create_team_member(
     db: Session,
     team_member_data: TeamMemberCreate
 ) -> SustainabilityTeamMember:
     """Crear un nuevo miembro del equipo"""
-    # Verificar si el usuario ya es miembro
-    existing_member = db.query(SustainabilityTeamMember).filter(
-        SustainabilityTeamMember.report_id == team_member_data.report_id,
-        SustainabilityTeamMember.user_id == team_member_data.user_id
-    ).first()
+    try:
+        # Verificar si el usuario ya es miembro
+        existing_member = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == team_member_data.report_id,
+            SustainabilityTeamMember.user_id == team_member_data.user_id
+        ).first()
     
-    if existing_member:
-        raise ValueError("El usuario ya es miembro del equipo")
+        if existing_member:
+            raise ValueError("El usuario ya es miembro del equipo")
 
-    # Crear el miembro del equipo
-    team_member = SustainabilityTeamMember(
-        report_id=team_member_data.report_id,
-        user_id=team_member_data.user_id,
-        type=team_member_data.role,
-        organization=team_member_data.organization
-    )
+        # Crear el miembro del equipo
+        team_member = SustainabilityTeamMember(
+            report_id=team_member_data.report_id,
+            user_id=team_member_data.user_id,
+            type=team_member_data.role,
+            organization=team_member_data.organization
+        )
 
-    db.add(team_member)
-    db.commit()
-    db.refresh(team_member)
-    return team_member
+        db.add(team_member)
+        db.commit()
+        db.refresh(team_member)
+        return team_member
+    except Exception as e:
+        raise e
 
 def update_team_member(
     db: Session,
@@ -157,68 +199,37 @@ def update_team_member(
     update_data: dict
 ) -> SustainabilityTeamMember:
     """Actualizar un miembro del equipo"""
-    # Buscar el miembro
-    member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
-    if not member:
-        raise ValueError("Miembro del equipo no encontrado")
+    try:
+        # Buscar el miembro
+        member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
+        if not member:
+            raise ValueError("Miembro del equipo no encontrado")
 
-    # Actualizar los campos
-    member.type = update_data["role"]
-    member.organization = update_data["organization"]
+        # Actualizar los campos
+        member.type = update_data["role"]
+        member.organization = update_data["organization"]
 
-    db.add(member)
-    db.commit()
-    db.refresh(member)
-    return member
+        db.add(member)
+        db.commit()
+        db.refresh(member)
+        return member
+    except Exception as e:
+        raise e
 
 def delete_team_member(
     db: Session,
     member_id: int
 ) -> None:
     """Eliminar un miembro del equipo"""
-    # Buscar el miembro
-    member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
-    if not member:
-        raise ValueError("Miembro del equipo no encontrado")
+    try:
+        # Buscar el miembro
+        member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
+        if not member:
+            raise ValueError("Miembro del equipo no encontrado")
 
-    # Eliminar el miembro
-    db.delete(member)
-    db.commit()
+        # Eliminar el miembro
+        db.delete(member)
+        db.commit()
+    except Exception as e:
+        raise e
 
-def search_available_users(
-    db: Session,
-    search_term: Optional[str] = None,
-    name: Optional[str] = None,
-    surname: Optional[str] = None,
-    email: Optional[str] = None
-) -> List[User]:
-    query = db.query(User).filter(User.admin == False)
-
-    def normalize_text(text: str) -> Optional[str]:
-        if not text or text.isspace():
-            return None
-        return text.strip()
-
-    if search_term:
-        search = normalize_text(search_term)
-        if search:
-            search = f"%{search}%"
-            query = query.filter(
-                User.name.ilike(search) |
-                User.surname.ilike(search) |
-                User.email.ilike(search)
-            )
-    if name:
-        name_val = normalize_text(name)
-        if name_val:
-            query = query.filter(User.name.ilike(f"%{name_val}%"))
-    if surname:
-        surname_val = normalize_text(surname)
-        if surname_val:
-            query = query.filter(User.surname.ilike(f"%{surname_val}%"))
-    if email:
-        email_val = normalize_text(email)
-        if email_val:
-            query = query.filter(User.email.ilike(f"%{email_val}%"))
-
-    return query.all()

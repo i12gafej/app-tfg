@@ -13,7 +13,6 @@ from app.schemas.reports import (
     SustainabilityReport, 
     SustainabilityReportCreate, 
     SustainabilityReportUpdate, 
-    ReportUpdateRequest,
     ReportNorm,
     ReportNormCreate,
     ReportNormUpdate,
@@ -29,7 +28,6 @@ from app.schemas.reports import (
     ReportPhotoResponse,
     ReportPhotoUpdate,
     UserRoleResponse,
-    ReportResponse,
     ReportSearch
 )
 from app.schemas.auth import TokenData
@@ -40,11 +38,7 @@ from PIL import Image
 from app.core.config import Settings
 import io
 
-# Configurar el logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-settings = Settings().copy()
+settings = Settings()
 
 router = APIRouter()
 
@@ -78,7 +72,6 @@ async def get_report_endpoint(
         return report
 
     except Exception as e:
-        logger.error(f"Error al obtener la memoria: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener la memoria: {str(e)}"
@@ -86,7 +79,7 @@ async def get_report_endpoint(
 
 @router.post("/reports/search", response_model=dict)
 async def search_reports_endpoint(
-    search_params: ReportSearch,
+    search_params: ReportSearch = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
@@ -101,11 +94,8 @@ async def search_reports_endpoint(
         year = search_params.year
         state = search_params.state
 
-        logger.info(f"Parámetros de búsqueda recibidos: {search_params}")
-
         # Caso 1: Búsqueda por nombre de recurso
         if heritage_resource_name:
-            logger.info(f"Realizando búsqueda por nombre de recurso: {heritage_resource_name}")
             # Buscar recursos por nombre
             resources = crud_resources.search(
                 db=db,
@@ -113,7 +103,6 @@ async def search_reports_endpoint(
             )
             
             if not resources:
-                logger.info("No se encontraron recursos con ese nombre")
                 return {
                     "items": [],
                     "total": 0
@@ -121,10 +110,9 @@ async def search_reports_endpoint(
             
             # Obtener IDs de recursos
             resource_ids = [r.id for r in resources]
-            logger.info(f"IDs de recursos encontrados: {resource_ids}")
             
             # Buscar memorias por IDs de recursos y otros filtros
-            reports, total = crud_resports.search_reports(
+            reports= crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
@@ -135,8 +123,7 @@ async def search_reports_endpoint(
         
         # Caso 2: Búsqueda por año y/o estado
         elif year or state:
-            logger.info(f"Realizando búsqueda por año: {year} y estado: {state}")
-            reports, total = crud_resports.search_reports(
+            reports = crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
@@ -146,7 +133,6 @@ async def search_reports_endpoint(
         
         # Caso 3: Búsqueda por término de búsqueda
         elif search_term:
-            logger.info(f"Realizando búsqueda por término: {search_term}")
             # Buscar recursos por nombre
             resources = crud_resources.search(
                 db=db,
@@ -157,7 +143,7 @@ async def search_reports_endpoint(
             resource_ids = [r.id for r in resources]
             
             # Buscar memorias por IDs de recursos
-            reports, total = crud_resports.search_reports(
+            reports = crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
@@ -166,14 +152,12 @@ async def search_reports_endpoint(
         
         # Caso 4: Sin filtros, devolver todas las memorias
         else:
-            logger.info("No se proporcionaron filtros de búsqueda, devolviendo todas las memorias")
-            reports, total = crud_resports.search_reports(
+            reports = crud_resports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin
             )
 
-        logger.info(f"Memorias encontradas: {len(reports)}")
 
         # Obtener los recursos asociados a las memorias
         resource_ids = [report.heritage_resource_id for report in reports]
@@ -187,15 +171,14 @@ async def search_reports_endpoint(
             if report.heritage_resource_id in resources_dict:
                 report.heritage_resource_name = resources_dict[report.heritage_resource_id].name
 
-        response = {
+        total = len(reports)
+
+        return {
             "items": reports,
             "total": total
-        }
-
-        return response
+        }   
 
     except Exception as e:
-        logger.error(f"Error al buscar memorias: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al buscar memorias: {str(e)}"
@@ -212,8 +195,6 @@ async def create_report_endpoint(
     Permite la creación si el usuario es admin o si es gestor del recurso.
     """
     try:
-        logger.info(f"Recibiendo datos de la memoria: {report.model_dump()}")
-        
         # Verificar permisos
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
@@ -238,8 +219,6 @@ async def create_report_endpoint(
             )
         
         db_report = crud_resports.create_report(db=db, report=report)
-        logger.info(f"Memoria creada en la base de datos: {db_report}")
-        
         # Obtener el recurso asociado
         resource = db.query(HeritageResourceModel).filter(HeritageResourceModel.id == db_report.heritage_resource_id).first()
         
@@ -272,15 +251,15 @@ async def create_report_endpoint(
     except HTTPException as he:
         raise he
     except Exception as e:
-        logger.error(f"Error al crear la memoria: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al crear la memoria: {str(e)}"
         )
 
-@router.post("/reports/update", response_model=SustainabilityReport)
+@router.put("/reports/update/{report_id}", response_model=SustainabilityReport)
 async def update_report_endpoint(
-    update_request: ReportUpdateRequest,
+    report_id: int,
+    update_request: SustainabilityReportUpdate,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
@@ -288,14 +267,13 @@ async def update_report_endpoint(
     Actualizar una memoria de sostenibilidad existente.
     Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
-    logger.info(f"Recibida petición de actualización: {update_request}")
     try:
         # Verificar permisos
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
                 user_id=current_user.id,
-                report_id=update_request.report_id,
+                report_id=report_id,
                 require_manager=True
             )
             if not has_permission:
@@ -303,8 +281,8 @@ async def update_report_endpoint(
 
         db_report = crud_resports.update_report(
             db=db, 
-            report_id=update_request.report_id, 
-            report=update_request.report_data
+            report_id=report_id, 
+            report=update_request
         )
         if not db_report:
             raise HTTPException(
@@ -321,7 +299,6 @@ async def update_report_endpoint(
         return SustainabilityReport.model_validate(db_report, from_attributes=True)
 
     except Exception as e:
-        logger.error(f"Error al actualizar la memoria: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al actualizar la memoria: {str(e)}"
@@ -358,7 +335,6 @@ async def delete_report_endpoint(
         return {"message": "Memoria eliminada correctamente"}
 
     except Exception as e:
-        logger.error(f"Error al eliminar la memoria: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al eliminar la memoria: {str(e)}"
@@ -367,8 +343,8 @@ async def delete_report_endpoint(
 
     
 
-@router.get("/reports/norms/{report_id}", response_model=List[ReportNorm])
-async def get_report_norms_endpoint(
+@router.get("/reports/get-all/norms/{report_id}", response_model=List[ReportNorm])
+async def get_all_report_norms_endpoint(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -397,11 +373,10 @@ async def get_report_norms_endpoint(
             )
 
         # Obtener todas las normativas del reporte
-        norms = crud_resports.get_norms_by_report_id(db, report_id)
+        norms = crud_resports.get_all_norms_by_report_id(db, report_id)
         return norms
 
     except Exception as e:
-        logger.error(f"Error al obtener las normativas: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener las normativas: {str(e)}"
@@ -433,13 +408,12 @@ async def create_norm_endpoint(
         return db_norm
 
     except Exception as e:
-        logger.error(f"Error al crear la normativa: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al crear la normativa: {str(e)}"
         )
 
-@router.put("/reports/norms/{norm_id}", response_model=ReportNorm)
+@router.put("/reports/update/norm/{norm_id}", response_model=ReportNorm)
 async def update_norm_endpoint(
     norm_id: int,
     norm: ReportNormUpdate,
@@ -473,7 +447,6 @@ async def update_norm_endpoint(
         return db_norm
 
     except Exception as e:
-        logger.error(f"Error al actualizar la normativa: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al actualizar la normativa: {str(e)}"
@@ -513,7 +486,6 @@ async def delete_norm_endpoint(
         return {"message": "Normativa eliminada correctamente"}
 
     except Exception as e:
-        logger.error(f"Error al eliminar la normativa: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al eliminar la normativa: {str(e)}"
@@ -556,9 +528,8 @@ async def update_cover_photo(
                 old_file_path = settings.BASE_DIR / report.cover_photo.lstrip('/')
                 if old_file_path.exists():
                     old_file_path.unlink()
-                    logger.info(f"Archivo anterior eliminado: {old_file_path}")
             except Exception as e:
-                logger.error(f"Error al eliminar el archivo anterior: {str(e)}")
+                pass
                 # Continuamos con el proceso aunque falle la eliminación
 
         # Leer el contenido del archivo
@@ -569,7 +540,6 @@ async def update_cover_photo(
         return {"url": file_url}
 
     except Exception as e:
-        logger.error(f"Error al actualizar la foto de portada: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/reports/upload/logos/{report_id}", response_model=ReportLogoResponse)
@@ -616,11 +586,10 @@ async def upload_logo(
         )
 
     except Exception as e:
-        logger.error(f"Error al subir el logo: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/reports/get-all/logos/{report_id}", response_model=List[ReportLogoResponse])
-async def get_report_logos(
+async def get_all_report_logos(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -639,13 +608,20 @@ async def get_report_logos(
             )
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
+        
+        # Verificar que el reporte existe
+        report = crud_resports.get_report(db, report_id)
+        if not report:
+            raise HTTPException(
+                status_code=404,
+                detail="Memoria no encontrada"
+            )
 
-        logo_responses = crud_resports.get_report_logos(db, report_id)
+        logos = crud_resports.get_all_report_logos(db, report_id)
 
-        return logo_responses
+        return logos
 
     except Exception as e:
-        logger.error(f"Error al obtener los logos: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/reports/delete/logo/{logo_id}")
@@ -680,7 +656,6 @@ async def delete_logo(
         return {"message": "Logo eliminado correctamente"}
 
     except Exception as e:
-        logger.error(f"Error al eliminar el logo: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/reports/get/cover/{report_id}")
@@ -714,6 +689,8 @@ async def get_cover_photo(
         relative_path = report.cover_photo.lstrip('/')  # Eliminar el primer '/'
         file_path = settings.BASE_DIR / relative_path
 
+        
+
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Archivo no encontrado")
 
@@ -724,11 +701,10 @@ async def get_cover_photo(
         )
 
     except Exception as e:
-        logger.error(f"Error al obtener la foto de portada: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/reports/agreements/{report_id}", response_model=List[ReportAgreement])
-async def get_report_agreements_endpoint(
+@router.get("/reports/get-all/agreements/{report_id}", response_model=List[ReportAgreement])
+async def get_all_report_agreements_endpoint(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -757,17 +733,16 @@ async def get_report_agreements_endpoint(
             )
 
         # Obtener todos los acuerdos del reporte
-        agreements = crud_resports.get_report_agreements(db, report_id)
+        agreements = crud_resports.get_all_report_agreements(db, report_id)
         return agreements
 
     except Exception as e:
-        logger.error(f"Error al obtener los acuerdos: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener los acuerdos: {str(e)}"
         )
 
-@router.post("/reports/agreements", response_model=ReportAgreement)
+@router.post("/reports/create/agreements", response_model=ReportAgreement)
 async def create_agreement_endpoint(
     agreement: ReportAgreementCreate,
     db: Session = Depends(get_db),
@@ -793,13 +768,12 @@ async def create_agreement_endpoint(
         return db_agreement
 
     except Exception as e:
-        logger.error(f"Error al crear el acuerdo: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al crear el acuerdo: {str(e)}"
         )
 
-@router.put("/reports/agreements/{agreement_id}", response_model=ReportAgreement)
+@router.put("/reports/update/agreements/{agreement_id}", response_model=ReportAgreement)
 async def update_agreement_endpoint(
     agreement_id: int,
     agreement: ReportAgreementUpdate,
@@ -833,13 +807,12 @@ async def update_agreement_endpoint(
         return db_agreement
 
     except Exception as e:
-        logger.error(f"Error al actualizar el acuerdo: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al actualizar el acuerdo: {str(e)}"
         )
 
-@router.delete("/reports/agreements/{agreement_id}")
+@router.delete("/reports/delete/agreements/{agreement_id}")
 async def delete_agreement_endpoint(
     agreement_id: int,
     db: Session = Depends(get_db),
@@ -873,13 +846,12 @@ async def delete_agreement_endpoint(
         return {"message": "Acuerdo eliminado correctamente"}
 
     except Exception as e:
-        logger.error(f"Error al eliminar el acuerdo: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al eliminar el acuerdo: {str(e)}"
         )
 
-@router.post("/reports/bibliographies", response_model=ReportBibliography)
+@router.post("/reports/create/bibliographies", response_model=ReportBibliography)
 async def create_bibliography_endpoint(
     bibliography: ReportBibliographyCreate,
     db: Session = Depends(get_db),
@@ -905,13 +877,12 @@ async def create_bibliography_endpoint(
         return db_bibliography
 
     except Exception as e:
-        logger.error(f"Error al crear la bibliografía: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al crear la bibliografía: {str(e)}"
         )
 
-@router.put("/reports/bibliographies/{bibliography_id}", response_model=ReportBibliography)
+@router.put("/reports/update/bibliographies/{bibliography_id}", response_model=ReportBibliography)
 async def update_bibliography_endpoint(
     bibliography_id: int,
     bibliography: ReportBibliographyUpdate,
@@ -945,13 +916,12 @@ async def update_bibliography_endpoint(
         return db_bibliography
 
     except Exception as e:
-        logger.error(f"Error al actualizar la bibliografía: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al actualizar la bibliografía: {str(e)}"
         )
 
-@router.delete("/reports/bibliographies/{bibliography_id}")
+@router.delete("/reports/delete/bibliographies/{bibliography_id}")
 async def delete_bibliography_endpoint(
     bibliography_id: int,
     db: Session = Depends(get_db),
@@ -985,14 +955,13 @@ async def delete_bibliography_endpoint(
         return {"message": "Bibliografía eliminada correctamente"}
 
     except Exception as e:
-        logger.error(f"Error al eliminar la bibliografía: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al eliminar la bibliografía: {str(e)}"
         )
 
-@router.get("/reports/bibliographies/{report_id}", response_model=List[ReportBibliography])
-async def get_report_bibliographies_endpoint(
+@router.get("/reports/get-all/bibliographies/{report_id}", response_model=List[ReportBibliography])
+async def get_all_report_bibliographies_endpoint(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -1021,11 +990,10 @@ async def get_report_bibliographies_endpoint(
             )
 
         # Obtener todas las referencias bibliográficas del reporte
-        bibliographies = crud_resports.get_report_bibliographies(db, report_id)
+        bibliographies = crud_resports.get_all_report_bibliographies(db, report_id)
         return bibliographies
 
     except Exception as e:
-        logger.error(f"Error al obtener las referencias bibliográficas: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener las referencias bibliográficas: {str(e)}"
@@ -1068,9 +1036,8 @@ async def update_organization_chart(
                 old_file_path = settings.BASE_DIR / report.org_chart_figure.lstrip('/')
                 if old_file_path.exists():
                     old_file_path.unlink()
-                    logger.info(f"Archivo anterior eliminado: {old_file_path}")
             except Exception as e:
-                logger.error(f"Error al eliminar el archivo anterior: {str(e)}")
+                pass
                 # Continuamos con el proceso aunque falle la eliminación
 
         # Leer el contenido del archivo
@@ -1081,7 +1048,6 @@ async def update_organization_chart(
         return {"url": file_url}
 
     except Exception as e:
-        logger.error(f"Error al actualizar el organigrama: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/reports/upload/photos/{report_id}", response_model=ReportPhotoResponse)
@@ -1131,11 +1097,10 @@ async def upload_photo(
         )
 
     except Exception as e:
-        logger.error(f"Error al subir la foto: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/reports/get-all/photos/{report_id}", response_model=List[ReportPhotoResponse])
-async def get_report_photos(
+async def get_all_report_photos(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -1154,13 +1119,20 @@ async def get_report_photos(
             )
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
+        
+        # Verificar que el reporte existe
+        report = crud_resports.get_report(db, report_id)
+        if not report:
+            raise HTTPException(
+                status_code=404,
+                detail="Memoria no encontrada"
+            )
 
-        photo_responses = crud_resports.get_report_photos(db, report_id)
+        photos = crud_resports.get_all_report_photos(db, report_id)
 
-        return photo_responses
+        return photos
 
     except Exception as e:
-        logger.error(f"Error al obtener las fotos: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/reports/delete/photo/{photo_id}")
@@ -1195,7 +1167,6 @@ async def delete_photo(
         return {"message": "Foto eliminada correctamente"}
 
     except Exception as e:
-        logger.error(f"Error al eliminar la foto: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/reports/update/photo/{photo_id}", response_model=ReportPhotoResponse)
@@ -1236,10 +1207,9 @@ async def update_photo(
             )
 
     except Exception as e:
-        logger.error(f"Error al actualizar la foto: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/{report_id}/user-role", response_model=UserRoleResponse)
+@router.get("/reports/get/user-role/{report_id}", response_model=UserRoleResponse)
 def get_user_role(
     report_id: int,
     current_user: TokenData = Depends(get_current_user),
@@ -1312,5 +1282,4 @@ async def get_organization_chart(
         )
 
     except Exception as e:
-        logger.error(f"Error al obtener el organigrama: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))

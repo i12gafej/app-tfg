@@ -32,11 +32,9 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import SortIcon from '@mui/icons-material/Sort';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useAuth } from '@/hooks/useAuth';
 import { resourceService, type Resource, type ResourceSearchParams } from '@/services/resourceService';
 import ResourceDetailsDialog from './ResourceDetailsDialog';
@@ -513,6 +511,7 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleView(resource)}
+                        startIcon={<VisibilityIcon />}
                       >
                         Consultar
                       </Button>
@@ -526,6 +525,7 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleEdit(resource)}
+                        startIcon={<EditIcon />}
                       >
                         Editar
                       </Button>
@@ -538,6 +538,7 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
                           minWidth: isMobile ? '100%' : 'auto'
                         }}
                         onClick={() => handleDelete(resource)}
+                        startIcon={<DeleteOutlineIcon />}
                       >
                         Eliminar
                       </Button>

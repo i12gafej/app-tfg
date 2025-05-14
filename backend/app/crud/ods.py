@@ -1,16 +1,12 @@
 from typing import List, Optional, Dict
 from sqlalchemy.orm import Session
 from app.models.models import ODS, SecondaryODSMaterialTopic, MaterialTopic, SecondaryODSAction, Action, SpecificObjective
-import logging
 from collections import Counter
-
-logger = logging.getLogger(__name__)
 
 def get_all_ods(db: Session) -> List[ODS]:
     try:
         return db.query(ODS).all()
     except Exception as e:
-        logger.error(f"Error al obtener ODS: {str(e)}")
         raise
 
 def get_secondary_impacts(db: Session, material_topic_id: int) -> List[int]:
@@ -20,7 +16,6 @@ def get_secondary_impacts(db: Session, material_topic_id: int) -> List[int]:
             .all()
         return [impact[0] for impact in secondary_impacts]
     except Exception as e:
-        logger.error(f"Error al obtener impactos secundarios: {str(e)}")
         raise
 
 def get_all_secondary_impacts_by_report(db: Session, report_id: int) -> List[dict]:
@@ -30,23 +25,18 @@ def get_all_secondary_impacts_by_report(db: Session, report_id: int) -> List[dic
             .filter(MaterialTopic.report_id == report_id)\
             .all()
         
-        logger.info(f"Material topics encontrados para el reporte {report_id}: {len(material_topics)}")
-        
         # Para cada material topic, obtener sus impactos secundarios
         result = []
         for topic in material_topics:
             secondary_impacts = get_secondary_impacts(db, topic.id)
-            logger.info(f"Impactos secundarios para material topic {topic.id}: {secondary_impacts}")
             result.append({
                 "material_topic_id": topic.id,
                 "ods_ids": secondary_impacts
             })
         
-        logger.info(f"Resultado final de impactos secundarios: {result}")
         return result
     except Exception as e:
-        logger.error(f"Error al obtener todos los impactos secundarios del reporte: {str(e)}")
-        raise
+        raise e
 
 def update_secondary_impacts(
     db: Session,
@@ -69,9 +59,7 @@ def update_secondary_impacts(
 
         db.commit()
     except Exception as e:
-        db.rollback()
-        logger.error(f"Error al actualizar impactos secundarios: {str(e)}")
-        raise
+        raise e
 
 def get_all_ods_with_dimension(db: Session) -> Dict[str, List[ODS]]:
     """
@@ -110,8 +98,7 @@ def get_action_secondary_impacts(db: Session, action_id: int) -> List[int]:
             .all()
         return [impact[0] for impact in secondary_impacts]
     except Exception as e:
-        logger.error(f"Error al obtener impactos secundarios de la acción: {str(e)}")
-        raise
+        raise e
 
 def update_action_secondary_impacts(
     db: Session,
@@ -143,9 +130,7 @@ def update_action_secondary_impacts(
 
         db.commit()
     except Exception as e:
-        db.rollback()
-        logger.error(f"Error al actualizar impactos secundarios de la acción: {str(e)}")
-        raise
+        raise e
 
 def get_all_action_secondary_impacts(db: Session, report_id: int) -> List[dict]:
     """
@@ -173,6 +158,5 @@ def get_all_action_secondary_impacts(db: Session, report_id: int) -> List[dict]:
         
         return result
     except Exception as e:
-        logger.error(f"Error al obtener impactos secundarios de acciones: {str(e)}")
-        raise
+        raise e
 
