@@ -33,16 +33,12 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import SortIcon from '@mui/icons-material/Sort';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useAuth } from '@/hooks/useAuth';
 import { reportService, type SustainabilityReport, type ReportSearchParams } from '@/services/reportServices';
 import { ReportCreateDialog } from './ReportCreateDialog';
 import { ReportPermissionDialog } from './ReportPermissionDialog';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import ReportDeleteDialog from './ReportDeleteDialog';
 
 interface ReportSearchProps {
   onSearch?: (searchTerm: string, filters: SearchFilters) => void;
@@ -83,6 +79,8 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const [createOpen, setCreateOpen] = useState(false);
   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<SustainabilityReport | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<{ id: number; resourceName: string; year: number } | null>(null);
 
   useEffect(() => {
     handleSearch();
@@ -245,6 +243,24 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const handleClosePermissions = () => {
     setPermissionDialogOpen(false);
     setSelectedReport(null);
+  };
+
+  const handleOpenDeleteDialog = (report: SustainabilityReport) => {
+    setReportToDelete({
+      id: report.id,
+      resourceName: report.heritage_resource_name || 'Sin nombre',
+      year: report.year
+    });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setReportToDelete(null);
+  };
+
+  const handleDeleted = () => {
+    handleSearch();
   };
 
   return (
@@ -531,6 +547,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                             mr: isMobile ? 0 : 1,
                             minWidth: isMobile ? '100%' : 'auto'
                           }}
+                          onClick={() => handleOpenDeleteDialog(report)}
                         >
                           Eliminar
                         </Button>
@@ -589,6 +606,14 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
         onClose={handleClosePermissions}
         report={selectedReport as SustainabilityReport}
         token={token || ''}
+      />
+
+      <ReportDeleteDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        report={reportToDelete}
+        token={token || ''}
+        onDeleted={handleDeleted}
       />
     </Box>
   );

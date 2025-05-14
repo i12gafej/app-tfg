@@ -10,6 +10,7 @@ import {
   Alert,
   Autocomplete,
   CircularProgress,
+  Typography,
 } from '@mui/material';
 import { SustainabilityReport } from '@/services/reportServices';
 import { Resource, resourceService } from '@/services/resourceService';
@@ -38,6 +39,7 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingResources, setLoadingResources] = useState(false);
+  const [observation, setObservation] = useState('');
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -64,6 +66,18 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
     fetchResources();
   }, [open, token]);
 
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        heritage_resource_id: null,
+        year: new Date().getFullYear(),
+      });
+      setSelectedResource(null);
+      setObservation('');
+      setError(null);
+    }
+  }, [open]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -85,7 +99,8 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
         body: JSON.stringify({
           heritage_resource_id: formData.heritage_resource_id,
           year: formData.year,
-          state: 'Draft'
+          state: 'Draft',
+          observation: observation
         }),
       });
 
@@ -96,6 +111,12 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
 
       const newReport = await response.json();
       onReportCreated(newReport);
+      setFormData({
+        heritage_resource_id: null,
+        year: new Date().getFullYear(),
+      });
+      setSelectedResource(null);
+      setObservation('');
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido al crear la memoria');
@@ -153,6 +174,14 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
                 year: parseInt(e.target.value)
               }))}
               required
+              fullWidth
+            />
+            <TextField
+              label="Observación"
+              multiline
+              minRows={3}
+              value={observation}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setObservation(e.target.value)}
               fullWidth
             />
           </Box>
