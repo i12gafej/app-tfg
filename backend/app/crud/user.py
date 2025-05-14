@@ -151,3 +151,15 @@ def search(
         query = query.filter(User.admin == is_admin)
 
     return query.all() 
+
+def change_password(db: Session, user_id: int, old_password: str, new_password: str) -> Optional[User]:
+    user = get(db, user_id)
+    if not user:
+        return None
+    if not verify_password(old_password, user.password):
+        return None
+    user.password = get_password_hash(new_password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user 

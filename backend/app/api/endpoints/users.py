@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
@@ -126,4 +126,24 @@ def create_user(
             status_code=500,
             detail=f"Error al crear el usuario: {str(e)}"
         )
+
+@router.put("/user/change-password", response_model=dict)
+def change_password(
+    user_id: int = Body(...),
+    old_password: str = Body(...),
+    new_password: str = Body(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Cambiar la contraseña de un usuario autenticado.
+    """
+    # Solo el propio usuario o un admin pueden cambiar la contraseña
+    if not (current_user.admin or current_user.id == user_id):
+        raise HTTPException(status_code=403, detail="No tienes permisos para cambiar esta contraseña")
+
+    user = crud_user.change_password(db, user_id, old_password, new_password)
+    if not user:
+        raise HTTPException(status_code=400, detail="Usuario no encontrado o contraseña incorrecta")
+    return {"message": "Contraseña actualizada correctamente"}
 

@@ -190,7 +190,7 @@ const MaterialTopicValidation: React.FC = () => {
               <TableCell>Asunto de Materialidad</TableCell>
               <TableCell>Prioridad de Materialidad</TableCell>
               <TableCell>Prioridad de Validación</TableCell>
-              <TableCell align="center">Acciones</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

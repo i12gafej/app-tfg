@@ -76,14 +76,6 @@ export interface ReportSearchParams {
     state?: 'Draft' | 'Published';
 }
 
-export interface PaginatedResponse<T> {
-    items: T[];
-    total: number;
-    page: number;
-    per_page: number;
-    total_pages: number;
-}
-
 const api = axios.create({
     baseURL: '/api',
     headers: {

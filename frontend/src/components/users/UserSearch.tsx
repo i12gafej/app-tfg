@@ -43,6 +43,7 @@ import UserDetailsDialog from './UserDetailsDialog';
 import UserEditDialog from './UserEditDialog';
 import UserDeleteDialog from './UserDeleteDialog';
 import { UserCreateDialog } from './UserCreateDialog';
+import TableSortLabel from '@mui/material/TableSortLabel';
 
 interface UserSearchProps {
   onSearch?: (searchTerm: string, filters: SearchFilters) => void;
@@ -485,41 +486,41 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell
-                  onClick={() => handleSort('name')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Nombre
-                  {sortField === 'name' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'name'}
+                    direction={sortField === 'name' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('name')}
+                  >
+                    Nombre
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell
-                  onClick={() => handleSort('surname')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Apellidos
-                  {sortField === 'surname' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'surname'}
+                    direction={sortField === 'surname' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('surname')}
+                  >
+                    Apellidos
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell
-                  onClick={() => handleSort('email')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Correo
-                  {sortField === 'email' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'email'}
+                    direction={sortField === 'email' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('email')}
+                  >
+                    Correo
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell
-                  onClick={() => handleSort('admin')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Rol
-                  {sortField === 'admin' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'admin'}
+                    direction={sortField === 'admin' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('admin')}
+                  >
+                    Rol
+                  </TableSortLabel>
                 </TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>

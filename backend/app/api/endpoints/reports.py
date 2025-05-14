@@ -108,9 +108,7 @@ async def search_reports_endpoint(
             # Buscar recursos por nombre
             resources = resources_crud.search(
                 db=db,
-                name=heritage_resource_name,
-                skip=0,
-                limit=1000
+                name=heritage_resource_name
             )
             
             if not resources:
@@ -131,9 +129,7 @@ async def search_reports_endpoint(
                 is_admin=current_user.admin,
                 heritage_resource_ids=resource_ids,
                 year=year,
-                state=state,
-                skip=0,
-                limit=1000
+                state=state
             )
         
         # Caso 2: Búsqueda por año y/o estado
@@ -144,9 +140,7 @@ async def search_reports_endpoint(
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
                 year=year,
-                state=state,
-                skip=0,
-                limit=100
+                state=state
             )
         
         # Caso 3: Búsqueda por término de búsqueda
@@ -155,9 +149,7 @@ async def search_reports_endpoint(
             # Buscar recursos por nombre
             resources = resources_crud.search(
                 db=db,
-                name=search_term,
-                skip=0,
-                limit=100
+                name=search_term
             )
             
             # Obtener IDs de recursos
@@ -168,9 +160,7 @@ async def search_reports_endpoint(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
-                heritage_resource_ids=resource_ids,
-                skip=0,
-                limit=100
+                heritage_resource_ids=resource_ids
             )
         
         # Caso 4: Sin filtros, devolver todas las memorias
@@ -179,9 +169,7 @@ async def search_reports_endpoint(
             reports, total = reports_crud.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
-                is_admin=current_user.admin,
-                skip=0,
-                limit=100
+                is_admin=current_user.admin
             )
 
         logger.info(f"Memorias encontradas: {len(reports)}")

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -16,6 +16,7 @@ import { useReport } from '@/context/ReportContext';
 import { useAuth } from '@/hooks/useAuth';
 import { actionPlanService } from '@/services/actionPlanService';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import { DIMENSION_COLORS } from '@/services/odsService';
 
 const InternalConsistencyGraph = () => {
   const { report } = useReport();
@@ -27,18 +28,44 @@ const InternalConsistencyGraph = () => {
     dimension_totals: Array<{ dimension: string; total: number }>;
   } | null>(null);
 
-  const handleGenerateGraph = async () => {
-    if (!report || !token) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await actionPlanService.getInternalConsistencyGraph(report.id, token);
-      setGraphData(response);
-    } catch (error) {
-      console.error('Error al generar la gráfica:', error);
-      setError('Error al generar la gráfica');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    const fetchGraph = async () => {
+      if (!report || !token) return;
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await actionPlanService.getInternalConsistencyGraph(report.id, token);
+        setGraphData(response);
+      } catch (error) {
+        console.error('Error al generar la gráfica:', error);
+        setError('Error al generar la gráfica');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGraph();
+  }, [report, token]);
+
+  // Función para obtener el color de la dimensión
+  const getDimensionColor = (dimension: string): string => {
+    switch (dimension.toUpperCase()) {
+      case 'PERSONAS':
+      case 'PEOPLE':
+        return DIMENSION_COLORS.PEOPLE;
+      case 'PLANETA':
+      case 'PLANET':
+        return DIMENSION_COLORS.PLANET;
+      case 'PROSPERIDAD':
+      case 'PROSPERITY':
+        return DIMENSION_COLORS.PROSPERITY;
+      case 'PAZ':
+      case 'PEACE':
+        return DIMENSION_COLORS.PEACE;
+      case 'ALIANZAS':
+      case 'PARTNERSHIP':
+        return DIMENSION_COLORS.PARTNERSHIP;
+      default:
+        return 'transparent';
     }
   };
 
@@ -54,16 +81,11 @@ const InternalConsistencyGraph = () => {
         </Typography>
       )}
 
-      <Box sx={{ mb: 3 }}>
-        <Button
-          variant="contained"
-          onClick={handleGenerateGraph}
-          disabled={loading}
-          startIcon={loading ? <CircularProgress size={20} /> : <BarChartIcon />}
-        >
-          Generar Gráfica
-        </Button>
-      </Box>
+      {loading && (
+        <Box sx={{ mb: 3 }}>
+          <CircularProgress />
+        </Box>
+      )}
 
       {graphData && (
         <>
@@ -96,7 +118,19 @@ const InternalConsistencyGraph = () => {
                 <TableBody>
                   {graphData.dimension_totals.map((item) => (
                     <TableRow key={item.dimension}>
-                      <TableCell>{item.dimension}</TableCell>
+                      <TableCell>
+                        <Box component="span" sx={{
+                          display: 'inline-block',
+                          width: 18,
+                          height: 18,
+                          borderRadius: '4px',
+                          backgroundColor: getDimensionColor(item.dimension),
+                          verticalAlign: 'middle',
+                          mr: 1,
+                          border: '1px solid #bbb'
+                        }} />
+                        {item.dimension}
+                      </TableCell>
                       <TableCell align="right">{item.total}</TableCell>
                     </TableRow>
                   ))}

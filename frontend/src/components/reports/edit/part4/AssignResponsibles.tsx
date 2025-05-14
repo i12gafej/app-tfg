@@ -17,9 +17,10 @@ import {
   Alert
 } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
-import { materialTopicService } from '@/services/materialTopicService';
+import { materialTopicService, sortMaterialTopics } from '@/services/materialTopicService';
 import { actionPlanService } from '@/services/actionPlanService';
 import { useAuth } from '@/hooks/useAuth';
+import { getBackgroundColor } from '@/services/odsService';
 
 interface MaterialTopic {
   id: number;
@@ -53,7 +54,7 @@ const AssignResponsibles = () => {
       try {
         setLoading(true);
         const topics = await materialTopicService.getAllByReport(report.id, token);
-        setMaterialTopics(topics);
+        setMaterialTopics(sortMaterialTopics(topics));
       } catch (error) {
         console.error('Error al cargar asuntos de materialidad:', error);
         setError('Error al cargar los asuntos de materialidad');
@@ -167,6 +168,17 @@ const AssignResponsibles = () => {
                   button
                   selected={selectedTopic?.id === topic.id}
                   onClick={() => handleTopicSelect(topic)}
+                  sx={{
+                    backgroundColor: getBackgroundColor((topic as any).goal_ods_id ?? undefined),
+                    '&.Mui-selected': {
+                      backgroundColor: `${getBackgroundColor((topic as any).goal_ods_id ?? undefined)} !important`,
+                      opacity: 0.8,
+                    },
+                    '&:hover': {
+                      backgroundColor: `${getBackgroundColor((topic as any).goal_ods_id ?? undefined)} !important`,
+                      opacity: 0.9,
+                    },
+                  }}
                 >
                   <ListItemText primary={topic.name} />
                 </ListItem>

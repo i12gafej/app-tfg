@@ -43,6 +43,7 @@ import ResourceDetailsDialog from './ResourceDetailsDialog';
 import ResourceEditDialog from './ResourceEditDialog';
 import ResourceDeleteDialog from './ResourceDeleteDialog';
 import { ResourceCreateDialog } from './ResourceCreateDialog';
+import TableSortLabel from '@mui/material/TableSortLabel';
 
 interface ResourceSearchProps {
   onSearch?: (searchTerm: string, filters: SearchFilters) => void;
@@ -450,41 +451,41 @@ const ResourceSearch = ({ onSearch }: ResourceSearchProps) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell
-                  onClick={() => handleSort('name')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Nombre
-                  {sortField === 'name' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'name'}
+                    direction={sortField === 'name' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('name')}
+                  >
+                    Nombre
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell
-                  onClick={() => handleSort('ownership')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Titularidad
-                  {sortField === 'ownership' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'ownership'}
+                    direction={sortField === 'ownership' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('ownership')}
+                  >
+                    Titularidad
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell
-                  onClick={() => handleSort('management_model')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Modelo de Gestión
-                  {sortField === 'management_model' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'management_model'}
+                    direction={sortField === 'management_model' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('management_model')}
+                  >
+                    Modelo de Gestión
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell
-                  onClick={() => handleSort('postal_address')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Dirección Postal
-                  {sortField === 'postal_address' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} /> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }} />
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'postal_address'}
+                    direction={sortField === 'postal_address' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('postal_address')}
+                  >
+                    Dirección Postal
+                  </TableSortLabel>
                 </TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>

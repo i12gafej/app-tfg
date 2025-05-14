@@ -14,7 +14,7 @@ const AdminNavbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/backups', '/cuenta'];
+  const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/backups'];
   const shouldHaveWhiteBackground = whiteBackgroundRoutes.includes(location.pathname);
 
   const handleDrawerToggle = () => {
@@ -33,7 +33,7 @@ const AdminNavbar = () => {
     { text: 'Usuarios', path: '/usuarios' },
     { text: 'Equipo de Sostenibilidad', path: '/equipo' },
     { text: 'Copias de Seguridad', path: '/backup' },
-    { text: 'Cuenta', path: '/cuenta' },
+    { text: 'Perfil', path: '/perfil' },
   ];
 
   const drawer = (

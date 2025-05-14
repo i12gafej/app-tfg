@@ -1,6 +1,6 @@
 import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, Grid, CircularProgress } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { teamService, TeamMember, Resource, Report } from '@/services/teamService';
 import TeamMemberList from '@/components/Team/TeamMemberList';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
@@ -56,6 +56,8 @@ const TeamMemberSearchPanel = ({
   const [isLoadingReports, setIsLoadingReports] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortField, setSortField] = useState<'name' | 'surname' | 'role'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const fetchTeamMembers = async () => {
     if (!reportId) {
@@ -136,6 +138,15 @@ const TeamMemberSearchPanel = ({
     }));
   };
 
+  const handleSort = (field: 'name' | 'surname' | 'role') => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
   const filteredTeamMembers = teamMembers.filter(member => {
     const matchesFilters = 
       (!filters.name || member.name.toLowerCase().includes(filters.name.toLowerCase())) &&
@@ -143,11 +154,22 @@ const TeamMemberSearchPanel = ({
       (!filters.email || member.email.toLowerCase().includes(filters.email.toLowerCase())) &&
       (!filters.role || member.role === filters.role) &&
       (!filters.organization || member.organization.toLowerCase().includes(filters.organization.toLowerCase()));
-
     return matchesFilters;
   });
 
-  const paginatedTeamMembers = filteredTeamMembers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const sortedTeamMembers = useMemo(() => {
+    return [...filteredTeamMembers].sort((a, b) => {
+      const aValue = a[sortField]?.toLowerCase() || '';
+      const bValue = b[sortField]?.toLowerCase() || '';
+      if (sortOrder === 'asc') {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+  }, [filteredTeamMembers, sortField, sortOrder]);
+
+  const paginatedTeamMembers = sortedTeamMembers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleUpdate = useCallback(() => {
     fetchTeamMembers();
@@ -309,6 +331,9 @@ const TeamMemberSearchPanel = ({
         reportId={reportId}
         onUpdate={handleUpdate}
         readOnly={readOnly}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSort={handleSort}
       />
 
       {filteredTeamMembers.length > 0 && (

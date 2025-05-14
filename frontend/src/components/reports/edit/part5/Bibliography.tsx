@@ -1,200 +1,336 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  TextField, 
-  IconButton, 
+import {
+  Box,
+  Typography,
+  TextField,
+  IconButton,
   Button,
   Paper,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
-  Divider
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+  InputAdornment
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import SearchIcon from '@mui/icons-material/Search';
 import { useReport } from '@/context/ReportContext';
 import { reportService, ReportBibliography } from '@/services/reportServices';
 import { useAuth } from '@/hooks/useAuth';
 
-interface PendingChange {
-  type: 'create' | 'update' | 'delete';
+// Diálogo de consulta
+const ViewDialog = ({ open, onClose, bibliography }: { open: boolean; onClose: () => void; bibliography: ReportBibliography }) => (
+  <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <DialogTitle>Consultar Referencia</DialogTitle>
+    <DialogContent>
+      <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
+        {bibliography.reference}
+      </Typography>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose}>Cerrar</Button>
+    </DialogActions>
+  </Dialog>
+);
+
+// Diálogo de edición
+const EditDialog = ({
+  open,
+  onClose,
+  bibliography,
+  onSave
+}: {
+  open: boolean;
+  onClose: () => void;
   bibliography: ReportBibliography;
-  originalBibliography?: ReportBibliography;
-}
+  onSave: (bibliography: ReportBibliography) => void;
+}) => {
+  const [text, setText] = useState(bibliography.reference);
+
+  useEffect(() => {
+    setText(bibliography.reference);
+  }, [bibliography]);
+
+  const handleSave = () => {
+    onSave({ ...bibliography, reference: text });
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Editar Referencia</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="Texto de la referencia"
+          value={text}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+          sx={{ mt: 1 }}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained" disabled={!text.trim()}>Guardar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Diálogo de creación
+const CreateDialog = ({
+  open,
+  onClose,
+  onSave
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSave: (bibliography: Omit<ReportBibliography, 'id'>) => void;
+}) => {
+  const [text, setText] = useState('');
+
+  const handleSave = () => {
+    onSave({ reference: text, report_id: 0 });
+    setText('');
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Crear Referencia</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="Texto de la referencia"
+          value={text}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+          sx={{ mt: 1 }}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained" disabled={!text.trim()}>Guardar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Diálogo de confirmación de eliminación
+const DeleteDialog = ({
+  open,
+  onClose,
+  onConfirm
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) => (
+  <Dialog open={open} onClose={onClose}>
+    <DialogTitle>Confirmar eliminación</DialogTitle>
+    <DialogContent>
+      <Typography>¿Estás seguro de que deseas eliminar esta referencia?</Typography>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose}>Cancelar</Button>
+      <Button onClick={onConfirm} color="error" variant="contained">
+        Eliminar
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
 const Bibliography = () => {
   const { report, loading: reportLoading, readOnly } = useReport();
   const { token } = useAuth();
   const [bibliographies, setBibliographies] = useState<ReportBibliography[]>([]);
-  const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Cargar referencias bibliográficas iniciales
+  // Estados para los diálogos
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedBibliography, setSelectedBibliography] = useState<ReportBibliography | null>(null);
+
+  // Cargar referencias iniciales
   useEffect(() => {
     const loadBibliographies = async () => {
       if (!report?.id || !token) return;
-      
       try {
+        setLoading(true);
         const bibliographies = await reportService.getReportBibliographies(report.id, token);
         setBibliographies(bibliographies);
       } catch (err) {
-        console.error('Error al cargar las referencias bibliográficas:', err);
-        setError('Error al cargar las referencias bibliográficas. Por favor, recarga la página.');
+        console.error('Error al cargar las referencias:', err);
+        setError('Error al cargar las referencias. Por favor, recarga la página.');
+      } finally {
+        setLoading(false);
       }
     };
-
     loadBibliographies();
   }, [report?.id, token]);
 
-  const addBibliography = () => {
-    const newBibliography: ReportBibliography = {
-      id: Date.now(), // ID temporal para cambios pendientes
-      reference: '',
-      report_id: report?.id || 0
-    };
-    
-    setBibliographies([...bibliographies, newBibliography]);
-    setPendingChanges([...pendingChanges, { type: 'create', bibliography: newBibliography }]);
+  // Filtrar referencias según el término de búsqueda
+  const filteredBibliographies = bibliographies.filter(bib =>
+    bib.reference.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Paginar referencias
+  const paginatedBibliographies = filteredBibliographies.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
   };
 
-  const removeBibliography = (id: number) => {
-    const bibliographyToRemove = bibliographies.find(b => b.id === id);
-    if (!bibliographyToRemove) return;
-
-    setBibliographies(bibliographies.filter(b => b.id !== id));
-    
-    // Si es una referencia nueva (creada en esta sesión), la eliminamos de los cambios pendientes
-    if (id > 1000000) { // IDs temporales son grandes
-      setPendingChanges(pendingChanges.filter(change => change.bibliography.id !== id));
-    } else {
-      // Si es una referencia existente, la marcamos para eliminación
-      setPendingChanges([...pendingChanges, { type: 'delete', bibliography: bibliographyToRemove }]);
-    }
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
-  const handleBibliographyChange = (id: number, newText: string) => {
-    const bibliographyToUpdate = bibliographies.find(b => b.id === id);
-    if (!bibliographyToUpdate) return;
-
-    const updatedBibliography = { ...bibliographyToUpdate, reference: newText };
-    setBibliographies(bibliographies.map(b => b.id === id ? updatedBibliography : b));
-
-    // Si es una referencia nueva, actualizamos el cambio pendiente de creación
-    if (id > 1000000) {
-      setPendingChanges(pendingChanges.map(change => 
-        change.bibliography.id === id ? { ...change, bibliography: updatedBibliography } : change
-      ));
-    } else {
-      // Si es una referencia existente, la marcamos para actualización
-      const existingChange = pendingChanges.find(change => 
-        change.type === 'update' && change.bibliography.id === id
-      );
-
-      if (existingChange) {
-        setPendingChanges(pendingChanges.map(change => 
-          change.bibliography.id === id ? { ...change, bibliography: updatedBibliography } : change
-        ));
-      } else {
-        setPendingChanges([...pendingChanges, { 
-          type: 'update', 
-          bibliography: updatedBibliography,
-          originalBibliography: bibliographyToUpdate
-        }]);
-      }
-    }
+  const handleCloseViewDialog = () => {
+    setViewDialogOpen(false);
+    setSelectedBibliography(null);
   };
 
-  const saveChanges = async () => {
-    if (!report || !token || pendingChanges.length === 0) return;
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setSelectedBibliography(null);
+  };
 
-    setIsSaving(true);
-    setError(null);
-    setSuccessMessage(null);
+  const handleCloseCreateDialog = () => {
+    setCreateDialogOpen(false);
+  };
 
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setSelectedBibliography(null);
+  };
+
+  const handleView = (bibliography: ReportBibliography) => {
+    setSelectedBibliography(bibliography);
+    setViewDialogOpen(true);
+  };
+
+  const handleEdit = (bibliography: ReportBibliography) => {
+    setSelectedBibliography(bibliography);
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = (bibliography: ReportBibliography) => {
+    setSelectedBibliography(bibliography);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (updatedBibliography: ReportBibliography) => {
+    if (!token || !report) return;
     try {
-      // Filtrar referencias vacías
-      const validChanges = pendingChanges.filter(change => {
-        const referenceText = change.bibliography.reference.trim();
-        return referenceText.length > 0;
-      });
-
-      if (validChanges.length === 0) {
-        setError('No hay cambios válidos para guardar. Las referencias bibliográficas no pueden estar vacías.');
-        setIsSaving(false);
-        return;
-      }
-
-      // Procesar cambios en orden: primero eliminaciones, luego actualizaciones, finalmente creaciones
-      const deletions = validChanges.filter(change => change.type === 'delete');
-      const updates = validChanges.filter(change => change.type === 'update');
-      const creations = validChanges.filter(change => change.type === 'create');
-
-      // Ejecutar eliminaciones
-      for (const change of deletions) {
-        await reportService.deleteBibliography(change.bibliography.id, token);
-      }
-
-      // Ejecutar actualizaciones
-      for (const change of updates) {
-        await reportService.updateBibliography(
-          report.id, 
-          change.bibliography.id, 
-          change.bibliography.reference, 
-          token
-        );
-      }
-
-      // Ejecutar creaciones
-      for (const change of creations) {
-        await reportService.createBibliography(
-          report.id, 
-          change.bibliography.reference, 
-          token
-        );
-      }
-
-      // Obtener las referencias actualizadas
-      const updatedBibliographies = await reportService.getReportBibliographies(report.id, token);
-      setBibliographies(updatedBibliographies);
-
-      setPendingChanges([]);
-      setSuccessMessage('Cambios guardados correctamente');
+      setLoading(true);
+      await reportService.updateBibliography(report.id, updatedBibliography.id, updatedBibliography.reference, token);
+      const bibliographies = await reportService.getReportBibliographies(report.id, token);
+      setBibliographies(bibliographies);
+      setSuccessMessage('Referencia actualizada correctamente');
     } catch (err) {
-      console.error('Error al guardar los cambios:', err);
-      setError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+      console.error('Error al actualizar la referencia:', err);
+      setError('Error al actualizar la referencia');
     } finally {
-      setIsSaving(false);
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = async (newBibliography: Omit<ReportBibliography, 'id'>) => {
+    if (!token || !report) return;
+    try {
+      setLoading(true);
+      await reportService.createBibliography(report.id, newBibliography.reference, token);
+      const bibliographies = await reportService.getReportBibliographies(report.id, token);
+      setBibliographies(bibliographies);
+      setSuccessMessage('Referencia creada correctamente');
+    } catch (err) {
+      console.error('Error al crear la referencia:', err);
+      setError('Error al crear la referencia');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!token || !selectedBibliography) return;
+    try {
+      setLoading(true);
+      await reportService.deleteBibliography(selectedBibliography.id, token);
+      const bibliographies = await reportService.getReportBibliographies(report?.id || 0, token);
+      setBibliographies(bibliographies);
+      setSuccessMessage('Referencia eliminada correctamente');
+    } catch (err) {
+      console.error('Error al eliminar la referencia:', err);
+      setError('Error al eliminar la referencia');
+    } finally {
+      setLoading(false);
+      setDeleteDialogOpen(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: '800px', margin: '0 auto' }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+    <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 2 }}>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        mb: 2 
+        mb: 2
       }}>
         <Typography variant="h6">
           Referencias Bibliográficas
         </Typography>
-        {!readOnly && pendingChanges.length > 0 && (
+        {!readOnly && (
           <Button
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={() => setCreateDialogOpen(true)}
             variant="contained"
-            color="primary"
-            startIcon={<SaveIcon />}
-            onClick={saveChanges}
-            disabled={isSaving}
+            disabled={reportLoading}
           >
-            {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+            Añadir referencia
           </Button>
         )}
       </Box>
+
+      <Paper sx={{ mb: 2, p: 2 }}>
+        <TextField
+          fullWidth
+          placeholder="Buscar referencias..."
+          value={searchTerm}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -207,79 +343,93 @@ const Bibliography = () => {
           {successMessage}
         </Alert>
       )}
-      
-      {readOnly ? (
-        <List sx={{ 
-          width: '100%',
-          bgcolor: 'background.paper',
-          border: '1px solid #e0e0e0',
-          borderRadius: '4px',
-          overflow: 'hidden'
-        }}>
-          {bibliographies.map((bibliography, index) => (
-            <React.Fragment key={bibliography.id}>
-              <ListItem>
-                <ListItemText 
-                  primary={bibliography.reference}
-                  sx={{
-                    '& .MuiListItemText-primary': {
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word'
-                    }
-                  }}
-                />
-              </ListItem>
-              {index < bibliographies.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-        </List>
-      ) : (
-        <>
-          {bibliographies.map((bibliography) => (
-            <Paper 
-              key={bibliography.id}
-              elevation={0}
-              sx={{ 
-                p: 2, 
-                mb: 2, 
-                border: '1px solid #e0e0e0',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 1
-              }}
-            >
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                placeholder="Introduce la referencia bibliográfica..."
-                value={bibliography.reference}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleBibliographyChange(bibliography.id, e.target.value)}
-                sx={{ flex: 1 }}
-              />
-              <IconButton 
-                onClick={() => removeBibliography(bibliography.id)}
-                color="error"
-                size="small"
-                sx={{ mt: 1 }}
-              >
-                <DeleteOutlineIcon />
-              </IconButton>
-            </Paper>
-          ))}
 
-          <Button
-            startIcon={<AddCircleOutlineIcon />}
-            onClick={addBibliography}
-            variant="outlined"
-            sx={{ mt: 1 }}
-            disabled={reportLoading}
-          >
-            Añadir referencia bibliográfica
-          </Button>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Referencia</TableCell>
+              <TableCell align="right">Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={2} align="center">
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            ) : paginatedBibliographies.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={2} align="center">
+                  No se encontraron referencias
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedBibliographies.map((bibliography) => (
+                <TableRow key={bibliography.id}>
+                  <TableCell sx={{ maxWidth: '700px', whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {bibliography.reference}
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton onClick={() => handleView(bibliography)} sx={{ color: 'grey.600' }}>
+                      <VisibilityIcon />
+                    </IconButton>
+                    {!readOnly && (
+                      <>
+                        <IconButton onClick={() => handleEdit(bibliography)} sx={{ color: 'grey.600' }}>
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton onClick={() => handleDelete(bibliography)} sx={{ color: 'grey.600' }}>
+                          <DeleteOutlineIcon />
+                        </IconButton>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 20]}
+          component="div"
+          count={filteredBibliographies.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Filas por página:"
+          labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
+        />
+      </TableContainer>
+
+      {selectedBibliography && (
+        <>
+          <ViewDialog
+            open={viewDialogOpen}
+            onClose={handleCloseViewDialog}
+            bibliography={selectedBibliography}
+          />
+          <EditDialog
+            open={editDialogOpen}
+            onClose={handleCloseEditDialog}
+            bibliography={selectedBibliography}
+            onSave={handleSaveEdit}
+          />
+          <DeleteDialog
+            open={deleteDialogOpen}
+            onClose={handleCloseDeleteDialog}
+            onConfirm={handleConfirmDelete}
+          />
         </>
       )}
+
+      <CreateDialog
+        open={createDialogOpen}
+        onClose={handleCloseCreateDialog}
+        onSave={handleCreate}
+      />
     </Box>
   );
 };

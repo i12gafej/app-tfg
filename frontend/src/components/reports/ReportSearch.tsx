@@ -42,6 +42,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { reportService, type SustainabilityReport, type ReportSearchParams } from '@/services/reportServices';
 import { ReportCreateDialog } from './ReportCreateDialog';
 import { ReportPermissionDialog } from './ReportPermissionDialog';
+import TableSortLabel from '@mui/material/TableSortLabel';
 
 interface ReportSearchProps {
   onSearch?: (searchTerm: string, filters: SearchFilters) => void;
@@ -444,32 +445,32 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell 
-                  onClick={() => handleSort('heritage_resource_name')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Recurso Patrimonial
-                  {sortField === 'heritage_resource_name' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/>
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'heritage_resource_name'}
+                    direction={sortField === 'heritage_resource_name' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('heritage_resource_name')}
+                  >
+                    Recurso Patrimonial
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell 
-                  onClick={() => handleSort('year')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Año
-                  {sortField === 'year' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/>
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'year'}
+                    direction={sortField === 'year' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('year')}
+                  >
+                    Año
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell 
-                  onClick={() => handleSort('state')}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Estado
-                  {sortField === 'state' && (
-                    sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/> : <ArrowDownwardIcon fontSize="small" sx={{ marginLeft: 1, verticalAlign: 'middle' }}/>
-                  )}
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'state'}
+                    direction={sortField === 'state' ? sortOrder : 'asc'}
+                    onClick={() => handleSort('state')}
+                  >
+                    Estado
+                  </TableSortLabel>
                 </TableCell>
                 {!isAdmin && <TableCell>Rol</TableCell>}
                 <TableCell align="right">Acciones</TableCell>

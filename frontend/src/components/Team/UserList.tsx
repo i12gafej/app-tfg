@@ -11,7 +11,8 @@ import {
   CircularProgress,
   Typography,
   alpha,
-  TablePagination
+  TablePagination,
+  TableSortLabel
 } from '@mui/material';
 import { 
   Visibility as VisibilityIcon,
@@ -27,6 +28,9 @@ interface UserListProps {
   users: TeamUser[];
   isLoading: boolean;
   onUserSelect: (user: TeamUser) => void;
+  sortField: 'name' | 'surname' | 'email';
+  sortOrder: 'asc' | 'desc';
+  onSort: (field: 'name' | 'surname' | 'email') => void;
 }
 
 const DraggableUserRow = ({ user, onSelect }: { user: TeamUser; onSelect: (user: TeamUser) => void }) => {
@@ -68,7 +72,7 @@ const DraggableUserRow = ({ user, onSelect }: { user: TeamUser; onSelect: (user:
   );
 };
 
-const UserList = ({ users, isLoading, onUserSelect }: UserListProps) => {
+const UserList = ({ users, isLoading, onUserSelect, sortField, sortOrder, onSort }: UserListProps) => {
   const [selectedUser, setSelectedUser] = useState<UserServiceUser | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -108,9 +112,33 @@ const UserList = ({ users, isLoading, onUserSelect }: UserListProps) => {
           <TableHead>
             <TableRow>
               <TableCell width={40}></TableCell>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Apellidos</TableCell>
-              <TableCell>Correo</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'name'}
+                  direction={sortField === 'name' ? sortOrder : 'asc'}
+                  onClick={() => onSort('name')}
+                >
+                  Nombre
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'surname'}
+                  direction={sortField === 'surname' ? sortOrder : 'asc'}
+                  onClick={() => onSort('surname')}
+                >
+                  Apellidos
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'email'}
+                  direction={sortField === 'email' ? sortOrder : 'asc'}
+                  onClick={() => onSort('email')}
+                >
+                  Correo
+                </TableSortLabel>
+              </TableCell>
               <TableCell align="right">Acciones</TableCell>
             </TableRow>
           </TableHead>

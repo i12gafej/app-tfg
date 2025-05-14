@@ -6,8 +6,6 @@ interface MaterialTopicSearchParams {
   search_term?: string;
   name?: string;
   report_id?: number;
-  page?: number;
-  per_page?: number;
 }
 
 export interface MaterialTopic {
@@ -21,12 +19,9 @@ export interface MaterialTopic {
   report_id: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
+export interface MaterialTopicResponse {
+  items: MaterialTopic[];
   total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
 }
 
 export interface MaterialityMatrixData {
@@ -61,9 +56,9 @@ const api = axios.create({
 });
 
 export const materialTopicService = {
-  async searchMaterialTopics(params: MaterialTopicSearchParams, token: string): Promise<PaginatedResponse<MaterialTopic>> {
+  async searchMaterialTopics(params: MaterialTopicSearchParams, token: string): Promise<MaterialTopicResponse> {
     try {
-      const response = await api.post<PaginatedResponse<MaterialTopic>>('/material-topics/search', params, {
+      const response = await api.post<MaterialTopicResponse>('/material-topics/search', params, {
         headers: {
           Authorization: `Bearer ${token}`
         }

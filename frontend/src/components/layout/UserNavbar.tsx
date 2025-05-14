@@ -14,7 +14,7 @@ const UserNavbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/cuenta'];
+  const whiteBackgroundRoutes = ['/memorias', '/encuestas'];
   const shouldHaveWhiteBackground = whiteBackgroundRoutes.includes(location.pathname);
 
   const handleDrawerToggle = () => {
@@ -29,7 +29,7 @@ const UserNavbar = () => {
   const menuItems = [
     { text: 'Memorias', path: '/memorias' },
     { text: 'Encuestas', path: '/encuestas' },
-    { text: 'Cuenta', path: '/cuenta' },
+    { text: 'Perfil', path: '/perfil' },
   ];
 
   const drawer = (

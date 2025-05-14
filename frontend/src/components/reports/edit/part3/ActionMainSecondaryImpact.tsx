@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
 import { useAuth } from '@/hooks/useAuth';
-import { materialTopicService } from '@/services/materialTopicService';
+import { materialTopicService, sortMaterialTopics } from '@/services/materialTopicService';
 import { actionPlanService } from '@/services/actionPlanService';
 import { odsService, getBackgroundColor } from '@/services/odsService';
 import type { MaterialTopic } from '@/services/materialTopicService';
@@ -196,8 +196,12 @@ const ActionMainSecondaryImpact = () => {
                   setSelectedTopic(topic || null);
                 }}
               >
-                {materialTopics.map((topic) => (
-                  <MenuItem key={topic.id} value={topic.id}>
+                {sortMaterialTopics(materialTopics).map((topic) => (
+                  <MenuItem 
+                    key={topic.id} 
+                    value={topic.id}
+                    style={{ backgroundColor: getBackgroundColor(topic.goal_ods_id ?? undefined) }}
+                  >
                     {topic.name}
                   </MenuItem>
                 ))}

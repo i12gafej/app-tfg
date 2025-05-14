@@ -45,8 +45,12 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
         setLoadingResources(true);
         try {
           const response = await resourceService.searchResources({
-            page: 1,
-            per_page: 1000
+            search_term: '',
+            name: '',
+            ownership: '',
+            management_model: '',
+            postal_address: '',
+            typology: ''
           }, token);
           setResources(response.items);
         } catch (err) {
@@ -150,10 +154,6 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
               }))}
               required
               fullWidth
-              inputProps={{
-                min: 2000,
-                max: new Date().getFullYear()
-              }}
             />
           </Box>
         </DialogContent>

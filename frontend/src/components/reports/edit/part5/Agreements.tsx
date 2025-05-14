@@ -1,200 +1,309 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  TextField, 
-  IconButton, 
+import {
+  Box,
+  Typography,
+  TextField,
+  IconButton,
   Button,
   Paper,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
-  Divider
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+  InputAdornment
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
+import SearchIcon from '@mui/icons-material/Search';
 import { useReport } from '@/context/ReportContext';
 import { reportService, ReportAgreement } from '@/services/reportServices';
 import { useAuth } from '@/hooks/useAuth';
 
-interface PendingChange {
-  type: 'create' | 'update' | 'delete';
+// Diálogo de edición
+const EditDialog = ({
+  open,
+  onClose,
+  agreement,
+  onSave
+}: {
+  open: boolean;
+  onClose: () => void;
   agreement: ReportAgreement;
-  originalAgreement?: ReportAgreement;
-}
+  onSave: (agreement: ReportAgreement) => void;
+}) => {
+  const [text, setText] = useState(agreement.agreement);
+
+  useEffect(() => {
+    setText(agreement.agreement);
+  }, [agreement]);
+
+  const handleSave = () => {
+    onSave({ ...agreement, agreement: text });
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Editar Convenio</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="Texto del Convenio"
+          value={text}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+          sx={{ mt: 1 }}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained" disabled={!text.trim()}>Guardar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Diálogo de creación
+const CreateDialog = ({
+  open,
+  onClose,
+  onSave
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSave: (agreement: Omit<ReportAgreement, 'id'>) => void;
+}) => {
+  const [text, setText] = useState('');
+
+  const handleSave = () => {
+    onSave({ agreement: text, report_id: 0 });
+    setText('');
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Crear Convenio</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="Texto del Convenio"
+          value={text}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+          sx={{ mt: 1 }}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained" disabled={!text.trim()}>Guardar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Diálogo de confirmación de eliminación
+const DeleteDialog = ({
+  open,
+  onClose,
+  onConfirm
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) => (
+  <Dialog open={open} onClose={onClose}>
+    <DialogTitle>Confirmar eliminación</DialogTitle>
+    <DialogContent>
+      <Typography>¿Estás seguro de que deseas eliminar este Convenio?</Typography>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose}>Cancelar</Button>
+      <Button onClick={onConfirm} color="error" variant="contained">
+        Eliminar
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
 const Agreements = () => {
   const { report, loading: reportLoading, readOnly } = useReport();
   const { token } = useAuth();
   const [agreements, setAgreements] = useState<ReportAgreement[]>([]);
-  const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Cargar acuerdos iniciales
+  // Estados para los diálogos
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedAgreement, setSelectedAgreement] = useState<ReportAgreement | null>(null);
+
+  // Cargar Convenios iniciales
   useEffect(() => {
     const loadAgreements = async () => {
       if (!report?.id || !token) return;
-      
       try {
+        setLoading(true);
         const agreements = await reportService.getReportAgreements(report.id, token);
         setAgreements(agreements);
       } catch (err) {
-        console.error('Error al cargar los acuerdos:', err);
-        setError('Error al cargar los acuerdos. Por favor, recarga la página.');
+        console.error('Error al cargar los Convenios:', err);
+        setError('Error al cargar los Convenios. Por favor, recarga la página.');
+      } finally {
+        setLoading(false);
       }
     };
-
     loadAgreements();
   }, [report?.id, token]);
 
-  const addAgreement = () => {
-    const newAgreement: ReportAgreement = {
-      id: Date.now(), // ID temporal para cambios pendientes
-      agreement: '',
-      report_id: report?.id || 0
-    };
-    
-    setAgreements([...agreements, newAgreement]);
-    setPendingChanges([...pendingChanges, { type: 'create', agreement: newAgreement }]);
+  // Filtrar Convenios según el término de búsqueda
+  const filteredAgreements = agreements.filter(ag =>
+    ag.agreement.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Paginar Convenios
+  const paginatedAgreements = filteredAgreements.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
   };
 
-  const removeAgreement = (id: number) => {
-    const agreementToRemove = agreements.find(a => a.id === id);
-    if (!agreementToRemove) return;
-
-    setAgreements(agreements.filter(a => a.id !== id));
-    
-    // Si es un acuerdo nuevo (creado en esta sesión), lo eliminamos de los cambios pendientes
-    if (id > 1000000) { // IDs temporales son grandes
-      setPendingChanges(pendingChanges.filter(change => change.agreement.id !== id));
-    } else {
-      // Si es un acuerdo existente, lo marcamos para eliminación
-      setPendingChanges([...pendingChanges, { type: 'delete', agreement: agreementToRemove }]);
-    }
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
-  const handleAgreementChange = (id: number, newText: string) => {
-    const agreementToUpdate = agreements.find(a => a.id === id);
-    if (!agreementToUpdate) return;
-
-    const updatedAgreement = { ...agreementToUpdate, agreement: newText };
-    setAgreements(agreements.map(a => a.id === id ? updatedAgreement : a));
-
-    // Si es un acuerdo nuevo, actualizamos el cambio pendiente de creación
-    if (id > 1000000) {
-      setPendingChanges(pendingChanges.map(change => 
-        change.agreement.id === id ? { ...change, agreement: updatedAgreement } : change
-      ));
-    } else {
-      // Si es un acuerdo existente, lo marcamos para actualización
-      const existingChange = pendingChanges.find(change => 
-        change.type === 'update' && change.agreement.id === id
-      );
-
-      if (existingChange) {
-        setPendingChanges(pendingChanges.map(change => 
-          change.agreement.id === id ? { ...change, agreement: updatedAgreement } : change
-        ));
-      } else {
-        setPendingChanges([...pendingChanges, { 
-          type: 'update', 
-          agreement: updatedAgreement,
-          originalAgreement: agreementToUpdate
-        }]);
-      }
-    }
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setSelectedAgreement(null);
   };
 
-  const saveChanges = async () => {
-    if (!report || !token || pendingChanges.length === 0) return;
+  const handleCloseCreateDialog = () => {
+    setCreateDialogOpen(false);
+  };
 
-    setIsSaving(true);
-    setError(null);
-    setSuccessMessage(null);
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setSelectedAgreement(null);
+  };
 
+  const handleEdit = (agreement: ReportAgreement) => {
+    setSelectedAgreement(agreement);
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = (agreement: ReportAgreement) => {
+    setSelectedAgreement(agreement);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (updatedAgreement: ReportAgreement) => {
+    if (!token || !report) return;
     try {
-      // Filtrar acuerdos vacíos
-      const validChanges = pendingChanges.filter(change => {
-        const agreementText = change.agreement.agreement.trim();
-        return agreementText.length > 0;
-      });
-
-      if (validChanges.length === 0) {
-        setError('No hay cambios válidos para guardar. Los acuerdos no pueden estar vacíos.');
-        setIsSaving(false);
-        return;
-      }
-
-      // Procesar cambios en orden: primero eliminaciones, luego actualizaciones, finalmente creaciones
-      const deletions = validChanges.filter(change => change.type === 'delete');
-      const updates = validChanges.filter(change => change.type === 'update');
-      const creations = validChanges.filter(change => change.type === 'create');
-
-      // Ejecutar eliminaciones
-      for (const change of deletions) {
-        await reportService.deleteAgreement(change.agreement.id, token);
-      }
-
-      // Ejecutar actualizaciones
-      for (const change of updates) {
-        await reportService.updateAgreement(
-          report.id, 
-          change.agreement.id, 
-          change.agreement.agreement, 
-          token
-        );
-      }
-
-      // Ejecutar creaciones
-      for (const change of creations) {
-        await reportService.createAgreement(
-          report.id, 
-          change.agreement.agreement, 
-          token
-        );
-      }
-
-      // Obtener los acuerdos actualizados
-      const updatedAgreements = await reportService.getReportAgreements(report.id, token);
-      setAgreements(updatedAgreements);
-
-      setPendingChanges([]);
-      setSuccessMessage('Cambios guardados correctamente');
+      setLoading(true);
+      await reportService.updateAgreement(report.id, updatedAgreement.id, updatedAgreement.agreement, token);
+      const agreements = await reportService.getReportAgreements(report.id, token);
+      setAgreements(agreements);
+      setSuccessMessage('Convenio actualizado correctamente');
     } catch (err) {
-      console.error('Error al guardar los cambios:', err);
-      setError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+      console.error('Error al actualizar el Convenio:', err);
+      setError('Error al actualizar el Convenio');
     } finally {
-      setIsSaving(false);
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = async (newAgreement: Omit<ReportAgreement, 'id'>) => {
+    if (!token || !report) return;
+    try {
+      setLoading(true);
+      await reportService.createAgreement(report.id, newAgreement.agreement, token);
+      const agreements = await reportService.getReportAgreements(report.id, token);
+      setAgreements(agreements);
+      setSuccessMessage('Convenio creado correctamente');
+    } catch (err) {
+      console.error('Error al crear el Convenio:', err);
+      setError('Error al crear el Convenio');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!token || !selectedAgreement) return;
+    try {
+      setLoading(true);
+      await reportService.deleteAgreement(selectedAgreement.id, token);
+      const agreements = await reportService.getReportAgreements(report?.id || 0, token);
+      setAgreements(agreements);
+      setSuccessMessage('Convenio eliminado correctamente');
+    } catch (err) {
+      console.error('Error al eliminar el Convenio:', err);
+      setError('Error al eliminar el Convenio');
+    } finally {
+      setLoading(false);
+      setDeleteDialogOpen(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: '800px', margin: '0 auto' }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+    <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 2 }}>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        mb: 2 
+        mb: 2
       }}>
         <Typography variant="h6">
-          Acuerdos
+          Convenios de Colaboración
         </Typography>
-        {!readOnly && pendingChanges.length > 0 && (
+        {!readOnly && (
           <Button
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={() => setCreateDialogOpen(true)}
             variant="contained"
-            color="primary"
-            startIcon={<SaveIcon />}
-            onClick={saveChanges}
-            disabled={isSaving}
+            disabled={reportLoading}
           >
-            {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+            Añadir Convenio
           </Button>
         )}
       </Box>
+
+      <Paper sx={{ mb: 2, p: 2 }}>
+        <TextField
+          fullWidth
+          placeholder="Buscar Convenios..."
+          value={searchTerm}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -207,79 +316,85 @@ const Agreements = () => {
           {successMessage}
         </Alert>
       )}
-      
-      {readOnly ? (
-        <List sx={{ 
-          width: '100%',
-          bgcolor: 'background.paper',
-          border: '1px solid #e0e0e0',
-          borderRadius: '4px',
-          overflow: 'hidden'
-        }}>
-          {agreements.map((agreement, index) => (
-            <React.Fragment key={agreement.id}>
-              <ListItem>
-                <ListItemText 
-                  primary={agreement.agreement}
-                  sx={{
-                    '& .MuiListItemText-primary': {
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word'
-                    }
-                  }}
-                />
-              </ListItem>
-              {index < agreements.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-        </List>
-      ) : (
-        <>
-          {agreements.map((agreement) => (
-            <Paper 
-              key={agreement.id}
-              elevation={0}
-              sx={{ 
-                p: 2, 
-                mb: 2, 
-                border: '1px solid #e0e0e0',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 1
-              }}
-            >
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                placeholder="Introduce el acuerdo..."
-                value={agreement.agreement}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAgreementChange(agreement.id, e.target.value)}
-                sx={{ flex: 1 }}
-              />
-              <IconButton 
-                onClick={() => removeAgreement(agreement.id)}
-                color="error"
-                size="small"
-                sx={{ mt: 1 }}
-              >
-                <DeleteOutlineIcon />
-              </IconButton>
-            </Paper>
-          ))}
 
-          <Button
-            startIcon={<AddCircleOutlineIcon />}
-            onClick={addAgreement}
-            variant="outlined"
-            sx={{ mt: 1 }}
-            disabled={reportLoading}
-          >
-            Añadir acuerdo
-          </Button>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Convenio</TableCell>
+              <TableCell align="right">Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={2} align="center">
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            ) : paginatedAgreements.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={2} align="center">
+                  No se encontraron Convenios
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedAgreements.map((agreement) => (
+                <TableRow key={agreement.id}>
+                  <TableCell sx={{ maxWidth: '700px', whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {agreement.agreement}
+                  </TableCell>
+                  <TableCell align="right">
+                    {!readOnly && (
+                      <>
+                        <IconButton onClick={() => handleEdit(agreement)} sx={{ color: 'grey.600' }}>
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton onClick={() => handleDelete(agreement)} sx={{ color: 'grey.600' }}>
+                          <DeleteOutlineIcon />
+                        </IconButton>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 20]}
+          component="div"
+          count={filteredAgreements.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Filas por página:"
+          labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
+        />
+      </TableContainer>
+
+      {selectedAgreement && (
+        <>
+          <EditDialog
+            open={editDialogOpen}
+            onClose={handleCloseEditDialog}
+            agreement={selectedAgreement}
+            onSave={handleSaveEdit}
+          />
+          <DeleteDialog
+            open={deleteDialogOpen}
+            onClose={handleCloseDeleteDialog}
+            onConfirm={handleConfirmDelete}
+          />
         </>
       )}
+
+      <CreateDialog
+        open={createDialogOpen}
+        onClose={handleCloseCreateDialog}
+        onSave={handleCreate}
+      />
     </Box>
   );
 };

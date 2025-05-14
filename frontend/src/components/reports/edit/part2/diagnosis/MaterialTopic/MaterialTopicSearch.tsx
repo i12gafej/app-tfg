@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Box, 
   TextField, 
@@ -20,7 +20,6 @@ import {
   TablePagination,
   SxProps
 } from '@mui/material';
-import type { Theme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '@/hooks/useAuth';
@@ -36,8 +35,6 @@ interface MaterialTopicSearchProps {
   reportId: number;
   readOnly?: boolean;
 }
-
-type Order = 'asc' | 'desc';
 
 // Orden personalizado para las dimensiones
 const DIMENSION_ORDER = ['SIN_DIMENSION', 'PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'];
@@ -56,19 +53,16 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { token, user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
+  const [allMaterialTopics, setAllMaterialTopics] = useState<MaterialTopic[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(isMobile ? 5 : 10);
-  const [totalMaterialTopics, setTotalMaterialTopics] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedMaterialTopic, setSelectedMaterialTopic] = useState<MaterialTopic | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const [order, setOrder] = useState<Order>('asc');
-  const [orderBy, setOrderBy] = useState<keyof MaterialTopic>('name');
   const [userRole, setUserRole] = useState<'manager' | 'consultant' | 'external_advisor' | null>(null);
 
   useEffect(() => {
@@ -86,44 +80,20 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
   }, [reportId, token]);
 
   useEffect(() => {
-    setRowsPerPage(isMobile ? 5 : 10);
-  }, [isMobile]);
-
-  useEffect(() => {
     if (token) {
-      handleSearch(0);
+      handleSearch();
     }
     // eslint-disable-next-line
   }, [token, reportId]);
 
-  const handleSearch = async (newPage: number = 0) => {
+  const handleSearch = async () => {
     if (!token) return;
-
     try {
       setLoading(true);
       setError(null);
-      
-      // Traer todos los asuntos de materialidad sin paginación
-      const response = await materialTopicService.getAllByReport(reportId, token);
-      // Ordenar todos los elementos según el criterio solicitado
-      const sortedMaterialTopics = [...response].sort((a, b) => {
-        const dimA = getDimensionOrder(a.goal_ods_id ?? undefined);
-        const dimB = getDimensionOrder(b.goal_ods_id ?? undefined);
-        const indexA = DIMENSION_ORDER.indexOf(dimA);
-        const indexB = DIMENSION_ORDER.indexOf(dimB);
-        if (indexA !== indexB) return indexA - indexB;
-        return a.id - b.id;
-      });
-      // Filtrar por búsqueda si hay término
-      const filtered = searchTerm
-        ? sortedMaterialTopics.filter(topic => topic.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        : sortedMaterialTopics;
-      setTotalMaterialTopics(filtered.length);
-      setPage(newPage);
-      // Paginar localmente
-      const start = newPage * rowsPerPage;
-      const end = start + rowsPerPage;
-      setMaterialTopics(filtered.slice(start, end));
+      const response = await materialTopicService.searchMaterialTopics({ report_id: reportId, search_term: searchTerm }, token);
+      setAllMaterialTopics(response.items);
+      setPage(0);
     } catch (err) {
       console.error('Error en la búsqueda:', err);
       setError('Error al buscar asuntos de materialidad. Por favor, inténtalo de nuevo.');
@@ -132,20 +102,46 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
     }
   };
 
+  // Agrupar por dimensión
+  const groupedByDimension = useMemo(() => {
+    const groups: { [key: string]: MaterialTopic[] } = {};
+    allMaterialTopics.forEach(topic => {
+      const dim = getDimensionOrder(topic.goal_ods_id ?? undefined);
+      if (!groups[dim]) groups[dim] = [];
+      groups[dim].push(topic);
+    });
+    // Ordenar cada grupo por id
+    Object.keys(groups).forEach(dim => {
+      groups[dim].sort((a, b) => a.id - b.id);
+    });
+    return groups;
+  }, [allMaterialTopics]);
+
+  // Unir los grupos en el orden deseado
+  const orderedTopics = useMemo(() => {
+    return DIMENSION_ORDER.flatMap(dim => groupedByDimension[dim] || []);
+  }, [groupedByDimension]);
+
+  // Paginación local
+  const paginatedTopics = useMemo(() => {
+    const start = page * rowsPerPage;
+    return orderedTopics.slice(start, start + rowsPerPage);
+  }, [orderedTopics, page, rowsPerPage]);
+
   const handleChangePage = (event: unknown, newPage: number) => {
-    handleSearch(newPage);
+    setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newRowsPerPage = parseInt(event.target.value, 10);
     setRowsPerPage(newRowsPerPage);
     setPage(0);
-    handleSearch(0);
+    handleSearch();
   };
 
   const handleClearSearch = () => {
     setSearchTerm('');
-    handleSearch(0);
+    handleSearch();
   };
 
   const handleView = (materialTopic: MaterialTopic) => {
@@ -168,7 +164,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
   };
 
   const handleMaterialTopicCreated = () => {
-    handleSearch(page);
+    handleSearch();
   };
 
   const canEdit = (user?.admin || userRole === 'manager') && !readOnly;
@@ -197,7 +193,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
           height: '50px'
         }}>
           <IconButton 
-            onClick={() => handleSearch(page)}
+            onClick={handleSearch}
             sx={{ 
               color: 'primary.main',
               '&:hover': {
@@ -216,7 +212,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
-                handleSearch(0);
+                handleSearch();
               }
             }}
             InputProps={{
@@ -290,7 +286,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
         </Alert>
       )}
 
-      {materialTopics.length > 0 && (
+      {paginatedTopics.length > 0 && (
         <TableContainer component={Paper} sx={{ mt: 2 }}>
           <Table>
             <TableHead>
@@ -300,7 +296,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
               </TableRow>
             </TableHead>
             <TableBody>
-              {materialTopics.map((materialTopic) => (
+              {paginatedTopics.map((materialTopic) => (
                 <TableRow 
                   key={materialTopic.id}
                   sx={{
@@ -372,20 +368,20 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
           </Table>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 20]}
             component="div"
-            count={totalMaterialTopics}
+            count={orderedTopics.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             labelRowsPerPage="Asuntos por página:"
-            labelDisplayedRows={({ from, to, count }: { from: number, to: number, count: number }) => `${from}-${to} de ${count}`}
+            labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => `${from}-${to} de ${count}`}
           />
         </TableContainer>
       )}
 
-      {!loading && !error && materialTopics.length === 0 && searchTerm && (
+      {!loading && !error && orderedTopics.length === 0 && searchTerm && (
         <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
           No se encontraron asuntos de materialidad que coincidan con la búsqueda.
         </Typography>
@@ -406,14 +402,14 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
             onClose={() => setEditOpen(false)}
             materialTopic={selectedMaterialTopic}
             token={token || ''}
-            onUpdate={() => handleSearch(page)}
+            onUpdate={() => handleSearch()}
           />
           <MaterialTopicDeleteDialog
             open={deleteOpen}
             onClose={() => setDeleteOpen(false)}
             materialTopic={selectedMaterialTopic}
             token={token || ''}
-            onDelete={() => handleSearch(page)}
+            onDelete={() => handleSearch()}
           />
             </>
           )}

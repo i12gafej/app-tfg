@@ -11,9 +11,11 @@ import {
   CircularProgress,
   Typography,
   alpha,
-  TablePagination
+  TablePagination,
+  TableSortLabel
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useState } from 'react';
 import { TeamMember, User } from '@/services/teamService';
 import TeamMemberDetailsDialog from '@/components/Team/TeamMemberDetailsDialog';
@@ -29,6 +31,9 @@ interface TeamMemberListProps {
   reportId: string | null;
   onUpdate: () => void;
   readOnly?: boolean;
+  sortField: 'name' | 'surname' | 'role';
+  sortOrder: 'asc' | 'desc';
+  onSort: (field: 'name' | 'surname' | 'role') => void;
 }
 
 const TeamMemberList = ({ 
@@ -37,7 +42,10 @@ const TeamMemberList = ({
   resourceId, 
   reportId,
   onUpdate,
-  readOnly = false
+  readOnly = false,
+  sortField,
+  sortOrder,
+  onSort
 }: TeamMemberListProps) => {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -127,9 +135,33 @@ const TeamMemberList = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Nombre</TableCell>
-                <TableCell>Apellidos</TableCell>
-                <TableCell>Rol</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'name'}
+                    direction={sortField === 'name' ? sortOrder : 'asc'}
+                    onClick={() => onSort('name')}
+                  >
+                    Nombre
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'surname'}
+                    direction={sortField === 'surname' ? sortOrder : 'asc'}
+                    onClick={() => onSort('surname')}
+                  >
+                    Apellidos
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === 'role'}
+                    direction={sortField === 'role' ? sortOrder : 'asc'}
+                    onClick={() => onSort('role')}
+                  >
+                    Rol
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
@@ -161,7 +193,7 @@ const TeamMemberList = ({
                       onClick={() => handleDelete(member)}
                       title="Eliminar"
                     >
-                      <DeleteIcon />
+                      <DeleteOutlineIcon />
                     </IconButton>
                       </>
                     )}

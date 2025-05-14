@@ -53,7 +53,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     token,
     login,
     logout,
-    user
+    user,
+    current_user: user
   };
 
   return (

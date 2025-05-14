@@ -20,7 +20,7 @@ const MainContent = ({ children }: MainContentProps) => {
       component="main" 
       sx={{ 
         flexGrow: 1, 
-        py: 4,
+        py: 0,
         backgroundColor: shouldHaveWhiteBackground ? theme.palette.primary.contrastText : 'transparent',
       }}
     >

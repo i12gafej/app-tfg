@@ -25,6 +25,8 @@ import Users from './pages/Users';
 import Resources from './pages/Resources';
 import Team from './pages/Team';
 import ReportNavController from './components/reports/ReportNavController';
+import ProfilePage from './pages/Account/index';
+import ChangePassword from './pages/ChangePassword';
 
 const App = () => {
   return (
@@ -91,6 +93,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Backup />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/perfil" 
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/perfil/cambiar-contrasena" 
+              element={
+                <ProtectedRoute>
+                  <ChangePassword />
                 </ProtectedRoute>
               } 
             />

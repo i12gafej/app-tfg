@@ -17,6 +17,13 @@ export interface User {
   phone_number?: string;
 }
 
+export interface Account {
+  name: string | null;
+  surname: string | null;
+  email: string;
+  phone_number: string | null;
+}
+
 // Crear una instancia de axios con la configuración base
 const api = axios.create({
   baseURL: '/api',
@@ -82,5 +89,39 @@ export const userService = {
       console.error('Error al crear usuario:', error);
       throw error;
     }
-  }
+  },
+
+  async updateAccount(userId: string, userData: Partial<Account>, token: string): Promise<User> {
+    try {
+      const response = await api.post<User>('/users/update', {
+        user_id: userId,
+        user_data: userData
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error);
+      throw error;
+    }
+  },
+
+  async changePassword(userId: string, old_password: string, new_password: string, token: string): Promise<void> {
+    try {
+      await api.put('/user/change-password', {
+        user_id: userId,
+        old_password,
+        new_password
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error('Error al cambiar la contraseña:', error);
+      throw error;
+    }
+  },
 }; 

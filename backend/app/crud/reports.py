@@ -36,9 +36,7 @@ def search_reports(
     search_term: Optional[str] = None,
     heritage_resource_ids: Optional[List[int]] = None,
     year: Optional[int] = None,
-    state: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100
+    state: Optional[str] = None
 ) -> Tuple[List[SustainabilityReportWithRole], int]:
     """
     Busca memorias de sostenibilidad con los filtros especificados.
@@ -72,11 +70,11 @@ def search_reports(
             )
         )
     
-    # Obtener total antes de paginación
+    # Obtener total
     total = query.count()
     
-    # Aplicar paginación
-    reports = query.offset(skip).limit(limit).all()
+    # Obtener todos los resultados sin paginación
+    reports = query.all()
     
     # Obtener roles de usuario para cada memoria
     reports_with_roles = []
@@ -101,9 +99,7 @@ def get_reports_by_resource_ids(
     db: Session,
     resource_ids: List[int],
     year: Optional[int] = None,
-    state: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100
+    state: Optional[str] = None
 ) -> Tuple[List[SustainabilityReport], int]:
     """
     Busca memorias por una lista de IDs de recursos.
@@ -119,7 +115,7 @@ def get_reports_by_resource_ids(
         query = query.filter(SustainabilityReport.state == state)
     
     total = query.count()
-    reports = query.offset(skip).limit(limit).all()
+    reports = query.all()
     
     return reports, total
 

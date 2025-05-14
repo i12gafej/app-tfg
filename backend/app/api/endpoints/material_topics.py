@@ -26,17 +26,13 @@ def search_material_topics(
     """
     # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        # Buscar el rol del usuario en el reporte
-        team_member = db.query(SustainabilityTeamMember).filter(
-            SustainabilityTeamMember.report_id == search_params.report_id,
-            SustainabilityTeamMember.user_id == current_user.id
-        ).first()
-        
-        if not team_member:
-            raise HTTPException(
-                status_code=403,
-                detail="No tienes permisos para acceder a los asuntos relevantes"
-            )
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=search_params.report_id
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
 
     # Quitar paginación: obtener todos los asuntos que cumplan los filtros
     material_topics, total = crud_material_topic.search(
@@ -66,9 +62,6 @@ def search_material_topics(
     return {
         "items": material_topics_schema,
         "total": len(material_topics_schema),
-        "page": 1,
-        "per_page": len(material_topics_schema),
-        "total_pages": 1
     }
 
 @router.post("/material-topics/create", response_model=MaterialTopic)
@@ -80,20 +73,15 @@ def create_material_topic(
     """
     Crear un nuevo asunto de materialidad.
     """
-    # Verificar si el usuario es admin o gestor del reporte
+    # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        # Buscar el rol del usuario en el reporte
-        team_member = db.query(SustainabilityTeamMember).filter(
-            SustainabilityTeamMember.report_id == material_topic_data.report_id,
-            SustainabilityTeamMember.user_id == current_user.id,
-            SustainabilityTeamMember.type == 'manager'
-        ).first()
-        
-        if not team_member:
-            raise HTTPException(
-                status_code=403,
-                detail="No tienes permisos para crear asuntos relevantes"
-            )
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=search_params.report_id
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
     
     # Verificar si el nombre ya existe para este reporte
     existing_material_topic = crud_material_topic.get_by_name(db, material_topic_data.name)
@@ -129,20 +117,15 @@ def update_material_topic(
             detail="asunto de materialidad no encontrado"
         )
 
-    # Verificar si el usuario es admin o gestor del reporte
+    # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        # Buscar el rol del usuario en el reporte
-        team_member = db.query(SustainabilityTeamMember).filter(
-            SustainabilityTeamMember.report_id == db_material_topic.report_id,
-            SustainabilityTeamMember.user_id == current_user.id,
-            SustainabilityTeamMember.type == 'manager'
-        ).first()
-        
-        if not team_member:
-            raise HTTPException(
-                status_code=403,
-                detail="No tienes permisos para actualizar asuntos relevantes"
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=db_material_topic.report_id
         )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
     
     try:
         updated_material_topic = crud_material_topic.update(db, db_material_topic, material_topic_data)
@@ -170,20 +153,15 @@ def delete_material_topic(
             detail="asunto de materialidad no encontrado"
         )
 
-    # Verificar si el usuario es admin o gestor del reporte
+    # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        # Buscar el rol del usuario en el reporte
-        team_member = db.query(SustainabilityTeamMember).filter(
-            SustainabilityTeamMember.report_id == db_material_topic.report_id,
-            SustainabilityTeamMember.user_id == current_user.id,
-            SustainabilityTeamMember.type == 'manager'
-        ).first()
-        
-        if not team_member:
-            raise HTTPException(
-                status_code=403,
-                detail="No tienes permisos para eliminar asuntos relevantes"
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=db_material_topic.report_id
         )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
     
     try:
         crud_material_topic.delete(db, db_material_topic)
@@ -222,17 +200,17 @@ async def get_materiality_matrix(
     scale = data.get('scale', None)
     if report_id is None:
         raise HTTPException(status_code=400, detail="report_id es requerido")
+    
     # Verificar si el usuario es admin o tiene un rol en el reporte
     if not current_user.admin:
-        team_member = db.query(SustainabilityTeamMember).filter(
-            SustainabilityTeamMember.report_id == report_id,
-            SustainabilityTeamMember.user_id == current_user.id
-        ).first()
-        if not team_member:
-            raise HTTPException(
-                status_code=403,
-                detail="No tienes permisos para acceder a la matriz de materialidad"
-            )
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
+
     try:
         matrix_data = create_materiality_matrix_data(db, report_id, normalize=normalize, scale=scale)
         matrix_image = generate_matrix_image(matrix_data, scale=scale)

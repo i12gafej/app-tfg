@@ -95,6 +95,16 @@ const UserSearchPanel = ({
     }
   };
 
+  // Handler de ordenación
+  const handleSort = (field: 'name' | 'surname' | 'email') => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
   // Filtrar usuarios que NO están en ningún miembro del equipo
   const availableUsers = useMemo(() => {
     return allUsers.filter(user =>
@@ -102,7 +112,7 @@ const UserSearchPanel = ({
     );
   }, [allUsers, teamMembers]);
 
-  // Ordenar
+  // Ordenar todos los usuarios disponibles antes de paginar
   const sortedUsers = useMemo(() => {
     return [...availableUsers].sort((a, b) => {
       const aValue = a[sortField]?.toLowerCase() || '';
@@ -136,15 +146,6 @@ const UserSearchPanel = ({
   const handleUserSelect = (user: User) => {
     setSelectedUser(user);
     setIsAssignDialogOpen(true);
-  };
-
-  const handleSort = (field: 'name' | 'surname' | 'email') => {
-    if (field === sortField) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
   };
 
   return (
@@ -329,6 +330,9 @@ const UserSearchPanel = ({
           users={paginatedUsers} 
           isLoading={isLoading}
           onUserSelect={handleUserSelect}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          onSort={handleSort}
         />
 
         {selectedUser && resourceId && reportId && (
