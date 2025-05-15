@@ -41,6 +41,7 @@ const ReportPart1 = () => {
     <Box sx={{ 
       display: 'flex', 
       height: '100%',
+      
       backgroundColor: 'background.paper' 
     }}>
       <ReportPartNavBar

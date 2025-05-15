@@ -22,7 +22,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <PageContainer>
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{py:6}}>
         <Typography variant="h4" component="h1">
           Dashboard
         </Typography>

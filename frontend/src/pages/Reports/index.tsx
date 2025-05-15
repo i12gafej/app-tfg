@@ -6,7 +6,7 @@ import PageContainer from '@/components/layout/PageContainer';
 const Reports = () => {
     return (
         <PageContainer>
-            <Container maxWidth="xl">
+            <Container  maxWidth={false}>
                 <Box >
                     <Typography variant="h4" component="h1" gutterBottom>
                         Gestión de Memorias de Sostenibilidad

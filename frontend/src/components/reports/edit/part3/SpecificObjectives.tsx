@@ -1125,6 +1125,9 @@ const SpecificObjectives = () => {
             value={editIndicatorData.name}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditIndicatorData({ ...editIndicatorData, name: e.target.value })}
             margin="normal"
+            multiline
+            minRows={1}
+            maxRows={6}
           />
           <TextField
             fullWidth

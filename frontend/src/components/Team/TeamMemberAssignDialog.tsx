@@ -13,6 +13,8 @@ import {
   Typography,
   CircularProgress
 } from '@mui/material';
+import { useAuth } from '@/hooks/useAuth';
+
 import { useState } from 'react';
 import { teamService, User } from '@/services/teamService';
 
@@ -39,6 +41,7 @@ const TeamMemberAssignDialog = ({
   reportId,
   onAssign 
 }: TeamMemberAssignDialogProps) => {
+  const { token } = useAuth();
   const [role, setRole] = useState('');
   const [organization, setOrganization] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +56,7 @@ const TeamMemberAssignDialog = ({
       await teamService.assignUserToTeam(resourceId!, reportId!, user.id, {
         role,
         organization
-      });
+      }, token || '');
       onAssign();
       onClose();
     } catch (err) {

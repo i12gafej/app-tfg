@@ -21,11 +21,12 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { materialTopicService, MaterialTopic } from '@/services/materialTopicService';
-import { odsService, Dimension } from '@/services/odsService';
+import { odsService, Dimension, DIMENSION_COLORS } from '@/services/odsService';
 import { surveyService } from '@/services/surveyService';
 import { stakeholderService, Stakeholder } from '@/services/stakeholderService';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import Check from '@mui/icons-material/Check';
 
 interface SurveyCompleteProps {
   reportId: number;
@@ -34,12 +35,36 @@ interface SurveyCompleteProps {
 }
 
 const dimensions = [
-  { name: 'Persona', description: 'ODS relacionados con las personas y su bienestar' },
-  { name: 'Planeta', description: 'ODS relacionados con la protección del planeta' },
-  { name: 'Prosperidad', description: 'ODS relacionados con la prosperidad económica' },
-  { name: 'Paz', description: 'ODS relacionados con la paz y la justicia' },
-  { name: 'Alianzas', description: 'ODS relacionados con las alianzas para lograr los objetivos' }
+  { name: 'Persona', description: 'ODS relacionados con las personas y su bienestar', color: "#6064a4" },
+  { name: 'Planeta', description: 'ODS relacionados con la protección del planeta', color: "#089c44" },
+  { name: 'Prosperidad', description: 'ODS relacionados con la prosperidad económica', color: "#e89434" },
+  { name: 'Paz', description: 'ODS relacionados con la paz y la justicia', color: "#089cd4" },
+  { name: 'Alianzas', description: 'ODS relacionados con las alianzas para lograr los objetivos', color: "#c0448c" }
 ];
+
+// Componente personalizado para el icono del Stepper
+const CustomStepIcon = (props: any) => {
+  const { active, completed, className, icon } = props;
+  const stepIndex = Number(icon) - 1;
+  const color = dimensions[stepIndex]?.color || '#1976d2';
+
+  return (
+    <span className={className} style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: color,
+      borderRadius: '50%',
+      width: 32,
+      height: 32,
+      color: active || completed ? '#000' : '#FFF',
+      fontWeight: 600,
+      fontSize: 18,
+    }}>
+      {completed ? <Check fontSize="small" /> : icon}
+    </span>
+  );
+};
 
 const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) => {
   const { token } = useAuth();
@@ -72,7 +97,6 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
         // Cargar grupos de interés
         const stakeholdersResponse = await stakeholderService.searchStakeholders({
           report_id: reportId,
-          per_page: 100
         }, token || '');
         setStakeholders(stakeholdersResponse.items);
       } catch (err) {
@@ -173,9 +197,13 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
   return (
     <Box ref={topRef}>
       <Stepper activeStep={activeStep} sx={{ mb: 4 }} orientation={isMobile ? 'vertical' : 'horizontal'}>
-        {dimensions.map((dimension) => (
+        {dimensions.map((dimension, idx) => (
           <Step key={dimension.name}>
-            <StepLabel>{dimension.name}</StepLabel>
+            <StepLabel
+              StepIconComponent={CustomStepIcon}
+            >
+              {dimension.name}
+            </StepLabel>
           </Step>
         ))}
       </Stepper>
@@ -229,10 +257,20 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
                     emptyIcon={<CircleOutlinedIcon fontSize="small" />}
                     sx={{
                       '& .MuiRating-iconFilled': {
-                        color: 'primary.main',
+                        color: currentDimension.color,
+                        border: '1px solid #000',
+                        borderRadius: '100%',
                       },
                       '& .MuiRating-iconEmpty': {
                         color: 'grey.400',
+                        border: '1px solid #000',
+                        borderRadius: '100%',
+                      },
+                      '& .MuiRating-icon': {
+                        marginRight: '4px',
+                      },
+                      '& .MuiRating-icon:last-of-type': {
+                        marginRight: 0,
                       },
                     }}
                   />

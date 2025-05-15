@@ -136,12 +136,14 @@ const MainObjective = () => {
                   sx={{
                     backgroundColor: getBackgroundColor(topic.goal_ods_id ?? undefined),
                     '&.Mui-selected': {
-                      backgroundColor: `${getBackgroundColor(topic.goal_ods_id ?? undefined)} !important`,
-                      opacity: 0.8,
+                      backgroundColor:  "#606060 !important",
+                      color: "white !important",
+                      opacity: 1,
                     },
                     '&:hover': {
-                      backgroundColor: `${getBackgroundColor(topic.goal_ods_id ?? undefined)} !important`,
-                      opacity: 0.9,
+                      backgroundColor: "#B0B0B0 !important",
+                      color: "white !important",
+                      opacity: 1,
                     },
                   }}
                 >

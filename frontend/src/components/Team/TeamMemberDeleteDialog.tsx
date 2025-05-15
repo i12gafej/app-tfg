@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { teamService, TeamMember } from '@/services/teamService';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TeamMemberDeleteDialogProps {
   open: boolean;
@@ -29,13 +30,19 @@ const TeamMemberDeleteDialog = ({
 }: TeamMemberDeleteDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
 
   const handleDelete = async () => {
+    if (!token) {
+      setError('No hay token de autenticación');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      await teamService.deleteTeamMember(member.id);
+      await teamService.deleteTeamMember(member.id, token);
       onDelete();
       onClose();
     } catch (err) {

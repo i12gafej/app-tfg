@@ -13,6 +13,7 @@ import {
   Typography,
   CircularProgress
 } from '@mui/material';
+import { useAuth } from '@/hooks/useAuth';
 import { useState, useEffect } from 'react';
 import { teamService, TeamMember } from '@/services/teamService';
 
@@ -39,6 +40,7 @@ const TeamMemberEditDialog = ({
   reportId,
   onUpdate 
 }: TeamMemberEditDialogProps) => {
+  const { token } = useAuth();
   const [role, setRole] = useState(member.role);
   const [organization, setOrganization] = useState(member.organization);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +64,7 @@ const TeamMemberEditDialog = ({
       await teamService.updateTeamMember(member.id, {
         role,
         organization
-      });
+      }, token || '');
       onUpdate();
       onClose();
     } catch (err) {

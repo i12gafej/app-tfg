@@ -4,15 +4,12 @@ import PageContainer from '../../components/layout/PageContainer';
 import SurveySearch from '@/components/surveys/SurveySearch';
 import SurveyComplete from '@/components/surveys/SurveyComplete';
 import { Container } from '@mui/material';
-import { SurveyResponse } from '@/services/surveyService';
+import { Survey, SurveyResponse } from '@/services/surveyService';
 
 const Surveys = () => {
   const [searchResults, setSearchResults] = useState<SurveyResponse>({
     items: [],
     total: 0,
-    page: 1,
-    per_page: 10,
-    total_pages: 0
   });
   const [selectedSurvey, setSelectedSurvey] = useState<number | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -38,7 +35,7 @@ const Surveys = () => {
 
   return (
     <PageContainer whiteBackground>
-      <Container maxWidth="xl">
+      <Container  maxWidth={false}>
         <Box sx={{ py: 4}}>
           <Typography variant="h4" component="h1" gutterBottom>
             Encuestas para la Comunidad Patrimonial
@@ -46,7 +43,7 @@ const Surveys = () => {
           <SurveySearch onSearch={handleSearch} />
           
           <Grid container spacing={2} sx={{ mt: 2 }}>
-            {searchResults.items.map((survey) => (
+            {searchResults.items.map((survey: Survey) => (
               <Grid item xs={12} sm={6} md={4} key={survey.id}>
                 <Card>
                   <CardContent>

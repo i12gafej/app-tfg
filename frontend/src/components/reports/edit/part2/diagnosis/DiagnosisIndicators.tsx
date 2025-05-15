@@ -246,7 +246,17 @@ const DiagnosisIndicators: React.FC = () => {
                   button
                   selected={selectedTopic?.id === topic.id}
                   onClick={() => setSelectedTopic(topic)}
-                  sx={{ backgroundColor: getBackgroundColor((topic as any).goal_ods_id ?? undefined) }}
+                  sx={{ '&.Mui-selected': {
+                      backgroundColor:  "#606060 !important",
+                      color: "white !important",
+                      opacity: 1,
+                    },
+                    '&:hover': {
+                      backgroundColor: "#B0B0B0 !important",
+                      color: "white !important",
+                      opacity: 1,
+                    },
+                    backgroundColor: getBackgroundColor((topic as any).goal_ods_id ?? undefined) }}
                 >
                   <ListItemText primary={topic.name} />
                 </ListItem>
@@ -348,6 +358,9 @@ const DiagnosisIndicators: React.FC = () => {
                   })}
                   disabled={readOnly}
                   margin="normal"
+                  multiline
+                  minRows={1}
+                  maxRows={6}
                 />
                 <FormControl fullWidth margin="normal" disabled={readOnly}>
                   <InputLabel>Tipo</InputLabel>
@@ -448,6 +461,9 @@ const DiagnosisIndicators: React.FC = () => {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewIndicator({ ...newIndicator, name: e.target.value })}
             margin="normal"
             disabled={readOnly}
+            multiline
+            minRows={1}
+            maxRows={6}
           />
           <FormControl fullWidth margin="normal" disabled={readOnly}>
             <InputLabel>Tipo</InputLabel>

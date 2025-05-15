@@ -12,8 +12,11 @@ from app.schemas.auth import TokenData
 from app.models.models import MaterialTopic as MaterialTopicModel, SustainabilityTeamMember
 from app.crud import material_topics as crud_material_topic
 from app.graphs.materiality_matrix import create_materiality_matrix_data, generate_matrix_image
+from app.services.user import check_user_permissions
 
 router = APIRouter()
+
+
 
 @router.post("/material-topics/search", response_model=dict)
 def search_material_topics(

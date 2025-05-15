@@ -72,7 +72,6 @@ const Surveys = () => {
         // Cargar grupos de interés
         const stakeholdersResponse = await stakeholderService.searchStakeholders({
           report_id: report.id,
-          per_page: 100
         }, token);
         setStakeholders(stakeholdersResponse.items);
 

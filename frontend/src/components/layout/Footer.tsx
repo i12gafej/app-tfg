@@ -15,9 +15,17 @@ const Footer = () => {
         color: '#DDDDDD',
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth={false} >
         <Grid container spacing={4} justifyContent="space-between">
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',      
+            justifyContent: 'center',  
+            height: '100%',            
+            textAlign: 'center'        
+          }}>
             <Typography variant="h6" color="inherit" gutterBottom>
               Enlaces
             </Typography>
@@ -31,7 +39,15 @@ const Footer = () => {
               Quiénes Somos
             </Link>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',      
+            justifyContent: 'center',  
+            height: '100%',            
+            textAlign: 'center'        
+          }}>
             <Typography variant="h6" color="inherit" gutterBottom>
               Legal
             </Typography>

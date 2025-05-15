@@ -6,7 +6,7 @@ import PageContainer from '@/components/layout/PageContainer';
 const Resources = () => {
     return (
         <PageContainer>
-            <Container maxWidth="xl">
+            <Container  maxWidth={false}>
                 <Box sx={{ py: 4 }}>
                     <Typography variant="h4" component="h1" gutterBottom>
                     Gestión de Recursos Patrimoniales

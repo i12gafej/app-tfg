@@ -17,3 +17,7 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 100vh;
   background-color: #F6F1C5;
 } 
+
+body.no-scroll {
+  overflow: hidden;
+}

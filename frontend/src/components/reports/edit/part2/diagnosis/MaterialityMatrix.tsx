@@ -132,7 +132,7 @@ const MaterialityMatrix = () => {
                   component="img"
                   src={matrixData.matrix_image}
                   alt="Matriz de Materialidad"
-                  sx={{ width: '100%', height: 'auto' }}
+                  sx={{ width: '100%', maxWidth: 500, height: 'auto', display: 'block', margin: '0 auto' }}
                 />
               ) : (
                 <Typography variant="body2" color="text.secondary">
@@ -159,20 +159,16 @@ const MaterialityMatrix = () => {
                     </TableHead>
                     <TableBody>
                       {matrixData.matrix_data.leyenda_order.map((id: number) => (
-                        <TableRow key={id}>
+                        <TableRow
+                          key={id}
+                          sx={{
+                            backgroundColor: matrixData.matrix_data.dimension_colors[matrixData.matrix_data.dimensions[id]],
+                            '& td': { backgroundColor: 'inherit' }
+                          }}
+                        >
                           <TableCell sx={{ fontSize: '0.75rem' }}>{matrixData.matrix_data.legend_numbers![id]}</TableCell>
                           <TableCell sx={{ fontSize: '0.75rem' }}>{matrixData.matrix_data.topic_names[id]}</TableCell>
                           <TableCell sx={{ fontSize: '0.75rem' }}>
-                            <Box
-                              sx={{
-                                width: 12,
-                                height: 12,
-                                borderRadius: '50%',
-                                backgroundColor: matrixData.matrix_data.dimension_colors[matrixData.matrix_data.dimensions[id]],
-                                display: 'inline-block',
-                                mr: 1
-                              }}
-                            />
                             {matrixData.matrix_data.dimensions[id]}
                           </TableCell>
                         </TableRow>

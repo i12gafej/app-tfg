@@ -43,6 +43,11 @@ export interface SurveysSearch {
     year?: string;
 }
 
+export interface SurveyResponse {
+    items: Survey[];
+    total: number;
+}
+
 const api = axios.create({
     baseURL: '/api',
     headers: {

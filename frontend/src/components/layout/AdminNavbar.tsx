@@ -14,7 +14,7 @@ const AdminNavbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/backups'];
+  const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/backups', '/contact'];
   const shouldHaveWhiteBackground = whiteBackgroundRoutes.includes(location.pathname);
 
   const handleDrawerToggle = () => {
@@ -85,7 +85,7 @@ const AdminNavbar = () => {
         boxShadow: 'none',
       }}
     >
-      <Container maxWidth="xl">
+      <Container  maxWidth={false}>
         <Toolbar 
           disableGutters 
           sx={{

@@ -5,6 +5,7 @@ from app.api.deps import get_db, get_current_user
 from app.schemas.auth import TokenData
 from app.schemas.surveys import (
     Assessment,
+    AssessmentCreate,
     MultipleAssessmentsCreate,
     SurveySearch,
     Survey
@@ -14,6 +15,7 @@ from app.crud import resources as crud_resources
 from app.models.models import HeritageResource
 
 router = APIRouter()
+
 
 @router.post("/survey/create/assessments", response_model=dict)
 def create_assessments(
@@ -31,9 +33,19 @@ def create_assessments(
             assessments_data.report_id,
             assessments_data.scale
         )
+        
+        assesments_schema = [ Assessment(
+                id=assesment.id,
+                stakeholder_id=assesment.stakeholder_id,
+                material_topic_id=assesment.material_topic_id,
+                score=assesment.score
+            ) 
+            for assesment in created_assessments
+        ]
+
         return {
-            "items": created_assessments,
-            "total": len(created_assessments)
+            "items": assesments_schema,
+            "total": len(assesments_schema)
         }
     except ValueError as e:
         raise HTTPException(

@@ -52,7 +52,6 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
             ownership: '',
             management_model: '',
             postal_address: '',
-            typology: ''
           }, token);
           setResources(response.items);
         } catch (err) {

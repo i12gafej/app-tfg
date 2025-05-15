@@ -24,61 +24,42 @@ def generate_graph(values: List[int], title: str) -> str:
     Genera una gráfica de barras y la devuelve como data URL
     """
     try:
-        # Limpiar cualquier figura existente
-        plt.close('all')
-        
-        # Configurar la figura
-        plt.figure(figsize=(8, 5), dpi=100, facecolor='none')
-        ax = plt.gca()
-        
-        # Configurar el fondo y las líneas
+        fig, ax = plt.subplots(figsize=(8, 5), dpi=100)
         ax.set_facecolor('none')
         max_val = max(values)
-        
-        # Determinar el número de líneas horizontales y el step
         if max_val < 10:
-            # Para valores menores a 10, una línea por cada valor
             step = 1
             upper_limit = max_val
         else:
-            # Para valores mayores o iguales a 10, step de 2
             step = 2
-            # Si es impar, añadir una línea más
             upper_limit = max_val + 1 if max_val % 2 != 0 else max_val
-        
-        # Líneas horizontales punteadas (detrás de las barras)
+
         for y in range(0, upper_limit + 1, step):
             ax.axhline(y=y, linestyle=':', color='gray', linewidth=0.8, zorder=1)
-        
-        # Crear las barras (encima de las líneas)
+
         ods_labels = [f"ODS {i+1}" for i in range(17)]
         colors = [ODS_COLORS[label] for label in ods_labels]
         ax.bar(ods_labels, values, color=colors, width=1.0, edgecolor='none', zorder=2)
-        
-        # Configurar ejes y ticks
+
         ax.set_yticks(range(0, upper_limit + 1, step))
         ax.set_ylim(0, upper_limit + 1)
         ax.tick_params(axis='x', rotation=45, labelsize=10)
         ax.tick_params(axis='y', labelsize=10)
         ax.tick_params(axis='x', length=0)
         ax.tick_params(axis='y', length=0)
-        
-        # Eliminar bordes
         for spine in ax.spines.values():
             spine.set_visible(False)
-        
-        plt.tight_layout()
-        
-        # Convertir la gráfica a data URL
+        fig.tight_layout()
+
         buffer = io.BytesIO()
-        plt.savefig(buffer, format='png', transparent=True)
+        fig.savefig(buffer, format='png', transparent=True)
         buffer.seek(0)
         image_png = buffer.getvalue()
         buffer.close()
-        
+        plt.close(fig)  # Cierra la figura explícitamente
+
         return f"data:image/png;base64,{base64.b64encode(image_png).decode()}"
     finally:
-        # Asegurar que se limpian todos los recursos
         plt.close('all')
 
 def get_main_impacts_material_topics_graph(material_topics: List[Dict]) -> str:

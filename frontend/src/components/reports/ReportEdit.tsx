@@ -34,7 +34,7 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdv
 
   return (
     <ReportProvider reportId={reportId} readOnly={readOnly} isExternalAdvisor={isExternalAdvisor}>
-      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -49,7 +49,7 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdv
             {readOnly ? `Consultar Memoria de ${name} - ${year}` : `Editar Memoria de ${name} - ${year}`}
           </Typography>
         </Box>
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Box sx={{ flex: 1}}>
           <ReportNavBar />
         </Box>
       </Box>

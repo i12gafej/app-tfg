@@ -32,6 +32,7 @@ const App = () => {
   return (
     <AuthProvider>
       <Box
+      
         sx={{
           display: 'flex',
           flexDirection: 'column',

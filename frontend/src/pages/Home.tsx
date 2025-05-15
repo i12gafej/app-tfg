@@ -5,9 +5,9 @@ import { Container } from '@mui/material'
 const Home = () => {
   return (
     <PageContainer>
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{py:6}}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Bienvenido a Mi Aplicación
+        Bienvenido
       </Typography>
       <Typography variant="body1">
         Esta es la página principal de la aplicación.

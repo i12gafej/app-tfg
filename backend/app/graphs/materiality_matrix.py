@@ -161,10 +161,6 @@ def generate_matrix_image(matrix_data: Dict, scale: int = None) -> str:
         if not matrix_data["points"]:
             raise ValueError("No hay datos de valoraciones disponibles para generar la matriz de materialidad. Por favor, asegúrese de que existen valoraciones para los asuntos materiales.")
 
-        # Limpiar cualquier figura existente
-        plt.close('all')
-        
-        # Configurar el gráfico
         fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
 
         # Usar el scale recibido o el del matrix_data
@@ -177,13 +173,15 @@ def generate_matrix_image(matrix_data: Dict, scale: int = None) -> str:
         # Modificar los límites para que empiecen en 1,1
         ax.set_xlim(0.9, max_escala + 0.1)
         ax.set_ylim(0.9, max_escala + 0.1)
-        ax.set_xticks([round(x, 1) for x in list(frange(1, max_escala + 0.1, 1))])
-        ax.set_yticks([round(y, 1) for y in list(frange(1, max_escala + 0.1, 1))])
-        ax.grid(True, which='major', linestyle=':', color='gray')
-        ax.set_xlabel("Internos", fontsize=12, fontweight='bold')
-        ax.set_ylabel("Externos", fontsize=12, fontweight='bold')
-        ax.tick_params(axis='x', length=0)
-        ax.tick_params(axis='y', length=0)
+        xticks = [round(x, 1) for x in list(frange(1, max_escala + 0.1, 1))]
+        yticks = [round(y, 1) for y in list(frange(1, max_escala + 0.1, 1))]
+        ax.set_xticks(xticks)
+        ax.set_yticks(yticks)
+        ax.grid(False)  # Desactiva el grid general
+
+        # Dibuja solo líneas horizontales punteadas
+        for y in yticks:
+            ax.axhline(y=y, color='gray', linestyle=':', linewidth=1, zorder=1)
 
         # Eliminar bordes
         for spine in ax.spines.values():
@@ -202,7 +200,6 @@ def generate_matrix_image(matrix_data: Dict, scale: int = None) -> str:
         # Agrupar puntos coincidentes
         point_groups = {}
         for topic_id, point in matrix_data["points"].items():
-            # Redondear coordenadas para agrupar
             x_rounded = round(point["x"], 1)
             y_rounded = round(point["y"], 1)
             key = (x_rounded, y_rounded)
@@ -212,27 +209,22 @@ def generate_matrix_image(matrix_data: Dict, scale: int = None) -> str:
 
         # Dibujar puntos y números agrupados
         for (x, y), topic_ids in point_groups.items():
-            # Dibujar el círculo (usando el primer topic_id para el color)
             first_topic_id = topic_ids[0]
             dimension = matrix_data["dimensions"][first_topic_id]
             color = matrix_data["dimension_colors"][dimension]
             ax.scatter(x, y, s=300, color=color, alpha=0.7, edgecolor='black', linewidth=0.5, clip_on=False)
-            
-            # Preparar el texto con los números de leyenda separados por comas
             legend_numbers = [str(matrix_data["legend_numbers"][tid]) for tid in topic_ids]
             legend_text = ",".join(legend_numbers)
-            
-            # Dibujar el texto encima del punto
             ax.text(x, y + 0.15, legend_text, fontsize=9, ha='center', va='bottom', fontweight='bold', color='black', clip_on=False)
 
         plt.tight_layout()
 
-        # Convertir a data URL
         buffer = io.BytesIO()
-        plt.savefig(buffer, format='png', bbox_inches='tight', transparent=True)
+        fig.savefig(buffer, format='png', bbox_inches='tight', transparent=True)
         buffer.seek(0)
         image_png = buffer.getvalue()
         buffer.close()
+        plt.close(fig)
 
         return f"data:image/png;base64,{base64.b64encode(image_png).decode()}"
 
@@ -240,7 +232,6 @@ def generate_matrix_image(matrix_data: Dict, scale: int = None) -> str:
         logger.error(f"Error al generar imagen de la matriz: {str(e)}")
         raise
     finally:
-        # Asegurar que se limpian todos los recursos
         plt.close('all')
 
 def frange(start, stop, step):

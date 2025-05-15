@@ -26,10 +26,6 @@ def generate_internal_consistency_graph(
     logger.debug(f"Datos de entrada: {dimension_totals}")
 
     try:
-        # Limpiar cualquier figura existente
-        plt.close('all')
-
-        # Datos
         dimensiones = ["PERSONAS", "PLANETA", "PROSPERIDAD", "PAZ", "ALIANZAS"]
         valores = [dimension_totals.get(dim, 0) for dim in dimensiones]
         logger.debug(f"Valores por dimensión: {dict(zip(dimensiones, valores))}")
@@ -37,14 +33,11 @@ def generate_internal_consistency_graph(
         colores = ["#c9d6f0", "#bfe0b9", "#fbe3b3", "#c8ebf9", "#dfcce7"]
         bordes = ["#7183bd", "#5d9d57", "#e3aa32", "#73bcd7", "#ae78b9"]
 
-        # Cálculo del valor máximo para escalar eje Y con 4 divisiones
         y_max, paso = calcular_escala_y(max(valores))
         y_ticks = list(range(0, int(y_max) + 1, int(paso)))
         logger.debug(f"Escala Y: máximo={y_max}, paso={paso}, ticks={y_ticks}")
 
-        # Crear gráfico
-        logger.info("Creando figura del gráfico")
-        fig, ax = plt.subplots(figsize=(10, 5), facecolor="#f9efe3")
+        fig, ax = plt.subplots(figsize=(10, 5), facecolor='none')
         bars = ax.bar(
             dimensiones,
             valores,
@@ -54,12 +47,10 @@ def generate_internal_consistency_graph(
             zorder=3
         )
 
-        # Líneas de puntos horizontales
         for y in y_ticks:
             ax.axhline(y=y, color="#aa3355", linestyle=":", linewidth=1, zorder=1)
 
-        # Estética
-        ax.set_facecolor("#f9efe3")
+        ax.set_facecolor('none')
         ax.set_yticks(y_ticks)
         ax.set_yticklabels([str(int(y)) for y in y_ticks])
         ax.set_ylim(0, y_max)
@@ -74,15 +65,14 @@ def generate_internal_consistency_graph(
 
         plt.tight_layout()
 
-        # Convertir el gráfico a base64
         logger.info("Convirtiendo gráfico a base64")
         buffer = io.BytesIO()
-        plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
+        fig.savefig(buffer, format='png', dpi=300, bbox_inches='tight', transparent=True)
         buffer.seek(0)
         image_png = buffer.getvalue()
         buffer.close()
+        plt.close(fig)
 
-        # Convertir a base64
         graph = base64.b64encode(image_png).decode('utf-8')
         logger.info("Gráfico generado y convertido a base64 correctamente")
         return f"data:image/png;base64,{graph}"
@@ -90,7 +80,6 @@ def generate_internal_consistency_graph(
         logger.error(f"Error al generar gráfico de coherencia interna: {str(e)}")
         raise
     finally:
-        # Asegurar que se limpian todos los recursos
         plt.close('all')
 
 

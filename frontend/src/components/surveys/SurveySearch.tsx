@@ -54,8 +54,6 @@ const SurveySearch = ({ onSearch }: SurveySearchProps) => {
         search_term: searchTerm || undefined,
         heritage_resource_name: filters.resource_name || undefined,
         year: filters.year || undefined,
-        page: 1,
-        per_page: 10
       };
 
       const results = await surveyService.searchSurveys(searchParams, token || '');
@@ -88,9 +86,6 @@ const SurveySearch = ({ onSearch }: SurveySearchProps) => {
       onSearch({
         items: [],
         total: 0,
-        page: 1,
-        per_page: 10,
-        total_pages: 0
       });
     }
   };

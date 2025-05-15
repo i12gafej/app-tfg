@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { teamService } from '@/services/teamService';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TeamMemberCreateDialogProps {
   open: boolean;
@@ -44,6 +45,7 @@ const TeamMemberCreateDialog = ({
     role: '',
     organization: ''
   });
+  const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,7 +77,7 @@ const TeamMemberCreateDialog = ({
     setError(null);
 
     try {
-      await teamService.createTeamMember(resourceId, reportId, formData);
+      await teamService.createTeamMember(resourceId, reportId, formData, token || '');
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al crear miembro del equipo');

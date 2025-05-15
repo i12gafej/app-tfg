@@ -452,7 +452,7 @@ async def update_norm_endpoint(
             detail=f"Error al actualizar la normativa: {str(e)}"
         )
 
-@router.delete("/reports/norms/{norm_id}")
+@router.delete("/reports/delete/norm/{norm_id}")
 async def delete_norm_endpoint(
     norm_id: int,
     db: Session = Depends(get_db),

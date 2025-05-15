@@ -5,7 +5,7 @@ import PageContainer from '../../components/layout/PageContainer';
 const Users = () => {
   return (
     <PageContainer>
-        <Container maxWidth="xl">
+        <Container  maxWidth={false}>
             <Box sx={{ py: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom>
                 Gestión de Usuarios

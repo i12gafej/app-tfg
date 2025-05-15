@@ -17,6 +17,15 @@ const STEP_COLORS = {
   5: '#fbc38a'
 };
 
+const STEP_NAMES = [
+  '', // para que el índice 1 sea el primer paso
+  'Entendiendo los ODS',
+  'Definiendo prioridades',
+  'Estableciendo objetivos',
+  'Integrando',
+  'Informando y comunicando'
+];
+
 // Función para convertir decimal a array de booleanos
 function decimalToBoolArray(decimal: number, length: number): boolean[] {
   const bin = decimal.toString(2).padStart(length, '0');
@@ -158,7 +167,7 @@ const ReportNavBar = () => {
                 }
               }}
             >
-              Paso {part}
+              Paso {String(part).padStart(2, '0')}. {STEP_NAMES[part]}
             </Button>
           )
         ))}
@@ -252,7 +261,7 @@ const ReportNavBar = () => {
         </Box>
       )}
 
-      <Box sx={{ width: '100%', px: 0 }}>
+      <Box sx={{ width: '100%', px: 0, height: '100%' }}>
         {renderPart()}
       </Box>
     </Box>

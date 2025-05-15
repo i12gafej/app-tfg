@@ -79,7 +79,7 @@ const UserNavbar = () => {
         boxShadow: 'none',
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth={false}>
         <Toolbar 
           disableGutters 
           sx={{

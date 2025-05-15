@@ -18,6 +18,7 @@ const MainContent = ({ children }: MainContentProps) => {
   return (
     <Box 
       component="main" 
+      
       sx={{ 
         flexGrow: 1, 
         py: 0,

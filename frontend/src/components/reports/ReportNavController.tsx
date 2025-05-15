@@ -12,7 +12,7 @@ const ReportNavController = () => {
 
   return (
     <PageContainer>
-      <Container maxWidth="xl">
+      <Container  maxWidth={false}>
         <Box sx={{ py: 0}}>
           {isSearchPage && (
             <Typography variant="h4" component="h1" gutterBottom>
