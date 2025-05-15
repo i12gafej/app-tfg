@@ -120,19 +120,10 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
   };
 
   const addSocialNetworkField = () => {
-    const lastNetwork = socialNetworks[socialNetworks.length - 1];
-    if (!lastNetwork || lastNetwork.network.trim() === '' || lastNetwork.url.trim() === '') {
-      setError('Por favor, complete los campos de la red social actual antes de agregar otra.');
-      return;
-    }
     setSocialNetworks(prev => [...prev, { id: nextId.current++, network: '', url: '' }]);
   };
 
   const removeSocialNetworkField = (id: number) => {
-    if (socialNetworks.length <= 1) {
-      setError('Debe mantener al menos una red social.');
-      return;
-    }
     setSocialNetworks(prev => prev.filter(sn => sn.id !== id));
   };
 
@@ -154,23 +145,21 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
         return;
       }
 
-      // Validar que todas las redes sociales estén completas
-      const validNetworks = socialNetworks.filter(sn => 
-        sn.network.trim() !== '' && sn.url.trim() !== ''
-      );
-      if (validNetworks.length === 0) {
-        setError('Por favor, complete al menos una red social.');
-        return;
-      }
-
       const resourceData = {
         ...formData,
         typology: validTypologies.map(t => t.value),
-        social_networks: validNetworks.map(sn => ({
-          network: sn.network,
-          url: sn.url
-        }))
+        social_networks: socialNetworks
+          .filter(sn => sn.network.trim() !== '' && sn.url.trim() !== '')
+          .map(sn => ({
+            network: sn.network,
+            url: sn.url
+          }))
       };
+
+      // Si no hay redes sociales válidas, enviar un array vacío
+      if (resourceData.social_networks.length === 0) {
+        resourceData.social_networks = [];
+      }
 
       await onSave(resourceData);
       onClose();

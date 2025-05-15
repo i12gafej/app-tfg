@@ -113,29 +113,11 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
   };
 
   const addSocialNetworkField = () => {
-    const lastNetwork = socialNetworks[socialNetworks.length - 1];
-    if (!lastNetwork || lastNetwork.network.trim() === '' || lastNetwork.url.trim() === '') {
-      setError('Por favor, complete los campos de la red social actual antes de agregar otra.');
-      return;
-    }
     setSocialNetworks(prev => [...prev, { id: nextId.current++, network: '', url: '' }]);
   };
 
   const removeSocialNetworkField = (id: number) => {
-    setSocialNetworks(prev => {
-      const newNetworks = prev.filter(sn => sn.id !== id);
-      // Si eliminamos el último campo y hay campos vacíos antes, mover el último campo vacío al final
-      if (newNetworks.some(sn => sn.network.trim() === '' || sn.url.trim() === '')) {
-        const emptyNetwork = newNetworks.find(sn => sn.network.trim() === '' || sn.url.trim() === '');
-        if (emptyNetwork) {
-          return [
-            ...newNetworks.filter(sn => sn.id !== emptyNetwork.id),
-            emptyNetwork
-          ];
-        }
-      }
-      return newNetworks;
-    });
+    setSocialNetworks(prev => prev.filter(sn => sn.id !== id));
   };
 
   const handleSubmit = async () => {
@@ -168,11 +150,11 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
           }))
       };
 
-      // Si no hay redes sociales válidas, enviar un array vacío de strings
+      // Si no hay redes sociales válidas, enviar un array vacío
       if (resourceData.social_networks.length === 0) {
         resourceData.social_networks = [];
       }
-      console.log(resourceData);
+
       const newResource = await resourceService.createResource(resourceData, token);
       onResourceCreated(newResource);
       onClose();

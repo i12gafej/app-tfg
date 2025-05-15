@@ -21,16 +21,22 @@ def authenticate(db: Session, *, email: str, password: str) -> Optional[User]:
     except Exception as e:
         raise e
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def get_by_email(db: Session, *, email: str) -> Optional[User]:
     """
     Get a user by email
     """
     try:    
+        logger.info(f"Buscando usuario por email: {email}")
         # Realizar la búsqueda específica
         query = db.query(User).filter(User.email == email)
            
         return query.first()
     except Exception as e:
+        logger.error(f"Error al buscar usuario por email: {str(e)}")
         raise e
 
 def create(db: Session, user_data: UserCreate) -> User:

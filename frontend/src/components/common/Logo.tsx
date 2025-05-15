@@ -25,9 +25,19 @@ const Logo = () => {
           letterSpacing: '0.5px',
           fontSize: { xs: '1.2rem', md: '1.5rem' },
           color: theme.palette.text.primary,
+          display: 'flex',
+          alignItems: 'center'
         }}
       >
-        Sustainability
+        Patrimonio
+        <span style={{
+          fontFamily: 'IBM Plex Sans, sans-serif !important',
+          fontWeight: 400,
+          color: theme.palette.text.primary,
+          marginLeft: 0,
+        }}>
+          2030
+        </span>
       </Typography>
       <Typography 
         variant="h6" 

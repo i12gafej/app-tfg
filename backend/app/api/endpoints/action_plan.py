@@ -36,6 +36,25 @@ def get_all_specific_objectives(
             detail=f"Error al obtener objetivos específicos: {str(e)}"
         )
 
+
+@router.get("/specific-objectives/get-all/responsibles/{report_id}", response_model=List[str])
+def get_all_responsibles(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener todos los responsables únicos de los objetivos específicos de un reporte.
+    """
+    try:
+        responsibles = crud_action_plan.get_all_responsibles(db, report_id)
+        return responsibles
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener responsables: {str(e)}"
+        )
+
 @router.post("/specific-objectives/create", response_model=SpecificObjective)
 def create_specific_objective(
     objective: SpecificObjectiveCreate,

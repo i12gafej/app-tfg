@@ -22,6 +22,7 @@ interface TeamMemberCreateDialogProps {
   onClose: () => void;
   resourceId: string;
   reportId: string;
+  onCreate?: () => void;
 }
 
 const ROLES = [
@@ -34,7 +35,8 @@ const TeamMemberCreateDialog = ({
   open, 
   onClose, 
   resourceId, 
-  reportId
+  reportId,
+  onCreate
 }: TeamMemberCreateDialogProps) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -78,6 +80,7 @@ const TeamMemberCreateDialog = ({
 
     try {
       await teamService.createTeamMember(resourceId, reportId, formData, token || '');
+      if (onCreate) onCreate();
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al crear miembro del equipo');

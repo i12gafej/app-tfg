@@ -88,6 +88,21 @@ const TeamMemberList = ({
     onUpdate();
   };
 
+  const handleDeleteSuccess = () => {
+    setIsDeleteOpen(false);
+    setSelectedMember(null);
+    onUpdate();
+    // Disparar evento para actualizar ambas listas
+    const event = new Event('teamMemberDeleted');
+    window.dispatchEvent(event);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditOpen(false);
+    setSelectedMember(null);
+    onUpdate();
+  };
+
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -185,7 +200,7 @@ const TeamMemberList = ({
                       <>
                     <Button 
                       size="small" 
-                      color="view"
+                      //color="view"
                       onClick={() => handleEdit(member)}
                       title="Editar"
                       startIcon={<EditIcon />}
@@ -222,7 +237,7 @@ const TeamMemberList = ({
             member={selectedMember}
             resourceId={resourceId}
             reportId={reportId}
-            onUpdate={onUpdate}
+            onUpdate={handleEditSuccess}
           />
           <TeamMemberDeleteDialog
             open={isDeleteOpen}
@@ -230,7 +245,7 @@ const TeamMemberList = ({
             member={selectedMember}
             resourceId={resourceId}
             reportId={reportId}
-            onDelete={onUpdate}
+            onDelete={handleDeleteSuccess}
           />
         </>
       )}

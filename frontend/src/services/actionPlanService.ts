@@ -180,6 +180,18 @@ export const actionPlanService = {
     }
   },
 
+  async getAllResponsibles(reportId: number, token: string): Promise<string[]> {
+    try {
+      const response = await api.get<string[]>(`/specific-objectives/get-all/responsibles/${reportId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener responsables:', error);
+      throw error;
+    }
+  },
+
   // Funciones para Acciones
   async getActions(specificObjectiveId: number, token: string): Promise<Action[]> {
     try {

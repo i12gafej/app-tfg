@@ -28,7 +28,7 @@ const SustainabilityTeam = () => {
     if (!report?.id || !token) return;
     
     try {
-      const members = await teamService.getTeamMembers(report.id.toString());
+      const members = await teamService.getTeamMembers(report.id.toString(), token);
       setTeamMembers(members);
     } catch (err) {
       console.error('Error al cargar los miembros del equipo:', err);
@@ -146,6 +146,12 @@ const SustainabilityTeam = () => {
           onClose={() => setIsCreateDialogOpen(false)}
           resourceId={report.heritage_resource_id.toString()}
           reportId={report.id.toString()}
+          onCreate={() => {
+            setIsCreateDialogOpen(false);
+            // Forzar actualización de la lista
+            const event = new Event('teamMemberCreated');
+            window.dispatchEvent(event);
+          }}
         />
       )}
     </DndProvider>

@@ -179,10 +179,62 @@ const TeamMemberSearchPanel = ({
   }, [onUpdate]);
 
   const handleCreateSuccess = useCallback(() => {
-    console.log('Creación exitosa, actualizando lista...');
     fetchTeamMembers();
     onUpdate?.();
   }, [onUpdate]);
+
+  // Efecto para manejar la paginación cuando cambia la lista
+  useEffect(() => {
+    if (page > 0 && page * rowsPerPage >= filteredTeamMembers.length) {
+      setPage(0);
+    }
+  }, [filteredTeamMembers.length, page, rowsPerPage]);
+
+  // Efecto para actualizar la lista cuando cambia el reportId
+  useEffect(() => {
+    if (reportId) {
+      fetchTeamMembers();
+    } else {
+      setTeamMembers([]);
+      onTeamMembersUpdate([]);
+    }
+  }, [reportId]);
+
+  // Escuchar el evento de creación de miembro
+  useEffect(() => {
+    const handleTeamMemberCreated = () => {
+      fetchTeamMembers();
+    };
+
+    window.addEventListener('teamMemberCreated', handleTeamMemberCreated);
+    return () => {
+      window.removeEventListener('teamMemberCreated', handleTeamMemberCreated);
+    };
+  }, []);
+
+  // Escuchar el evento de eliminación de miembro
+  useEffect(() => {
+    const handleTeamMemberDeleted = () => {
+      fetchTeamMembers();
+    };
+
+    window.addEventListener('teamMemberDeleted', handleTeamMemberDeleted);
+    return () => {
+      window.removeEventListener('teamMemberDeleted', handleTeamMemberDeleted);
+    };
+  }, []);
+
+  // Escuchar el evento de asignación de miembro
+  useEffect(() => {
+    const handleTeamMemberAssigned = () => {
+      fetchTeamMembers();
+    };
+
+    window.addEventListener('teamMemberAssigned', handleTeamMemberAssigned);
+    return () => {
+      window.removeEventListener('teamMemberAssigned', handleTeamMemberAssigned);
+    };
+  }, []);
 
   const handleResourceChange = (newResourceId: string | null) => {
     onResourceChange(newResourceId);
@@ -361,6 +413,7 @@ const TeamMemberSearchPanel = ({
           onClose={() => setIsCreateDialogOpen(false)}
           resourceId={resourceId}
           reportId={reportId}
+          onCreate={handleCreateSuccess}
         />
       )}
     </Box>

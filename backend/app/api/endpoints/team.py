@@ -152,6 +152,10 @@ def search_team_members(
             detail=str(e)
         )
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @router.post("/team/create/member", response_model=TeamMemberBase)
 def create_team_member(
     data: TeamMemberCreateParams = Body(...),
@@ -164,12 +168,15 @@ def create_team_member(
     """
     try:
         # Verificar si el email ya está en uso
-        existing_user = crud_user.get_by_email(db, data.email)
+        logger.info(f"Intentando crear miembro del equipo con email: {data.email}")
+        logger.info(f"Datos recibidos: {data}")
+        existing_user = crud_user.get_by_email(db, email=data.email)
         if existing_user:
             raise HTTPException(
                 status_code=400,
                 detail="El correo electrónico ya está en uso"
             )
+        logger.info(f"Usuario no encontrado, creando usuario...")
 
         # Crear el usuario usando el crud de usuarios
         user_create = UserCreate(
@@ -180,7 +187,9 @@ def create_team_member(
             admin=False,
             phone_number=data.phone_number
         )
+        logger.info(f"Usuario creado: {user_create}")   
         user = crud_user.create(db, user_create)
+        logger.info(f"Usuario creado: {user}")
 
         # Mapear el rol del formulario al tipo de miembro
         role_mapping = {
@@ -194,7 +203,7 @@ def create_team_member(
                 status_code=400,
                 detail="Rol no válido"
             )
-
+        logger.info(f"Rol mapeado: {member_type}")
         # Crear el miembro del equipo usando el esquema TeamMemberCreate
         team_member_data = TeamMemberCreate(
             report_id=data.report_id,
@@ -202,7 +211,9 @@ def create_team_member(
             role=member_type,
             organization=data.organization
         )
+        logger.info(f"Miembro del equipo creado: {team_member_data}")
         team_member = crud_team.create_team_member(db, team_member_data)
+        logger.info(f"Miembro del equipo creado: {team_member}")
 
         return team_member
     except Exception as e:

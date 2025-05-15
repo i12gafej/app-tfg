@@ -32,6 +32,7 @@ import { materialTopicService, sortMaterialTopics, MaterialTopic } from '@/servi
 import { actionPlanService, SpecificObjective, SpecificObjectiveCreate, SpecificObjectiveUpdate, Action, ActionCreate, ActionUpdate, PerformanceIndicator, PerformanceIndicatorCreate, PerformanceIndicatorUpdate } from '@/services/actionPlanService';
 import { useAuth } from '@/hooks/useAuth';
 import { getBackgroundColor } from '@/services/odsService';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const SpecificObjectives = () => {
   const { report, readOnly } = useReport();
@@ -103,6 +104,10 @@ const SpecificObjectives = () => {
     unit: '',
     response: ''
   });
+
+  // Estados para opción personalizada de tiempo de ejecución
+  const [customExecutionTime, setCustomExecutionTime] = useState('');
+  const [editCustomExecutionTime, setEditCustomExecutionTime] = useState('');
 
   // Cargar asuntos relevantes al montar el componente
   useEffect(() => {
@@ -267,7 +272,16 @@ const SpecificObjectives = () => {
   };
 
   const handleObjectiveClick = (objective: SpecificObjective) => {
-    setSelectedObjective(objective.id === selectedObjective?.id ? null : objective);
+    if (objective.id === selectedObjective?.id) {
+      setSelectedObjective(null);
+      setActions([]);
+      setSelectedAction(null);
+      setIndicators([]);
+    } else {
+      setSelectedObjective(objective);
+      setSelectedAction(null);
+      setIndicators([]);
+    }
   };
 
   // Funciones para gestionar acciones
@@ -480,6 +494,10 @@ const SpecificObjectives = () => {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const topic = materialTopics.find(t => t.id === Number(e.target.value));
               setSelectedTopic(topic || null);
+              setSelectedObjective(null);
+              setActions([]);
+              setSelectedAction(null);
+              setIndicators([]);
             }}
           >
             {materialTopics.map((topic) => (
@@ -546,7 +564,8 @@ const SpecificObjectives = () => {
                     <CardContent sx={{ 
                       p: 2, 
                       '&:last-child': { pb: 2 },
-                      position: 'relative'
+                      position: 'relative',
+                      pr: 8
                     }}>
                       <Typography variant="body1" component="div" sx={{ mb: 1 }}>
                         {objective.description}
@@ -652,7 +671,8 @@ const SpecificObjectives = () => {
                     <CardContent sx={{ 
                       p: 2, 
                       '&:last-child': { pb: 2 },
-                      position: 'relative'
+                      position: 'relative',
+                      pr: 8
                     }}>
                       <Typography variant="body1" component="div" sx={{ mb: 1 }}>
                         {action.description}
@@ -754,7 +774,7 @@ const SpecificObjectives = () => {
               <Stack spacing={1}>
                 {indicators.map((indicator) => (
                   <Card key={indicator.id} variant="outlined">
-                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, position: 'relative' }}>
+                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, position: 'relative', pr: 10 }}>
                       <Typography variant="body1" component="div" sx={{ mb: 1 }}>
                         {indicator.name}
                       </Typography>
@@ -843,12 +863,35 @@ const SpecificObjectives = () => {
             multiline
             rows={3}
           />
-          <TextField
-            fullWidth
-            label="Tiempo de Ejecución"
-            value={newObjective.execution_time}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewObjective({ ...newObjective, execution_time: e.target.value })}
-            margin="normal"
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            Elija el tiempo de ejecución o defina otro diferente.
+          </Typography>
+          <Autocomplete
+            freeSolo
+            options={["1 año", "3 años", "5 años"]}
+            value={newObjective.execution_time || ''}
+            inputValue={newObjective.execution_time || ''}
+            onInputChange={(event, newInputValue) => {
+              setNewObjective({ ...newObjective, execution_time: newInputValue });
+            }}
+            onChange={(event, newValue) => {
+              if (typeof newValue === 'string') {
+                setNewObjective({ ...newObjective, execution_time: newValue });
+              } else if (newValue) {
+                setNewObjective({ ...newObjective, execution_time: newValue });
+              } else {
+                setNewObjective({ ...newObjective, execution_time: '' });
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Tiempo de Ejecución"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+              />
+            )}
           />
         </DialogContent>
         <DialogActions>
@@ -876,12 +919,35 @@ const SpecificObjectives = () => {
             multiline
             rows={3}
           />
-          <TextField
-            fullWidth
-            label="Tiempo de Ejecución"
-            value={editFormData.execution_time}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({ ...editFormData, execution_time: e.target.value })}
-            margin="normal"
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            Elija el tiempo de ejecución o defina otro diferente.
+          </Typography>
+          <Autocomplete
+            freeSolo
+            options={["1 año", "3 años", "5 años"]}
+            value={editFormData.execution_time || ''}
+            inputValue={editFormData.execution_time || ''}
+            onInputChange={(event, newInputValue) => {
+              setEditFormData({ ...editFormData, execution_time: newInputValue });
+            }}
+            onChange={(event, newValue) => {
+              if (typeof newValue === 'string') {
+                setEditFormData({ ...editFormData, execution_time: newValue });
+              } else if (newValue) {
+                setEditFormData({ ...editFormData, execution_time: newValue });
+              } else {
+                setEditFormData({ ...editFormData, execution_time: '' });
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Tiempo de Ejecución"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+              />
+            )}
           />
         </DialogContent>
         <DialogActions>

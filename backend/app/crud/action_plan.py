@@ -3,6 +3,7 @@ from typing import List, Optional
 from decimal import Decimal
 from sqlalchemy import func
 from collections import Counter
+from app.crud import material_topics as crud_material_topics
 
 from app.models.models import (
     SpecificObjective, Action, PerformanceIndicator,
@@ -21,6 +22,21 @@ def get_all_specific_objectives(db: Session, material_topic_id: int) -> List[Spe
         return db.query(SpecificObjective).filter(
             SpecificObjective.material_topic_id == material_topic_id
         ).all()
+    except Exception as e:
+        raise e
+
+def get_all_responsibles(db: Session, report_id: int) -> List[str]:
+    try:
+        # Obtener todos los ids de asuntos relevantes de la memoria
+        topic_ids = db.query(MaterialTopic.id).filter(MaterialTopic.report_id == report_id).all()
+        topic_ids = [tid[0] for tid in topic_ids]
+        # Obtener responsables únicos de los objetivos específicos de esos asuntos
+        responsibles = db.query(SpecificObjective.responsible)\
+            .filter(SpecificObjective.material_topic_id.in_(topic_ids))\
+            .filter(SpecificObjective.responsible.isnot(None))\
+            .filter(SpecificObjective.responsible != '')\
+            .distinct().all()
+        return [r[0] for r in responsibles]
     except Exception as e:
         raise e
 

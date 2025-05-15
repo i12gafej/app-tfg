@@ -21,6 +21,7 @@ import { materialTopicService, sortMaterialTopics } from '@/services/materialTop
 import { actionPlanService } from '@/services/actionPlanService';
 import { useAuth } from '@/hooks/useAuth';
 import { getBackgroundColor } from '@/services/odsService';
+import Autocomplete from '@mui/material/Autocomplete';
 
 interface MaterialTopic {
   id: number;
@@ -46,6 +47,8 @@ const AssignResponsibles = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<SpecificObjective | null>(null);
   const [responsible, setResponsible] = useState('');
+  const [responsibles, setResponsibles] = useState<string[]>([]);
+  const [selectedResponsible, setSelectedResponsible] = useState<string>('');
 
   // Cargar asuntos relevantes al montar el componente
   useEffect(() => {
@@ -64,6 +67,20 @@ const AssignResponsibles = () => {
     };
 
     fetchData();
+  }, [token, report]);
+
+  // Cargar responsables al montar el componente
+  useEffect(() => {
+    const fetchResponsibles = async () => {
+      if (!token || !report?.id) return;
+      try {
+        const resps = await actionPlanService.getAllResponsibles(report.id, token);
+        setResponsibles(resps);
+      } catch (error) {
+        setError('Error al cargar responsables');
+      }
+    };
+    fetchResponsibles();
   }, [token, report]);
 
   // Cargar objetivos específicos cuando se selecciona un asunto de materialidad
@@ -91,6 +108,7 @@ const AssignResponsibles = () => {
   const handleOpenDialog = (objective: SpecificObjective) => {
     setSelectedObjective(objective);
     setResponsible(objective.responsible || '');
+    setSelectedResponsible(objective.responsible || '');
     setDialogOpen(true);
   };
 
@@ -99,18 +117,21 @@ const AssignResponsibles = () => {
     if (!selectedObjective || !token) return;
     try {
       setLoading(true);
+      // Preferencia: si hay texto en el campo, ese es el responsable
+      const finalResponsible = responsible.trim() !== '' ? responsible : selectedResponsible;
       await actionPlanService.updateSpecificObjective(
         selectedObjective.id,
-        { responsible },
+        { responsible: finalResponsible },
         token
       );
-      // Recargar objetivos
       if (selectedTopic) {
         await loadObjectives(selectedTopic.id);
       }
+      // Siempre recargar responsables después de guardar
+      const resps = await actionPlanService.getAllResponsibles(report!.id, token);
+      setResponsibles(resps);
       setDialogOpen(false);
     } catch (error) {
-      console.error('Error al actualizar responsable:', error);
       setError('Error al actualizar el responsable');
     } finally {
       setLoading(false);
@@ -219,22 +240,30 @@ const AssignResponsibles = () => {
                 objectives.map((objective) => (
                   <ListItem
                     key={objective.id}
-                    secondaryAction={
-                      !readOnly && (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => handleOpenDialog(objective)}
-                        >
-                          Asignar
-                        </Button>
-                      )
-                    }
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 2
+                    }}
                   >
-                    <ListItemText
-                      primary={objective.description}
-                      secondary={`Responsable: ${objective.responsible || 'NO DEFINIDO'}`}
-                    />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <ListItemText
+                        primary={objective.description}
+                        secondary={`Responsable: ${objective.responsible || 'NO DEFINIDO'}`}
+                        primaryTypographyProps={{ sx: { wordBreak: 'break-word' } }}
+                        secondaryTypographyProps={{ sx: { wordBreak: 'break-word' } }}
+                      />
+                    </Box>
+                    {!readOnly && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleOpenDialog(objective)}
+                        sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                      >
+                        Asignar
+                      </Button>
+                    )}
                   </ListItem>
                 ))
               )}
@@ -257,14 +286,40 @@ const AssignResponsibles = () => {
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>Asignar Responsable</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Responsable"
-            fullWidth
-            variant="outlined"
-            value={responsible}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setResponsible(e.target.value)}
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            Escoja un responsable existente, o defina uno nuevo.
+          </Typography>
+          <Autocomplete
+            freeSolo
+            options={responsibles}
+            value={selectedResponsible}
+            inputValue={responsible}
+            onInputChange={(event, newInputValue, reason) => {
+              setResponsible(newInputValue);
+              if (newInputValue !== '') {
+                setSelectedResponsible('');
+              }
+            }}
+            onChange={(event, newValue) => {
+              if (typeof newValue === 'string') {
+                setResponsible(newValue);
+                setSelectedResponsible('');
+              } else if (newValue) {
+                setSelectedResponsible(newValue);
+                setResponsible(newValue);
+              } else {
+                setSelectedResponsible('');
+                setResponsible('');
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Responsable"
+                variant="outlined"
+                fullWidth
+              />
+            )}
           />
         </DialogContent>
         <DialogActions>

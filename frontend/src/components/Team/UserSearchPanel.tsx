@@ -140,6 +140,36 @@ const UserSearchPanel = ({
     setIsAssignDialogOpen(true);
   };
 
+  useEffect(() => {
+    if (searchTerm) {
+      handleSearch();
+    }
+  }, [searchTerm]);
+
+  // Escuchar el evento de eliminación de miembro
+  useEffect(() => {
+    const handleTeamMemberDeleted = () => {
+      handleSearch();
+    };
+
+    window.addEventListener('teamMemberDeleted', handleTeamMemberDeleted);
+    return () => {
+      window.removeEventListener('teamMemberDeleted', handleTeamMemberDeleted);
+    };
+  }, []);
+
+  // Escuchar el evento de asignación de miembro
+  useEffect(() => {
+    const handleTeamMemberAssigned = () => {
+      handleSearch();
+    };
+
+    window.addEventListener('teamMemberAssigned', handleTeamMemberAssigned);
+    return () => {
+      window.removeEventListener('teamMemberAssigned', handleTeamMemberAssigned);
+    };
+  }, []);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Box>

@@ -58,6 +58,8 @@ const TeamMemberAssignDialog = ({
         organization
       }, token || '');
       onAssign();
+      const event = new Event('teamMemberAssigned');
+      window.dispatchEvent(event);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al asignar miembro');
