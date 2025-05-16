@@ -1,7 +1,8 @@
 import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, Grid, CircularProgress } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { teamService, TeamMember, Resource, Report } from '@/services/teamService';
+import { teamService, TeamMember, User } from '@/services/teamService';
+import { resourceService, Report, Resource } from '@/services/resourceService';
 import TeamMemberList from '@/components/Team/TeamMemberList';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -18,6 +19,9 @@ interface TeamMemberSearchPanelProps {
   fixedReport?: Report;
   onUpdate?: () => void;
   readOnly?: boolean;
+  onMemberAdded?: () => void;
+  onMemberUpdated?: () => void;
+  onMemberDeleted?: () => void;
 }
 
 interface Filters {
@@ -43,7 +47,10 @@ const TeamMemberSearchPanel = ({
   fixedResource,
   fixedReport,
   onUpdate,
-  readOnly = false
+  readOnly = false,
+  onMemberAdded,
+  onMemberUpdated,
+  onMemberDeleted
 }: TeamMemberSearchPanelProps) => {
   const { token } = useAuth();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -60,6 +67,9 @@ const TeamMemberSearchPanel = ({
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [sortField, setSortField] = useState<'name' | 'surname' | 'role'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [selectedResource, setSelectedResource] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
 
   const fetchTeamMembers = async () => {
     if (!reportId) {
@@ -95,7 +105,7 @@ const TeamMemberSearchPanel = ({
 
       setIsLoadingResources(true);
       try {
-        const data = await teamService.getResources(token || '');
+        const data = await resourceService.getAllResources(token || '');
         setResources(data);
       } catch (error) {
         console.error('Error al cargar recursos:', error);
@@ -121,7 +131,7 @@ const TeamMemberSearchPanel = ({
 
       setIsLoadingReports(true);
       try {
-        const data = await teamService.getReports(resourceId, token || '');
+        const data = await resourceService.getAllReportsByResource(resourceId, token || '');
         setReports(data);
       } catch (error) {
         console.error('Error al cargar reportes:', error);
@@ -239,6 +249,79 @@ const TeamMemberSearchPanel = ({
   const handleResourceChange = (newResourceId: string | null) => {
     onResourceChange(newResourceId);
     onReportChange(null); // Resetear la memoria cuando cambia el recurso
+  };
+
+  const handleSearch = async () => {
+    if (!selectedResource) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await teamService.searchAvailableUsers({
+        search_term: searchTerm
+      }, token || '');
+      setAvailableUsers(response.items);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      setError(new Error('Error al buscar usuarios'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddMember = async (user: User) => {
+    try {
+      await teamService.createTeamMember(
+        selectedResource?.toString() || '',
+        reportId || '',
+        {
+          name: user.name,
+          surname: user.surname,
+          email: user.email,
+          phone_number: '',
+          password: 'temporaryPassword123',
+          role: 'consultant',
+          organization: 'Default Organization'
+        },
+        token || ''
+      );
+
+      const updatedMembers = await teamService.getTeamMembers(reportId || '', token || '');
+      setTeamMembers(updatedMembers);
+      onMemberAdded?.();
+    } catch (error) {
+      console.error('Error adding team member:', error);
+      setError(new Error('Error al agregar miembro al equipo'));
+    }
+  };
+
+  const handleUpdateMember = async (memberId: number, role: string, organization: string) => {
+    try {
+      await teamService.updateTeamMember(
+        memberId.toString(),
+        { role, organization },
+        token || ''
+      );
+      const updatedMembers = await teamService.getTeamMembers(reportId || '', token || '');
+      setTeamMembers(updatedMembers);
+      onMemberUpdated?.();
+    } catch (error) {
+      console.error('Error updating team member:', error);
+      setError(new Error('Error al actualizar miembro del equipo'));
+    }
+  };
+
+  const handleDeleteMember = async (memberId: number) => {
+    try {
+      await teamService.deleteTeamMember(memberId.toString(), token || '');
+      const updatedMembers = await teamService.getTeamMembers(reportId || '', token || '');
+      setTeamMembers(updatedMembers);
+      onMemberDeleted?.();
+    } catch (error) {
+      console.error('Error deleting team member:', error);
+      setError(new Error('Error al eliminar miembro del equipo'));
+    }
   };
 
   return (

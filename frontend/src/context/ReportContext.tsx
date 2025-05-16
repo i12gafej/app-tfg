@@ -42,15 +42,20 @@ export const ReportProvider: React.FC<ReportProviderProps> = ({
 
   useEffect(() => {
     const fetchReport = async () => {
-      if (!token) return;
+      if (!token) {
+        console.log('No hay token disponible');
+        return;
+      }
       
       try {
+        console.log('Iniciando carga del reporte con ID:', reportId);
         setLoading(true);
         const reportData = await reportService.getReport(reportId, token);
+        console.log('Reporte cargado exitosamente:', reportData);
         setReport(reportData);
       } catch (err) {
-        setError('Error al cargar el reporte');
         console.error('Error al cargar el reporte:', err);
+        setError('Error al cargar el reporte');
       } finally {
         setLoading(false);
       }

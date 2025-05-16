@@ -102,9 +102,18 @@ class SustainabilityReportBase(BaseModel):
     roadmap_description: Optional[str] = None
     data_tables_text: Optional[str] = None
     permissions: int = 0
+    stakeholders_text: Optional[str] = None
+    materiality_text: Optional[str] = None
+    main_secondary_impacts_text: Optional[str] = None
+    materiality_matrix_text: Optional[str] = None
+    action_plan_text: Optional[str] = None
+    internal_coherence_text: Optional[str] = None
+    diffusion_text: Optional[str] = None
+    template: bool = False
 
 class SustainabilityReportCreate(SustainabilityReportBase):
     heritage_resource_id: int
+    template_report_id: Optional[int] = None
 
 class SustainabilityReportUpdate(BaseModel):
     year: Optional[int] = None
@@ -128,6 +137,14 @@ class SustainabilityReportUpdate(BaseModel):
     data_tables_text: Optional[str] = None
     heritage_resource_id: Optional[int] = None
     permissions: Optional[int] = None
+    stakeholders_text: Optional[str] = None
+    materiality_text: Optional[str] = None
+    main_secondary_impacts_text: Optional[str] = None
+    materiality_matrix_text: Optional[str] = None
+    action_plan_text: Optional[str] = None
+    internal_coherence_text: Optional[str] = None
+    diffusion_text: Optional[str] = None
+    template: Optional[bool] = None
 
 class SustainabilityReport(SustainabilityReportBase):
     id: int

@@ -1,31 +1,78 @@
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from app.models.models import SustainabilityReport, HeritageResource, SustainabilityTeamMember, ReportPhoto as ReportPhotoModel, ReportLogo as ReportLogoModel, ReportAgreement as ReportAgreementModel, ReportBibliography as ReportBibliographyModel, ReportNorm as ReportNormModel
-from app.schemas.reports import SustainabilityReportCreate, SustainabilityReportUpdate, SustainabilityReportWithRole, UserReportRole
-from app.crud import resources as resources_crud
-from app.schemas.reports import ReportNorm, ReportNormCreate, ReportNormUpdate
-from app.schemas.reports import ReportLogoResponse, ReportLogo
-from app.schemas.reports import ReportAgreement, ReportAgreementCreate, ReportAgreementUpdate
-from app.schemas.reports import ReportBibliography, ReportBibliographyCreate, ReportBibliographyUpdate
-from app.schemas.reports import ReportPhoto, ReportPhotoResponse
+from app.models.models import (
+    SustainabilityReport,
+    HeritageResource,
+    SustainabilityTeamMember,
+    ReportPhoto as ReportPhotoModel,
+    ReportLogo as ReportLogoModel,
+    ReportAgreement as ReportAgreementModel,
+    ReportBibliography as ReportBibliographyModel,
+    ReportNorm as ReportNormModel,
+    MaterialTopic,
+    DiagnosticIndicator,
+    DiagnosticIndicatorQualitative,
+    DiagnosticIndicatorQuantitative,
+    SpecificObjective,
+    Action,
+    PerformanceIndicator,
+    PerformanceIndicatorQualitative,
+    PerformanceIndicatorQuantitative,
+    SecondaryODSAction,
+    SecondaryODSMaterialTopic,
+    Stakeholder
+)
+from app.schemas.reports import (
+    SustainabilityReportCreate,
+    SustainabilityReportUpdate,
+    SustainabilityReportWithRole,
+    UserReportRole,
+    ReportNorm,
+    ReportNormCreate,
+    ReportNormUpdate,
+    ReportLogoResponse,
+    ReportLogo,
+    ReportAgreement,
+    ReportAgreementCreate,
+    ReportAgreementUpdate,
+    ReportBibliography,
+    ReportBibliographyCreate,
+    ReportBibliographyUpdate,
+    ReportPhoto,
+    ReportPhotoResponse
+)
 import os
 import uuid
+import shutil
+from pathlib import Path
 from fastapi import HTTPException
 from app.utils.image_processing import process_cover_image
 from app.core.config import Settings
 from fastapi import UploadFile
+import requests
+from io import BytesIO
 
 settings = Settings()
 
 def create_report(db: Session, report: SustainabilityReportCreate) -> SustainabilityReport:
     try:
-        db_report = SustainabilityReport(**report.dict())
+        # Crear la nueva memoria
+        db_report = SustainabilityReport(**report.dict(exclude={'template_report_id'}))
+        # Inicializar textos por defecto
+        initialize_default_text(db_report)
         db.add(db_report)
         db.commit()
         db.refresh(db_report)
+
+        # Si se proporcionó un ID de plantilla, transferir los datos
+        if report.template_report_id:
+            transfer_report_data(db, report.template_report_id, db_report.id)
+            transfer_report_images(db, report.template_report_id, db_report.id)
+
         return db_report
     except Exception as e:
+        db.rollback()
         raise e
 
 def search_reports(
@@ -123,6 +170,22 @@ def get_reports_by_resource_ids(
 def get_report(db: Session, report_id: int) -> Optional[SustainabilityReport]:
     try:
         return db.query(SustainabilityReport).filter(SustainabilityReport.id == report_id).first()
+    except Exception as e:
+        raise e
+
+def get_all_report_templates(db: Session) -> List[tuple]:
+    try:
+        return db.query(
+            HeritageResource.id,
+            HeritageResource.name,
+            SustainabilityReport.year,
+            SustainabilityReport.id
+        ).join(
+            SustainabilityReport,
+            HeritageResource.id == SustainabilityReport.heritage_resource_id
+        ).filter(
+            SustainabilityReport.template == True
+        ).all()
     except Exception as e:
         raise e
 
@@ -570,3 +633,433 @@ def get_team_member(db: Session, user_id: int, report_id: int) -> Sustainability
         ).first()
     except Exception as e:
         raise e
+
+def transfer_report_data(db: Session, template_report_id: int, new_report_id: int) -> None:
+    """
+    Transfiere todos los datos de texto y tablas relacionadas de una memoria a otra.
+    """
+    try:
+        # Obtener la memoria plantilla
+        template_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == template_report_id).first()
+        if not template_report:
+            raise HTTPException(status_code=404, detail="Memoria plantilla no encontrada")
+
+        # Obtener la nueva memoria
+        new_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == new_report_id).first()
+        if not new_report:
+            raise HTTPException(status_code=404, detail="Nueva memoria no encontrada")
+
+        # 1. Copiar atributos de texto
+        text_attributes = [
+            'commitment_letter', 'mission', 'vision', 'values',
+            'org_chart_text', 'diagnosis_description', 'action_plan_description',
+            'internal_coherence_description', 'roadmap_description', 'data_tables_text',
+            'stakeholders_text', 'materiality_text', 'main_secondary_impacts_text',
+            'materiality_matrix_text', 'action_plan_text', 'internal_coherence_text',
+            'diffusion_text'
+        ]
+
+        for attr in text_attributes:
+            setattr(new_report, attr, getattr(template_report, attr))
+        
+        db.commit()
+        db.refresh(new_report)
+
+        # 2. Copiar Material Topics y sus relaciones
+        template_material_topics = db.query(MaterialTopic).filter(
+            MaterialTopic.report_id == template_report_id
+        ).all()
+
+        # Mapeo para mantener la relación entre los IDs antiguos y nuevos
+        material_topic_id_map = {}
+
+        for mt in template_material_topics:
+            new_mt = MaterialTopic(
+                report_id=new_report_id,
+                name=mt.name,
+                description=mt.description,
+                priority=mt.priority,
+                main_objective=mt.main_objective,
+                goal_ods_id=mt.goal_ods_id,
+                goal_number=mt.goal_number
+            )
+            db.add(new_mt)
+        
+        db.commit()
+
+        # Obtener los nuevos Material Topics y crear el mapeo de IDs
+        new_material_topics = db.query(MaterialTopic).filter(
+            MaterialTopic.report_id == new_report_id
+        ).all()
+        
+        for old_mt, new_mt in zip(template_material_topics, new_material_topics):
+            material_topic_id_map[old_mt.id] = new_mt.id
+
+        # 3. Copiar Diagnostic Indicators y sus valores
+        template_indicators = db.query(DiagnosticIndicator).filter(
+            DiagnosticIndicator.material_topic_id.in_(material_topic_id_map.keys())
+        ).all()
+
+        indicator_id_map = {}
+
+        for di in template_indicators:
+            new_di = DiagnosticIndicator(
+                name=di.name,
+                type=di.type,
+                material_topic_id=material_topic_id_map[di.material_topic_id]
+            )
+            db.add(new_di)
+        
+        db.commit()
+
+        # Obtener los nuevos Diagnostic Indicators y crear el mapeo de IDs
+        new_indicators = db.query(DiagnosticIndicator).filter(
+            DiagnosticIndicator.material_topic_id.in_(material_topic_id_map.values())
+        ).all()
+
+        for old_di, new_di in zip(template_indicators, new_indicators):
+            indicator_id_map[old_di.id] = new_di.id
+
+        # 4. Copiar valores de Diagnostic Indicators
+        # Cuantitativos
+        template_quantitative = db.query(DiagnosticIndicatorQuantitative).filter(
+            DiagnosticIndicatorQuantitative.diagnostic_indicator_id.in_(indicator_id_map.keys())
+        ).all()
+
+        for diq in template_quantitative:
+            new_diq = DiagnosticIndicatorQuantitative(
+                diagnostic_indicator_id=indicator_id_map[diq.diagnostic_indicator_id],
+                numeric_response=diq.numeric_response,
+                unit=diq.unit
+            )
+            db.add(new_diq)
+
+        # Cualitativos
+        template_qualitative = db.query(DiagnosticIndicatorQualitative).filter(
+            DiagnosticIndicatorQualitative.diagnostic_indicator_id.in_(indicator_id_map.keys())
+        ).all()
+
+        for diq in template_qualitative:
+            new_diq = DiagnosticIndicatorQualitative(
+                diagnostic_indicator_id=indicator_id_map[diq.diagnostic_indicator_id],
+                response=diq.response
+            )
+            db.add(new_diq)
+
+        db.commit()
+
+        # 5. Copiar Specific Objectives
+        template_objectives = db.query(SpecificObjective).filter(
+            SpecificObjective.material_topic_id.in_(material_topic_id_map.keys())
+        ).all()
+
+        objective_id_map = {}
+
+        for so in template_objectives:
+            new_so = SpecificObjective(
+                description=so.description,
+                execution_time=so.execution_time,
+                responsible=so.responsible,
+                material_topic_id=material_topic_id_map[so.material_topic_id]
+            )
+            db.add(new_so)
+
+        db.commit()
+
+        # Obtener los nuevos Specific Objectives y crear el mapeo de IDs
+        new_objectives = db.query(SpecificObjective).filter(
+            SpecificObjective.material_topic_id.in_(material_topic_id_map.values())
+        ).all()
+
+        for old_so, new_so in zip(template_objectives, new_objectives):
+            objective_id_map[old_so.id] = new_so.id
+
+        # 6. Copiar Actions
+        template_actions = db.query(Action).filter(
+            Action.specific_objective_id.in_(objective_id_map.keys())
+        ).all()
+
+        action_id_map = {}
+
+        for action in template_actions:
+            new_action = Action(
+                description=action.description,
+                difficulty=action.difficulty,
+                ods_id=action.ods_id,
+                specific_objective_id=objective_id_map[action.specific_objective_id]
+            )
+            db.add(new_action)
+
+        db.commit()
+
+        # Obtener las nuevas Actions y crear el mapeo de IDs
+        new_actions = db.query(Action).filter(
+            Action.specific_objective_id.in_(objective_id_map.values())
+        ).all()
+
+        for old_action, new_action in zip(template_actions, new_actions):
+            action_id_map[old_action.id] = new_action.id
+
+        # 7. Copiar Performance Indicators
+        template_performance = db.query(PerformanceIndicator).filter(
+            PerformanceIndicator.action_id.in_(action_id_map.keys())
+        ).all()
+
+        performance_id_map = {}
+
+        for pi in template_performance:
+            new_pi = PerformanceIndicator(
+                name=pi.name,
+                human_resources=pi.human_resources,
+                material_resources=pi.material_resources,
+                type=pi.type,
+                action_id=action_id_map[pi.action_id]
+            )
+            db.add(new_pi)
+
+        db.commit()
+
+        # Obtener los nuevos Performance Indicators y crear el mapeo de IDs
+        new_performance = db.query(PerformanceIndicator).filter(
+            PerformanceIndicator.action_id.in_(action_id_map.values())
+        ).all()
+
+        for old_pi, new_pi in zip(template_performance, new_performance):
+            performance_id_map[old_pi.id] = new_pi.id
+
+        # 8. Copiar valores de Performance Indicators
+        # Cuantitativos
+        template_quantitative = db.query(PerformanceIndicatorQuantitative).filter(
+            PerformanceIndicatorQuantitative.performance_indicator_id.in_(performance_id_map.keys())
+        ).all()
+
+        for piq in template_quantitative:
+            new_piq = PerformanceIndicatorQuantitative(
+                performance_indicator_id=performance_id_map[piq.performance_indicator_id],
+                numeric_response=piq.numeric_response,
+                unit=piq.unit
+            )
+            db.add(new_piq)
+
+        # Cualitativos
+        template_qualitative = db.query(PerformanceIndicatorQualitative).filter(
+            PerformanceIndicatorQualitative.performance_indicator_id.in_(performance_id_map.keys())
+        ).all()
+
+        for piq in template_qualitative:
+            new_piq = PerformanceIndicatorQualitative(
+                performance_indicator_id=performance_id_map[piq.performance_indicator_id],
+                response=piq.response
+            )
+            db.add(new_piq)
+
+        db.commit()
+
+        # 9. Copiar Secondary ODS Actions
+        template_secondary_ods = db.query(SecondaryODSAction).filter(
+            SecondaryODSAction.action_id.in_(action_id_map.keys())
+        ).all()
+
+        for soa in template_secondary_ods:
+            new_soa = SecondaryODSAction(
+                action_id=action_id_map[soa.action_id],
+                specific_objective_id=objective_id_map[soa.specific_objective_id],
+                ods_id=soa.ods_id
+            )
+            db.add(new_soa)
+
+        # 10. Copiar Secondary ODS Material Topics
+        template_secondary_mt = db.query(SecondaryODSMaterialTopic).filter(
+            SecondaryODSMaterialTopic.material_topic_id.in_(material_topic_id_map.keys())
+        ).all()
+
+        for somt in template_secondary_mt:
+            new_somt = SecondaryODSMaterialTopic(
+                material_topic_id=material_topic_id_map[somt.material_topic_id],
+                ods_id=somt.ods_id
+            )
+            db.add(new_somt)
+
+        # 11. Copiar Stakeholders
+        template_stakeholders = db.query(Stakeholder).filter(
+            Stakeholder.report_id == template_report_id
+        ).all()
+
+        stakeholder_id_map = {}
+
+        for stakeholder in template_stakeholders:
+            new_stakeholder = Stakeholder(
+                name=stakeholder.name,
+                description=stakeholder.description,
+                type=stakeholder.type,
+                report_id=new_report_id
+            )
+            db.add(new_stakeholder)
+
+        db.commit()
+
+        # Obtener los nuevos Stakeholders y crear el mapeo de IDs
+        new_stakeholders = db.query(Stakeholder).filter(
+            Stakeholder.report_id == new_report_id
+        ).all()
+
+        for old_st, new_st in zip(template_stakeholders, new_stakeholders):
+            stakeholder_id_map[old_st.id] = new_st.id
+
+        # 13. Copiar Report Agreements
+        template_agreements = db.query(ReportAgreementModel).filter(
+            ReportAgreementModel.report_id == template_report_id
+        ).all()
+
+        for agreement in template_agreements:
+            new_agreement = ReportAgreementModel(
+                report_id=new_report_id,
+                agreement=agreement.agreement
+            )
+            db.add(new_agreement)
+
+        # 14. Copiar Report Bibliography
+        template_bibliographies = db.query(ReportBibliographyModel).filter(
+            ReportBibliographyModel.report_id == template_report_id
+        ).all()
+
+        for bibliography in template_bibliographies:
+            new_bibliography = ReportBibliographyModel(
+                report_id=new_report_id,
+                reference=bibliography.reference
+            )
+            db.add(new_bibliography)
+
+        # 15. Copiar Report Norms
+        template_norms = db.query(ReportNormModel).filter(
+            ReportNormModel.report_id == template_report_id
+        ).all()
+
+        for norm in template_norms:
+            new_norm = ReportNormModel(
+                report_id=new_report_id,
+                norm=norm.norm
+            )
+            db.add(new_norm)
+
+        # 16. Copiar Sustainability Team Members
+        template_team_members = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.report_id == template_report_id
+        ).all()
+
+        for member in template_team_members:
+            new_member = SustainabilityTeamMember(
+                report_id=new_report_id,
+                user_id=member.user_id,
+                type=member.type,
+                organization=member.organization
+            )
+            db.add(new_member)
+
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise e
+
+def transfer_report_images(db: Session, template_report_id: int, new_report_id: int) -> None:
+    """
+    Transfiere todas las imágenes de una memoria a otra, copiando los archivos físicos
+    y actualizando las referencias en la base de datos.
+    """
+    try:
+        # Obtener la memoria plantilla
+        template_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == template_report_id).first()
+        if not template_report:
+            raise HTTPException(status_code=404, detail="Memoria plantilla no encontrada")
+
+        # Obtener la nueva memoria
+        new_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == new_report_id).first()
+        if not new_report:
+            raise HTTPException(status_code=404, detail="Nueva memoria no encontrada")
+
+        # Función auxiliar para copiar una imagen
+        def copy_image(old_path: str, new_path: str) -> None:
+            if not old_path:
+                return
+
+            # Convertir rutas relativas a absolutas
+            old_abs_path = settings.BASE_DIR / old_path.lstrip('/')
+            new_abs_path = settings.BASE_DIR / new_path.lstrip('/')
+
+            # Asegurarse de que el directorio destino existe
+            new_abs_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Copiar el archivo
+            if old_abs_path.exists():
+                shutil.copy2(old_abs_path, new_abs_path)
+
+        # Copiar cover_photo
+        if template_report.cover_photo:
+            old_filename = os.path.basename(template_report.cover_photo)
+            new_filename = f"report_{new_report_id}_cover_{uuid.uuid4()}{os.path.splitext(old_filename)[1]}"
+            new_path = str(settings.COVERS_DIR.relative_to(settings.BASE_DIR) / new_filename)
+            copy_image(template_report.cover_photo, new_path)
+            new_report.cover_photo = f"/{new_path}"
+
+        # Copiar org_chart_figure
+        if template_report.org_chart_figure:
+            old_filename = os.path.basename(template_report.org_chart_figure)
+            new_filename = f"report_{new_report_id}_organization_chart_{uuid.uuid4()}{os.path.splitext(old_filename)[1]}"
+            new_path = str(settings.ORGANIZATION_CHART_DIR.relative_to(settings.BASE_DIR) / new_filename)
+            copy_image(template_report.org_chart_figure, new_path)
+            new_report.org_chart_figure = f"/{new_path}"
+
+        # Copiar report_logos
+        logos = db.query(ReportLogoModel).filter(ReportLogoModel.report_id == template_report_id).all()
+        for logo in logos:
+            old_filename = os.path.basename(logo.logo)
+            new_filename = f"report_{new_report_id}_logo_{uuid.uuid4()}{os.path.splitext(old_filename)[1]}"
+            new_path = str(settings.LOGOS_DIR.relative_to(settings.BASE_DIR) / new_filename)
+            copy_image(logo.logo, new_path)
+            
+            new_logo = ReportLogoModel(
+                report_id=new_report_id,
+                logo=f"/{new_path}"
+            )
+            db.add(new_logo)
+
+        # Copiar report_photos
+        photos = db.query(ReportPhotoModel).filter(ReportPhotoModel.report_id == template_report_id).all()
+        for photo in photos:
+            old_filename = os.path.basename(photo.photo)
+            new_filename = f"report_{new_report_id}_photo_{uuid.uuid4()}{os.path.splitext(old_filename)[1]}"
+            new_path = str(settings.PHOTOS_DIR.relative_to(settings.BASE_DIR) / new_filename)
+            copy_image(photo.photo, new_path)
+            
+            new_photo = ReportPhotoModel(
+                report_id=new_report_id,
+                photo=f"/{new_path}",
+                description=photo.description
+            )
+            db.add(new_photo)
+
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise e
+
+def initialize_default_text(report):
+    """
+    Inicializa los textos por defecto de un reporte a partir de los archivos .html en DEFAULT_TEXT_DIR.
+    """
+    from app.core.config import settings
+    atributos = [
+        'stakeholders_text',
+        'materiality_text',
+        'main_secondary_impacts_text',
+        'materiality_matrix_text',
+        'action_plan_text',
+        'internal_coherence_text',
+    ]
+    for attr in atributos:
+        file_path = settings.DEFAULT_TEXT_DIR / f"{attr}.html"
+        if file_path.exists():
+            with open(file_path, encoding='utf-8') as f:
+                setattr(report, attr, f.read())

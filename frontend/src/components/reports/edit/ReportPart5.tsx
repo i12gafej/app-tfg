@@ -13,9 +13,11 @@ import Agreements from './part5/Agreements';
 import Bibliography from './part5/Bibliography';
 import Gallery from './part5/Gallery';
 import PublishReport from './part5/PublishReport';
+import Diffusion from './part5/Diffusion';
+import ReportTexts from './part5/ReportTexts';
 
 interface ReportPart5Props {
-  section?: 'cover' | 'commitment' | 'organization' | 'diagnosis' | 'roadmap' | 'collaborations' | 'bibliography' | 'annexes' | 'publish';
+  section?: 'cover' | 'commitment' | 'organization' | 'diagnosis' | 'roadmap' | 'collaborations' | 'bibliography' | 'annexes' | 'publish' | 'diffusion' | 'texts';
 }
 
 const PART5_SECTIONS = [
@@ -27,7 +29,9 @@ const PART5_SECTIONS = [
   { id: 'agreements', label: 'Colaboraciones' },
   { id: 'bibliography', label: 'Bibliografía' },
   { id: 'gallery', label: 'Galería' },
-  { id: 'publish', label: 'Publicar Reporte' },
+  { id: 'diffusion', label: 'Difusión' },
+  { id: 'texts', label: 'Textos de la Memoria' },
+  { id: 'publish', label: 'Publicar Memoria' },
 ];
 
 const ReportPart5: React.FC<ReportPart5Props> = ({ section = 'cover' }) => {
@@ -52,6 +56,10 @@ const ReportPart5: React.FC<ReportPart5Props> = ({ section = 'cover' }) => {
         return <Bibliography />;
       case 'gallery':
         return <Gallery />;
+      case 'diffusion':
+        return <Diffusion />;
+      case 'texts':
+        return <ReportTexts />;
       case 'publish':
         return <PublishReport />;
       default:

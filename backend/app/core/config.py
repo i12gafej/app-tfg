@@ -25,7 +25,9 @@ class Settings(BaseModel):
     ORGANIZATION_CHART_DIR: Path = UPLOADS_DIR / "organization_charts"
 
     # Rutas de imágenes para reportes
-    ON_REPORT_DIR: str = STATIC_DIR / "on_report"
+    ON_REPORT_DIR: Path = STATIC_DIR / "on_report"
+    IMAGES_DIR: Path = STATIC_DIR / "images"
+    DEFAULT_TEXT_DIR: Path = ON_REPORT_DIR / "default_text"
 
     # Constantes para el procesamiento de imágenes
     A4_RATIO: float = 1.4142  # Ratio de A4 (297mm/210mm)

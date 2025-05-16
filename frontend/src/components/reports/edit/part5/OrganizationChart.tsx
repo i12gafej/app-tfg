@@ -34,7 +34,10 @@ const OrganizationChart = () => {
       if (!report?.id || !token) return;
       try {
         setLoading(true);
-        const url = await reportService.getOrganizationChart(report.id, token);
+        const url = await reportService.getOrganizationChart(report.id, token, Date.now());
+        if (orgChartUrl) {
+          URL.revokeObjectURL(orgChartUrl);
+        }
         setOrgChartUrl(url);
         if (editor && report.org_chart_text) {
           editor.commands.setContent(report.org_chart_text);
@@ -59,7 +62,12 @@ const OrganizationChart = () => {
       setSuccessMessage(null);
       setLoading(true);
 
-      const url = await reportService.updateOrganizationChart(report.id, file, token);
+      await reportService.updateOrganizationChart(report.id, file, token);
+      // Recarga el organigrama con timestamp único
+      const url = await reportService.getOrganizationChart(report.id, token, Date.now());
+      if (orgChartUrl) {
+        URL.revokeObjectURL(orgChartUrl);
+      }
       setOrgChartUrl(url);
       setSuccessMessage('Organigrama subido correctamente');
     } catch (err) {

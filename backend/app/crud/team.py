@@ -2,7 +2,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app.models.models import HeritageResource, SustainabilityReport, SustainabilityTeamMember, User
-from app.schemas.team import ResourceSearch, ReportSearch, TeamMemberSearch, TeamMemberCreate
+from app.schemas.team import TeamMemberSearch, TeamMemberCreate
 
 def search_available_users(
     db: Session,
@@ -43,64 +43,6 @@ def search_available_users(
                 query = query.filter(User.email.ilike(f"%{email_val}%"))
 
         return query.all()
-    except Exception as e:
-        raise e
-
-def search_resources(
-    db: Session,
-    search_params: ResourceSearch
-) -> dict:
-    """
-    Buscar recursos patrimoniales con filtros opcionales.
-    """
-    try:
-        query = db.query(HeritageResource)
-
-        def normalize_text(text: str) -> str:
-            if not text or text.isspace():
-                return None
-            return text.strip()
-
-        if search_params.search_term:
-            search = normalize_text(search_params.search_term)
-            if search:
-                search = f"%{search}%"
-                query = query.filter(HeritageResource.name.ilike(search))
-
-        if search_params.name:
-            name = normalize_text(search_params.name)
-            if name:
-                query = query.filter(HeritageResource.name.ilike(f"%{name}%"))
-
-        resources = query.all()
-        total = len(resources)
-        return {
-            "items": resources,
-            "total": total
-        }
-    except Exception as e:
-        raise e
-
-def search_reports(
-    db: Session,
-    search_params: ReportSearch
-) -> dict:
-    """
-    Buscar reportes de un recurso patrimonial con filtros opcionales.
-    """
-    try:
-        query = db.query(
-            SustainabilityReport.id,
-            SustainabilityReport.heritage_resource_id,
-            SustainabilityReport.year,
-        ).filter(SustainabilityReport.heritage_resource_id == search_params.resource_id)
-
-        reports = query.all()
-        total = len(reports)
-        return {
-            "items": reports,
-            "total": total
-        }
     except Exception as e:
         raise e
 

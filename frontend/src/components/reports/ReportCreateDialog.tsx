@@ -11,8 +11,15 @@ import {
   Autocomplete,
   CircularProgress,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from '@mui/material';
-import { SustainabilityReport } from '@/services/reportServices';
+import { SustainabilityReport, ReportListItem, reportService } from '@/services/reportServices';
 import { Resource, resourceService } from '@/services/resourceService';
 import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 
@@ -40,6 +47,13 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [loadingResources, setLoadingResources] = useState(false);
   const [observation, setObservation] = useState('');
+  const [creationType, setCreationType] = useState<'new' | 'template' | 'previous'>('new');
+  const [templates, setTemplates] = useState<ReportListItem[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<ReportListItem | null>(null);
+  const [previousReports, setPreviousReports] = useState<ReportListItem[]>([]);
+  const [selectedPreviousReport, setSelectedPreviousReport] = useState<ReportListItem | null>(null);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [loadingPreviousReports, setLoadingPreviousReports] = useState(false);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -66,6 +80,47 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
   }, [open, token]);
 
   useEffect(() => {
+    const fetchTemplates = async () => {
+      if (open && creationType === 'template') {
+        setLoadingTemplates(true);
+        try {
+          const response = await reportService.getAllReportTemplates(token);
+          setTemplates(response.items);
+        } catch (err) {
+          setError('Error al cargar las plantillas');
+        } finally {
+          setLoadingTemplates(false);
+        }
+      }
+    };
+
+    fetchTemplates();
+  }, [open, token, creationType]);
+
+  useEffect(() => {
+    const fetchPreviousReports = async () => {
+      if (open && creationType === 'previous' && selectedResource) {
+        setLoadingPreviousReports(true);
+        try {
+          const reports = await resourceService.getAllReportsByResource(selectedResource.id.toString(), token);
+          setPreviousReports(reports.map(report => ({
+            resource_id: report.heritage_resource_id,
+            resource_name: selectedResource.name,
+            report_id: report.id,
+            year: report.year
+          })));
+        } catch (err) {
+          setError('Error al cargar las memorias anteriores');
+        } finally {
+          setLoadingPreviousReports(false);
+        }
+      }
+    };
+
+    fetchPreviousReports();
+  }, [open, token, creationType, selectedResource]);
+
+  useEffect(() => {
     if (!open) {
       setFormData({
         heritage_resource_id: null,
@@ -74,6 +129,9 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
       setSelectedResource(null);
       setObservation('');
       setError(null);
+      setCreationType('new');
+      setSelectedTemplate(null);
+      setSelectedPreviousReport(null);
     }
   }, [open]);
 
@@ -89,18 +147,26 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
     }
 
     try {
+      let reportData: any = {
+        heritage_resource_id: formData.heritage_resource_id,
+        year: formData.year,
+        state: 'Draft',
+        observation: observation
+      };
+
+      if (creationType === 'template' && selectedTemplate) {
+        reportData.template_report_id = selectedTemplate.report_id;
+      } else if (creationType === 'previous' && selectedPreviousReport) {
+        reportData.template_report_id = selectedPreviousReport.report_id;
+      }
+
       const response = await fetch('/api/reports/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          heritage_resource_id: formData.heritage_resource_id,
-          year: formData.year,
-          state: 'Draft',
-          observation: observation
-        }),
+        body: JSON.stringify(reportData),
       });
 
       if (!response.ok) {
@@ -175,6 +241,78 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
               required
               fullWidth
             />
+            <FormControl component="fieldset">
+              <Typography variant="subtitle1" gutterBottom>
+                ¿Cómo quieres crear la memoria?
+              </Typography>
+              <RadioGroup
+                value={creationType}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreationType(e.target.value as 'new' | 'template' | 'previous')}
+              >
+                <FormControlLabel value="new" control={<Radio />} label="Empezar de cero" />
+                <FormControlLabel value="template" control={<Radio />} label="Usar una plantilla" />
+                <FormControlLabel value="previous" control={<Radio />} label="Basarse en una memoria anterior" />
+              </RadioGroup>
+            </FormControl>
+
+            {creationType === 'template' && (
+              <Autocomplete
+                options={templates}
+                getOptionLabel={(option: ReportListItem) => `${option.resource_name} (${option.year})`}
+                loading={loadingTemplates}
+                value={selectedTemplate}
+                onChange={(_: React.SyntheticEvent, newValue: ReportListItem | null) => {
+                  setSelectedTemplate(newValue);
+                }}
+                noOptionsText="Sin plantillas disponibles"
+                renderInput={(params: AutocompleteRenderInputParams) => (
+                  <TextField
+                    {...params}
+                    label="Seleccionar plantilla"
+                    required
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loadingTemplates ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            )}
+
+            {creationType === 'previous' && selectedResource && (
+              <Autocomplete
+                options={previousReports}
+                getOptionLabel={(option: ReportListItem) => `Año ${option.year}`}
+                loading={loadingPreviousReports}
+                value={selectedPreviousReport}
+                onChange={(_: React.SyntheticEvent, newValue: ReportListItem | null) => {
+                  setSelectedPreviousReport(newValue);
+                }}
+                noOptionsText="Sin memorias anteriores disponibles"
+                renderInput={(params: AutocompleteRenderInputParams) => (
+                  <TextField
+                    {...params}
+                    label="Seleccionar memoria anterior"
+                    required
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loadingPreviousReports ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            )}
+
             <TextField
               label="Observación"
               multiline

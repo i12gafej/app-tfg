@@ -105,7 +105,7 @@ const InternalConsistencyGraph = () => {
 
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
-              Totales por Dimensión
+              Impactos totales por dimensión
             </Typography>
             <TableContainer>
               <Table size="small">

@@ -6,11 +6,7 @@ from sqlalchemy import or_
 from app.api.deps import get_db, get_current_user
 from app.schemas.user import User, UserSearch, UserCreate
 from app.schemas.team import (
-    ResourceSearch, 
-    ReportSearch, 
     TeamMemberSearch,
-    ResourceBase,
-    ReportBase,
     TeamMemberBase,
     TeamMemberCreate,
     TeamMemberCreateParams,
@@ -57,56 +53,6 @@ def search_available_users(
             detail=str(e)
         )
 
-@router.post("/team/search/resources", response_model=dict)
-def search_resources(
-    search_params: ResourceSearch = Body(...),
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """
-    Buscar recursos patrimoniales con filtros opcionales.
-    """
-    try:
-        result = crud_team.search_resources(db, search_params)
-        resources_schema = [ResourceBase.from_orm(resource) for resource in result["items"]]
-        return {
-            "items": resources_schema,
-            "total": result["total"]
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
-
-@router.post("/team/search/reports", response_model=dict)
-def search_reports(
-    search_params: ReportSearch = Body(...),
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """
-    Buscar reportes de un recurso patrimonial con filtros opcionales.
-    """
-    try:
-        result = crud_team.search_reports(db, search_params)
-        reports_schema = []
-        for report in result["items"]:
-            report_dict = {
-                "id": report.id,
-                "year": report.year,
-                "heritage_resource_id": report.heritage_resource_id
-            }
-            reports_schema.append(ReportBase(**report_dict))
-        return {
-            "items": reports_schema,
-            "total": result["total"]
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
 
 @router.post("/team/search/members", response_model=dict)
 def search_team_members(

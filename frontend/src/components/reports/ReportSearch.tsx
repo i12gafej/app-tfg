@@ -39,6 +39,7 @@ import { ReportCreateDialog } from './ReportCreateDialog';
 import { ReportPermissionDialog } from './ReportPermissionDialog';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import ReportDeleteDialog from './ReportDeleteDialog';
+import ReportEditDialog from './ReportEditDialog';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -84,6 +85,8 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const [selectedReport, setSelectedReport] = useState<SustainabilityReport | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<{ id: number; resourceName: string; year: number } | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedReportForEdit, setSelectedReportForEdit] = useState<SustainabilityReport | null>(null);
 
   useEffect(() => {
     handleSearch();
@@ -214,7 +217,17 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   };
 
   const handleEdit = (report: SustainabilityReport) => {
-    navigate(`/memorias/editar/${report.id}/${report.heritage_resource_name}/${report.year}`);
+    setSelectedReportForEdit(report);
+    setEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setSelectedReportForEdit(null);
+  };
+
+  const handleEditDialogSave = () => {
+    handleSearch(); // Actualizar la lista después de guardar
   };
 
   const handleView = (report: SustainabilityReport) => {
@@ -267,10 +280,10 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   };
 
   return (
-    <Box>
+    <Box sx={{ pb: 5 }}>
       <Paper 
         sx={{ 
-          p: 0, 
+          py: 0, 
           mb: 2,
           borderRadius: '100px',
           boxShadow: 'none',
@@ -621,6 +634,18 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
         token={token || ''}
         onDeleted={handleDeleted}
       />
+
+      {selectedReportForEdit && (
+        <ReportEditDialog
+          open={editDialogOpen}
+          onClose={handleCloseEditDialog}
+          reportId={selectedReportForEdit.id}
+          reportName={selectedReportForEdit.heritage_resource_name || ''}
+          year={selectedReportForEdit.year.toString()}
+          initialObservation={selectedReportForEdit.observation}
+          initialIsTemplate={selectedReportForEdit.template}
+        />
+      )}
     </Box>
   );
 };

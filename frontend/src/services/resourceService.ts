@@ -5,6 +5,12 @@ export interface SocialNetwork {
   url: string;
 }
 
+export interface Report {
+  id: number;
+  heritage_resource_id: number;
+  year: number;
+}
+
 export interface Resource {
   id: number;
   name: string;
@@ -24,7 +30,6 @@ export interface ResourceSearchParams {
   management_model?: string;
   postal_address?: string;
 }
-
 
 const api = axios.create({
   baseURL: '/api',
@@ -101,6 +106,35 @@ export const resourceService = {
       });
     } catch (error) {
       console.error('Error al eliminar recurso:', error);
+      throw error;
+    }
+  },
+
+  // Obtener reportes de un recurso
+  async getAllReportsByResource(resourceId: string, token: string): Promise<Report[]> {
+    try {
+      const response = await api.get<{items: Report[]}>(`/resources/get-all/reports/${resourceId}`, { 
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data.items;
+    } catch (error) {
+      console.error('Error al obtener reportes:', error);
+      throw error;
+    }
+  },
+
+  async getAllResources(token: string): Promise<Resource[]> {
+    try {
+      const response = await api.get('/resources/get-all/', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data.items;
+    } catch (error) {
+      console.error('Error getting all resources:', error);
       throw error;
     }
   }

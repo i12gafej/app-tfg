@@ -180,3 +180,52 @@ def delete(db: Session, resource_id: int) -> bool:
         return True
     except Exception as e:
         raise e
+
+def get_all_reports_by_resource(
+    db: Session,
+    resource_id: int
+) -> List[dict]:
+    """
+    Obtener todos los reportes de un recurso patrimonial.
+    """
+    try:
+        reports = db.query(
+            SustainabilityReport.id,
+            SustainabilityReport.heritage_resource_id,
+            SustainabilityReport.year
+        ).filter(
+            SustainabilityReport.heritage_resource_id == resource_id
+        ).all()
+
+        return [
+            {
+                "id": report.id,
+                "heritage_resource_id": report.heritage_resource_id,
+                "year": report.year
+            }
+            for report in reports
+        ]
+    except Exception as e:
+        raise e
+
+def get_all_resources(
+    db: Session
+) -> List[dict]:
+    """
+    Obtener todos los recursos patrimoniales.
+    """
+    try:
+        resources = db.query(
+            HeritageResource.id,
+            HeritageResource.name
+        ).all()
+
+        return [
+            {
+                "id": resource.id,
+                "name": resource.name
+            }
+            for resource in resources
+        ]
+    except Exception as e:
+        raise e

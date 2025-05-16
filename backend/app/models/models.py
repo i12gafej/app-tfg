@@ -93,7 +93,16 @@ class SustainabilityReport(Base):
     main_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
     secondary_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
     roadmap_description = Column(Text, nullable=True)
-    data_tables_text = Column(Text, nullable=True) 
+    data_tables_text = Column(Text, nullable=True)
+    
+    stakeholders_text = Column(Text, nullable=True)
+    materiality_text = Column(Text, nullable=True)
+    main_secondary_impacts_text = Column(Text, nullable=True)
+    materiality_matrix_text = Column(Text, nullable=True)
+    action_plan_text = Column(Text, nullable=True)
+    internal_coherence_text = Column(Text, nullable=True)
+    diffusion_text = Column(Text, nullable=True)
+    template = Column(Boolean, nullable=False, default=False)
 
 class ReportLogo(Base):
     __tablename__ = "report_logos"
@@ -144,7 +153,7 @@ class Stakeholder(Base):
     __tablename__ = "stakeholders"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     type = Column(Enum('internal', 'external', name='stakeholder_type'), nullable=False)
     report_id = Column(Integer, ForeignKey("sustainability_reports.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)

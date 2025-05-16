@@ -71,7 +71,7 @@ const PARTS = [
   {
     name: 'Paso 5',
     start: 21,
-    end: 28,
+    end: 30,
     sections: [
       'Portada',
       'Carta de compromiso',
@@ -81,6 +81,8 @@ const PARTS = [
       'Colaboraciones',
       'Bibliografía',
       'Galería',
+      'Difusión',
+      'Textos de la Memoria',
     ]
   }
 ];

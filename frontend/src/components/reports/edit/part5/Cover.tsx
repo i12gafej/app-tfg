@@ -24,12 +24,14 @@ const Cover = () => {
 
   const loadCoverPhoto = async () => {
     if (!report?.id || !token) return;
-    
     try {
-      const url = await reportService.getCoverPhoto(report.id, token);
+      const url = await reportService.getCoverPhoto(report.id, token, Date.now());
+      if (coverPhotoUrl) {
+        URL.revokeObjectURL(coverPhotoUrl);
+      }
       setCoverPhotoUrl(url);
     } catch (error) {
-      console.error('Error al cargar la foto de portada:', error);
+      setCoverPhotoUrl(null);
     }
   };
 
@@ -49,9 +51,8 @@ const Cover = () => {
     if (!file || !report?.id || !token) return;
 
     try {
-      const url = await reportService.updateCoverPhoto(report.id, file, token);
-      await updateFullReport({ cover_photo: url });
-      await loadCoverPhoto(); // Recargar la imagen después de subirla
+      await reportService.updateCoverPhoto(report.id, file, token);
+      await loadCoverPhoto();
     } catch (error) {
       console.error('Error al subir la imagen:', error);
     }
@@ -80,110 +81,6 @@ const Cover = () => {
     }
   };
 
-  const handlePreview = () => {
-    if (!coverPhotoUrl || !report) return;
-
-    const previewWindow = window.open('', '_blank');
-    if (!previewWindow) return;
-
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Portada - ${report.heritage_resource_name}</title>
-          <style>
-            body {
-              margin: 0;
-              padding: 0;
-              height: 100vh;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              font-family: Arial, sans-serif;
-              position: relative;
-              overflow: hidden;
-              background-color: #f0f0f0;
-            }
-            .page-container {
-              width: 210mm;
-              height: 297mm;
-              position: relative;
-              margin: 20px;
-              box-shadow: 0 0 10px rgba(0,0,0,0.3);
-              background-color: white;
-            }
-            .cover-image {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-              position: absolute;
-              top: 0;
-              left: 0;
-              z-index: 1;
-            }
-            .content {
-              position: relative;
-              z-index: 2;
-              text-align: center;
-              color: white;
-              text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-              padding: 20px;
-              background-color: rgba(0, 0, 0, 0.3);
-              border-radius: 10px;
-              max-width: 80%;
-              margin: 0 auto;
-              top: 50%;
-              transform: translateY(-50%);
-            }
-            .content h1 {
-              font-size: 2.5em;
-              margin-bottom: 0.5em;
-            }
-            .content h2 {
-              font-size: 1.8em;
-              margin-top: 0;
-            }
-            .watermark {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%) rotate(-45deg);
-              font-size: 100px;
-              opacity: 0.2;
-              color: white;
-              z-index: 3;
-              pointer-events: none;
-              user-select: none;
-            }
-            @media print {
-              body {
-                background-color: white;
-              }
-              .page-container {
-                margin: 0;
-                box-shadow: none;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="page-container">
-            <img src="${coverPhotoUrl}" class="cover-image" alt="Portada">
-            <div class="content">
-              <h1>${report.heritage_resource_name}</h1>
-              <h2>Memoria de Sostenibilidad ${report.year}</h2>
-            </div>
-            <div class="watermark">PORTADA</div>
-          </div>
-        </body>
-      </html>
-    `;
-
-    previewWindow.document.write(html);
-    previewWindow.document.close();
-  };
-
   return (
     <Box sx={{ p: 3 }}>
       {/* Sección de Portada */}
@@ -210,15 +107,6 @@ const Cover = () => {
             </Button>
           </>
         )}
-        {coverPhotoUrl && (
-          <Button
-            variant="outlined"
-            startIcon={<PreviewIcon />}
-            onClick={handlePreview}
-          >
-            Previsualizar portada
-          </Button>
-        )}
       </Box>
 
       {coverPhotoUrl && (
@@ -227,7 +115,7 @@ const Cover = () => {
             Vista previa de la portada:
           </Typography>
           <img 
-            src={coverPhotoUrl} 
+            src={coverPhotoUrl}
             alt="Vista previa de la portada" 
             style={{ 
               width: '100%', 

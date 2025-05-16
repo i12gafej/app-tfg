@@ -16,6 +16,9 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdv
   const navigate = useNavigate();
   const reportId = id ? parseInt(id, 10) : null;
 
+  console.log('ReportEdit - Params:', { id, name, year });
+  console.log('ReportEdit - reportId:', reportId);
+
   useEffect(() => {
     // Scroll al título de edición
     const titleElement = document.getElementById('edit-title');
@@ -29,6 +32,7 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdv
   };
 
   if (!reportId) {
+    console.log('ReportEdit - ID de reporte inválido');
     return <div>ID de reporte inválido</div>;
   }
 

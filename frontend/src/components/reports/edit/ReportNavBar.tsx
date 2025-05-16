@@ -42,7 +42,7 @@ const ReportNavBar = () => {
 
   useEffect(() => {
     if (report && isExternalAdvisor && typeof report.permissions === 'number') {
-      setPermissions(decimalToBoolArray(report.permissions, 29));
+      setPermissions(decimalToBoolArray(report.permissions, 31));
     }
   }, [report, isExternalAdvisor]);
 
@@ -84,7 +84,7 @@ const ReportNavBar = () => {
       case 2: return 12;
       case 3: return 18;
       case 4: return 20;
-      case 5: return 28;
+      case 5: return 30;
       default: return 0;
     }
   };

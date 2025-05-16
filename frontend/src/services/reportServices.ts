@@ -31,6 +31,12 @@ export interface ReportPhoto {
     report_id: number;
 }
 
+export interface ReportListItem {
+    resource_id: number;
+    resource_name: string;
+    year: number;
+    report_id: number;
+}
 export interface UserReportRole {
     report_id: number;
     role: 'manager' | 'consultant' | 'external_advisor';
@@ -61,6 +67,14 @@ export interface SustainabilityReport {
     secondary_impact_weight?: number;
     roadmap_description?: string;
     data_tables_text?: string;
+    stakeholders_text?: string;
+    materiality_text?: string;
+    main_secondary_impacts_text?: string;
+    materiality_matrix_text?: string;
+    action_plan_text?: string;
+    internal_coherence_text?: string;
+    diffusion_text?: string;
+    template: boolean;
     norms?: ReportNorm[];
     logos?: ReportLogo[];
     agreements?: ReportAgreement[];
@@ -97,6 +111,20 @@ export const reportService = {
             throw error;
         }
     },
+    async getAllReportTemplates(token: string): Promise<{items: ReportListItem[]}> {
+        try {
+          const response = await api.get<{items: ReportListItem[]}>(`/reports/get-all/templates/`, { 
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+            }
+          );
+          return response.data;
+        } catch (error) {
+          console.error('Error al obtener reportes:', error);
+          throw error;
+        }
+      },
 
     getReportNorms: async (reportId: number, token: string): Promise<ReportNorm[]> => {
         try {
@@ -253,10 +281,14 @@ export const reportService = {
         }
     },
 
-    getCoverPhoto: async (reportId: number, token: string): Promise<string> => {
+    getCoverPhoto: async (reportId: number, token: string, timestamp?: number): Promise<string> => {
         try {
+            let url = `/reports/get/cover/${reportId}`;
+            if (timestamp) {
+                url += `?t=${timestamp}`;
+            }
             const response = await api.get<Blob>(
-                `/reports/get/cover/${reportId}`,
+                url,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -264,7 +296,6 @@ export const reportService = {
                     responseType: 'blob'
                 }
             );
-            
             return URL.createObjectURL(response.data);
         } catch (error) {
             console.error('Error al obtener la foto de portada:', error);
@@ -294,10 +325,14 @@ export const reportService = {
         }
     },
 
-    getOrganizationChart: async (reportId: number, token: string): Promise<string> => {
+    getOrganizationChart: async (reportId: number, token: string, timestamp?: number): Promise<string> => {
         try {
+            let url = `/reports/get/organization-chart/${reportId}`;
+            if (timestamp) {
+                url += `?t=${timestamp}`;
+            }
             const response = await api.get<Blob>(
-                `/reports/get/organization-chart/${reportId}`,
+                url,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`

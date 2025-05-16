@@ -1,15 +1,5 @@
 import axios from 'axios';
 
-export interface Resource {
-  id: number;
-  name: string;
-}
-
-export interface Report {
-  id: number;
-  year: number;
-  heritage_resource_id: number;
-}
 
 export interface TeamMember {
   id: string;
@@ -48,42 +38,6 @@ const api = axios.create({
 });
 
 export const teamService = {
-  // Obtener recursos patrimoniales
-  async getResources(token: string): Promise<Resource[]> {
-    try {
-      const response = await api.post('/team/search/resources', 
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      return response.data.items;
-    } catch (error) {
-      console.error('Error al obtener recursos patrimoniales:', error);
-      throw error;
-    }
-  },
-
-  // Obtener reportes de un recurso
-  async getReports(resourceId: string, token: string): Promise<Report[]> {
-    try {
-      const response = await api.post('/team/search/reports', { 
-        resource_id: parseInt(resourceId) },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      return response.data.items;
-    } catch (error) {
-      console.error('Error al obtener reportes:', error);
-      throw error;
-    }
-  },
-
   // Obtener miembros del equipo de un reporte
   async getTeamMembers(reportId: string, token: string): Promise<TeamMember[]> {
     try {

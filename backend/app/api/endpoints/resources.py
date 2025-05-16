@@ -6,8 +6,7 @@ from app.schemas.auth import TokenData
 from app.api.deps import get_db, get_current_user
 from app.crud import resources as crud_resources
 from sqlalchemy import or_
-from app.models.models import HeritageResource as HeritageResourceModel
-
+from app.models.models import HeritageResource as HeritageResourceModel, SustainabilityReport as SustainabilityReportModel
 
 router = APIRouter()
 
@@ -17,7 +16,6 @@ async def create_resource_endpoint(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
-    # Verificar que el usuario es administrador
     if not current_user.admin:
         raise HTTPException(
             status_code=403,
@@ -170,3 +168,56 @@ async def delete_resource_endpoint(
             status_code=500,
             detail=f"Error al eliminar el recurso: {str(e)}"
         )
+
+@router.get("/resources/get-all/reports/{resource_id}", response_model=dict)
+async def get_all_reports_by_resource(
+    resource_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener todos los reportes de un recurso patrimonial.
+    """
+    try:
+        if not current_user.admin:
+            raise HTTPException(
+                status_code=403,
+                detail="No tienes permisos para obtener los reportes"
+            )
+        result = crud_resources.get_all_reports_by_resource(db, resource_id)
+        return {
+            "items": result,
+            "total": len(result)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener los reportes: {str(e)}"
+        )
+
+@router.get("/resources/get-all/", response_model=dict)
+async def get_all_resources(
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Obtener todos los recursos patrimoniales.
+    """
+    try:
+        if not current_user.admin:
+            raise HTTPException(
+                status_code=403,
+                detail="No tienes permisos para obtener los recursos"
+            )
+        result = crud_resources.get_all_resources(db)
+        return {
+            "items": result,
+            "total": len(result)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener los recursos: {str(e)}"
+        )
+
+
