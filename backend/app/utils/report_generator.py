@@ -186,15 +186,14 @@ class ReportGenerator:
         template = self.template_env.get_template("internal_consistency_graph_template.html")
         return template.render(data=data)
 
-    def generate_full_report(self, data: Dict[str, Any]) -> str:
+    def generate_simple(self, data: Dict[str, Any]) -> str:
         """
         Genera el reporte completo combinando todas las secciones.
         Returns:
             str: HTML renderizado del reporte completo
         """
-        template = self.template_env.get_template("full_report_template.html")
+        template = self.template_env.get_template("simple.html")
         return template.render(data=data)
-
     
 
 if __name__ == "__main__":

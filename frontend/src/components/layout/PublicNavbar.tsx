@@ -21,9 +21,10 @@ const PublicNavbar = () => {
 
   const menuItems = [
     { text: 'Inicio', path: '/' },
-    { text: 'Memorias', path: '/memorias' },
+    { text: 'Memorias Públicas', path: '/memorias-publicas' },
     { text: 'Encuestas', path: '/encuestas' },
     { text: 'Contacto', path: '/contacto' },
+    
   ];
 
   const drawer = (

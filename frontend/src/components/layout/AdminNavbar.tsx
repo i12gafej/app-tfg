@@ -93,7 +93,7 @@ const AdminNavbar = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Logo />
+          <Logo dashboard={true}/>
           
           {isMobile ? (
             <>

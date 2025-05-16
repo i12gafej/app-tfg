@@ -27,7 +27,7 @@ import Team from './pages/Team';
 import ReportNavController from './components/reports/ReportNavController';
 import ProfilePage from './pages/Account/index';
 import ChangePassword from './pages/ChangePassword';
-
+import PublicReports from './pages/Reports/index';
 const App = () => {
   return (
     <AuthProvider>
@@ -52,6 +52,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/quienes-somos" element={<About />} />
             <Route path="/memorias/*" element={<ReportNavController />} />
+            <Route path="/memorias-publicas" element={<PublicReports />} />
             <Route path="/encuestas" element={<Surveys />} />
             <Route path="/contacto" element={<Contact />} />
             <Route path="/login" element={<Login />} />

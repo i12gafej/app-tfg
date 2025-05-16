@@ -6,6 +6,126 @@ import datetime
 
 settings = Settings()
 
+def test_report_image():
+
+    generator = ReportGenerator()
+
+    logo2 = os.path.join(settings.LOGOS_DIR, "report_26_logo_d5fe202e-7a96-44e0-8748-28d05a204ca9.jpg")
+
+    stakeholder_text = {
+        "title": "Análisis de los Grupos de Interés",
+        "text": f"""
+            <p>Los grupos de interés de la Mezquita-Catedral de Córdoba son:</p>
+            <ul>
+                <li> Internos
+                    <ul>
+                        <li>Grupo 1: lo describo como un grupo de interés interno</li>
+                        <li>Grupo 2: lo describo como un grupo de interés interno</li>
+                        <li>Grupo 3: lo describo como un grupo de interés interno</li>
+                        <li>Grupo 4: lo describo como un grupo de interés interno</li>
+                        <li>Grupo 5: lo describo como un grupo de interés interno</li>
+                    </ul>
+                </li>
+                <li>Externos
+                    <ul>
+                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: Aqui la foto con título</li>
+                        <!--14-->
+                    </ul>
+                </li>
+            </ul>
+
+
+            <div class="photo-container">
+                
+                <img src="{logo2}" alt="Descripción" class="photo-img">
+                <div class="photo-caption">TITULO</div>
+            </div>
+
+            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
+            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
+
+            <div class="photo-container">
+                
+                <img src="{logo2}" alt="Descripción" class="photo-img">
+                <div class="photo-caption">TITULO</div>
+            </div>
+
+            <div class="photo-container">
+                
+                <img src="{logo2}" alt="Descripción" class="photo-img">
+                <div class="photo-caption">TITULO</div>
+            </div>
+
+            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
+
+            <div class="photo-container">
+                
+                <img src="{logo2}" alt="Descripción" class="photo-img">
+                <div class="photo-caption">TITULO</div>
+            </div>
+
+            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
+            <p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
+
+            <div class="photo-container">
+                
+                <img src="{logo2}" alt="Descripción" class="photo-img">
+                <div class="photo-caption">TITULO</div>
+            </div>
+            
+            <ul>
+                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: Aqui la foto con título</li>
+                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: Aqui la foto con título</li>
+                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: Aqui la foto con título</li>
+                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
+                        <li>Grupo 3: Aqui la foto con título</li>
+                        <!--14-->
+                    </ul>
+                <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
+                <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
+            
+          
+            
+            
+        """
+    }
+    
+    pages = paginate_html_text(stakeholder_text["text"], max_lines=40, chars_per_line=35)
+
+    data = ""
+    for page in pages:
+        data += generator.generate_simple_text({"title": "", "text": page}, "#FFF")
+
+    combined_html = generator.generate_simple(data)
+    
+    
+    # Guardar el reporte combinado como HTML
+    html_path = os.path.join(settings.REPORTS_DIR, "prueba_imagen.html")
+    with open(html_path, "w", encoding="utf-8") as file:
+        file.write(combined_html)
+    
+    print(f"Reporte HTML generado en: {html_path}")
+        
+
 def test_report_generation():
     
     
@@ -918,4 +1038,4 @@ def test_report_generation():
 
 
 if __name__ == "__main__":
-    test_report_generation() 
+    test_report_image() 

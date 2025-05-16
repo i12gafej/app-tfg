@@ -1,13 +1,17 @@
 import { Typography, Box, useTheme } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
-const Logo = () => {
+interface LogoProps {
+  dashboard?: boolean;
+}
+
+const Logo = ({ dashboard }: LogoProps) => {
   const theme = useTheme();
   
   return (
     <Box 
       component={RouterLink} 
-      to="/" 
+      to={dashboard ? "/dashboard" : "/"} 
       sx={{ 
         textDecoration: 'none', 
         color: theme.palette.text.primary,

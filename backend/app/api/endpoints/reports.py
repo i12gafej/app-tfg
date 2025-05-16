@@ -212,6 +212,100 @@ async def search_reports_endpoint(
             detail=f"Error al buscar memorias: {str(e)}"
         )
 
+@router.post("/public-reports/search", response_model=dict)
+async def search_public_reports_endpoint(
+    search_params: ReportSearch = Body(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Buscar memorias de sostenibilidad públicas con filtros opcionales.
+    """
+    try:
+        # Extraer parámetros de búsqueda del objeto search_params
+        search_term = search_params.search_term
+        heritage_resource_name = search_params.heritage_resource_name
+        year = search_params.year
+
+        # Caso 1: Búsqueda por nombre de recurso
+        if heritage_resource_name:
+            resources = crud_resources.search(
+                db=db,
+                name=heritage_resource_name
+            )
+            
+            if not resources:
+                return {
+                    "items": [],
+                    "total": 0
+                }
+            
+            # Obtener IDs de recursos
+            resource_ids = [r.id for r in resources]
+
+            # Buscar memorias por IDs de recursos
+            reports = crud_reports.search_reports(
+                db=db,
+                heritage_resource_ids=resource_ids,
+                state="Published"
+            )
+        
+        # Caso 2: Búsqueda por año
+        elif year:
+            reports = crud_reports.search_reports(
+                db=db,
+                year=year,
+                state="Published"
+            )
+        
+        # Caso 3: Búsqueda por término de búsqueda
+        elif search_term:
+            resources = crud_resources.search(
+                db=db,
+                name=search_term
+            )
+            
+            resource_ids = [r.id for r in resources]
+
+            # Buscar memorias por IDs de recursos
+            reports = crud_reports.search_reports(
+                db=db,
+                heritage_resource_ids=resource_ids,
+                state="Published"
+            )
+        
+        # Caso 4: Sin filtros, devolver todas las memorias
+        else:
+            reports = crud_reports.search_reports(
+                db=db,
+                state="Published"
+            )
+
+        # Obtener los recursos asociados a las memorias
+        resource_ids = [report.heritage_resource_id for report in reports]
+        resources = crud_resources.get_all_by_resources_ids(db, resource_ids)
+
+        # Crear un diccionario para acceder rápidamente a los recursos por ID
+        resources_dict = {resource.id: resource for resource in resources}
+
+        # Añadir el nombre del recurso a cada memoria
+        for report in reports:
+            if report.heritage_resource_id in resources_dict:
+                report.heritage_resource_name = resources_dict[report.heritage_resource_id].name
+
+        total = len(reports)
+
+        return {
+            "items": reports,
+            "total": total
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al buscar memorias públicas: {str(e)}"
+        )
+        
+
 @router.post("/reports/create", response_model=SustainabilityReport)
 async def create_report_endpoint(
     report: SustainabilityReportCreate,

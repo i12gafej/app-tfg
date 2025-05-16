@@ -90,6 +90,12 @@ export interface ReportSearchParams {
     state?: 'Draft' | 'Published';
 }
 
+export interface PublicReportSearchParams {
+    search_term?: string;
+    heritage_resource_name?: string;
+    year?: number;
+}
+
 const api = axios.create({
     baseURL: '/api',
     headers: {
@@ -204,6 +210,22 @@ export const reportService = {
     searchReports: async (params: ReportSearchParams, token: string): Promise<{items: SustainabilityReport[], total: number}> => {
         try {
             const response = await api.post<{items: SustainabilityReport[], total: number}>('/reports/search', {
+                search_params: params
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al buscar memorias:', error);
+            throw error;
+        }
+    },
+
+    searchPublicReports: async (params: PublicReportSearchParams, token: string): Promise<{items: ReportListItem[], total: number}> => {
+        try {
+            const response = await api.post<{items: ReportListItem[], total: number}>('/public-reports/search', {
                 search_params: params
             }, {
                 headers: {

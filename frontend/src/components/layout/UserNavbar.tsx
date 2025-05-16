@@ -87,7 +87,7 @@ const UserNavbar = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Logo />
+          <Logo dashboard={true}/>
           
           {isMobile ? (
             <>

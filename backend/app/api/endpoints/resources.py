@@ -201,15 +201,13 @@ async def get_all_resources(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Obtener todos los recursos patrimoniales.
+    Obtener todos los recursos patrimoniales (solo los gestionados si no es admin).
     """
     try:
-        if not current_user.admin:
-            raise HTTPException(
-                status_code=403,
-                detail="No tienes permisos para obtener los recursos"
-            )
-        result = crud_resources.get_all_resources(db)
+        if current_user.admin:
+            result = crud_resources.get_all_resources(db)
+        else:
+            result = crud_resources.get_all_resources_manager(db, current_user.id)
         return {
             "items": result,
             "total": len(result)

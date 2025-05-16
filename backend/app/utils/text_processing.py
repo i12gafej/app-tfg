@@ -5,9 +5,33 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
     Divide el texto HTML en páginas según un límite de líneas virtuales y caracteres por línea,
     agrupando títulos con su contenido y sin dividir el contenido de un <li>.
     Si un <li> contiene tanto un <span> como un <p>, el número de líneas que ocupa se multiplica por 2.
+    Ahora también considera bloques de imagen (div.photo-page) con márgenes y caption.
     """
     def count_lines(text):
         return max(1, (len(text) // chars_per_line) + (1 if len(text) % chars_per_line else 0))
+
+    def get_visual_height(img_tag, max_width_cm=15, max_height_cm=20, dpi=5):
+        cm_to_px = dpi / 2.54  # 1 cm ≈ 37.8 px
+        max_width = max_width_cm * cm_to_px
+        max_height = max_height_cm * cm_to_px
+
+        width_real = int(img_tag.get('width', 400))
+        height_real = int(img_tag.get('height', 400))
+
+        scale = min(max_width / width_real, max_height / height_real)
+        width_final = width_real * scale
+        height_final = height_real * scale
+        return height_final
+
+    def image_block_to_lines(img_tag, caption_text=None, px_per_line=20, margin_top=0, margin_bottom=0):
+        height_px = get_visual_height(img_tag)
+        print(height_px)
+        image_lines = max(1, int(height_px) // px_per_line)
+        margin_lines = (margin_top + margin_bottom) // px_per_line
+        caption_lines = 0
+        if caption_text:
+            caption_lines = 2  # O usa count_lines si el caption es largo
+        return image_lines + margin_lines + caption_lines
 
     soup = BeautifulSoup(html, "html.parser")
     blocks = []
@@ -42,9 +66,11 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
         for e in block:
             if isinstance(e, Tag):
                 if e.name == "li":
+                    # Siempre cuenta como al menos una línea completa
+                    chars = len(e.get_text())
                     has_span = e.find("span") is not None
                     has_p = e.find("p") is not None
-                    lines = count_lines(e.get_text()) + 1
+                    lines = 1 + (chars // chars_per_line)
                     if has_span and has_p:
                         lines *= 2
                     total += lines
@@ -58,6 +84,28 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
     idx = 0
     while idx < len(elems):
         block, idx = get_next_block(elems, idx)
+        # --- INICIO: Manejo de bloques de imagen tipo photo-container ---
+        if len(block) == 1 and isinstance(block[0], Tag) and block[0].name == "div" and "photo-container" in block[0].get("class", []):
+            div = block[0]
+            img_tag = div.find("img")
+            caption_tag = div.find(class_="photo-caption")
+            caption_text = caption_tag.get_text() if caption_tag else None
+            lines = image_block_to_lines(
+                img_tag,
+                caption_text=caption_text,
+                px_per_line=5,
+                margin_top=20,
+                margin_bottom=20
+            )
+            if current_lines + lines > max_lines and current_page:
+                add_page()
+            if current_lines == 0:
+                current_page += '<div style="height: 20px"></div>'  # o usa <br> si prefieres
+    
+            current_page += str(div)
+            current_lines += lines
+            continue
+        # --- FIN: Manejo de bloques de imagen tipo photo-page ---
         if len(block) == 1 and isinstance(block[0], Tag) and block[0].name in ["ul", "ol"]:
             tag = block[0]
             is_ordered = tag.name == "ol"
@@ -67,7 +115,6 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
             while i < len(items):
                 list_html = f'<ol start="{start + i}">' if is_ordered else "<ul>"
                 list_lines = 0
-                first_in_page = i
                 while i < len(items):
                     li = items[i]
                     has_span = li.find("span") is not None

@@ -48,13 +48,7 @@ const Surveys = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
-                      {survey.heritage_resource_name}
-                    </Typography>
-                    <Typography color="textSecondary" gutterBottom>
-                      Año: {survey.year}
-                    </Typography>
-                    <Typography color="textSecondary">
-                      Estado: {survey.survey_state}
+                      {survey.heritage_resource_name} - Año {survey.year}
                     </Typography>
                   </CardContent>
                   <CardActions>

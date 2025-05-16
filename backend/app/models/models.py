@@ -78,31 +78,34 @@ class SustainabilityReport(Base):
     state = Column(Enum('Draft', 'Published', name='report_state'), nullable=False)
     observation = Column(Text, nullable=False)
     cover_photo = Column(String(255), nullable=True)
+    org_chart_figure = Column(String(255), nullable=True)
+
+    scale = Column(Integer, nullable=False, default=5)
+    survey_state = Column(Enum('active', 'inactive', name='survey_state'), nullable=False, default='inactive')
+    permissions = Column(Integer, nullable=False, default=0)
+    main_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
+    secondary_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
+    template = Column(Boolean, nullable=False, default=False)
+    published_report = Column(Text, nullable=True)
+
+
     commitment_letter = Column(Text, nullable=True)
     mission = Column(Text, nullable=True)
     vision = Column(Text, nullable=True)
     values = Column(Text, nullable=True)
     org_chart_text = Column(Text, nullable=True)
-    org_chart_figure = Column(String(255), nullable=True)
-    diagnosis_description = Column(Text, nullable=True)
-    scale = Column(Integer, nullable=False, default=5)
-    survey_state = Column(Enum('active', 'inactive', name='survey_state'), nullable=False, default='inactive')
-    permissions = Column(Integer, nullable=False, default=0)
-    action_plan_description = Column(Text, nullable=True)
-    internal_coherence_description = Column(Text, nullable=True)
-    main_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
-    secondary_impact_weight = Column(DECIMAL(5,2), nullable=True, default= 1.0)
-    roadmap_description = Column(Text, nullable=True)
-    data_tables_text = Column(Text, nullable=True)
-    
-    stakeholders_text = Column(Text, nullable=True)
-    materiality_text = Column(Text, nullable=True)
-    main_secondary_impacts_text = Column(Text, nullable=True)
+    stakeholders_description = Column(Text, nullable=True) 
+    diagnosis_description = Column(Text, nullable=True) 
+    materiality_text = Column(Text, nullable=True) 
     materiality_matrix_text = Column(Text, nullable=True)
-    action_plan_text = Column(Text, nullable=True)
-    internal_coherence_text = Column(Text, nullable=True)
+    main_secondary_impacts_text = Column(Text, nullable=True)
+    action_plan_text = Column(Text, nullable=True) # texto plan de acción.
+    roadmap_description = Column(Text, nullable=True) # Descripción previa al plan de acción.
+    internal_coherence_description = Column(Text, nullable=True)
     diffusion_text = Column(Text, nullable=True)
-    template = Column(Boolean, nullable=False, default=False)
+    data_tables_text = Column(Text, nullable=True)
+
+
 
 class ReportLogo(Base):
     __tablename__ = "report_logos"

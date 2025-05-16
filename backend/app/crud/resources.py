@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
-from app.models.models import HeritageResource, HeritageResourceTypology, HeritageResourceSocialNetwork, SustainabilityReport
+from app.models.models import HeritageResource, HeritageResourceTypology, HeritageResourceSocialNetwork, SustainabilityReport, SustainabilityTeamMember
 from datetime import datetime
 
 def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
@@ -220,6 +220,37 @@ def get_all_resources(
             HeritageResource.name
         ).all()
 
+        return [
+            {
+                "id": resource.id,
+                "name": resource.name
+            }
+            for resource in resources
+        ]
+    except Exception as e:
+        raise e
+
+def get_all_resources_manager(db: Session, user_id: int) -> list:
+    """
+    Devuelve los recursos patrimoniales de los que el usuario es gestor en alguna memoria.
+    """
+    try:
+        # Obtener IDs de reportes donde el usuario es gestor
+        managed_reports = db.query(SustainabilityTeamMember).filter(
+            SustainabilityTeamMember.user_id == user_id,
+            SustainabilityTeamMember.type == 'manager'
+        ).all()
+        if not managed_reports:
+            return []
+        # Obtener los heritage_resource_id únicos de esas memorias
+        report_ids = [tm.report_id for tm in managed_reports]
+        resource_ids = db.query(SustainabilityReport.heritage_resource_id).filter(
+            SustainabilityReport.id.in_(report_ids)
+        ).distinct()
+        # Obtener los recursos únicos
+        resources = db.query(HeritageResource).filter(
+            HeritageResource.id.in_(resource_ids)
+        ).all()
         return [
             {
                 "id": resource.id,

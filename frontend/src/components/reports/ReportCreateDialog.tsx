@@ -60,14 +60,8 @@ export const ReportCreateDialog: React.FC<ReportCreateDialogProps> = ({
       if (open) {
         setLoadingResources(true);
         try {
-          const response = await resourceService.searchResources({
-            search_term: '',
-            name: '',
-            ownership: '',
-            management_model: '',
-            postal_address: '',
-          }, token);
-          setResources(response.items);
+          const response = await resourceService.getAllResources(token);
+          setResources(response);
         } catch (err) {
           setError('Error al cargar los recursos patrimoniales');
         } finally {

@@ -2,21 +2,22 @@ import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
 import ReportSearch from '@/components/reports/ReportSearch';
 import PageContainer from '@/components/layout/PageContainer';
+import PublicReportSearch from '@/components/reports/PublicReportSearch';
 
-const Reports = () => {
+const PublicReports = () => {
     return (
         <PageContainer>
             <Container  maxWidth={false}>
                 <Box >
                     <Typography variant="h4" component="h1" gutterBottom>
-                        Gestión de Memorias de Sostenibilidad
+                        Memorias Públicas
                     </Typography>
-                    <ReportSearch />
+                    <PublicReportSearch />
                 </Box>
             </Container>
         </PageContainer>
     );
 };
 
-export default Reports;
+export default PublicReports;
 
