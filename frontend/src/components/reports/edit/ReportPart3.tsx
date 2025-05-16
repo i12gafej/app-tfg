@@ -4,7 +4,7 @@ import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/context/ReportContext';
 
 // Importar componentes de la parte 3
-import ContextTimePeriod from './part3/ContextTimePeriod';
+import ActionPlanText from './part3/ActionPlanText';
 import MainObjective from './part3/MainObjective';
 import SpecificObjectives from './part3/SpecificObjectives';
 import InternalConsistency from './part3/InternalConsistency';
@@ -12,11 +12,11 @@ import ActionMainSecondaryImpact from './part3/ActionMainSecondaryImpact';
 import InternalConsistencyGraph from './part3/InternalConsistencyGraph';
 
 interface ReportPart3Props {
-  section?: 'context' | 'main-objective' | 'specific-objectives' | 'action-impacts' | 'internal-consistency' | 'internal-consistency-graph';
+  section?: 'action-plan-text' | 'main-objective' | 'specific-objectives' | 'action-impacts' | 'internal-consistency' | 'internal-consistency-graph';
 }
 
 const PART3_SECTIONS = [
-  { id: 'context', label: 'Contexto y Periodo Temporal' },
+  { id: 'action-plan-text', label: 'Texto de introducción del Plan de sostenibilidad' },
   { id: 'main-objective', label: 'Objetivos de los Asuntos de Materialidad' },
   { id: 'specific-objectives', label: 'Objetivos de la Acción' },
   { id: 'action-impacts', label: 'Impactos de las Acciones' },
@@ -24,14 +24,14 @@ const PART3_SECTIONS = [
   { id: 'internal-consistency-graph', label: 'Gráfico Coherencia Interna' },
 ];
 
-const ReportPart3: React.FC<ReportPart3Props> = ({ section = 'context' }) => {
+const ReportPart3: React.FC<ReportPart3Props> = ({ section = 'action-plan-text' }) => {
   const { report, readOnly } = useReport();
   const [activeSection, setActiveSection] = useState(section);
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'context':
-        return <ContextTimePeriod readOnly={readOnly} />;
+      case 'action-plan-text':
+        return <ActionPlanText readOnly={readOnly} />;
       case 'main-objective':
         return <MainObjective />;
       case 'specific-objectives':

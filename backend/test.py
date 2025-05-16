@@ -3,8 +3,9 @@ from app.utils.report_generator import ReportGenerator
 from app.utils.text_processing import paginate_html_text, paginate_html_tables
 import os
 import datetime
-
 settings = Settings()
+
+
 
 def test_report_image():
 
@@ -12,104 +13,9 @@ def test_report_image():
 
     logo2 = os.path.join(settings.LOGOS_DIR, "report_26_logo_d5fe202e-7a96-44e0-8748-28d05a204ca9.jpg")
 
-    stakeholder_text = {
-        "title": "Análisis de los Grupos de Interés",
-        "text": f"""
-            <p>Los grupos de interés de la Mezquita-Catedral de Córdoba son:</p>
-            <ul>
-                <li> Internos
-                    <ul>
-                        <li>Grupo 1: lo describo como un grupo de interés interno</li>
-                        <li>Grupo 2: lo describo como un grupo de interés interno</li>
-                        <li>Grupo 3: lo describo como un grupo de interés interno</li>
-                        <li>Grupo 4: lo describo como un grupo de interés interno</li>
-                        <li>Grupo 5: lo describo como un grupo de interés interno</li>
-                    </ul>
-                </li>
-                <li>Externos
-                    <ul>
-                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: Aqui la foto con título</li>
-                        <!--14-->
-                    </ul>
-                </li>
-            </ul>
-
-
-            <div class="photo-container">
-                
-                <img src="{logo2}" alt="Descripción" class="photo-img">
-                <div class="photo-caption">TITULO</div>
-            </div>
-
-            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
-            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
-
-            <div class="photo-container">
-                
-                <img src="{logo2}" alt="Descripción" class="photo-img">
-                <div class="photo-caption">TITULO</div>
-            </div>
-
-            <div class="photo-container">
-                
-                <img src="{logo2}" alt="Descripción" class="photo-img">
-                <div class="photo-caption">TITULO</div>
-            </div>
-
-            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
-
-            <div class="photo-container">
-                
-                <img src="{logo2}" alt="Descripción" class="photo-img">
-                <div class="photo-caption">TITULO</div>
-            </div>
-
-            <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
-            <p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
-
-            <div class="photo-container">
-                
-                <img src="{logo2}" alt="Descripción" class="photo-img">
-                <div class="photo-caption">TITULO</div>
-            </div>
-            
-            <ul>
-                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: Aqui la foto con título</li>
-                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: Aqui la foto con título</li>
-                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: Aqui la foto con título</li>
-                        <li>Grupo 1: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 2: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: lo describo como un grupo de interés externo</li>
-                        <li>Grupo 3: Aqui la foto con título</li>
-                        <!--14-->
-                    </ul>
-                <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
-                <p>aaaaaaaaa  aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa aaaaaaaaaaa aaaaaaaaa aaaaaa aaaaaa </p>
-            
-          
-            
-            
-        """
-    }
     
-    pages = paginate_html_text(stakeholder_text["text"], max_lines=40, chars_per_line=35)
+    
+    # Texto con imagenes: pages = paginate_html_text(stakeholder_text["text"], max_lines=40, chars_per_line=35)
 
     data = ""
     for page in pages:
@@ -124,6 +30,9 @@ def test_report_image():
         file.write(combined_html)
     
     print(f"Reporte HTML generado en: {html_path}")
+
+
+
         
 
 def test_report_generation():
@@ -147,11 +56,7 @@ def test_report_generation():
         5: {"dark": "#ffc48c", "light": "#fff4ec"},
     }
     
-    # Función para obtener todas las URLs de los ODS y la 5P
-    def get_ods_images_dict(base_url: str) -> dict:
-        ods_dict = {f"{i}": f"{os.path.join(base_url, f'ods_{i}.jpg')}" for i in range(1, 18)}
-        ods_dict["5p"] = f"{os.path.join(base_url, '5p.png')}"
-        return ods_dict
+    
 
     
     
@@ -166,7 +71,7 @@ def test_report_generation():
     #-----------------------------------------------------------------#
     
     # PORTADA
-    cover_image = os.path.join(settings.COVERS_DIR, "report_5_cover_b5a4e4b3-1357-495b-b28f-bbc9dee2cc0f.jpg")
+    cover_image = os.path.join(settings.COVERS_DIR, "report_26_cover_4072528b-5d1c-471a-a916-754fde0d4dc6.jpg")
 
     # LOGOS
     logo1 = os.path.join(settings.LOGOS_DIR, "report_5_logo_9b749bc4-2d5a-4410-8d8d-c6112131e8b6.jpg")
@@ -188,12 +93,7 @@ def test_report_generation():
 
 
     # Obtener la fecha actual en formato 'día de mes de año'# Obtener la fecha actual en formato 'día de mes de año'
-    meses = [
-        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
-    ]
-    hoy = datetime.datetime.now()
-    publish_date = f"{hoy.day} de {meses[hoy.month-1]} del {hoy.year}"
+    
     
 
     resource_data = {
@@ -480,7 +380,8 @@ def test_report_generation():
 
     # ODS Y DIMENSIONES
 
-    ods_images = get_ods_images_dict(settings.ON_REPORT_DIR)
+    ods_images = get_ods_images_dict(settings.IMAGES_DIR)
+    
 
     ods_dimensions_data = {
         'ods': ods_images
@@ -1038,4 +939,4 @@ def test_report_generation():
 
 
 if __name__ == "__main__":
-    test_report_image() 
+    test_report_generation() 

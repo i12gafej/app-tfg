@@ -90,3 +90,9 @@ def search(
 
     except Exception as e:
         raise e
+
+def get_all_stakeholders_by_report(db: Session, report_id: int) -> List[Stakeholder]:
+    try:
+        return db.query(Stakeholder).filter(Stakeholder.report_id == report_id).all()
+    except Exception as e:
+        raise e

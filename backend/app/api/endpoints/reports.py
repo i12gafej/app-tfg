@@ -104,10 +104,11 @@ def get_all_report_templates(
             status_code=500,
             detail=str(e)
         )
+        
 
 @router.post("/reports/search", response_model=dict)
 async def search_reports_endpoint(
-    search_params: ReportSearch = Body(...),
+    search_params: ReportSearch,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
@@ -116,7 +117,6 @@ async def search_reports_endpoint(
     """
     try:
         # Extraer parámetros de búsqueda del objeto search_params
-        
         search_term = search_params.search_term
         heritage_resource_name = search_params.heritage_resource_name
         year = search_params.year
@@ -140,7 +140,7 @@ async def search_reports_endpoint(
             resource_ids = [r.id for r in resources]
             
             # Buscar memorias por IDs de recursos y otros filtros
-            reports= crud_reports.search_reports(
+            reports = crud_reports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin,
@@ -185,7 +185,6 @@ async def search_reports_endpoint(
                 user_id=current_user.id if not current_user.admin else None,
                 is_admin=current_user.admin
             )
-
 
         # Obtener los recursos asociados a las memorias
         resource_ids = [report.heritage_resource_id for report in reports]
@@ -345,30 +344,10 @@ async def create_report_endpoint(
         resource = db.query(HeritageResourceModel).filter(HeritageResourceModel.id == db_report.heritage_resource_id).first()
         
         # Convertir el modelo a esquema Pydantic
-        return SustainabilityReport(
-            id=db_report.id,
-            heritage_resource_id=db_report.heritage_resource_id,
-            heritage_resource_name=resource.name if resource else None,
-            year=db_report.year,
-            state=db_report.state,
-            observation=db_report.observation,
-            cover_photo=db_report.cover_photo,
-            commitment_letter=db_report.commitment_letter,
-            mission=db_report.mission,
-            vision=db_report.vision,
-            values=db_report.values,
-            org_chart_text=db_report.org_chart_text,
-            org_chart_figure=db_report.org_chart_figure,
-            diagnosis_description=db_report.diagnosis_description,
-            scale=db_report.scale,
-            permissions=db_report.permissions,
-            action_plan_description=db_report.action_plan_description,
-            internal_coherence_description=db_report.internal_coherence_description,
-            main_impact_weight=db_report.main_impact_weight,
-            secondary_impact_weight=db_report.secondary_impact_weight,
-            roadmap_description=db_report.roadmap_description,
-            data_tables_text=db_report.data_tables_text
-        )
+        report_dict = db_report.__dict__.copy()
+        if resource:
+            report_dict['heritage_resource_name'] = resource.name
+        return SustainabilityReport.model_validate(report_dict, from_attributes=True)
 
     except HTTPException as he:
         raise he
@@ -462,8 +441,41 @@ async def delete_report_endpoint(
             detail=f"Error al eliminar la memoria: {str(e)}"
         )
 
+@router.post("/reports/publish/{report_id}")
+async def publish_report_endpoint(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Publicar una memoria de sostenibilidad.
+    Permite la publicación si el usuario es admin o si es gestor del reporte.
+    """
+    try:
+        # Verificar permisos
+        if not current_user.admin:
+            has_permission, error_message = check_user_permissions(
+                db=db,
+                user_id=current_user.id,
+                report_id=report_id,
+                require_manager=True
+            )
+            if not has_permission:
+                raise HTTPException(status_code=403, detail=error_message)
+        
+        # Generar el reporte
+        report_generator = ReportGenerator()
+        report_data = crud_reports.get_report_data(db, report_id)
+        report_generator.generate_report(report_data)
 
+        query = db.update(SustainabilityReportModel).where(SustainabilityReportModel.id == report_id).values(state="Published")
+        db.execute(query)
+        db.commit()
+
+        return {"message": "Reporte publicado correctamente"}
     
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/reports/get-all/norms/{report_id}", response_model=List[ReportNorm])
 async def get_all_report_norms_endpoint(

@@ -510,8 +510,37 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
             </TableHead>
             <TableBody>
               {reports.map((report) => (
-                <TableRow key={report.id}>
-                  <TableCell>{report.heritage_resource_name || 'Sin nombre'}</TableCell>
+                <TableRow 
+                  key={report.id}
+                  sx={{
+                    backgroundColor: report.template ? 'rgba(25, 118, 210, 0.08)' : 'inherit',
+                    '&:hover': {
+                      backgroundColor: report.template 
+                        ? 'rgba(25, 118, 210, 0.12)' 
+                        : 'rgba(0, 0, 0, 0.04)'
+                    }
+                  }}
+                >
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {report.template && (
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            backgroundColor: 'primary.main',
+                            color: 'white',
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 1,
+                            fontSize: '0.75rem'
+                          }}
+                        >
+                          Plantilla
+                        </Typography>
+                      )}
+                      {report.heritage_resource_name || 'Sin nombre'}
+                    </Box>
+                  </TableCell>
                   <TableCell>{report.year}</TableCell>
                   <TableCell>{report.state === 'Draft' ? 'Borrador' : 'Publicado'}</TableCell>
                   {!isAdmin && (

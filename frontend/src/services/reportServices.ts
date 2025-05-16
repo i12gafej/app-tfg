@@ -61,18 +61,16 @@ export interface SustainabilityReport {
     diagnosis_description?: string;
     scale: number;
     permissions: number;
-    action_plan_description?: string;
     internal_coherence_description?: string;
     main_impact_weight?: number;
     secondary_impact_weight?: number;
     roadmap_description?: string;
     data_tables_text?: string;
-    stakeholders_text?: string;
+    stakeholders_description?: string;
     materiality_text?: string;
     main_secondary_impacts_text?: string;
     materiality_matrix_text?: string;
     action_plan_text?: string;
-    internal_coherence_text?: string;
     diffusion_text?: string;
     template: boolean;
     norms?: ReportNorm[];
@@ -209,9 +207,7 @@ export const reportService = {
 
     searchReports: async (params: ReportSearchParams, token: string): Promise<{items: SustainabilityReport[], total: number}> => {
         try {
-            const response = await api.post<{items: SustainabilityReport[], total: number}>('/reports/search', {
-                search_params: params
-            }, {
+            const response = await api.post<{items: SustainabilityReport[], total: number}>('/reports/search', params, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

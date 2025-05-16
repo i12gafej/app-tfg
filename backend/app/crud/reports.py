@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app.models.models import (
@@ -75,6 +75,7 @@ def create_report(db: Session, report: SustainabilityReportCreate) -> Sustainabi
         db.rollback()
         raise e
 
+
 def search_reports(
     db: Session,
     user_id: Optional[int] = None,
@@ -111,9 +112,7 @@ def search_reports(
         if search_term:
             query = query.filter(
                 or_(
-                    SustainabilityReport.observation.ilike(f"%{search_term}%"),
-                    SustainabilityReport.mission.ilike(f"%{search_term}%"),
-                    SustainabilityReport.vision.ilike(f"%{search_term}%")
+                    SustainabilityReport.observation.ilike(f"%{search_term}%")                  
                 )
             )
         
@@ -211,6 +210,122 @@ def delete_report(db: Session, report_id: int) -> bool:
         return False
     except Exception as e:
         raise e
+
+def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
+    """
+    Obtiene todos los datos de un reporte de sostenibilidad, incluyendo:
+    - Datos básicos del reporte
+    - Imágenes y archivos
+    - Normativas
+    - Logos
+    - Acuerdos
+    - Bibliografías
+    - Fotos
+    - Temas materiales
+    - Información del recurso patrimonial
+    - Indicadores de diagnóstico
+    - Impactos secundarios
+    - Acciones y objetivos
+    - Grupos de interés
+    - Miembros del equipo
+    """
+    try:
+        # Obtener el reporte base
+        report = get_report(db, report_id)
+        if not report:
+            raise Exception("Reporte no encontrado")
+
+        # Obtener el recurso patrimonial
+        resource = resources.get(db, report.heritage_resource_id)
+
+        # Obtener todas las tablas relacionadas
+        norms = get_all_norms_by_report_id(db, report_id)
+        logos = get_all_report_logos(db, report_id)
+        agreements = get_all_report_agreements(db, report_id)
+        bibliographies = get_all_report_bibliographies(db, report_id)
+        photos = get_all_report_photos(db, report_id)
+        material_topics = crud_material_topic.get_all_by_report(db, report_id)
+        diagnostic_indicators = crud_diagnostic_indicators.get_all_by_report(db, report_id)
+        secondary_impacts = crud_ods.get_all_secondary_impacts_by_report(db, report_id)
+        ods = crud_ods.get_all_ods(db)
+        action_secondary_impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        
+        # Obtener acciones y objetivos relacionados
+        action_plan = crud_action_plan.get_action_plan_by_report(db, report_id)
+        
+        # Obtener stakeholders y miembros del equipo
+        stakeholders = crud_stakeholders.get_all_stakeholders_by_report(db, report_id)
+        team_members = crud_team.get_all_team_members_by_report(db, report_id)
+
+        # Construir el diccionario de respuesta
+        return {
+            # Datos básicos del reporte
+            'id': report.id,
+            'heritage_resource_id': report.heritage_resource_id,
+            'heritage_resource_name': resource.name if resource else None,
+            'year': report.year,
+            'observation': report.observation,
+            'ods': ods,
+            # Campos de texto
+            'commitment_letter': report.commitment_letter,
+            'mission': report.mission,
+            'vision': report.vision,
+            'values': report.values,
+            'org_chart_text': report.org_chart_text,
+            'diagnosis_description': report.diagnosis_description,
+            'scale': report.scale,
+            'permissions': report.permissions,
+            'action_plan_description': report.action_plan_description,
+            'internal_coherence_description': report.internal_coherence_description,
+            'main_impact_weight': report.main_impact_weight,
+            'secondary_impact_weight': report.secondary_impact_weight,
+            'roadmap_description': report.roadmap_description,
+            'data_tables_text': report.data_tables_text,
+            'stakeholders_description': report.stakeholders_description,
+            'materiality_text': report.materiality_text,
+            'main_secondary_impacts_text': report.main_secondary_impacts_text,
+            'materiality_matrix_text': report.materiality_matrix_text,
+            # Enlaces a archivos
+            'cover_photo': report.cover_photo,
+            'org_chart_figure': report.org_chart_figure,
+            
+            # Datos del recurso patrimonial
+            'resource': {
+                'id': resource.id,
+                'name': resource.name,
+                'ownership': resource.ownership,
+                'management_model': resource.management_model,
+                'postal_address': resource.postal_address,
+                'web_address': resource.web_address,
+                'phone_number': resource.phone_number,
+                'typologies': [t.typology for t in resource.typologies],
+                'social_networks': [
+                    {
+                        'network': sn.social_network,
+                        'url': sn.url
+                    } for sn in resource.social_networks
+                ]
+            } if resource else None,
+            
+            # Tablas relacionadas
+            'norms': norms,
+            'logos': logos,
+            'agreements': agreements,
+            'bibliographies': bibliographies,
+            'photos': photos,
+            'material_topics': material_topics,
+            'diagnostic_indicators': diagnostic_indicators,
+            'secondary_impacts': secondary_impacts,
+            'action_secondary_impacts': action_secondary_impacts,
+            'actions': action_plan['actions'],
+            'performance_indicators': action_plan['performance_indicators'],
+            'specific_objectives': action_plan['specific_objectives'],
+            'stakeholders': stakeholders,
+            'team_members': team_members
+        }
+
+    except Exception as e:
+        raise Exception(f"Error al obtener los datos del reporte: {str(e)}")
 
 def get_all_norms_by_report_id(db: Session, report_id: int) -> List[ReportNorm]:
     try:
@@ -652,11 +767,10 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         # 1. Copiar atributos de texto
         text_attributes = [
             'commitment_letter', 'mission', 'vision', 'values',
-            'org_chart_text', 'diagnosis_description', 'action_plan_description',
+            'org_chart_text', 'diagnosis_description',
             'internal_coherence_description', 'roadmap_description', 'data_tables_text',
-            'stakeholders_text', 'materiality_text', 'main_secondary_impacts_text',
-            'materiality_matrix_text', 'action_plan_text', 'internal_coherence_text',
-            'diffusion_text'
+            'stakeholders_description', 'materiality_text', 'main_secondary_impacts_text',
+            'materiality_matrix_text', 'action_plan_text', 'diffusion_text'
         ]
 
         for attr in text_attributes:
@@ -1049,14 +1163,15 @@ def initialize_default_text(report):
     """
     Inicializa los textos por defecto de un reporte a partir de los archivos .html en DEFAULT_TEXT_DIR.
     """
-    from app.core.config import settings
+    
     atributos = [
-        'stakeholders_text',
+        'stakeholders_description',
+        'diagnosis_description',
         'materiality_text',
         'main_secondary_impacts_text',
         'materiality_matrix_text',
         'action_plan_text',
-        'internal_coherence_text',
+        'internal_coherence_description',
     ]
     for attr in atributos:
         file_path = settings.DEFAULT_TEXT_DIR / f"{attr}.html"

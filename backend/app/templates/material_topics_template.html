@@ -1,7 +1,7 @@
 
 
     
-    {{ material_topics_intro.text }}
+    {{ material_topics_intro | safe }}
 
     {% set dimensions = ['PLANETA', 'PERSONAS', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'] %}
     {% for dimension in dimensions %}
@@ -11,7 +11,7 @@
             <ul class="topic-list">
                 {% for topic in dimension_topics %}
                     <li>
-                        <span class="topic-title">{{ topic.title }}</span>
+                        <span class="topic-title">{{ topic.name }}</span>
                         <p class="topic-description">{{ topic.description }}</p>
                     </li>
                 {% endfor %}

@@ -175,3 +175,10 @@ def delete_team_member(
     except Exception as e:
         raise e
 
+def get_all_team_members_by_report(db: Session, report_id: int) -> List[SustainabilityTeamMember]:
+    try:
+        return db.query(SustainabilityTeamMember, User.name, User.surname
+        ).join(User, SustainabilityTeamMember.user_id == User.id
+        ).filter(SustainabilityTeamMember.report_id == report_id).all()
+    except Exception as e:
+        raise e

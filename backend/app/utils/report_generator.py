@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from app.core.config import Settings
 from bs4 import BeautifulSoup
+from app.utils.data_dump import DataDump
 import re
 
 settings = Settings()
@@ -45,7 +46,7 @@ class ReportGenerator:
         template = self.template_env.get_template("resource_info_template.html")
         return template.render(data=data)
 
-    def generate_simple_text(self, data: Dict[str, Any], background_color: str = None) -> str:
+    def generate_simple_text(self, data: Dict[str, Any], background_color: str = "#FFFFFF") -> str:
         """
         Genera una página con título y texto simple.
         Returns:
@@ -78,8 +79,8 @@ class ReportGenerator:
         Returns:
             str: HTML renderizado de la lista
         """
-        items = data.get("items", [])
-        items = self.detect_and_format_urls(items)
+        
+        items = self.detect_and_format_urls(data)
         template = self.template_env.get_template("list_text_template.html")
         return template.render(items=items, data=data)
 
@@ -122,6 +123,15 @@ class ReportGenerator:
         """
         template = self.template_env.get_template("material_topics_template.html")
         return template.render(material_topics_intro=material_topics_intro, material_topics=material_topics)
+    
+    def generate_topics_table(self, data: Dict[str, Any]) -> str:
+        """
+        Genera la tabla de asuntos de materialidad.
+        Returns:
+            str: HTML renderizado de la tabla de asuntos de materialidad
+        """
+        template = self.template_env.get_template("topics_table_template.html")
+        return template.render(data=data)
 
     def generate_diagnosis_impact_tables(self, data: Dict[str, Any]) -> str:
         """
@@ -194,8 +204,171 @@ class ReportGenerator:
         """
         template = self.template_env.get_template("simple.html")
         return template.render(data=data)
-    
 
+    def generate_report(self, data: Dict[str, Any]) -> str:
+        """
+        Genera el reporte completo combinando todas las secciones.
+        Returns:
+            str: HTML renderizado del reporte completo
+        """
+        data_dump = DataDump()
+
+        # PORTADA
+
+        cover_html = self.generate_cover(
+            data_dump.dump_cover_data(data)
+        )
+
+        # INFORMACIÓN DEL RECURSO
+
+        resource_info_html = self.generate_resource_info(data_dump.dump_resource_info_data(data["resource"]))
+        
+        # CARTA DE COMPROMISO
+
+        pages = paginate_html_text(data["commitment_letter"], max_lines=60, chars_per_line=35)
+        commitment_letter_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                commitment_letter_html += self.generate_simple_text({"title": "Carta de compromiso", "text": page})
+            else:
+                commitment_letter_html += self.generate_simple_text({"title": "", "text": page})
+        
+        # MISION
+
+        pages = paginate_html_text(data["mission"], max_lines=60, chars_per_line=35)
+        mission_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                mission_html += self.generate_simple_text({"title": "Misión", "text": page})
+            else:
+                mission_html += self.generate_simple_text({"title": "", "text": page})
+
+        # VISION
+
+        pages = paginate_html_text(data["vision"], max_lines=60, chars_per_line=35)
+        vision_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                vision_html += self.generate_simple_text({"title": "Visión", "text": page})
+            else:
+                vision_html += self.generate_simple_text({"title": "", "text": page})
+
+        # VALORES
+
+        pages = paginate_html_text(data["values"], max_lines=30, chars_per_line=60)
+        values_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                values_html += self.generate_simple_text({"title": "Valores", "text": page})
+            else:
+                values_html += self.generate_simple_text({"title": "", "text": page})
+        
+        # NORMATIVA
+
+        norms = self.generate_list_text(data_dump.dump_norms_data(data["norms"]))
+        pages = paginate_html_text(norms, max_lines=60, chars_per_line=35)
+        norms_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+                if i == 1:
+                    norms_html += self.generate_simple_text({"title": "Normativa", "text": page})
+                else:
+                    norms_html += self.generate_simple_text({"title": "", "text": page})
+
+        # ORGANIGRAMA
+
+        
+        organization_chart = data["org_chart_text"]
+        organization_chart += self.generate_list_text(data_dump.dump_team_members_data(data["team_members"]))
+        organization_chart += data_dump.get_html_image(data["org_chart_figure"])
+
+        pages = paginate_html_text(organization_chart, max_lines=40, chars_per_line=35)
+        organization_chart_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                organization_chart_html += self.generate_simple_text({"title": "Organigrama", "text": page})
+            else:
+                organization_chart_html += self.generate_simple_text({"title": "", "text": page})
+
+        # GRUPOS DE INTERÉS
+
+        stakeholders = data["stakeholders_description"]
+        stakeholder_dict = data_dump.dump_stakeholders_data(data["stakeholders"])
+        stakeholders += self.generate_list_text(stakeholder_dict["internal"])
+        stakeholders += self.generate_list_text(stakeholder_dict["external"])
+
+
+        pages = paginate_html_text(stakeholders, max_lines=60, chars_per_line=35)
+        stakeholders_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                stakeholders_html += self.generate_simple_text({"title": "Análisis de los grupos de interés", "text": page})
+            else:
+                stakeholders_html += self.generate_simple_text({"title": "", "text": page})
+
+        # DIAGNÓSTICO
+
+        diagnosis = data["diagnosis_description"]
+        pages = paginate_html_text(diagnosis, max_lines=60, chars_per_line=35)
+        diagnosis_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                diagnosis_html += self.generate_simple_text({"title": "Diagnóstico", "text": page})
+            else:
+                diagnosis_html += self.generate_simple_text({"title": "", "text": page})
+
+        # ASUNTOS DE MATERIALIZIDAD: TABLA 
+
+        material_topics = data_dump.dump_material_topics_data(data["material_topics"])
+        topics_table_html = self.generate_topics_table(material_topics)
+        
+        # ASUNTOS DE MATERIALIZIDAD: INTRODUCCIÓN
+
+        materiality_text = data["materiality_text"]
+        pages = paginate_html_text(materiality_text, max_lines=60, chars_per_line=35)
+        materiality_text_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                materiality_text_html += self.generate_simple_text({"title": "Asuntos de materialidad", "text": page})
+            else:
+                materiality_text_html += self.generate_simple_text({"title": "", "text": page})
+
+        # 5p y ODS
+        ods_images = data_dump.get_ods_images_dict(settings.IMAGES_DIR)
+        ods_dimensions_html = self.generate_ods_dimensions_text(ods_images)
+
+        # ASUNTOS DE MATERIALIZIDAD: LISTA
+
+        materiality_topics = self.generate_material_topics_text("", material_topics["material_topics"])
+        pages = paginate_html_text(materiality_topics, max_lines=60, chars_per_line=35)
+        material_topics_html = ""
+        for page,i in zip(pages, range(1, len(pages) + 1)):
+            if i == 1:
+                materiality_topics_html += self.generate_simple_text({"title": "Asuntos de materialidad", "text": page})
+            else:
+                materiality_topics_html += self.generate_simple_text({"title": "", "text": page})
+        
+        # INDICADORES DE DIAGNÓSTICO
+
+        diagnosis_indicators_text = """
+        <p>
+        Una vez definidos los asuntos de materialidad para el recurso patrimonial, se han construido unos indicadores cualitativos y cuantitativos para cada uno y se han recopilado los datos pertinentes.
+        </p>
+        """
+
+        diagnosis_indicators_text_html = self.generate_simple_text({"title": "Indicadores de diagnóstico", "text": page})
+
+
+        # INDICADORES DE DIAGNÓSTICO: TABLA
+
+        diagnosis_tables_data = data_dump.dump_diagnosis_tables_data(data)
+        diagnosis_indicators_table_html = self.generate_diagnosis_tables(diagnosis_tables_data, show_indicators=True)
+
+        # MATRIZ DE MATERIALIDAD
+
+        materiality_matriz_text = data["materiality_matriz_text"]
+        materiality_matriz_text_html = self.generate_simple_text({"title": "Matriz de materialidad", "text": materiality_matriz_text})
+
+        
 if __name__ == "__main__":
     # Ejemplo de uso
     generator = ReportGenerator()

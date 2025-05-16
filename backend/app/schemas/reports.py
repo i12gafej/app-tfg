@@ -95,19 +95,17 @@ class SustainabilityReportBase(BaseModel):
     org_chart_figure: Optional[str] = None
     diagnosis_description: Optional[str] = None
     scale: int = 5
-    action_plan_description: Optional[str] = None
     internal_coherence_description: Optional[str] = None
     main_impact_weight: Optional[Decimal] = None
     secondary_impact_weight: Optional[Decimal] = None
     roadmap_description: Optional[str] = None
     data_tables_text: Optional[str] = None
     permissions: int = 0
-    stakeholders_text: Optional[str] = None
+    stakeholders_description: Optional[str] = None
     materiality_text: Optional[str] = None
     main_secondary_impacts_text: Optional[str] = None
     materiality_matrix_text: Optional[str] = None
     action_plan_text: Optional[str] = None
-    internal_coherence_text: Optional[str] = None
     diffusion_text: Optional[str] = None
     template: bool = False
 
@@ -129,7 +127,6 @@ class SustainabilityReportUpdate(BaseModel):
     org_chart_figure: Optional[str] = None
     diagnosis_description: Optional[str] = None
     scale: Optional[int] = None
-    action_plan_description: Optional[str] = None
     internal_coherence_description: Optional[str] = None
     main_impact_weight: Optional[Decimal] = None
     secondary_impact_weight: Optional[Decimal] = None
@@ -137,12 +134,11 @@ class SustainabilityReportUpdate(BaseModel):
     data_tables_text: Optional[str] = None
     heritage_resource_id: Optional[int] = None
     permissions: Optional[int] = None
-    stakeholders_text: Optional[str] = None
+    stakeholders_description: Optional[str] = None
     materiality_text: Optional[str] = None
     main_secondary_impacts_text: Optional[str] = None
     materiality_matrix_text: Optional[str] = None
     action_plan_text: Optional[str] = None
-    internal_coherence_text: Optional[str] = None
     diffusion_text: Optional[str] = None
     template: Optional[bool] = None
 

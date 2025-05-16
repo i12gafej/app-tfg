@@ -101,6 +101,7 @@ def get_all_actions(db: Session, specific_objective_id: int) -> List[Action]:
     except Exception as e:
         raise e
 
+
 def get_action_by_id(db: Session, action_id: int) -> Optional[Action]:
     try:
         return db.query(Action).filter(Action.id == action_id).first()
@@ -188,6 +189,15 @@ def get_all_performance_indicators(db: Session, action_id: int) -> List[Performa
     except Exception as e:
         raise e
 
+def get_action_plan_by_report(db: Session, report_id: int) -> dict:
+    try:
+        return {
+            "specific_objectives": get_all_specific_objectives(db, report_id),
+            "actions": get_all_actions(db, report_id),
+            "performance_indicators": get_all_performance_indicators(db, report_id)
+        }
+    except Exception as e:
+        raise e
 def create_performance_indicator(
     db: Session,
     indicator: PerformanceIndicatorCreate

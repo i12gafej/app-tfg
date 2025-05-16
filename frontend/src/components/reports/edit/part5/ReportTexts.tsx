@@ -15,12 +15,11 @@ type TextField = {
 };
 
 const TEXT_FIELDS = {
-  stakeholders_text: 'Grupos de interés',
+  stakeholders_description: 'Grupos de interés',
   materiality_text: 'Asuntos de materialidad',
   main_secondary_impacts_text: 'Impactos principales y secundarios',
   materiality_matrix_text: 'Matriz de materialidad',
-  action_plan_text: 'Plan de acción',
-  internal_coherence_text: 'Coherencia con la visión, misión y valores'
+  internal_coherence_description: 'Coherencia con la visión, misión y valores'
 } as const;
 
 const TEXT_OPTIONS: TextField[] = Object.entries(TEXT_FIELDS).map(([id, label]) => ({

@@ -1,0 +1,45 @@
+{% set dimension_colors = {
+    'PERSONAS': '#d8dcf4',
+    'PLANETA': '#c8dcb4',
+    'PROSPERIDAD': '#ffe4c4',
+    'PAZ': '#c8e4f4',
+    'ALIANZAS': '#e0cce4'
+} %}
+
+{% set dimension_header_colors = {
+    'PERSONAS': '#706cb4',
+    'PLANETA': '#08a44c',
+    'PROSPERIDAD': '#e89c24',
+    'PAZ': '#08acdc',
+    'ALIANZAS': '#c04c94'
+} %}
+
+<table class="table" style="border: 3px solid #000;">
+    <tr>
+        
+        <th style="width: 20%; padding: 10px; text-align: center; border: 1px solid #ddd;">Dimensión</th>
+        <th style="width: 70%; padding: 10px; text-align: center; border: 1px solid #ddd;">Asuntos de Materialidad</th>
+    </tr>
+    
+    {% for dimension in ['PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'] %}
+        {% set topics_in_dimension = material_topics | selectattr('dimension', 'equalto', dimension) | list %}
+        {% if topics_in_dimension | length > 0 %}
+            <tr>
+                <td style="background-color: {{ dimension_header_colors[dimension] }}; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="{{ dimension_size[dimension] }}">
+                    {{ dimension }}
+                </td>
+                {% for topic in topics_in_dimension %}
+                    {% if not loop.first %}
+                        <tr>
+                    {% endif %}
+                    <td style="background-color: {{ dimension_colors[dimension] }}; padding: 10px; border: 1px solid #ddd;">
+                        {{ topic.order }}. {{ topic.name }}
+                    </td>
+                    {% if not loop.first %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endif %}
+    {% endfor %}
+</table>

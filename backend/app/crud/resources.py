@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional, Dict, Any
 from app.models.models import HeritageResource, HeritageResourceTypology, HeritageResourceSocialNetwork, SustainabilityReport, SustainabilityTeamMember
 from datetime import datetime
@@ -56,7 +56,13 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
 
 def get(db: Session, resource_id: int) -> Optional[HeritageResource]:
     try:
-        return db.query(HeritageResource).filter(HeritageResource.id == resource_id).first()
+        return db.query(HeritageResource)\
+            .options(
+                joinedload(HeritageResource.typologies),
+                joinedload(HeritageResource.social_networks)
+            )\
+            .filter(HeritageResource.id == resource_id)\
+            .first()
     except Exception as e:
         raise e
 

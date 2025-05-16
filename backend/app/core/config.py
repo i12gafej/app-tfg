@@ -26,7 +26,7 @@ class Settings(BaseModel):
 
     # Rutas de imágenes para reportes
     ON_REPORT_DIR: Path = STATIC_DIR / "on_report"
-    IMAGES_DIR: Path = STATIC_DIR / "images"
+    IMAGES_DIR: Path = ON_REPORT_DIR / "images"
     DEFAULT_TEXT_DIR: Path = ON_REPORT_DIR / "default_text"
 
     # Constantes para el procesamiento de imágenes
