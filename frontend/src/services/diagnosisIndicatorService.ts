@@ -1,26 +1,26 @@
 import axios from 'axios';
 
-export interface DiagnosticIndicatorQuantitativeData {
-  diagnostic_indicator_id: number;
+export interface DiagnosisIndicatorQuantitativeData {
+  diagnosis_indicator_id: number;
   numeric_response: number;
   unit: string;
 }
 
-export interface DiagnosticIndicatorQualitativeData {
-  diagnostic_indicator_id: number;
+export interface DiagnosisIndicatorQualitativeData {
+  diagnosis_indicator_id: number;
   response: string;
 }
 
-export interface DiagnosticIndicator {
+export interface DiagnosisIndicator {
   id: number;
   name: string;
   type: 'quantitative' | 'qualitative';
   material_topic_id: number;
-  quantitative_data?: DiagnosticIndicatorQuantitativeData | null;
-  qualitative_data?: DiagnosticIndicatorQualitativeData | null;
+  quantitative_data?: DiagnosisIndicatorQuantitativeData | null;
+  qualitative_data?: DiagnosisIndicatorQualitativeData | null;
 }
 
-export interface DiagnosticIndicatorCreate {
+export interface DiagnosisIndicatorCreate {
   name: string;
   type: 'quantitative' | 'qualitative';
   material_topic_id: number;
@@ -29,7 +29,7 @@ export interface DiagnosticIndicatorCreate {
   response?: string;
 }
 
-export interface DiagnosticIndicatorUpdate {
+export interface DiagnosisIndicatorUpdate {
   name?: string;
   type?: 'quantitative' | 'qualitative';
   numeric_response?: number;
@@ -46,12 +46,12 @@ const api = axios.create({
 });
 
 export const diagnosisIndicatorService = {
-  async getAllByReport(reportId: number, token: string): Promise<DiagnosticIndicator[]> {
+  async getAllByReport(reportId: number, token: string): Promise<DiagnosisIndicator[]> {
     if (!token) {
       throw new Error('Se requiere un token de autenticación');
     }
     try {
-      const response = await api.get<DiagnosticIndicator[]>(`/diagnosis-indicators/get-all/${reportId}`, {
+      const response = await api.get<DiagnosisIndicator[]>(`/diagnosis-indicators/get-all/${reportId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -63,12 +63,12 @@ export const diagnosisIndicatorService = {
     }
   },
 
-  async getIndicator(indicatorId: number, token: string): Promise<DiagnosticIndicator> {
+  async getIndicator(indicatorId: number, token: string): Promise<DiagnosisIndicator> {
     if (!token) {
       throw new Error('Se requiere un token de autenticación');
     }
     try {
-      const response = await api.get<DiagnosticIndicator>(`/diagnosis-indicators/get/${indicatorId}`, {
+      const response = await api.get<DiagnosisIndicator>(`/diagnosis-indicators/get/${indicatorId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -80,12 +80,12 @@ export const diagnosisIndicatorService = {
     }
   },
 
-  async createIndicator(data: DiagnosticIndicatorCreate, token: string): Promise<DiagnosticIndicator> {
+  async createIndicator(data: DiagnosisIndicatorCreate, token: string): Promise<DiagnosisIndicator> {
     if (!token) {
       throw new Error('Se requiere un token de autenticación');
     }
     try {
-      const response = await api.post<DiagnosticIndicator>('/diagnosis-indicators/create', data, {
+      const response = await api.post<DiagnosisIndicator>('/diagnosis-indicators/create', data, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -97,12 +97,12 @@ export const diagnosisIndicatorService = {
     }
   },
 
-  async updateIndicator(indicatorId: number, data: DiagnosticIndicatorUpdate, token: string): Promise<DiagnosticIndicator> {
+  async updateIndicator(indicatorId: number, data: DiagnosisIndicatorUpdate, token: string): Promise<DiagnosisIndicator> {
     if (!token) {
       throw new Error('Se requiere un token de autenticación');
     }
     try {
-      const response = await api.put<DiagnosticIndicator>(`/diagnosis-indicators/update/${indicatorId}`, data, {
+      const response = await api.put<DiagnosisIndicator>(`/diagnosis-indicators/update/${indicatorId}`, data, {
         headers: {
           Authorization: `Bearer ${token}`
         }

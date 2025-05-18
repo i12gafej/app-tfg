@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?asciidoc-toc?>
+<?asciidoc-numbered?>
+
+<article xmlns="http://docbook.org/ns/docbook" version="5.1" xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="en">
+<info>
+    <title>Test</title>
+</info>
+<section xml:id="_first_paragraph">
+<title>First Paragraph</title>
+<simpara>Here comes something, nobody cares about this stuff. And now <emphasis role="strong">bold</emphasis>, and this is <emphasis>italic</emphasis>, and the last <literal>monospaced</literal>. After this (hidden +)<?asciidoc-br?>
+begins a new line.
+The german umlauts and two other non-ascii glyphs / letters: äöüÄÖÜß € (euro) ¢ (cent).</simpara>
+</section>
+<section xml:id="_second_paragraph">
+<title>Second Paragraph</title>
+<simpara>This sample comes with an image. The file name paths are relative to the location of the referring document:
+<inlinemediaobject>
+  <imageobject>
+  <imagedata fileref="images/redsquare.jpg"/>
+  </imageobject>
+  <textobject><phrase>caption</phrase></textobject>
+</inlinemediaobject>
+The "caption" in brackets corresponds to HTML alt="caption" and is not seen in the browser. The image is rendered inline; this is perhaps not preferred <footnote><simpara>or is it?</simpara></footnote>, we have a footnote here.</simpara>
+<simpara>Another snippet:</simpara>
+<simpara><inlinemediaobject>
+  <imageobject>
+  <imagedata fileref="images/redsquare.jpg"/>
+  </imageobject>
+  <textobject><phrase>caption</phrase></textobject>
+</inlinemediaobject></simpara>
+<simpara>and the image at the center of the line.</simpara>
+<simpara>New line and the image at the beginning<footnote><simpara>footnote without space</simpara></footnote> of the line.</simpara>
+<simpara>New line:</simpara>
+<informalfigure>
+<mediaobject>
+  <imageobject>
+  <imagedata fileref="images/redsquare.jpg" align="center"/>
+  </imageobject>
+  <textobject><phrase>caption</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<simpara>We see the image at the center of the line. At the end a link: Visit the <link xlink:href="https://www.asciidoc3.org">home of asciidoc3</link>!<?asciidoc-br?>
+<emphasis>END</emphasis></simpara>
+</section>
+</article>

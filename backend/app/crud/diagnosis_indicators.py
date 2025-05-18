@@ -3,16 +3,16 @@ from sqlalchemy import select
 from typing import List, Optional
 from decimal import Decimal
 
-from app.models.models import DiagnosticIndicator, DiagnosticIndicatorQuantitative, DiagnosticIndicatorQualitative, MaterialTopic
-from app.schemas.diagnosis_indicators import DiagnosticIndicatorCreate, DiagnosticIndicatorUpdate
+from app.models.models import DiagnosisIndicator, DiagnosisIndicatorQuantitative, DiagnosisIndicatorQualitative, MaterialTopic
+from app.schemas.diagnosis_indicators import DiagnosisIndicatorCreate, DiagnosisIndicatorUpdate
 
 
 
-def get_all_by_report(db: Session, report_id: int) -> List[DiagnosticIndicator]:
+def get_all_by_report(db: Session, report_id: int) -> List[DiagnosisIndicator]:
     try:
         # Obtener todos los indicadores del reporte
         indicators = (
-            db.query(DiagnosticIndicator)
+            db.query(DiagnosisIndicator)
             .join(MaterialTopic)
             .filter(MaterialTopic.report_id == report_id)
             .all()
@@ -22,16 +22,16 @@ def get_all_by_report(db: Session, report_id: int) -> List[DiagnosticIndicator]:
         for indicator in indicators:
             if indicator.type == 'quantitative':
                 quantitative_data = (
-                    db.query(DiagnosticIndicatorQuantitative)
-                    .filter(DiagnosticIndicatorQuantitative.diagnostic_indicator_id == indicator.id)
+                    db.query(DiagnosisIndicatorQuantitative)
+                    .filter(DiagnosisIndicatorQuantitative.diagnosis_indicator_id == indicator.id)
                     .first()
                 )
                 if quantitative_data:
                     indicator.quantitative_data = quantitative_data
             else:
                 qualitative_data = (
-                    db.query(DiagnosticIndicatorQualitative)
-                    .filter(DiagnosticIndicatorQualitative.diagnostic_indicator_id == indicator.id)
+                    db.query(DiagnosisIndicatorQualitative)
+                    .filter(DiagnosisIndicatorQualitative.diagnosis_indicator_id == indicator.id)
                     .first()
                 )
                 if qualitative_data:
@@ -44,14 +44,14 @@ def get_all_by_report(db: Session, report_id: int) -> List[DiagnosticIndicator]:
 
 def create_indicator(
     db: Session,
-    indicator: DiagnosticIndicatorCreate,
+    indicator: DiagnosisIndicatorCreate,
     numeric_response: Optional[Decimal] = None,
     unit: Optional[str] = None,
     response: Optional[str] = None
-) -> DiagnosticIndicator:
+) -> DiagnosisIndicator:
 
     try:
-        db_indicator = DiagnosticIndicator(
+        db_indicator = DiagnosisIndicator(
             name=indicator.name,
             type=indicator.type,
             material_topic_id=indicator.material_topic_id
@@ -60,15 +60,15 @@ def create_indicator(
         db.flush()
 
         if indicator.type == 'quantitative' and numeric_response is not None and unit is not None:
-            db_quantitative = DiagnosticIndicatorQuantitative(
-                diagnostic_indicator_id=db_indicator.id,
+            db_quantitative = DiagnosisIndicatorQuantitative(
+                diagnosis_indicator_id=db_indicator.id,
                 numeric_response=numeric_response,
                 unit=unit
             )
             db.add(db_quantitative)
         elif indicator.type == 'qualitative' and response is not None:
-            db_qualitative = DiagnosticIndicatorQualitative(
-                diagnostic_indicator_id=db_indicator.id,
+            db_qualitative = DiagnosisIndicatorQualitative(
+                diagnosis_indicator_id=db_indicator.id,
                 response=response
             )
             db.add(db_qualitative)
@@ -81,7 +81,7 @@ def create_indicator(
 
 def get_report_id_by_indicator(db: Session, indicator_id: int) -> int:
     try:
-        material_topic_indicator = db.query(MaterialTopic).join(DiagnosticIndicator, DiagnosticIndicator.material_topic_id == MaterialTopic.id).filter(DiagnosticIndicator.id == indicator_id).first()
+        material_topic_indicator = db.query(MaterialTopic).join(DiagnosisIndicator, DiagnosisIndicator.material_topic_id == MaterialTopic.id).filter(DiagnosisIndicator.id == indicator_id).first()
         if not material_topic_indicator:
             return None
         return material_topic_indicator.report_id
@@ -91,11 +91,11 @@ def get_report_id_by_indicator(db: Session, indicator_id: int) -> int:
 def update_indicator(
     db: Session,
     indicator_id: int,
-    indicator_update: DiagnosticIndicatorUpdate
-) -> Optional[DiagnosticIndicator]:
+    indicator_update: DiagnosisIndicatorUpdate
+) -> Optional[DiagnosisIndicator]:
     try:
         # 1. Obtener el indicador actual
-        db_indicator = db.query(DiagnosticIndicator).filter(DiagnosticIndicator.id == indicator_id).first()
+        db_indicator = db.query(DiagnosisIndicator).filter(DiagnosisIndicator.id == indicator_id).first()
         if not db_indicator:
             return None
 
@@ -105,13 +105,13 @@ def update_indicator(
         if 'type' in update_data and update_data['type'] != db_indicator.type:
             if db_indicator.type == 'quantitative':
                 # Eliminar datos cuantitativos antiguos
-                db.query(DiagnosticIndicatorQuantitative).filter(
-                    DiagnosticIndicatorQuantitative.diagnostic_indicator_id == indicator_id
+                db.query(DiagnosisIndicatorQuantitative).filter(
+                    DiagnosisIndicatorQuantitative.diagnosis_indicator_id == indicator_id
                 ).delete()
             else:
                 # Eliminar datos cualitativos antiguos
-                db.query(DiagnosticIndicatorQualitative).filter(
-                    DiagnosticIndicatorQualitative.diagnostic_indicator_id == indicator_id
+                db.query(DiagnosisIndicatorQualitative).filter(
+                    DiagnosisIndicatorQualitative.diagnosis_indicator_id == indicator_id
                 ).delete()
             
             # 3. Actualizar el tipo del indicador
@@ -121,16 +121,16 @@ def update_indicator(
             # 4. Crear los nuevos datos según el tipo
             if db_indicator.type == 'quantitative':
                 if 'numeric_response' in update_data or 'unit' in update_data:
-                    db_quantitative = DiagnosticIndicatorQuantitative(
-                        diagnostic_indicator_id=indicator_id,
+                    db_quantitative = DiagnosisIndicatorQuantitative(
+                        diagnosis_indicator_id=indicator_id,
                         numeric_response=update_data.get('numeric_response', Decimal('0')),
                         unit=update_data.get('unit', '')
                     )
                     db.add(db_quantitative)
             else:  # qualitative
                 if 'response' in update_data:
-                    db_qualitative = DiagnosticIndicatorQualitative(
-                        diagnostic_indicator_id=indicator_id,
+                    db_qualitative = DiagnosisIndicatorQualitative(
+                        diagnosis_indicator_id=indicator_id,
                         response=update_data.get('response', '')
                     )
                     db.add(db_qualitative)
@@ -146,8 +146,8 @@ def update_indicator(
 
         if db_indicator.type == 'quantitative':
             if 'numeric_response' in update_data or 'unit' in update_data:
-                db_quantitative = db.query(DiagnosticIndicatorQuantitative).filter(
-                    DiagnosticIndicatorQuantitative.diagnostic_indicator_id == indicator_id
+                db_quantitative = db.query(DiagnosisIndicatorQuantitative).filter(
+                    DiagnosisIndicatorQuantitative.diagnosis_indicator_id == indicator_id
                 ).first()
                 
                 if db_quantitative:
@@ -156,8 +156,8 @@ def update_indicator(
                     if 'unit' in update_data:
                         db_quantitative.unit = update_data['unit']
                 else:
-                    db_quantitative = DiagnosticIndicatorQuantitative(
-                        diagnostic_indicator_id=indicator_id,
+                    db_quantitative = DiagnosisIndicatorQuantitative(
+                        diagnosis_indicator_id=indicator_id,
                         numeric_response=update_data.get('numeric_response', Decimal('0')),
                         unit=update_data.get('unit', '')
                     )
@@ -165,15 +165,15 @@ def update_indicator(
 
         elif db_indicator.type == 'qualitative':
             if 'response' in update_data:
-                db_qualitative = db.query(DiagnosticIndicatorQualitative).filter(
-                    DiagnosticIndicatorQualitative.diagnostic_indicator_id == indicator_id
+                db_qualitative = db.query(DiagnosisIndicatorQualitative).filter(
+                    DiagnosisIndicatorQualitative.diagnosis_indicator_id == indicator_id
                 ).first()
                 
                 if db_qualitative:
                     db_qualitative.response = update_data['response']
                 else:
-                    db_qualitative = DiagnosticIndicatorQualitative(
-                        diagnostic_indicator_id=indicator_id,
+                    db_qualitative = DiagnosisIndicatorQualitative(
+                        diagnosis_indicator_id=indicator_id,
                         response=update_data['response']
                     )
                     db.add(db_qualitative)
@@ -186,7 +186,7 @@ def update_indicator(
 
 def delete_indicator(db: Session, indicator_id: int) -> bool:
     try:
-        db_indicator = db.query(DiagnosticIndicator).filter(DiagnosticIndicator.id == indicator_id).first()
+        db_indicator = db.query(DiagnosisIndicator).filter(DiagnosisIndicator.id == indicator_id).first()
         if not db_indicator:
             return False
 
@@ -196,26 +196,26 @@ def delete_indicator(db: Session, indicator_id: int) -> bool:
     except Exception as e:
         raise e
 
-def get_indicator(db: Session, indicator_id: int) -> Optional[DiagnosticIndicator]:
+def get_indicator(db: Session, indicator_id: int) -> Optional[DiagnosisIndicator]:
     try:
         # Obtener el indicador
-        indicator = db.query(DiagnosticIndicator).filter(DiagnosticIndicator.id == indicator_id).first()
+        indicator = db.query(DiagnosisIndicator).filter(DiagnosisIndicator.id == indicator_id).first()
         if not indicator:
             return None
 
         # Obtener los datos específicos según el tipo
         if indicator.type == 'quantitative':
             quantitative_data = (
-                db.query(DiagnosticIndicatorQuantitative)
-                .filter(DiagnosticIndicatorQuantitative.diagnostic_indicator_id == indicator_id)
+                db.query(DiagnosisIndicatorQuantitative)
+                .filter(DiagnosisIndicatorQuantitative.diagnosis_indicator_id == indicator_id)
                 .first()
             )
             if quantitative_data:
                 indicator.quantitative_data = quantitative_data
         else:
             qualitative_data = (
-                db.query(DiagnosticIndicatorQualitative)
-                .filter(DiagnosticIndicatorQualitative.diagnostic_indicator_id == indicator_id)
+                db.query(DiagnosisIndicatorQualitative)
+                .filter(DiagnosisIndicatorQualitative.diagnosis_indicator_id == indicator_id)
                 .first()
             )
             if qualitative_data:

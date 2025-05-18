@@ -1,0 +1,49 @@
+= Bugs and Known Problems
+
+== AsciiDoc3 Version 3.2.3, Dec. 2021
+
+=== PyPI, venv (Windows or GNU/Linux and other POSIX OS)
+Unfortunately, sometimes (not always - depends on your directory-layout, operating system etc.)
+AsciiDoc3 cannot find the 'asciidoc3' module when you installed via venv and/or PyPI. +
+The solution: Import the module by providing the full path:
+
+-------------------------------------------------------------------------------
+from asciidoc3api import AsciiDoc3API
+asciidoc3 = AsciiDoc3API('/full/path/to/asciidoc3.py') <1>
+asciidoc3.execute('mydoc.txt')
+-------------------------------------------------------------------------------
+<1> Example: '/home/username/venv_dir/lib/python3.7/site-packages/asciidoc3/asciidoc3.py'
+
+
+
+=== FOP
+Using Apache FOP to generate PDF's
+
+---------- 
+ a2x3 -f pdf --fop test.txt
+--------- 
+ 
+is (depending on the os) very slooooooow. +
+Probably a FOP issue? See this older post: +
+https://fop-users.xmlgraphics.apache.narkive.com/xoDTa3QA/fop-being-very-slow
+
+But there are a lot of similar messages if you gugl 'FOP is slow' ...
+
+
+=== Undefined control sequence \cyrchar
+When processing cyrillic letters, e.g. lang uk or ru.
+
+-----------
+leading text: ...har\cyrn{}\cyrchar\cyrn{}\cyrchar\cyrya{}}
+-----------
+
+This seems to be an issue of dblatex / tex +
+utf8-examples.txt and FOP are the same
+
+See this link:
+
+------------------------
+Transformation failure might be caused by handling a cyrillic document
+without the XeTeX backend
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=632967
+------------------------

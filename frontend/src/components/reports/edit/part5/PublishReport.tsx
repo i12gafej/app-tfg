@@ -17,28 +17,39 @@ import PublishIcon from '@mui/icons-material/Publish';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '@/services/reportServices';
 import { useAuth } from '@/hooks/useAuth';
+import { useReport } from '@/context/ReportContext';
 
-interface PublishReportProps {
-  reportId: number;
-  reportName: string;
-  year: number;
-}
-
-const PublishReport: React.FC<PublishReportProps> = ({ reportId, reportName, year }) => {
+const PublishReport: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { token } = useAuth();
   const navigate = useNavigate();
+  const { report } = useReport();
+
+  if (!report) {
+    return (
+      <Alert severity="error">
+        No se ha podido cargar la información del reporte
+      </Alert>
+    );
+  }
 
   const handlePreview = async () => {
     try {
       setPreviewLoading(true);
       setError(null);
-      // Aquí iría la lógica para generar la previsualización
-      // Por ahora solo navegamos a la vista de consulta
-      navigate(`/memorias/consultar/${reportId}/${reportName}/${year}`);
+      
+      // Llamar al endpoint para generar la previsualización
+      const response = await reportService.generatePreview(report.id, token || '');
+      
+      // Abrir el reporte en una nueva pestaña
+      if (response.url) {
+        window.open(response.url, '_blank');
+      } else {
+        throw new Error('No se recibió una URL válida para la previsualización');
+      }
     } catch (err) {
       setError('Error al generar la previsualización');
       console.error('Error al previsualizar:', err);
@@ -53,11 +64,11 @@ const PublishReport: React.FC<PublishReportProps> = ({ reportId, reportName, yea
       setError(null);
       
       // Actualizar el estado de la memoria a Published
-      await reportService.updateReport(reportId, { state: 'Published' }, token || '');
+      await reportService.updateReport(report.id, { state: 'Published' }, token || '');
       
       // Cerrar el diálogo y navegar a la vista de consulta
       setConfirmDialogOpen(false);
-      navigate(`/memorias/consultar/${reportId}/${reportName}/${year}`);
+      navigate(`/memorias/consultar/${report.id}/${report.heritage_resource_name}/${report.year}`);
     } catch (err) {
       setError('Error al publicar la memoria');
       console.error('Error al publicar:', err);

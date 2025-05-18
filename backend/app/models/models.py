@@ -101,7 +101,7 @@ class SustainabilityReport(Base):
     main_secondary_impacts_text = Column(Text, nullable=True)
     action_plan_text = Column(Text, nullable=True) # texto plan de acción.
     roadmap_description = Column(Text, nullable=True) # Descripción previa al plan de acción.
-    internal_coherence_description = Column(Text, nullable=True)
+    internal_consistency_description = Column(Text, nullable=True)
     diffusion_text = Column(Text, nullable=True)
     data_tables_text = Column(Text, nullable=True)
 
@@ -196,25 +196,25 @@ class Assessment(Base):
     material_topic_id = Column(Integer, ForeignKey("material_topics.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     stakeholder_id = Column(Integer, ForeignKey("stakeholders.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
-class DiagnosticIndicator(Base):
-    __tablename__ = "diagnostic_indicators"
+class DiagnosisIndicator(Base):
+    __tablename__ = "diagnosis_indicators"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Text, nullable=False)
     type = Column(Enum('quantitative', 'qualitative', name='indicator_type'), nullable=False)
     material_topic_id = Column(Integer, ForeignKey("material_topics.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
-class DiagnosticIndicatorQuantitative(Base):
-    __tablename__ = "diagnostic_indicators_quantitative"
+class DiagnosisIndicatorQuantitative(Base):
+    __tablename__ = "diagnosis_indicators_quantitative"
 
-    diagnostic_indicator_id = Column(Integer, ForeignKey("diagnostic_indicators.id", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
+    diagnosis_indicator_id = Column(Integer, ForeignKey("diagnosis_indicators.id", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
     numeric_response = Column(DECIMAL(10,2), nullable=False)
     unit = Column(String(100), nullable=False)
 
-class DiagnosticIndicatorQualitative(Base):
-    __tablename__ = "diagnostic_indicators_qualitative"
+class DiagnosisIndicatorQualitative(Base):
+    __tablename__ = "diagnosis_indicators_qualitative"
 
-    diagnostic_indicator_id = Column(Integer, ForeignKey("diagnostic_indicators.id", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
+    diagnosis_indicator_id = Column(Integer, ForeignKey("diagnosis_indicators.id", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
     response = Column(Text, nullable=False)
 
 class SpecificObjective(Base):

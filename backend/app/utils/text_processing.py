@@ -8,7 +8,19 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
     Ahora también considera bloques de imagen (div.photo-page) con márgenes y caption.
     """
     def count_lines(text):
-        return max(1, (len(text) // chars_per_line) + (1 if len(text) % chars_per_line else 0))
+        # Eliminar espacios en blanco al inicio y final
+        text = text.strip()
+        # Si el texto está vacío, retornar 0 líneas
+        if not text:
+            return 0
+        # Contar líneas basado en saltos de línea y longitud
+        lines = text.split('\n')
+        total = 0
+        for line in lines:
+            line = line.strip()
+            if line:
+                total += max(1, (len(line) // chars_per_line) + (1 if len(line) % chars_per_line else 0))
+        return total
 
     def get_visual_height(img_tag, max_width_cm=15, max_height_cm=20, dpi=5):
         cm_to_px = dpi / 2.54  # 1 cm ≈ 37.8 px
@@ -49,8 +61,8 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
         if idx >= len(elems):
             return None, idx
         elem = elems[idx]
-        if elem.name and elem.name.lower() in [f"h{i}" for i in range(2, 7)]:
-            next_idx = idx + 1
+        if elem.name and elem.name.lower() in [f"h{i}" for i in range(1, 3)]:
+            next_idx = idx + 2
             if next_idx < len(elems):
                 return [elem, elems[next_idx]], idx + 2
             else:
@@ -74,6 +86,10 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
                     if has_span and has_p:
                         lines *= 2
                     total += lines
+                elif e.name == "p":
+                    # Para párrafos, contar líneas basado en el texto
+                    text = e.get_text()
+                    total += count_lines(text)
                 else:
                     total += count_lines(e.get_text())
             else:
@@ -105,7 +121,7 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
             current_page += str(div)
             current_lines += lines
             continue
-        # --- FIN: Manejo de bloques de imagen tipo photo-page ---
+        # --- FIN: Manejo de bloques de imagen tipo photo-container ---
         if len(block) == 1 and isinstance(block[0], Tag) and block[0].name in ["ul", "ol"]:
             tag = block[0]
             is_ordered = tag.name == "ol"
@@ -441,4 +457,104 @@ def paginate_html_tables(html: str, max_lines: int = 60) -> list:
 
     if current_page.strip():
         blocks.append(current_page)
+    return blocks
+
+def paginate_material_topics(html: str, max_lines: int = 60, chars_per_line: int = 40) -> list:
+    """
+    Función específica para paginar el contenido de temas de materialidad.
+    Maneja la estructura específica de dimensiones, títulos y listas de temas.
+    """
+    def count_lines(text):
+        text = text.strip()
+        if not text:
+            return 0
+        lines = text.split('\n')
+        total = 0
+        for line in lines:
+            line = line.strip()
+            if line:
+                total += max(1, (len(line) // chars_per_line) + (1 if len(line) % chars_per_line else 0))
+        return total
+
+    soup = BeautifulSoup(html, "html.parser")
+    blocks = []
+    current_page = ""
+    current_lines = 0
+
+    def add_page():
+        nonlocal current_page, current_lines
+        if current_page.strip():
+            blocks.append(current_page)
+        current_page = ""
+        current_lines = 0
+
+    # Primero procesar los párrafos introductorios
+    intro_paragraphs = soup.find_all("p", recursive=False)
+    for p in intro_paragraphs:
+        text = p.get_text()
+        lines = count_lines(text) + 1  # +1 para el espacio entre párrafos
+        if current_lines + lines > max_lines and current_page:
+            add_page()
+        current_page += str(p)
+        current_lines += lines
+
+    # Luego procesar cada dimensión
+    dimensions = soup.find_all("h2", class_="dimension-title")
+    for dimension in dimensions:
+        # Contar líneas del título de la dimensión
+        title_lines = count_lines(dimension.get_text()) + 2  # +2 para el espacio antes y después del título
+        
+        # Si no cabe el título en la página actual, crear una nueva
+        if current_lines + title_lines > max_lines and current_page:
+            add_page()
+        
+        # Agregar el título de la dimensión
+        current_page += str(dimension)
+        current_lines += title_lines
+
+        # Procesar la lista de temas de esta dimensión
+        topic_list = dimension.find_next("ul", class_="topic-list")
+        if topic_list:
+            items = topic_list.find_all("li", recursive=False)
+            i = 0
+            while i < len(items):
+                list_html = "<ul class='topic-list'>"
+                list_lines = 0
+                
+                while i < len(items):
+                    li = items[i]
+                    # Contar líneas del título y descripción
+                    title = li.find("span", class_="topic-title")
+                    desc = li.find("p", class_="topic-description")
+                    
+                    title_lines = count_lines(title.get_text()) if title else 0
+                    desc_lines = count_lines(desc.get_text()) if desc else 0
+                    
+                    # Sumar líneas del elemento de lista
+                    li_lines = title_lines + desc_lines + 2  # +2 para el espacio entre elementos
+                    
+                    if current_lines + list_lines + li_lines > max_lines and list_lines > 0:
+                        break
+                        
+                    list_html += str(li)
+                    list_lines += li_lines
+                    i += 1
+                
+                list_html += "</ul>"
+                
+                # Si no cabe la lista en la página actual, crear una nueva
+                if current_lines + list_lines > max_lines and current_page:
+                    add_page()
+                
+                current_page += list_html
+                current_lines += list_lines
+                
+                # Si quedan más elementos, crear una nueva página
+                if i < len(items):
+                    add_page()
+
+    # Agregar la última página si hay contenido
+    if current_page.strip():
+        blocks.append(current_page)
+        
     return blocks

@@ -1,9 +1,9 @@
 
-<div class="photo-page" {% if background_color %}style="background-color: {{ background_color }};"{% endif %}>
+
     <div class="photo-container">
         <img src="{{ data.photo_url }}" alt="{{ data.description }}" class="photo-img">
     </div>
     {% if data.description %}
     <div class="photo-caption">{{ data.description }}</div>
     {% endif %}
-</div>
+

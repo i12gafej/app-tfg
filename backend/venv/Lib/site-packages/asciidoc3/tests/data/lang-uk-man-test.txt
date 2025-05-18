@@ -1,0 +1,21 @@
+// Test for lang-uk.conf language file.
+:lang: uk
+
+ASCIIDOC3(1)
+===========
+:doctype: manpage
+
+NAME
+----
+asciidoc3 - converts an AsciiDoc3 text file to HTML or DocBook
+
+ОГЛЯД
+-----
+*asciidoc3* ['OPTIONS'] 'FILE'
+
+DESCRIPTION
+-----------
+The asciidoc3(1) command translates the AsciiDoc3 text file 'FILE' to
+DocBook or HTML.  If 'FILE' is '-' then the standard input is used.
+
+...

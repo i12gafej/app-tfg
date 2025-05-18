@@ -61,7 +61,7 @@ export interface SustainabilityReport {
     diagnosis_description?: string;
     scale: number;
     permissions: number;
-    internal_coherence_description?: string;
+    internal_consistency_description?: string;
     main_impact_weight?: number;
     secondary_impact_weight?: number;
     roadmap_description?: string;
@@ -218,6 +218,21 @@ export const reportService = {
             throw error;
         }
     },
+
+    generatePreview: async (reportId: number, token: string): Promise<{url: string}> => {
+        try {
+            const response = await api.get<{url: string}>(`/reports/generate-preview/${reportId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al generar el preview:', error);
+            throw error;
+        }
+    },
+    
 
     searchPublicReports: async (params: PublicReportSearchParams, token: string): Promise<{items: ReportListItem[], total: number}> => {
         try {

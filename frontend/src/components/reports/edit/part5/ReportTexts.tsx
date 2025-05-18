@@ -19,7 +19,7 @@ const TEXT_FIELDS = {
   materiality_text: 'Asuntos de materialidad',
   main_secondary_impacts_text: 'Impactos principales y secundarios',
   materiality_matrix_text: 'Matriz de materialidad',
-  internal_coherence_description: 'Coherencia con la visión, misión y valores'
+  internal_consistency_description: 'Coherencia con la visión, misión y valores'
 } as const;
 
 const TEXT_OPTIONS: TextField[] = Object.entries(TEXT_FIELDS).map(([id, label]) => ({

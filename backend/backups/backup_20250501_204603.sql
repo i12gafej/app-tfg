@@ -735,7 +735,7 @@ CREATE TABLE `sustainability_reports` (
   `diagnosis_description` text,
   `scale` int NOT NULL,
   `action_plan_description` text,
-  `internal_coherence_description` text,
+  `internal_consistency_description` text,
   `main_impact_weight` decimal(5,2) DEFAULT NULL,
   `secondary_impact_weight` decimal(5,2) DEFAULT NULL,
   `roadmap_description` text,

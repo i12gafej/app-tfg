@@ -1,6 +1,6 @@
 from app.core.config import Settings
 from app.utils.report_generator import ReportGenerator
-from app.utils.text_processing import paginate_html_text, paginate_html_tables
+from app.utils.text_processing import paginate_html_text, paginate_html_tables, paginate_material_topics
 import os
 import datetime
 settings = Settings()
@@ -57,7 +57,13 @@ def test_report_generation():
     }
     
     
-
+    def get_ods_images_dict(base_dir: str) -> dict:
+        '''
+        Obtiene un diccionario con las URLs de las imágenes de los ODS y la 5P.
+        '''
+        ods_dict = {f"{i}": f"{os.path.join(base_dir, f'ods_{i}.jpg')}" for i in range(1, 18)}
+        ods_dict["5p"] = f"{os.path.join(base_dir, '5p.png')}"
+        return ods_dict
     
     
 
@@ -94,7 +100,12 @@ def test_report_generation():
 
     # Obtener la fecha actual en formato 'día de mes de año'# Obtener la fecha actual en formato 'día de mes de año'
     
-    
+    month = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+        ]
+    today = datetime.datetime.now()
+    publish_date = f"{today.day} de {month[today.month-1]} del {today.year}"
 
     resource_data = {
         "name": "Mezquita-Catedral de Córdoba",
@@ -212,38 +223,56 @@ def test_report_generation():
         "text": """
             <ol>
                 <li>
-                    <h3>Patrimonio y Conservación</h3>
-                    <p>Preservamos y protegemos el legado arquitectónico, artístico y espiritual de la Mezquita-Catedral, asegurando su integridad para las generaciones presentes y futuras.</p>
+                    
+                    <p><strong>Patrimonio y Conservación</strong>: Preservamos y protegemos el legado arquitectónico, artístico y espiritual de la Mezquita-Catedral, asegurando su integridad para las generaciones presentes y futuras.</p>
                 </li>
                 <li>
-                    <h3>Diversidad y Diálogo Intercultural</h3>
-                    <p>Fomentamos el respeto y el entendimiento entre culturas, reconociendo el carácter único de la Mezquita-Catedral como un símbolo de convivencia histórica.</p>
+                    
+                    <p><strong>Diversidad y Diálogo Intercultural</strong>: Fomentamos el respeto y el entendimiento entre culturas, reconociendo el carácter único de la Mezquita-Catedral como un símbolo de convivencia histórica.</p>
                 </li>
                 <li>
-                    <h3>Sostenibilidad y Responsabilidad</h3>
-                    <p>Gestionamos nuestros recursos de forma responsable, aplicando prácticas sostenibles que contribuyan al equilibrio medioambiental y al desarrollo local.</p>
+                    
+                    <p><strong>Sostenibilidad y Responsabilidad</strong>: Gestionamos nuestros recursos de forma responsable, aplicando prácticas sostenibles que contribuyan al equilibrio medioambiental y al desarrollo local.</p>
                 </li>
                 <li>
-                    <h3>Excelencia y Profesionalidad</h3>
-                    <p>Nos comprometemos a ofrecer un servicio de alta calidad a visitantes, fieles e investigadores, garantizando experiencias enriquecedoras y seguras.</p>
+                    
+                    <p><strong>Excelencia y Profesionalidad</strong>: Nos comprometemos a ofrecer un servicio de alta calidad a visitantes, fieles e investigadores, garantizando experiencias enriquecedoras y seguras.</p>
                 </li>
                 <li>
-                    <h3>Educación y Difusión Cultural</h3>
-                    <p>Promovemos el conocimiento del patrimonio a través de programas educativos, actividades culturales y proyectos de investigación que destacan la riqueza histórica del monumento.</p>
+                    
+                    <p><strong>Educación y Difusión Cultural</strong>: Promovemos el conocimiento del patrimonio a través de programas educativos, actividades culturales y proyectos de investigación que destacan la riqueza histórica del monumento.</p>
                 </li>
                 <li>
-                    <h3>Espiritualidad y Reflexión</h3>
-                    <p>Respetamos y promovemos el carácter espiritual del monumento, ofreciendo un espacio de recogimiento, fe y reflexión para personas de todas las creencias.</p>
+                    
+                    <p><strong>Espiritualidad y Reflexión</strong>: Respetamos y promovemos el carácter espiritual del monumento, ofreciendo un espacio de recogimiento, fe y reflexión para personas de todas las creencias.</p>
                 </li>
                 <li>
-                    <h3>Integridad y Transparencia</h3>
-                    <p>Actuamos con ética, transparencia y rigor en la gestión del patrimonio, comprometidos con el cumplimiento de nuestras responsabilidades institucionales y sociales.</p>
+                    
+                    <p><strong>Integridad y Transparencia</strong>: Actuamos con ética, transparencia y rigor en la gestión del patrimonio, comprometidos con el cumplimiento de nuestras responsabilidades institucionales y sociales.</p>
+                </li>
+                <li>
+                    
+                    <p><strong>Integridad y Transparencia</strong>:  Actuamos con ética, transparencia y rigor en la gestión del patrimonio, comprometidos con el cumplimiento de nuestras responsabilidades institucionales y sociales. Actuamos con ética, transparencia y rigor en la gestión del patrimonio, comprometidos con el cumplimiento de nuestras responsabilidades institucionales y sociales.</p>
+                </li>
+                <li>
+                    
+                    <p><strong>Integridad y Transparencia</strong>: Actuamos con ética, transparencia y rigor en la gestión del patrimonio, comprometidos con el cumplimiento de nuestras responsabilidades institucionales y sociales.</p>
+                </li>
+                <li>
+                    
+                    <p><strong>Integridad y Transparencia</strong>: Actuamos con ética, transparencia y rigor en la gestión del patrimonio, comprometidos con el cumplimiento de nuestras responsabilidades institucionales y sociales.</p>
+                </li>
+                <li>
+                    
+                    <p><strong>Integridad y Transparencia</strong>: Actuamos con ética, transparencia y rigor en la gestión del patrimonio, comprometidos con el cumplimiento de nuestras responsabilidades institucionales y sociales.</p>
                 </li>
             </ol>
+
+            <h1></h1>
         """
     }
 
-    pages = paginate_html_text(values_text["text"], max_lines=30, chars_per_line=60)
+    pages = paginate_html_text(values_text["text"], max_lines=60, chars_per_line=35)
     values_html = ""
     for page,i in zip(pages, range(1, len(pages) + 1)):
         if i == 1:
@@ -397,67 +426,67 @@ def test_report_generation():
     # Ejemplo de asuntos de materialidad
     material_topics = [
         {
-            "title": "Conservación del Patrimonio",
+            "name": "Conservación del Patrimonio",
             "description": "Mantenimiento y conservación del edificio histórico y sus elementos artísticos para garantizar su preservación para las generaciones futuras.",
             "dimension": "PLANETA"
         },
         {
-            "title": "Accesibilidad Universal",
+            "name": "Accesibilidad Universal",
             "description": "Mejora de la accesibilidad física y sensorial para todos los visitantes, incluyendo personas con discapacidad.",
             "dimension": "PERSONAS"
         },
         {
-            "title": "Eficiencia Energética",
+            "name": "Eficiencia Energética",
             "description": "Implementación de medidas para reducir el consumo energético y promover el uso de energías renovables.",
             "dimension": "PLANETA"
         },
         {
-            "title": "Desarrollo Local",
+            "name": "Desarrollo Local",
             "description": "Contribución al desarrollo económico local a través del turismo sostenible y la creación de empleo.",
             "dimension": "PROSPERIDAD"
         },
         {
-            "title": "Educación Patrimonial",
+            "name": "Educación Patrimonial",
             "description": "Programas educativos para promover el conocimiento y valoración del patrimonio cultural.",
             "dimension": "PERSONAS"
         },
         {
-            "title": "Educación Patrimonial",
+            "name": "Educación Patrimonial",
             "description": "Programas educativos para promover el conocimiento y valoración del patrimonio cultural.",
             "dimension": "PERSONAS"
         },
         {
-            "title": "Educación Patrimonial",
+            "name": "Educación Patrimonial",
             "description": "Programas educativos para promover el conocimiento y valoración del patrimonio cultural.",
             "dimension": "PERSONAS"
         },
         {
-            "title": "Educación Patrimonial",
+            "name": "Educación Patrimonial",
             "description": "Programas educativos para promover el conocimiento y valoración del patrimonio cultural.",
             "dimension": "PERSONAS"
         },
         {
-            "title": "Gestión de Residuos",
+            "name": "Gestión de Residuos",
             "description": "Implementación de sistemas de gestión de residuos y reciclaje en las instalaciones.",
             "dimension": "PLANETA"
         },
         {
-            "title": "Participación Comunitaria",
+            "name": "Participación Comunitaria",
             "description": "Fomento de la participación de la comunidad local en la gestión y conservación del patrimonio.",
             "dimension": "ALIANZAS"
         },
         {
-            "title": "Seguridad y Protección",
+            "name": "Seguridad y Protección",
             "description": "Mantenimiento de sistemas de seguridad y protección del patrimonio contra posibles amenazas.",
             "dimension": "PAZ"
         },
         {
-            "title": "Innovación Tecnológica",
+            "name": "Innovación Tecnológica",
             "description": "Implementación de tecnologías innovadoras para la conservación y difusión del patrimonio.",
             "dimension": "PROSPERIDAD"
         },
         {
-            "title": "Gestión del Agua",
+            "name": "Gestión del Agua",
             "description": "Optimización del consumo de agua y sistemas de gestión sostenible del recurso hídrico.",
             "dimension": "PLANETA"
         }
@@ -468,15 +497,16 @@ def test_report_generation():
         "text": f"        <p>No todos los 17 ODS son importantes en igual medida para este recurso patrimonial. Su grado de contribución a cada ODS, y los desafíos y oportunidades que representan de forma individual, dependen de muchos factores. Para ello, en primer lugar se ha realizado un diagnóstico de alineación con la sostenibilidad mediante una autoevaluación de los impactos actuales, potenciales, positivos y negativos del recurso sobre los ODS. Esto permitirá reducir o eliminar los impactos negativos y maximizar los impactos positivos en el planeta y las personas.</p>         <p>Un análisis de materialidad es una herramienta clave para lograr que nuestro recurso patrimonial sea sostenible y responsable en la toma de decisiones. Nos permite identificar los asuntos relevantes para nuestro equipo de sostenibilidad y nuestros grupos de interés. Debemos establecer prioridades e indicadores de rendimiento para medir y monitorear nuestro progreso en sostenibilidad.</p>        <p>Primeramente se han identificado {len(material_topics)} asuntos relevantes, de acuerdo con el equipo de sostenibilidad del recurso y consensuado con los grupos de interés del mismo.</p>"}
     
     # Generar los asuntos de materialidad y paginarlos
-    material_topics_html = generator.generate_material_topics_text(material_topics_intro_text, material_topics)
-    material_topics_pages = paginate_html_text(material_topics_html, max_lines=45, chars_per_line=60)
+    material_topics_html = generator.generate_material_topics_text(material_topics_intro_text["text"], material_topics)
+    print(material_topics_html)
+    material_topics_pages = paginate_material_topics(material_topics_html, max_lines=45, chars_per_line=60)
     material_topics_html = ""
     for page, i in zip(material_topics_pages, range(1, len(material_topics_pages) + 1)):
         if i == 1:
             material_topics_html += generator.generate_simple_text({"title": "Asuntos de Materialidad", "text": page}, PAGE_COLORS[2]["light"])
         else:
             material_topics_html += generator.generate_simple_text({"title": "", "text": page}, PAGE_COLORS[2]["light"])
-
+    print(material_topics_html)
     #-----------------------------------------------------------------#
 
     # IMPACTOS PRINCIPALES Y SECUNDARIOS (TABLAS Y GRÁFICOS)
@@ -905,10 +935,10 @@ def test_report_generation():
         "stakeholder_html": stakeholder_html,
         "diagnosis_html": diagnosis_html,
         "ods_dimensions_html": ods_dimensions_html,
-        "material_topics_html": material_topics_html,
+        "materiality_topics": material_topics_html,
         "main_secondary_impact_tables_text_html": main_secondary_impact_tables_text_html,
         "materiality_matrix_html": materiality_matrix_html,
-        "diagnosis_tables_html": diagnosis_tables_html,
+        "diagnosis_indicators_tables": diagnosis_tables_html,
 
         "roadmap_html": roadmap_html,
         "action_plan_description_html": action_plan_description_html,

@@ -5,9 +5,9 @@ from decimal import Decimal
 
 from app.crud import diagnosis_indicators as crud
 from app.schemas.diagnosis_indicators import (
-    DiagnosticIndicator,
-    DiagnosticIndicatorCreate,
-    DiagnosticIndicatorUpdate
+    DiagnosisIndicator,
+    DiagnosisIndicatorCreate,
+    DiagnosisIndicatorUpdate
 )
 from app.api.deps import get_db, get_current_user
 from app.schemas.auth import TokenData
@@ -16,7 +16,7 @@ from app.models.models import MaterialTopic
 
 router = APIRouter()
 
-@router.get("/diagnosis-indicators/get-all/{report_id}", response_model=List[DiagnosticIndicator])
+@router.get("/diagnosis-indicators/get-all/{report_id}", response_model=List[DiagnosisIndicator])
 def get_all_by_report(
     report_id: int,
     db: Session = Depends(get_db),
@@ -37,9 +37,9 @@ def get_all_by_report(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/diagnosis-indicators/create", response_model=DiagnosticIndicator)
+@router.post("/diagnosis-indicators/create", response_model=DiagnosisIndicator)
 def create_indicator(
-    indicator: DiagnosticIndicatorCreate,
+    indicator: DiagnosisIndicatorCreate,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
@@ -82,10 +82,10 @@ def create_indicator(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.put("/diagnosis-indicators/update/{indicator_id}", response_model=DiagnosticIndicator)
+@router.put("/diagnosis-indicators/update/{indicator_id}", response_model=DiagnosisIndicator)
 def update_indicator(
     indicator_id: int,
-    indicator_update: DiagnosticIndicatorUpdate,
+    indicator_update: DiagnosisIndicatorUpdate,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
@@ -130,7 +130,7 @@ def delete_indicator(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/diagnosis-indicators/get/{indicator_id}", response_model=DiagnosticIndicator)
+@router.get("/diagnosis-indicators/get/{indicator_id}", response_model=DiagnosisIndicator)
 def get_indicator(
     indicator_id: int,
     db: Session = Depends(get_db),

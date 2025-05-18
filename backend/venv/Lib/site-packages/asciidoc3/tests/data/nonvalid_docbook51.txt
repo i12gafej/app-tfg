@@ -1,0 +1,65 @@
+= Test
+
+== First Paragraph ==
+AsciiDoc3 computes this text with option docbook51 without errors: 'asciidoc3 -b docbook51 nonvalid_docbook51.txt' You see the new file 'nonvalid_docbook51.xml' which a standard validator deems valid against DocBook51-relaxng schema. Try asciidoc3 -n -a toc -a icons nonvalid_docbook51.txt
+
+------------
+python3 /path/to/asciidoc3/tests/docbook_validation/asciidoc3_docbook51_relaxng_validation.py /path/to/asciidoc3/tests/data/nonvalid_docbook51.xml
+
+------------
+
+But it isn't valid as the validation against Schematron DocBook51 reveals.
+
+------------
+python3 /path/to/asciidoc3/tests/docbook_validation/asciidoc3_docbook51_schematron_validation.py /path/to/asciidoc3/tests/data/nonvalid_docbook51.xml
+
+------------
+
+To see the html-output, type 'asciidoc3 -n -a toc -a icons nonvalid_docbook51.txt'
+
+Here comes something, nobody cares about this stuff. And now *bold*, and this is _italic_, and the last +monospaced+. After this (hidden +) +
+begins a new line.
+The german umlauts and two other non-ascii glyphs / letters: äöüÄÖÜß € (euro) ¢ (cent). 
+
+== Second Paragraph
+This sample comes with an image. The file name paths xref:nofootnotehere are relative <<nofootnotehere>> to the location[[nofootnotehere,testddr]] of the referring document:
+image:redsquare.jpg[caption]
+The "caption" in brackets corresponds to HTML alt="caption" and is not seen in the browser. The image is rendered inline; this is perhaps not preferred footnote:[or xref:id_footnote is it?], we have a footnote here.
+
+Another snippet:
+
+image:redsquare.jpg[caption]
+
+
+and the image at the center of the line. BTW, this is a reference to footnote with a reference ID footnoteref:[id_footnote,plink]. And this is a test[[testanchor,testlabel]] with an unvisible anchor.
+ 
+New line and the image at the beginningfootnote:[footnote without space] of the line. And this is a second test footnoteref:[nofootnotehere] with a footnoteref pointing to nowhere.
+
+New line:
+
+image::redsquare.jpg["caption",align="center"]
+
+We see the image at the center of the line. Link to <<testanchor>>. At the end a link: Visit the https://www.asciidoc3.org[home of asciidoc3]! + 
+
+
+
+[WARNING]
+it's not me, it's superman
+
+
+TIP: The horizontal rule and the line
+
+
+[WARNING]
+.A nested Example
+==============================
+
+tirila tirila
+Be careful with that axe, Eugene
+[NOTE]
+This is an issue
+
+==============================
+
+
+_END_

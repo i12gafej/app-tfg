@@ -93,6 +93,7 @@ def search(
 
 def get_all_stakeholders_by_report(db: Session, report_id: int) -> List[Stakeholder]:
     try:
-        return db.query(Stakeholder).filter(Stakeholder.report_id == report_id).all()
+        stakeholders = db.query(Stakeholder).filter(Stakeholder.report_id == report_id).all()
+        return [{"name": stakeholder.name, "description": stakeholder.description, "type": stakeholder.type} for stakeholder in stakeholders]
     except Exception as e:
         raise e

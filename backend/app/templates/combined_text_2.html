@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Memoria de Sostenibilidad</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+            background-color: #f5f5f5;
+            width: 100%;
+        }
+
+        body.cover {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .content {
+            width: 100%;
+            margin: 0;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .cover-content {
+            width: 100%;
+            margin: 0;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .cover-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title-container {
+            position: absolute;
+            top: 15%;
+            left: 36%;
+            width: 75%;
+            transform: translate(-50%, -50%);
+            min-width: 300px;
+            min-height: 80px;
+            height: auto;
+            color: white;
+            background: rgba(255,255,255,0.7);
+            border-radius: 0 1.5em 1.5em 0;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            box-sizing: border-box;
+            padding: 2cm;
+            padding: 1.2em 2em 1.2em 2em;
+        }
+
+        .title {
+            color: #222 !important;
+            background: none !important;
+            text-shadow: none !important;
+            font-size: clamp(1.2em, 2.5vw, 2em);
+            font-weight: 600;
+            margin: 0;
+            margin-bottom: 20px;
+            padding: 0;
+            border-radius: 0;
+            letter-spacing: 1px;
+            word-break: break-word;
+            white-space: normal;
+            text-align: left;
+            width: 100%;
+            display: inline-block;
+        }
+
+        .year {
+            font-size: 1.8em;
+        }
+
+        .logos-container {
+            position: absolute;
+            bottom: 2cm;
+            right: 2cm;
+            display: flex;
+            gap: 1cm;
+        }
+
+        .logo {
+            height: 3cm;
+            width: auto;
+            object-fit: contain;
+        }
+        
+
+        /* ---------- Títulos y contenido simple ---------- */
+        .simple-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5em;
+            page-break-after: avoid;
+        }
+
+        .simple-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #222;
+            page-break-inside: avoid;
+            max-height: 800px;
+            overflow-wrap: break-word;
+        }
+
+        
+
+        
+
+        /* Estilos para el botón de descarga */
+        .download-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .download-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Estilos del menú lateral */
+        #side-menu {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: #fff;
+            z-index: 2000;
+            overflow-y: auto;
+            padding-top: 60px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        #side-menu.collapsed {
+            transform: translateX(-280px);
+        }
+
+        #toggle-menu {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            z-index: 2001;
+            background: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color:#666
+        }
+
+        .menu-item {
+            list-style: none;
+            margin: 5px 0;
+            color:#666;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .menu-item a {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #333;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            background-color: #f5f5f5;
+        }
+
+        .menu-item a:hover {
+            background-color: #e0e0e0;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+            
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+            .content2 {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                box-shadow: none;
+                
+            }
+            .cover-content {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                box-shadow: none;
+                margin: 0;
+            }
+            .section:not(:first-child) {
+                margin-top: 1.5cm !important;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .content {
+                padding: 2cm;
+                height: 100%;
+                box-sizing: border-box;
+            }
+            
+            .simple-content {
+                max-height: none;
+                overflow-wrap: break-word;
+            }
+            ul, ol {
+                max-height: none;
+                overflow-wrap: break-word;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            li {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                display: block;
+            }
+            #side-menu, #toggle-menu {
+                display: none;
+            }
+            .download-button {
+                display: none;
+            }
+
+            body.cover {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+            }
+
+            .cover-container {
+                page-break-after: always;
+            }
+
+            .title{
+                color: #222 !important;
+                background: none !important;
+                text-shadow: none !important;
+                font-size: clamp(1.2em, 2.5vw, 2em);
+                font-weight: 600;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+                letter-spacing: 1px;
+                word-break: break-word;
+                white-space: normal;
+                text-align: left;
+                width: 100%;
+                display: inline-block;
+            }
+        }
+
+        /* Estilos globales para los templates parciales */
+        .narrow-th { width: 29%; min-width: 100px; max-width: 400px;}
+        .tab-cell.empty-cell { width: 7%; min-width: 10px; max-width: 40px; border-right: none !important; border-left: none !important; background: transparent !important; padding: 0; }
+        .tab-cell.first-empty-cell { width: 7%; min-width: 10px; max-width: 40px; border-right: none !important; background: transparent !important; padding: 0; }
+        .header { background-color: #d4eac7; padding: 10px; font-weight: 400; font-size: 10px; }
+        .subheader { background-color: #e1ecf4; padding: 10px; font-weight: 400; font-size: 10px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-left: auto; margin-right: auto; page-break-inside: avoid; }
+        .table th, .table td { padding: 10px; border: 1px solid #000; text-align: left; vertical-align: top; font-size: 14px; }
+        .table td[style*="border-right: none"] { border-right: none !important; background: transparent !important; width: 2%; min-width: 10px; max-width: 20px; padding: 0; }
+        .table th { font-weight: 600; }
+        .table .category { background-color: #f1f8e9; font-weight: 400; }
+
+        .material-topics { margin: 5px 0; }
+        .dimension-title { color: #333; font-weight: bold; margin-bottom: 5px; }
+        .topic-list { padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <!-- Botón de descarga -->
+    <button class="download-button" onclick="window.print()">
+        <svg class="download-icon" viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Descargar PDF
+    </button>
+
+    <!-- Menú lateral -->
+    <button id="toggle-menu">☰</button>
+    <div id="side-menu">
+        <ul>
+            <li class="menu-item"><a href="#carta-compromiso">Carta de compromiso</a></li>
+            <li class="menu-item"><a href="#mision">Misión</a></li>
+            <li class="menu-item"><a href="#vision">Visión</a></li>
+            <li class="menu-item"><a href="#valores">Valores</a></li>
+            <li class="menu-item"><a href="#normativa">Normativa</a></li>
+            <li class="menu-item"><a href="#equipo-sostenibilidad">Equipo de sostenibilidad</a></li>
+            <li class="menu-item"><a href="#organigrama">Organigrama</a></li>
+            <li class="menu-item"><a href="#grupos-interes">Análisis de grupos de interés</a></li>
+            <li class="menu-item"><a href="#diagnostico">Diagnóstico</a></li>
+            <li class="menu-item"><a href="#hoja-ruta">Hoja de ruta de la sostenibilidad</a></li>
+            <li class="menu-item"><a href="#difusion">Difusión</a></li>
+            <li class="menu-item"><a href="#anexos">Anexos</a></li>
+        </ul>
+    </div>
+    <!-- Contenido principal -->
+    <div class="cover-content">
+        <div class="section" id="portada">{{ data.cover_html | safe }}</div>
+    </div>
+    <div class="content">        
+        <div class="section" id="categorizacion">{{ data.resource_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="carta-compromiso">{{ data.commitment_letter_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="mision">{{ data.mission_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="vision">{{ data.vision_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="valores">{{ data.values_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="normativa">{{ data.normative_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="equipo-sostenibilidad">{{ data.sustainability_team_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="grupos-interes">{{ data.stakeholder_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="diagnostico">{{ data.diagnosis_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="asuntos-materialidad">{{ data.material_topics_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="impactos">{{ data.main_secondary_impact_tables_text_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="matriz-materialidad">{{ data.materiality_matrix_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="indicadores-diagnostico">{{ data.diagnosis_tables_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="hoja-ruta">{{ data.roadmap_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="plan-accion">{{ data.action_plan_description_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="contexto-periodo">{{ data.context_period_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="tablas-plan-accion">{{ data.action_plan_tables_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="coherencia-interna">{{ data.internal_consistency_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="impactos-plan-accion">{{ data.action_main_secondary_impacts_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="integrando">{{ data.integrating_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="tablas-integrando">{{ data.integrating_action_plan_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="difusion">{{ data.diffusion_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="colaboradores">{{ data.agreements_html | safe }}</div>
+    </div>
+    <div class="content">
+        <div class="section" id="bibliografia">{{ data.bibliography_html | safe }}</div>
+    </div>
+
+    <script>
+        // Toggle del menú lateral
+        document.getElementById('toggle-menu').addEventListener('click', function() {
+            document.getElementById('side-menu').classList.toggle('collapsed');
+        });
+
+        // Smooth scroll para los enlaces del menú
+        document.querySelectorAll('#side-menu a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

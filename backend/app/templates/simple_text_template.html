@@ -1,4 +1,14 @@
 <div class="page" {% if background_color %}style="background-color: {{ background_color }};"{% endif %}>
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
     <div class="simple-title">{{ data.title }}</div>
     <div class="simple-content">{{ data.text | safe }}</div>
 </div>

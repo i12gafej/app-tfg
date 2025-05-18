@@ -5,7 +5,7 @@ import matplotlib.font_manager as fm
 import io
 import base64
 from typing import List, Dict, Tuple
-import logging
+
 
 # Colores oficiales ODS
 ODS_COLORS = {
@@ -17,7 +17,7 @@ ODS_COLORS = {
     "ODS 16": "#04568C",  "ODS 17": "#1A386A"
 }
 
-logger = logging.getLogger(__name__)
+
 
 def generate_graph(values: List[int], title: str) -> str:
     """
@@ -89,17 +89,15 @@ def get_secondary_impacts_material_topics_graph(secondary_impacts: List[Dict]) -
         # Inicializar contador de impactos secundarios
         impact_counts = [0] * 17
         
-        logger.info(f"Recibiendo datos de impactos secundarios: {secondary_impacts}")
+        
         
         # Contar impactos secundarios
         for impact in secondary_impacts:
             if isinstance(impact, dict) and 'ods_ids' in impact:
-                logger.info(f"Procesando impacto: {impact}")
                 for ods_id in impact['ods_ids']:
                     if 1 <= ods_id <= 17:
                         impact_counts[ods_id - 1] += 1
         
-        logger.info(f"Conteo final de impactos secundarios: {impact_counts}")
         return generate_graph(impact_counts, "IMPACTOS ODS SECUNDARIO")
     except Exception as e:
         logger.error(f"Error al generar gráfica de impactos secundarios: {str(e)}")

@@ -1,0 +1,2459 @@
+<!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Memoria de Sostenibilidad</title>
+        <style>
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Poppins', sans-serif;
+                box-sizing: border-box;
+                width: 21cm;                     
+                height: 29.7cm;                  
+            }
+
+            /* ---------- Página de contenido ---------- */
+            .page {
+                padding: 2.5cm 2cm 2.5cm 2cm;
+                min-height: 100%;
+                box-sizing: border-box;
+            }
+
+            /* ---------- Títulos y contenido simple ---------- */
+            .simple-title {
+                font-size: 1.8em;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 1.5em;
+            }
+
+            .simple-content {
+                font-size: 1.1em;
+                line-height: 1.7;
+                color: #222;
+            }
+
+            /* Estilos para el botón de descarga */
+            .download-button {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #3498db;
+                color: white;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .download-button:hover {
+                background-color: #2980b9;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .download-button:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .download-icon {
+                width: 20px;
+                height: 20px;
+                fill: currentColor;
+            }
+
+            /* Estilos del menú lateral */
+            #side-menu {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 280px;
+                height: 100%;
+                background: #fff;
+                z-index: 2000;
+                overflow-y: auto;
+                padding-top: 60px;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+                transition: transform 0.3s ease;
+            }
+
+            #side-menu.collapsed {
+                transform: translateX(-280px);
+            }
+
+            #toggle-menu {
+                position: fixed;
+                left: 20px;
+                top: 20px;
+                z-index: 2001;
+                background: #fff;
+                border: none;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .menu-section {
+                margin: 15px 0;
+                padding: 0 20px;
+            }
+
+            .menu-section-title {
+                font-size: 1.2em;
+                font-weight: 600;
+                margin-bottom: 10px;
+                padding: 8px 12px;
+                border-radius: 4px;
+            }
+
+            .menu-section-title.paso-1 { background-color: #a8d4ec; }
+            .menu-section-title.paso-2 { background-color: #a8cc54; }
+            .menu-section-title.paso-3 { background-color: #f8b4c4; }
+            .menu-section-title.paso-4 { background-color: #b0acd4; }
+            .menu-section-title.paso-5 { background-color: #ffc48c; }
+
+            .menu-item {
+                list-style: none;
+                margin: 5px 0;
+            }
+
+            .menu-item a {
+                display: block;
+                padding: 8px 12px;
+                text-decoration: none;
+                color: #333;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+            }
+
+            .menu-item a:hover {
+                background-color: #f5f5f5;
+            }
+
+            .menu-item.paso-1 a { background-color: #f0f4fc; }
+            .menu-item.paso-2 a { background-color: #f0f4e4; }
+            .menu-item.paso-3 a { background-color: #ffecf4; }
+            .menu-item.paso-4 a { background-color: #e8e4f4; }
+            .menu-item.paso-5 a { background-color: #fff4ec; }
+
+            .submenu {
+                padding-left: 20px;
+                margin: 5px 0;
+            }
+
+            .submenu-item {
+                list-style: none;
+                margin: 3px 0;
+            }
+
+            .submenu-item a {
+                display: block;
+                padding: 6px 12px;
+                text-decoration: none;
+                color: #555;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+            }
+
+            .submenu-item a:hover {
+                background-color: #f5f5f5;
+            }
+
+            @media print {
+                #side-menu, #toggle-menu {
+                    display: none;
+                }
+            }
+
+            @media print {
+                body, .page, .photo-page {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                .download-button {
+                    display: none;
+                }
+            }
+
+            .photo-page {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-sizing: border-box;
+                padding: 2cm;
+            }
+            .photo-container {
+                max-width: 15cm;
+                max-height: 20cm;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+            }
+            .photo-img {
+                max-width: 100%;
+                max-height: 100%;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+                display: block;
+                margin: 0 auto;
+                border-radius: 0.5em;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            }
+            .photo-caption {
+                margin-top: 1em;
+                text-align: center;
+                font-size: 1.1em;
+                color: #333;
+            }
+
+            /* Estilos globales para los templates parciales */
+            .narrow-th { width: 29%; min-width: 100px; max-width: 400px;}
+            .tab-cell.empty-cell { width: 7%; min-width: 10px; max-width: 40px; border-right: none !important; border-left: none !important; background: transparent !important; padding: 0; }
+            .tab-cell.first-empty-cell { width: 7%; min-width: 10px; max-width: 40px; border-right: none !important; background: transparent !important; padding: 0; }
+            .header { background-color: #d4eac7; padding: 10px; font-weight: 400; font-size: 10px; }
+            .subheader { background-color: #e1ecf4; padding: 10px; font-weight: 400; font-size: 10px; }
+            .table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-left: auto; margin-right: auto; }
+            .table th, .table td { padding: 10px; border: 1px solid #000; text-align: left; vertical-align: top; font-size: 14px; }
+            .table td[style*="border-right: none"] { border-right: none !important; background: transparent !important; width: 2%; min-width: 10px; max-width: 20px; padding: 0; }
+            .table th { font-weight: 600; }
+            .table .category { background-color: #f1f8e9; font-weight: 400; }
+
+            .material-topics { margin: 5px 0; }
+            .dimension-title { color: #333; font-weight: bold; margin-bottom: 5px; }
+            .topic-list { padding-left: 20px; }
+            .topic-title { font-weight: bold; color: #444; }
+            .topic-description { color: #666; margin-top: 2px; }
+
+
+        .list-text-item {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        .list-text-item a {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        </style>
+    </head>
+    <body>
+        <button id="toggle-menu" onclick="toggleMenu()">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            </svg>
+        </button>
+
+        <!-- Menú lateral -->
+    
+    <div id="side-menu">
+        <ul>
+            <li class="menu-item"><a href="#carta-compromiso">Carta de compromiso</a></li>
+            <li class="menu-item"><a href="#mision">Misión</a></li>
+            <li class="menu-item"><a href="#vision">Visión</a></li>
+            <li class="menu-item"><a href="#valores">Valores</a></li>
+            <li class="menu-item"><a href="#normativa">Normativa</a></li>
+            <li class="menu-item"><a href="#equipo-sostenibilidad">Equipo de sostenibilidad</a></li>
+            <li class="menu-item"><a href="#organigrama">Organigrama</a></li>
+            <li class="menu-item"><a href="#grupos-interes">Análisis de grupos de interés</a></li>
+            <li class="menu-item"><a href="#diagnostico">Diagnóstico</a></li>
+            <li class="menu-item"><a href="#hoja-ruta">Hoja de ruta de la sostenibilidad</a></li>
+            <li class="menu-item"><a href="#difusion">Difusión</a></li>
+            <li class="menu-item"><a href="#anexos">Anexos</a></li>
+        </ul>
+    </div>
+
+        <script>
+            function toggleMenu() {
+                const menu = document.getElementById('side-menu');
+                menu.classList.toggle('collapsed');
+            }
+        </script>
+
+        <button class="download-button" onclick="window.print()">
+            <svg class="download-icon" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            Descargar PDF
+        </button>
+        <a id="portada"></a>
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria de Sostenibilidad Mezquita-Catedral de Córdoba</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .cover-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title-container {
+            position: absolute;
+            top: 15%;
+            left: 36%;
+            width: 75%;
+            transform: translate(-50%, -50%);
+            min-width: 300px;
+            min-height: 80px;
+            height: auto;
+            color: white;
+            background: rgba(255,255,255,0.7);
+            border-radius: 0 1.5em 1.5em 0;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            box-sizing: border-box;
+            padding: 2cm;
+            padding: 1.2em 2em 1.2em 2em;
+        }
+
+        .title {
+            color: #222 !important;
+            background: none !important;
+            text-shadow: none !important;
+            font-size: clamp(1.2em, 2.5vw, 2em);
+            font-weight: 600;
+            margin: 0;
+            margin-bottom: 20px;
+            padding: 0;
+            border-radius: 0;
+            letter-spacing: 1px;
+            word-break: break-word;
+            white-space: normal;
+            text-align: left;
+            width: 100%;
+            display: inline-block;
+        }
+
+        .year {
+            font-size: 1.8em;
+        }
+
+        .logos-container {
+            position: absolute;
+            bottom: 2cm;
+            right: 2cm;
+            display: flex;
+            gap: 1cm;
+        }
+
+        .logo {
+            height: 3cm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+            }
+
+            .cover-container {
+                page-break-after: always;
+            }
+
+            .title{
+                color: #222 !important;
+                background: none !important;
+                text-shadow: none !important;
+                font-size: clamp(1.2em, 2.5vw, 2em);
+                font-weight: 600;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+                letter-spacing: 1px;
+                word-break: break-word;
+                white-space: normal;
+                text-align: left;
+                width: 100%;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cover-container">
+        <img src="/static/uploads/covers/report_5_cover_546a82c4-9dfd-46df-8865-e21f22109a3c.jpg" alt="Portada" class="cover-image">
+        <div class="title-container">
+            <h1 class="title">Memoria de Sostenibilidad Mezquita-Catedral de Córdoba - Año 2024</h1>
+        </div>
+        <div class="logos-container">
+            
+            <img src="data:image/jpeg;base64,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5bwvAJC/JApB2TTjeEPIAcAM2rj6Vwp9lVd6ZSIAIO7gg7hwBG6kO32Vzn7DWCBoOLqaj5hEmSOICnse7AYWS5QBrZzBE13nwhkkFFWGVBICyFWDmV3Aley0n8GYr5/fHzGgKsBqBghsn2A2Xb8whOIB72e72hukrLnS4j+hvBb7K5z9jV8YHr7iYJMAjy/6hWMlxwHimpQkKzrBwQ0LUGatpQGQLgBITIhIX1mwmYBwucVMM2BpS8CIKjwAELqopIIk1bzCXog0S590HvYgIWIeyPmTOhftDLMBT8l4lhJuYKXfZXOesMuIScuSAk4yYA+01Idr94kHFxNtCBK0YMdvpVaO0+2gUvUMl0J/U0UPh8wx5ZiySLgS4ZnIIbg0n78ZQyuREfL2JVJEFcSMXAYQ0Gqd2i5lSm7HfKsOQ4JIBwK0/d+1WAEgAJK0MYQQAKfYXOetpPIfEmNNROq3+e0NXAN/sI/0ExggBVzBcgsgdUHC8FKTokxonDs/aE6Wlgawq1NNxV+oakF7XMqqqJLRclZ5uW7iSzPchviES002DP8AwQPmUpGqRYJRsDF8mFW2kFJUVQxOaBkv8CH40pZL/Hv9hc56ww6EvkJVmNKGgtTEqjQeB4d44NhqtpRS0YbNaBNpHEMIhZGKKAchWo/naAURCE5yWvEO6vQA79yBqkyZYgZ4jSsbmlo5QKSaF/1NYPdhIAKl5oFyGcKBgELYKAN6gpDuNEMCsBABIv4O8N0lkIQF2tC3muRluBD7coi403bxGt/DjZJqEsKuvc56/c/TvO/q7/TvO59Hed/srnP5K5z+Suc/krnP5K5z+Suc/krnP5K5z+SYVTImRMiZEyJkTImRMiZEyJkTImRMiZEyJkTImRMiZEyJkTImRMiZEyJkTImRMiZEyJkTImRMiZEyJkTImRMiZEyJkTIn/9oADAMBAAIAAwAAABB333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333332sfoQ4d7B6cL33333333333333nP5TW0mWeqD33333333333333mDJ5z3nIJ3H/wB9999999999995NX9jaW9rRF99999999999999uK+9gsR9/qH99999999999999vD36k85+zPT99999999999999rBWG095GFtZ999999999999995UHK89tq6ME/99999999999999v7Lc5sbmiO9999999999999966WIjm/G6ri999999999999999t984Y089999999999999999999tSKOvr8999999999999999993+cJShfcU9999999999999992vmP3HZjdv399999999999999CfzflQ/Szu+99999999999999t99999t99t999999999999999999999999999999999999999999999999999999999999999999999999999999999995xxxxxxxxxxxxxxxxxxxxxxxx//EACgRAAIBAwMDBAIDAAAAAAAAAAERACExQVFhcTCBkRChwdFAsWDh8P/aAAgBAwEBPxD+WuMR+jjEf4JpToJVYyA2a44gFa5N2c8Q3Dm99eYcXVByz8wqNZrh6Qc5VJyz8RyBzq99eYSGgCLs45je2FVxxATlWnXx1wI0mxTX1GF9XVOH8QUyEa0vvvMh4K30hwAttN7awGguhhCd1lfENxCyFS2+y9oMdWjVW2cB1SEyr98rrjNoN62jQrN3nRQoU6NK3HxMI2Onnj1BtGRBsdPMBOMkkOthnmJAt1LzxDgrBIu+vXI6QLhX+oyK1ZZ1cIVrNKJDT0TBdnTcnYTM8D9KEAFe0LsRz7elo6NaNjSGA2qhZ5jDJJBW1566kJDQafbMajbs8aqVE2a1aOm3oTYXHs1XjWcRK9Fdw90AADqnXivpYeiFVM6b8Q8u0UHjiPIkmHbSmOuKGEtUt9RmNm6xzCSS0a0ufmY89ldLei28QoLIQVxXxKu7IVLHB2g5dgorHMVSBMq+lc9cHvBuXb7jLGu86KAKVGlbjXafIb59/UGFEXffMJLCSHW2vKggDau7doakgJF3+l1zmQAzvxGxJFFsuBB4NaUsN5hG9U8ceoGMiHcqeIWvBYdLjKi8gpqMuDlMWIaa9cnDBGHfnWM3tWdOVBSEWdbbDSZat1b6+0qCNxQEgsghtVbq+YGiQRGb7HVw1+0aOh3UB0ySqO3bD64AxuP2jIAW+0LpZNmczGeB183gxVV4ZhRCt9n9wwYVflH5DPB183gadGLM4iaFhXEKGGP066izFGhLRgKTLGgaxAS8Qii/BAhIwaTInT7e/wDcIe0CwlZF33r3gGDEDTDcNdtIfBkEAY1N674cCkV4AdMBIveveFPZAH4VvBMB6QgjwViv9WDAoQshVyLuVIkkFjN8b+14EclRFQGj2hIdoAGjuiDRcUgLYAUHQ4uMV2tCIcImmD8isFCPwBgiJgASo6Ea9sx+Yoj2rZD9ON4J00tTsneEBJgIXVsNLtePdYIPfGFxrHzspnKFsIDiHbeu6tyeIYoAj7WwxDU9/wAfpQHIweuEMKEuh0IhogCNDi5S/d1Dfl1qaXt4a7QoggIVjQq/9wUadCSzrosuV0CVWEdxHmu8I2lRwdXpDFNLcaU/ygdiiAsalv2GY82abCL0PgZpAHdAWKURqhwf5a444444444444444444444445//xAAjEQADAAIABgMBAQAAAAAAAAAAAREhMRAgMEFRcUBhkXCB/9oACAECAQE/EP4JVQz6mil95sh+I7FRv3mRwX+BUXrphk2GtEeN5CPGjM5KyEw6+DJiD8DyMcnkYEMByddlMlQZduFss+oUsrgy7lQbXXNSFYZ4vDNkUGIuF9uAzjr1UIwzFL4H38LsMiEYRxeugilGhklxyRWXAkvJEEXXYMmIPwL6uS+oXkYDk67YZdBvRXnOSvODbwUNh16qH4mik95shn1HYp+4t4fgVF+FnjGZ+K8jKZMgtbPBj4ZS08BGa2RpgvATGJhGr8IMEHHbgZLF3QbdHYE1inAa0fX2C0Q8Id4/ETgTUU6kYxMfY1P+C//EACoQAQACAQMDAwQDAQEBAAAAAAEAESExQWFRcYEwofEgQFCREMHwsdHh/9oACAEBAAE/ENWdW85ccuOXHLjlxy45ccuOXHLjlxy45ccuOXHLjlxy45ccuOXHLjlxy45ccuOXHLjlxy45ccuOXHLjlxy45ccuOXHLjlxy45ccuOXHLjlxy45ce4fkvcPyXuH5L3D8l7h+S9w/Je4fkvcPyXuH5L3D18QProBXBm7nPQj7gGAvVrYvFeYHCldYwFtYtq3vK0vBkrs3uj2TSZCETV96jZzJCFGNq47spz3lVXfcC+00xM2FVD2uoYSpyic1Zvf3awe6rivIgbxZdkdFg8sDNGLf6l56hlOouzWrH/YwHDF067PeEhdoiiVxWv6jlboCFG7YzVPeVRBgou2Mc92Beta3LzMMf3UpfDBRHTOIZW4IS1trGLoi/wDME0CPWtf6hiaaaJXQ9f3D16psVuUswa0OlzJ0FVFWWs6ppMjVKt2CI9ERlN23ejYqqKd7xNNstLej/sTEUETCuQbLP3FAJtBd6KHLTNTqmKek/ZK4+ybSBVU2aOLjETt6gC1XoBL1A7AnRN+s05cKAsCtuaj5mATddJmCJcYL0DNdMYiiMVd1WwuVhwVRdlnR6aMHdKj22aqr2u4VMdTRb1diKFdUgunUGxmJsB5wWDDmuuI1Nk3ZGk9f3D17K2AxhV8qxbB0ch03URwktGH21RP0KLlevUDubwFk0aWNiPWW0GRw8GE0MpDjtY7ltO0b2hXtVyrHvcLMFacobDpGhza0qVXt3dGgbBxLEFbGxT5GGoY0xXSUWLjO55eXMt1CdObZMEwRhYH7ZqrAGbds+q661ea0uCdItR9EYcGRW4NgwJQFjs0aOdEvUzFVUldV9f3D1z1spHqMXcrEtM1uYmgNDXzKAcULii6XKXdPSVBbRht0ZZVveAWU2L3PFxYjku2zFd0yO0KjlhG1vZs0HeAdJajZu81X03XVO5tC81BSQ0sNC7S23fEDkkhrUwHF1BFhWr2Nc9fEskP82q5Pe4JHpTduYUAShLV1OKuDB5UTFuvW+3tCGG+xpS8XzXr+4euTWbaHqnWanpSTwRpY06jUR0lsAhVujojCabQBasFndWl7ly5W8S67UQKkJhH6rIw9aOpesOu4o6g1aI5Okylmojoz9oP7WyPRoHtboBvGQuFtU6NMHYOb+Q1p9h7h64G2rqnQ06cuCD7JItmtE0bCA64tHAA5wGYjY6LeKdi5adoeoyLFYlnTEUxXW601ezG0APE6rNxNs7P+TQFqKLatHTP01dUTZeRuIKdaqei50K294NxRzYsRBpkjsBEUrsfogayupeibMt/beADAq0mzAVtn8LVVa5Y7yjNQFDjU495XRZVFFrfr+4eupHzDLmVtOe0fOLO4FYFluY30xCgIJjZzk6wVtX7ClI2wqwV06/SzAOxbtsHWPaVAaDIU/C7N4As1Y2NLUGvJPaAwgnT/AJo/SjUeO2mX6VxCxZd8dWEAe3yojZ6QUitdiFFyVhr/AORiLVLsaaxx6/uHrgwewEdAXHiZ2gtH2TJEzzb7V6rvHwJWQvVvS/QtD0RCSkIqyujI101ysYtU2rZXrLjobw3W0e+3ZrkuORFaTemv6+j9qI7udXzBSRCZE2i18wgtcuZ12GVHRpycfYe4evhBfFWAsalzfF7ysrFEhKpvXc4u50pSjKLa2ttra5Wg5QVTg1jHHHP0hbNEuCo71TS7I01K4EgJIwDf/VxIh/gj/N6/oEl4e9Tr1orxUd6CdqHJW/beCvGhm9yHoUXvCmmodNsXqXN/+RLMtdut4L9f3D16znFRClgDVWzLSv1SA1VcBHnXLtT3NTmWtKVBrE9aG7w/QllSlETTFu/vZqYslSB75H+zo7wBoR7d2I0wJMmdf9mdCNxaL9VbfoHZXaXV11c8XBlm15NCVl4qGiWJjWLJCU5SWG9XiO3E0jqPr+4evXWQBTChjVqGD7VK2oj4mk/UUaUAGgAEqKM8jT9QP9v0hDSlR9EeseY8Zq92mv1C1TyCkSrIWY521O/0hM2jS6vMq4vEUeA0xK16ori8BzKMZ0GhKBejUSK1VdVdX1/cPXxEHrlsgNjinr1jaXUCyqrtN3xNPkr2KLLMNNl71KymVQG89588TkpIcR8CPRYgGJenSuOOZqYzgF5GuBjmYp9lVLDzKfpJdohTdbyxb6r8Esx0Liv/ABhUFMWAVbSi2ZN1oNG9mHpe9R7etdJpdW6zfnSZwPoF7ltwd4wo1hVrinUzUB0+qghXPQOK/wDZV2GVVW8Pr+4euLEbfA9R3jwZoe3sGsRS0JhEqoMVHuXV6Lp/GNBXddO9MRkAsVgb42+sijGfr6l6nMLoGjW+CaY0qcnNXn0vS+JrG4Fq1nhmksZevq1oc/Ye4evVDIBDgAY7oNfbAlmsjvj9MKhE3ulBl3WrXrBosqMVeJaduxPAplNp4ambo4CGspsVjuy7UEBF8Wmq89ieTylbRwX9OuvjXY06PEQbXcEroRjd+uktHYwZA2ntTCDOLnL7f7e4Z5McPDoF9H+qXobZerpKQbkDJW0d6IYnAYJBMhnL/s1s7ToLbo49f3D1wIQWbNA3rjUQGd2hQVsZW0jf7CWAETuJHQfQ2FXaGrG9QVGNui2i3zLGI/hbAI5xCyckObKAdnMM4DQbL0c9z6S6sJ9VaI/3nO2Zar1xuRZAm9oLAoMrbF4TEdpNzikgi5Uucaa7fEreNToLuvSawyHBLpEcjZKJkZXIWCtMbw6bE+iNPr+4euCmrKHo8S+YZQlwpW9nbussXQCNyRNpS9ImiMyZk8dMmWOiDpMZXTbVbV+qjXCenj9EPlzyynU7RTj0Ld1V6wNZ/Xc7vTvmtIa4aFOaI7MxQzlwGhwQMnUT08/Ye4evTDaxKdbPHa52jDun1GNYZrXzUbRLxt6UXV5q7q9ofIuh1WT6FXCDMxPS8eauDATZAbZjqxyi3IOGW/k6HmWUxjOqc+ar6ef516vNc1BQAHGdGDmdOeIuB35A3OTS62jTEqpa+jXPWr2qWKHUVy1/4cxlQjQveedM/qAaKbAO7yaVe0vjJhoxbOR/XM5p+rni+a9f3D1zsZdIY3jxmMOM2jRq9otrZtJ0SMKjUFy46xqNB9rcAExnxS5iVUlV1eYkV6IlImzH3aFbdpnnbrMoeyE4lJIMMLyQxvXe4bt4z/FvKhUPHkYmRbM0g1XoRioTqLqJ1g6FLmF1r0vF6XBxJCt+gHWXccGoq3OpLxwDEc+Dj7D3D13wGNIEobOMXg6wE9kaorGMmQZQXITQgAHABH77bbzBms3klww0vsBbMeIZsR0MxTauafqBJCRQb0Ujuy++0ot1fdh9d2JphzWKNDNRbHNHYoiPcYFWDkJoF56wWblagpUafMrjIL0TSL55uy0pVrtsYhsUxi2LNEREi2pVarOwdKAgK5G/OK13q49JDTss6nSVzZogXbqqqsrKsDtBQKTbZ6R6bF+qtvr+4euwYRFBfT9Rz1JepqwNFYnF5vsMrdfnF4GnqLp5ILbioZNW6227kWgg0Yy/a4kcOQQQyGzeOzG/CyiLmnZWe5CCQXeqWcNXBbGTDket7uzpAOLigXAtF7tUSk5WwK10GLIUybAOqFyDtUvk2htF7vEzUOF9AcHhniK+HiFRCrY3tgLCmkTf+u4x6pqP79Ner+t4on7pFdYWDLoC2lUxmrIyUI1Wxcmyq/eZRpn2dXU49f3D1z04aK3XaHWlkRpI5bawFC822wvb+Laeqt3GlXSrGsfwuW4yXweIIQITIkdXNlVtYCX6McPf+K/H6LtR0IFLtGpP45X3ni+tfwtbtV2y+z5TTVnT7D3D7RoFXok1pDPiOrCoiUjNFVXVjQ3qPWNR1sZvSykCogvWXBv3xBUmSpHgNPlxneLBmzq6AZZ/1ZEvJUCgpWgN5rgUKHKmPP2vuH2aJ1nerMjzp5jTAJaDCBVfuXGt4sHeDh+6nSLrEOQMJ4i7NFB7bvxrmYfXTnEGrRvFOSszaSYvyjrTYBalFETEQpbmEiTuEHTET7RV+uVKI6RhTNs/oV19p7h9mA7aFJtieZr45zmBXd90MTZWJE78JqN+sY6KbGMZAmEa2i9neggKbLwRE/ScTPMq6teJVVkYNLZpppGNdAxxA1wtzmdXaXPmEUcltRq7cBlO61xpO3hQIABpsKao0ZkbX7T3D7HVufovoOoY5OtRl2q13lRKaGpSxO57uaJdfMwo9GtiyvMHhQGnQgwF2dIknM0wYZhhMwLpBaGm4a4Q0aKcKKDbObhNUGYY6GozrKRuLDqCp4QMf2SKLNlrRRmPrKkTYbq0Sm+0BuxLlV/9mM6iAth0xhH2lDtDgoFLJzpUEraqcDNhaze/2XuH2BGSgDuG54+xBrSyLpJmpkhuAmAUL5jm0pxdJ2f+UuZkEu1E01nS0JIpgG5EatDvUJ2Q4m6BusF5nt8CJUQTdJX4EsDg3+Rob0riUs/DxhwTqt39iNVDgORgQ/RFIfhVYV8iu8vi/wAiaPb7L3D7FEUYMQ3l1yDWz3SPwI3xrMgOqW6RrbEhgvG0bS1tUsAGjEZM0qqK7soF8aMVTAri4qAh6LFEVVqFkK+Lbbtw3mKKv8ywAEjQnmBukOjqAajGsSGY0zqrVf8AXNJ7XJG1FzqJe6JBabFXaddGZMpNOkKLu11tlTKOsJC1m9K7Qz9zRTRF2NIxs1IVLLUjmGhf2PuHrBbmn89A0eJooI05kduT9zBd89/SmnmoF8qyvrkMkRBVMAUuxsP8EammsdQlrlqUBPHMgthVYVrECfSS7Qe5KgaD1QdqrbzBQa+M1SIrzFKvVf7CCRc7lYSLoV0GYp2xUo2gL8zS4a9tkdE5IwDqdt4h/RUCfdFR6iKclwq6pLIWCNRm4nA6X8RBI9VQJuuhF5lKuOpncSn7D3D1nVFU2tEEGYS0nR1d7QpfZ1RqaLng3lCs0VT4GQQtQQHdLtV8oQxB9DEXHdVjyTENRF3OPmM9DNgktR5DwRrRsYsZncy7boNEDS7BftHqn4U7X7hiuh/FRONCIJtmDuvu5La76HvcFWD4llaHg8RQR9HM2nsg+JXFAGimdhDxCkpfZfSEy6HQgdeSR+hutFd5fcXxxWrUz9ge4etZb+VOdAtdiBiCKGRujsz1qaPMQNSlmy3zrVVDmY1ALu9FjFwnKO8fskMuyGVTrpY6PDp5iW+/tFAhHGOcaoXZICDdUXYKB5grYUALoA05YevFxOm0zOUgaYo5i/EIou0YHYseIYeNE2Dza1rpE1BOA9dFixxnCzJbyBJusRfmMwUJRqKbVl7q4l+9pTsgBvd4evmIoTlU10AwuFwRyiLEA0McZ8Sw6sSrUgNP72hcgLyUihuEuqGWWynZGdAEoFvJmo8oaHOPUsH29f3D17f4LYt+pb/C2LfoLYti5dfYe4fkvcPyXuH5L3D8l7h+S9w/Je4fkvcPyXJN2Z8Kz4VnwrPhWfCs+FZ8Kz4VnwrPhWfCs+FZ8Kz4VnwrPhWfCs+FZ8Kz4VnwrPhWfCs+FZ8Kz4VnwrPhWfCs+FZ8Kz4VnwrPhWfCs+FZ8Kz4VnwrPhWfCs+FZ8Kz4VnwrPhWfCs+FZ8Kz//Z" alt="Logo" class="logo">
+            
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wgARCAKkBkADASIAAhEBAxEB/8QAGgABAAMBAQEAAAAAAAAAAAAAAAQFBgMCAf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAr8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABxqi7ZOIbf5hBvGFkmxZu1J4AAAACHzLBXiwV4sHPoAAAHiEWCvFgrxYIM4AAAAAAAAAHM6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEEk5+r4nryAAAAEzS476b5RXoAABjYU2EAAayzrLMAAAhY3ZY0AA77jD7gAAAAAAAAA80N9QmgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI5HyXrmAAAAAAANDnvRvXDuAAY2FNhAAGss6yzAAAIWN2WNAAO+4w+4AAAAAAAAAPNDfUJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjf48AAHY4ztBYmc+6IZOu3vAw6xrgWJF1cjqAAAY2FNhAAGss6yzAAAIWN2WNAAO+4w+4AAAAAAAAAPNDfUJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZeo7cQAD1sajRgAAHzLaoZ+/wDoAAAAxsKbCAANZZ1lmAAAQsbssaAAd9xh9wAAAAAAAAAeaG+oTQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcO8ExwAB6NjM8+gAAAAAAAADGwpsIAA1lnWWYAABCxuyxoAB33GH3AAAAAAAAAB5ob6hNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAnxDFgAe/A333l1AAAAAAAAAMbCmwgADWWdZZgAAELG7LGgAHfcYfcAAAAAAAAAHmhvqE0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHPoMD8mQwADU22M2R9AAAIRNV9gAAAAY6DZ1gABqLfM6YAAArsjfUIABJ22P2AAAAAAAAAB5ob6hNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqZpJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQ57dYg8AAXdIN+yF8WLn9PaHUFrk+fwXtEN99xmpJQAAM9Q67IgAHTa4aYbNElgDhGzBz5gABd6StsgAAAAAAAADzQ31CaAAAAAAAAAhkxnupeOfQKa3PQCv7EoBU2Z7cKQ0TO/TQoU0AOdCaJnfZfo0kPOfNEzo0SjvAAV5YM9ILl59B5qCJpM7YFkArq40TO9C+c+gVUI0TOzC2AIRNZ/oXjl1D5njRM6NErbIAKnqWIAAAAAAAAAAAAAAAAAAFFe/DArKtAAAAAAAHvxYGhnfPoAB8xG4pzMAAASYwm8OIAAASY2rLP6AAAAAAAAAHmhvqE0AAAAAAAAIVD0vD1HsRlNX59GS1WV1R7BRS4kssgZbR5zRkenuKovfEkYzY5HXHoHDNaXOGk5SxkdNFhF3ldVljTuw5dQAqq6PqznAthmtL5jmfta7THCl0Io7zIa8oJMacS4lj5MvqsdsTM21TdnWruhnNHkdYQKjnqDlxnjI6yn6Fnk9ZlDUfO4yOkorsmfPtcUixiGmR5AAAAAAAAAAAAAAAAAAAB4yev8AhgV7RnwAAAAAuSJrfXoAAAAy1Tvs2UoAAAAAD1ojjoQAAAAAAAAAA80N9QmgAAAAAAABkdTmNMdgAZLVZXVHsFFLiySzBltHm9KRsxp6o5eNWM3pMzck0HDOaPOGqBCpbmqL/F7TLHVqBS3QAY3ZY7YH0Css68gX+e0IBj9dktcUMWVIIse9zhbXIZm7pLslgyWmzOpMjscjrj6CriSuJcYra5Q7fNSMlrKb6XOZ0mLNhEp/hNvcbsgAAAAAAAAAAAAAAAAAAABFlDMVW88mCbCKZlofpnWnkmRstR7IU0AAAAAAIFFrBgvO8hGQafkZ1ofRnGqlGRtdH9I8gAAAAAAAAAAAPNDfUJoAAAAAAAAUfW1zZpvmX8E2/q7QyWqzvg1DLyiVFvcwahlvBz19TbkGquM4a5l/h7uavQgHDOaTKmwZf4e7ePbnPLarJGwZcahntCAZq3lZo1PnM8yfdQ55kNbBozWRqDyNVw7lBOjyydndFyINnmNOZm7qopqotD6OOs49jPTrHNGnZbyer+DcHjKazImwZcTvsHSlbw43R3BmL3jGLkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHmhvqE0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPNDfUJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgd/mdqTXQ8uNH8zo00jIjd9MDYGuVtkAAAAAAHmoLnjk4RrOGaGi9ZsauZiBv2Kty+c+gAAAAAAAAAAB5ob6hNAAAAAAAACrqZ0gqvuo4nKXkNeMte0hcT8xpxVWtEQvttZmXvemYNcDjmLOGaHrTXIAor3Lmh7xpIArbLLHvTZbQkgDx75GW0WM1xY1dpRkLU4fcFBC+1ZvPed0Rm5tJZF/lNVhCe+yiJoKq4JVJ6zhYdOkYv5+X1Ap/ObLL364GgnYTbn2hhwyXKVpsO2K2h9AAAAAAAAAAAAAAAAAAAAAAfMqTs/wCQAAAAAsq0brriNeSAAAAK+LmyRGAAAAADrpMsN+zmjAAAAAAAAAAPNDfUJoAAAAAAAAUciPVmw85nmctjV2hnbjPasyeqp+xaUV7REqzyHY02S9XhZEczumz+kMnrMxoDuBl9Rly/kxpIBzzk/qe4N7kzWgcuvIwuuyOuLGjvKMo9xh9wZSHM6FTtMtII9lW2RfYTd4QvrTFjaysLujOVOwyRpZeGG/ZrSmLm1d0aHz6EPr3hmM1WV2BPhzOBh9hj9SWwAAAAAAAAAAAAAAAAAAAABTFfUgAAAAAAAlRbQ1Hvx7AAFNNxp8AAAAevIAAAvaIb9WWYAAAAAAAAB5ob6hNAAAAAAAACjkR5BaAQJ+aIUq9lmV+6nImuormmJVjXWZj9fS/S6or3In3rp/pkLO6yRrwMvqMuX8mLJPpxMz7aky8PaV51l57Qjn0GA1mc9mzoflMfdvlNWZTpz6FxkN9lSvuqC/L7CbvCGitcpINJ1y14TfNJUGtpvteV+6xe4MVY9qE3rOxjQe8XtzC6uj4G3iVdWQ9fmNqegAAAAAAAAAAAAAAAAAAAAc8Rf5wAAF0RL6yHL70EGn0wwPzXZQ8femqIN8AAAgGdggAAkyNWVlj1Hzx0FVQbTyYJaVYABI2uC1BbgAAAAAAAA80N9QmgAAAAAAABW9ZoAUF+AFXaCHwsxDmB5oNCOdRdgBRXo8ewUt0Mu1Az1lPFfYA+fRQX4AQ8/rBjZWoHDuFJ6uQjyBlrW0HzM6cZZqRlryaOGf04xvfViFND5RXwx3vXCBPDlntMMbJ1IjSQAAAAAAAAAAAAAAAAAAAAHgyEL78AAJmyqrYAAAQJ44dwAAAZnTYkjAAduOgLvoAAAHjF7emMyABZVvs3j59AAAAAAAAPNDfUJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIkuAY8AA9m36/PoAAAAAAAB5we5woAA2WN3J2AAAA4dxgHryAAbjvFlAAAAAAAAHmhvqE0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEGdHMQAB68je+oksAAAAAAAA54Tf4M8AAbfEaotQAAAPPqGY7yAA+m1k8+gAAAAAAAB5ob6hNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8+jCc7WqAAL3RYLZEsAAAzJpmS052AAAx2xoTPAAWNcN+qLcAAAZy2xx8AAkxrw0YAAAAAAAAPNDfUJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVuS3+OIIAHbiNhPwE82DO/TQ8s1WllVA68hq7TAXJpnj2AOPYYLzeUYAB90maG/YqyNGpOJoa2ggnXkAAH3a0WmAAAAAAAAAPNDfUJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIksYLzq8qfAAAAAAAPXnUkqYAAHnG7SOYh34AAAAAAACT42B16AAAAAAAAAB5ob6hNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABW2QwnPcZ0qX34AAAAPc/SES0AAAADhldj8MC0lCcQAAADqcpttdnCQAAAAAAAAAAHmhvqE0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI9TfDIxdwMG3YxEnXjP2ssAAAAAAAPPoVdZpxjOG6GD+7r6YubpxVWfoAAAAAAAAAAAAOfQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/2gAMAwEAAgADAAAAIfPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPOHOOPPPPPNPPNPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPOOAAAAAINPPPAAAPPPPKAAFPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPCAAAAAAABNPPAAAPPPPKAAFPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPOAAADHDCBLPPPAAAPPPPKAAFPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPOAAAHPPPKPPPPPAAAPPPPKAAFPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPLAAAPPPPPPPPPPAAAPPPPKAAFPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKAABNPPPPPPPPPAAAPPPPKAAFPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAAAPPPPONPPPPCAAHPPPAAAHPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPNPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAAAAEPOKMHPPPAAAANOJAAAHPPPPPPPPPAPPPPPPPPOPPPPPPMMMPPONPNMNPOMPLCPOMNOMNOMPNMNPMPPPPPPPPPPPPPPPPPPPLAAAAMAAAANPPPAAAIIAAABPPPPPPPPPPAPPPPPPPPDPNAPKPAOPOPKPHBPPPOHOPGMOOPFDECLBLPJPGPPPPPPPPPPPPPPPPPPPPGAAAAAADNPPPPKCAAAAACHPPPPPPPPPPAPPPPPPPPNPPAPIPCOLGPKPNFPPPLPPHPAKPHFPJMPOLPJOPHPPPPPPPPPPPPPPPPPPPPLHDCAPHPPPPPPPBADBDPPPPPPPPPPPPAPPPPPPPPHPNAPIJPIPLPLKFFPPPAJPNJHIKPHIPNPBNPGKPJPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAPPPPPPPPPPPPPPHPPPPPPPPPPPPPHPPHPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPOEMEENPPPPPPPJIMANPPPPPPPPPPPPAPPPPPPPPCPHNPKHOPJPPPNPPOPLJLNKHFDBDNLHIAMGJHPPPPPPPPPPPPPPPPPPPPPPJEAAAAAEHPPPPMAAAAAAIMPPPPPPPPPPAPPPPPPPPLNGPKKMIPHNPPFPAPPPFPFOHFPIHINFPPOAKBPPPPPPPPPPPPPPPPPPPPPKAAAADAAAAFPPLAAABDAAAANPPPPPPPPPAPPPPPPPPKPPDDKLCKBNPPFMBCPPOIFPDFPHHMEMIJGCJDPPPPPPPPPPPPPPPPPPPPPOAAAJPPCCLPPOIAAFHLDAAAEPPPPPPPPPAPPPPPPPPLPPPPHHPDPPHPPPHPHPPDPDPLLPPHDPLPHHDPPPPPPPPPPPPPPPPPPPPPOKAAHPPPPPPPPKAABHPPPPAABNPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPOAAEHPPPPPPPPNAAFPPPPOKAANPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKAAANPPPPPPPPEAABPPPPPAAAHPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPIAAHPPPJEPPPOAAEPPPPLAAFPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPJAAENNIIENPPLCAAMFNMAAADPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPIAAAAAAADHPPDCAAAAAAAGPPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKAAAAACHPPPPLAAAAABAPPPPPPPPPPPAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPHPDPPPPPPPPPPHCGLPPPPPPPPPPPPPLPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP/aAAwDAQACAAMAAAAQ88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888w0YQ80888808808880880888888888w88888888888888888888888888888888888888888888888888888888888888888884gAAAAAgw888oAA8888oAA888888888888888888888888888888888888888888888888888888888888888888888888888884QAAAAAAAA088oAA8888oAA88888888888888888888888888888888888888888888888888888888888888888888888888888QAAAssIIEs888oAA8888oAA88888888888888888888888888888888888888888888888888888888888888888888888888888gAA0888Mc8888oAA8888oAA8888888888888888888888888888888888888888888888888888888888888888888888888888ogAE0888888888oAA8888oAA8888888888888888888888888888888888888888888888888888888888888888888888888888oAAQc888888888oAA0888gAA8888888888888888888888888888888888888888888888888888888888888888888888888888sgAAc888408888gAA8888AAA08888888888888888888888888888888888888888888888888888888888888888888888888888EAAA4w84wc888oAAQ84ggAA888888888888888888844888480ww888w04w888080c0ww0w80808w08808888888888888888888sAAAAQAAAE888YAAAQwAAAIc8888888888888888888M8A8A8UsYw8UMosMc8oMgk8cAc8UcUo8MEM8o408888888888888888888oMAAAAAAM888sEAAAAAAE08888888888888888888c88A8E8QsMI8U8ksM88M84U8AEc0U8408wUMMgc088888888888888888888soMIAUc888888sEAIAc888888888888888888888Y8kA0QsE4wY8c0Mw4880oc0gcAs0Y80kgsQ4UM8c8888888888888888888888888888888888888888888888888888888888888M8888s8888888888888888888888888M88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888884wQwAcw88888848ggkU088888888888888888888Esccco8Y8g08o88sY8oA8AYUM40ogY0cowAYY88888888888888888888880QAAAAAA88888wgAAAAAU88888888888888888888E0wA8oco4U48o88kI0oA8As08owU00Yo8oksQ8888888888888888888884AAAAAAAAQU880gAAAMAAAU0888888888888888888Q84Eso0E8Mk8o8wUI0oo4so80o08Is8Ms0c4U888888888888888888888QAAAE8sAI888sgAAU884AAAE888888888888888888c8McsM8cc8sc8cM8s88cc8c8MMMc8s888c88c888888888888888888888oAAk888s88888AAAc8884AAA888888888888888888888888888888888888888888888888888888888888888888888888888sAAE888888888IAAA88888IAAc888888888888888888888888888888888888888888888888888888888888888888888888888IAQU888888880AAA88884AAAc888888888888888888888888888888888888888888888888888888888888888888888888888gAAw888o08888AAU8888kAAU8888888888888888888888888888888888888888888888888888888888888888888888888888IAAAY40AA888sIAAQQ8AAAA888888888888888888888888888888888888888888888888888888888888888888888888888888sAAAAAAAY888YAAAAAAAAM888888888888888888888888888888888888888888888888888888888888888888888888888888sMAAAAEEc8888IAAAAAEM888888888888888888888888888888888888888888888888888888888888888888888888888888888sYU0M8888888sMIQss888888888888c888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888/8QAFBEBAAAAAAAAAAAAAAAAAAAAwP/aAAgBAgEBPwAGZ//EABQRAQAAAAAAAAAAAAAAAAAAAMD/2gAIAQMBAT8ABmf/xABKEAAABAMBCgkKBQMDBAMAAAABAgMEAAUREgYQEyAhMTNBUXEUIjAyNUBSYXIVIzRCU3CBkZKhFkNQVGJjgrEk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" alt="Logo" class="logo">
+            
+        </div>
+    </div>
+</body>
+</html> 
+        <a id="recurso"></a>
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorización del Recurso Patrimonial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        .page {
+            padding: 2cm;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2cm;
+            color: #000;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin: 0;
+            padding-bottom: 0.5cm;
+            border-bottom: 2px solid #000000;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-section {
+            margin-bottom: 1cm;
+        }
+
+        .info-section h2 {
+            color: #000000;
+            font-size: 1.2em;
+            margin-bottom: 0.5cm;
+            padding-bottom: 0.2cm;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0.5cm;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-value {
+            color: #000;
+        }
+
+        .social-networks {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .social-networks li {
+            margin-bottom: 0.2cm;
+        }
+
+        .social-networks a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .social-networks a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+            }
+            .page {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="simple-title">
+            Categorización del Recurso Patrimonial
+        </div>
+
+        <div class="info-section">
+            <h2>Información Básica</h2>
+            <div class="info-grid">
+                <div class="info-label">Nombre:</div>
+                <div class="info-value">Mezquita-Catedral de Córdoba</div>
+
+                <div class="info-label">Tipología:</div>
+                <div class="info-value">
+                <div class="info-value">Cultural, Casa-patio</div>
+                </div>
+
+                <div class="info-label">Titularidad:</div>
+                <div class="info-value">Cabildo Catedral de Córdoba</div>
+
+                <div class="info-label">Modelo de Gestión:</div>
+                <div class="info-value">Modelo Híbrido</div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Información de Contacto</h2>
+            <div class="info-grid">
+                <div class="info-label">Dirección Postal:</div>
+                <div class="info-value">Calle Cardenal Herrero, 1, 14003 Córdoba, España</div>
+
+                <div class="info-label">Sitio Web:</div>
+                <div class="info-value">
+                    <a href="https://mezquita-catedraldecordoba.es/" target="_blank">https://mezquita-catedraldecordoba.es/</a>
+                </div>
+
+                <div class="info-label">Teléfono:</div>
+                <div class="info-value">957 47 06 54</div>
+
+                <div class="info-label">Redes Sociales:</div>
+                <div class="info-value">
+                    <ul class="social-networks">
+                        
+                        <li>
+                            <strong>Facebook:</strong>
+                            <a href="https://www.facebook.com/MezquitaCatedraldeCordobaOficial/" target="_blank">https://www.facebook.com/MezquitaCatedraldeCordobaOficial/</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:right; margin-top: 2cm; font-size:1em; color:#000; font-family: 'Poppins', sans-serif;">
+            Fecha de publicación: 19 de mayo del 2025
+        </div>
+    </div>
+</body>
+</html> 
+        <a id="carta"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Carta de compromiso</div>
+    <div class="simple-content"><p>Carta par ael compromiso</p></div>
+</div>
+        <a id="mision"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Misión</div>
+    <div class="simple-content"><p>La Mezquita-Catedral es un símbolo de la convergencia cultural, histórica y espiritual que trasciende el tiempo. Su misión es preservar y promover el legado arquitectónico, artístico y religioso que representa, fomentando el entendimiento intercultural y el respeto mutuo entre las distintas tradiciones que han dado forma a su esencia. A través de la conservación del patrimonio, la difusión del conocimiento y la apertura al diálogo, la Mezquita-Catedral busca inspirar a visitantes de todo el mundo, conectándolos con la riqueza de su historia y el poder transformador de la fe y la cultura.  </p></div>
+</div>
+        <a id="vision"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Visión</div>
+    <div class="simple-content"><p>La visión de la Mezquita-Catedral es consolidarse como un referente universal de diálogo cultural, espiritual y patrimonial, proyectando su esencia única como un símbolo de coexistencia y diversidad. Se aspira a convertirla en un espacio de reflexión y encuentro que invite a los visitantes a profundizar en el legado histórico y artístico que une a Oriente y Occidente, a través de una estructura que fusiona la magnificencia islámica con la majestuosidad cristiana.</p><p>En este sentido, se propone fomentar un modelo de gestión sostenible que integre la preservación del patrimonio con el desarrollo cultural, potenciando actividades educativas, artísticas y espirituales que resalten la riqueza multicultural de la Mezquita-Catedral. Asimismo, se busca fortalecer la conexión con la comunidad local, posicionándola como un epicentro de inspiración y aprendizaje, donde la historia cobra vida a través de experiencias inmersivas que invitan a explorar los valores universales de tolerancia, respeto y convivencia pacífica.</p><p>A largo plazo, la Mezquita-Catedral aspira a ser reconocida no solo como un monumento arquitectónico excepcional, sino como un faro de unión entre civilizaciones, un puente entre pasados aparentemente irreconciliables y un testimonio vivo del poder transformador del entendimiento humano.</p></div>
+</div>
+        <a id="valores"></a>
+        <built-in method values of dict object at 0x00000271DC55D280>
+        <a id="normativa"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Normativa</div>
+    <div class="simple-content"><ul><li class="list-text-item">Convención para la protección de los bienes culturales en caso de conflicto armado, de 14 de mayo de 1954.
+
+<a href="https://www.unesco.org/es/legal-affairs/convention-protection-cultural-property-event-armed-conflict-regulations-execution-convention" target="_blank">https://www.unesco.org/es/legal-affairs/convention-protection-cultural-property-event-armed-conflict-regulations-execution-convention</a></li><li class="list-text-item">Recomendación sobre los medios más eficaces para hacer los Museos Accesibles a Todos. París, Francia. 14 de diciembre de 1960.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-most-effective-means-rendering-museums-accessible-everyone" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-most-effective-means-rendering-museums-accessible-everyone</a></li><li class="list-text-item">Declaración de los principios de cooperación cultural internacional, de 4 de noviembre de 1966.
+
+<a href="https://www.unesco.org/es/legal-affairs/declaration-principles-international-cultural-co-operation" target="_blank">https://www.unesco.org/es/legal-affairs/declaration-principles-international-cultural-co-operation</a></li><li class="list-text-item">Recomendación sobre la conservación de bienes culturales que la ejecución de obras públicas o privadas pueda poner en peligro, de 19 de noviembre de 1968.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works</a></li><li class="list-text-item">Convención sobre las medidas que deben adoptarse para prohibir e impedir la importación, la exportación y la transferencia de propiedades ilícitas de bienes culturales, de 14 de noviembre de 1970.
+
+<a href="https://www.unesco.org/es/legal-affairs/convention-means-prohibiting-and-preventing-illicit-import-export-and-transfer-ownership-cultural" target="_blank">https://www.unesco.org/es/legal-affairs/convention-means-prohibiting-and-preventing-illicit-import-export-and-transfer-ownership-cultural</a></li><li class="list-text-item">Recomendación relativa a la Salvaguardia de los Conjuntos Históricos o Tradicionales y su Función en la Vida Contemporánea. Nairobi, Kenia. 26 de noviembre de 1976.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-safeguarding-and-contemporary-role-historic-areas" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-safeguarding-and-contemporary-role-historic-areas</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Recomendación relativa a la Participación y la Contribución de las Masas Populares en la Vida Cultural. Nairobi, Kenia. 26 de noviembre de 1976.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-participation-people-large-cultural-life-and-their-contribution-it" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-participation-people-large-cultural-life-and-their-contribution-it</a></li><li class="list-text-item">Recomendación sobre la Conservación de los Bienes Culturales que la Ejecución de Obras Públicas o Privadas pueda poner en Peligro. París, Francia. 19 de noviembre de 1968.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works</a></li><li class="list-text-item">Declaración Universal de Derechos Culturales.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works</a></li><li class="list-text-item">Declaración de Córdoba como Ciudad. Patrimonio de la Humanidad por la UNESCO.
+
+<a href="https://whc.unesco.org/en/list/313/" target="_blank">https://whc.unesco.org/en/list/313/</a></li><li class="list-text-item">Declaración Universal de Derechos Humanos.
+
+<a href="https://www.un.org/es/about-us/universal-declaration-of-human-rights" target="_blank">https://www.un.org/es/about-us/universal-declaration-of-human-rights</a></li><li class="list-text-item">Convención Cultural Europea, Paris, de 19 de diciembre de 1954.
+
+<a href="https://www.coe.int/en/web/culture-and-heritage/european-cultural-convention" target="_blank">https://www.coe.int/en/web/culture-and-heritage/european-cultural-convention</a></li><li class="list-text-item">Resolución (86) 3, del Comité de Ministros, sobre cooperación cultural europea, de 23 de abril de 1986.
+
+<a href="https://redined.educacion.gob.es/xmlui/handle/11162/81666" target="_blank">https://redined.educacion.gob.es/xmlui/handle/11162/81666</a></li><li class="list-text-item">Resolución (98) 4, del Comité de Ministros, sobre los itinerarios culturales del Consejo de Europa, de 17 de marzo de 1998.
+
+<a href="https://www.cultura.gob.es/dam/jcr:590c8c17-0eb5-48ba-b47f-5d42b5206dbd/itinerarios-culturales.pdf" target="_blank">https://www.cultura.gob.es/dam/jcr:590c8c17-0eb5-48ba-b47f-5d42b5206dbd/itinerarios-culturales.pdf</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Reglamento (UE) 2021/818 del Parlamento Europeo y del Consejo de 20 de mayo de 2021 por el que se establece el Programa Europa Creativa (2021 a 2027).
+
+<a href="https://www.boe.es/buscar/doc.php?id=DOUE-L-2021-80686" target="_blank">https://www.boe.es/buscar/doc.php?id=DOUE-L-2021-80686</a></li><li class="list-text-item">Carta de los Derechos Fundamentales de la Unión Europea.
+
+<a href="https://www.boe.es/doue/2010/083/Z00389-00403.pdf" target="_blank">https://www.boe.es/doue/2010/083/Z00389-00403.pdf</a></li><li class="list-text-item">Ley 16/1985 de Patrimonio Histórico Español.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1985-12534" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1985-12534</a></li><li class="list-text-item">Ley 23/1982, de 16 de junio, reguladora del Patrimonio Nacional. (Texto consolidado, ultima modificación: 31 de diciembre de 1997).
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1982-15230" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1982-15230</a></li><li class="list-text-item">Real Decreto 111/1986 de desarrollo parcial de la Ley 16/1985.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1986-2277" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1986-2277</a></li><li class="list-text-item">Real Decreto 2568/1986, de 28 de noviembre, por el que se aprueba el Reglamento de Organización, Funcionamiento y Régimen Jurídico de las Entidades Locales.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1986-33252" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1986-33252</a></li><li class="list-text-item">Constitución Española. Art. 44.
+
+<a href="https://app.congreso.es/consti/constitucion/indice/titulos/articulos.jsp?ini=44&amp;tipo=2" target="_blank">https://app.congreso.es/consti/constitucion/indice/titulos/articulos.jsp?ini=44&amp;tipo=2</a></li><li class="list-text-item">Ley 14/2007, de 26 de noviembre, del Patrimonio Histórico de Andalucía.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-2008-2494" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-2008-2494</a></li><li class="list-text-item">Ley de Ordenación Urbanística de Andalucía (Ley 7/2002).
+
+<a href="https://www.boe.es/diario_boe/txt.php?id=BOE-A-2012-2627" target="_blank">https://www.boe.es/diario_boe/txt.php?id=BOE-A-2012-2627</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Catálogo General de Patrimonio Histórico Andaluz.
+
+<a href="https://www.juntadeandalucia.es/organismos/culturaydeporte/areas/cultura/bienes-culturales/catalogo-pha.html" target="_blank">https://www.juntadeandalucia.es/organismos/culturaydeporte/areas/cultura/bienes-culturales/catalogo-pha.html</a></li><li class="list-text-item">Ley 5/2007, de 26 de junio, por la que se crea como entidad de derecho público el Instituto Andaluz de Patrimonio Histórico.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-2007-14405" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-2007-14405</a></li><li class="list-text-item">Decreto 550/2022, de 29 de noviembre, por el que se aprueba el Reglamento General de la Ley 7/2021, de 1 de diciembre, de impulso para la sostenibilidad del territorio de Andalucía.
+
+<a href="https://www.juntadeandalucia.es/boja/2022/232/6" target="_blank">https://www.juntadeandalucia.es/boja/2022/232/6</a></li><li class="list-text-item">Decreto 379/2009, de 1 de diciembre, por el que se modifica el decreto 4/1993, de 26 de enero. Reglamento de Organización Administrativa del Patrimonio Histórico de Andalucía.
+
+<a href="https://www.juntadeandalucia.es/boja/2009/244/46" target="_blank">https://www.juntadeandalucia.es/boja/2009/244/46</a></li><li class="list-text-item">Orden VIV/561/2010, de 1 de febrero, por la que se desarrolla el documento técnico de condiciones básicas de accesibilidad y no discriminación para el acceso y utilización de los espacios públicos urbanizados.
+
+<a href="https://www.boe.es/buscar/doc.php?id=BOE-A-2010-4057" target="_blank">https://www.boe.es/buscar/doc.php?id=BOE-A-2010-4057</a></li><li class="list-text-item">ORDEN de 9 de enero de 2012, por la que se aprueban los modelos de fichas y tablas justificativas del Reglamento que regula las normas para la accesibilidad en las infraestructuras, el urbanismo, la edificación y el transporte en Andalucía.
+
+<a href="https://www.juntadeandalucia.es/boja/2012/12/2.html" target="_blank">https://www.juntadeandalucia.es/boja/2012/12/2.html</a></li><li class="list-text-item">Plan General de Ordenación Urbana de Córdoba.
+
+<a href="https://www.gmucordoba.es/urbanismo/plan-general-de-ordenacion-urbanistica-pgou" target="_blank">https://www.gmucordoba.es/urbanismo/plan-general-de-ordenacion-urbanistica-pgou</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Plan Especial de Protección del Conjunto Histórico de Córdoba.
+
+<a href="https://www.gmucordoba.es/casco-historico/plan-especial-de-proteccion-del-casco-historico-pepch-01" target="_blank">https://www.gmucordoba.es/casco-historico/plan-especial-de-proteccion-del-casco-historico-pepch-01</a></li><li class="list-text-item">Ordenanza Municipal sobre Supresión de Barreras Arquitectónicas, Urbanísticas, en el Transporte y en la Comunicación Sensorial.
+
+<a href="https://www.cordoba.es/sites/default/files/PDF/Ayuntamiento/ordenanzas_bandos_y_otros/ordenanzas-y-reglamentos-municipales-no-fiscales/via_publica/Ordenanza_municipal_sobre_supresion_de_barreras_arquitectonicas_urbanisticas_en_el_transporte_y_en_la_comunicacion_sensorial.pdf" target="_blank">https://www.cordoba.es/sites/default/files/PDF/Ayuntamiento/ordenanzas_bandos_y_otros/ordenanzas-y-reglamentos-municipales-no-fiscales/via_publica/Ordenanza_municipal_sobre_supresion_de_barreras_arquitectonicas_urbanisticas_en_el_transporte_y_en_la_comunicacion_sensorial.pdf</a></li><li class="list-text-item">Recomendación que define los Principios Internacionales que deberían aplicarse a las Excavaciones Arqueológicas. Nueva Delhi, India. 5 de diciembre de 1956.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-international-principles-applicable-archaeological-excavations" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-international-principles-applicable-archaeological-excavations</a></li><li class="list-text-item">Convención sobre la Protección del Patrimonio Mundial, Cultural y Natural, de 16 de noviembre de 1972.
+
+<a href="https://patrimoniomundial.cultura.pe/patrimoniomundial/laconvencionde1972" target="_blank">https://patrimoniomundial.cultura.pe/patrimoniomundial/laconvencionde1972</a></li><li class="list-text-item">Recomendación sobre la protección, en el ámbito nacional, del Patrimonio cultural y natural.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-national-level-cultural-and-natural-heritage" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-national-level-cultural-and-natural-heritage</a></li><li class="list-text-item">Recomendación sobre el Intercambio Internacional de Bienes Culturales. Nairobi, Kenia. 26 de noviembre de 1976.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-international-exchange-cultural-property" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-international-exchange-cultural-property</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Recomendación sobre la Protección de los Bienes Culturales Muebles. Paris, Francia. 28 de noviembre de 1978.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-protection-movable-cultural-property" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-protection-movable-cultural-property</a></li><li class="list-text-item">Declaración de la UNESCO relativa a la destrucción intencional del patrimonio cultural, de 17 de octubre de 2003.
+
+<a href="https://www.unesco.org/es/legal-affairs/unesco-declaration-concerning-intentional-destruction-cultural-heritage" target="_blank">https://www.unesco.org/es/legal-affairs/unesco-declaration-concerning-intentional-destruction-cultural-heritage</a></li><li class="list-text-item">Recomendación relativa a la protección y promoción de los museos y colecciones, su diversidad y su función en la sociedad, 17 de noviembre de 2015.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-and-promotion-museums-and-collections-their-diversity-and-their" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-and-promotion-museums-and-collections-their-diversity-and-their</a></li><li class="list-text-item">Declaración Patrimonio de la Humanidad Medina Azahara.
+
+<a href="https://whc.unesco.org/en/list/1560/" target="_blank">https://whc.unesco.org/en/list/1560/</a></li><li class="list-text-item">Resolución (66) 20 del Comité de Ministros sobre la Rehabilitación de Monumentos (21 de marzo de 1966).
+
+<a href="https://search.coe.int/cm?i=09000016804f508d" target="_blank">https://search.coe.int/cm?i=09000016804f508d</a></li><li class="list-text-item">Resolución (68) 11 del Comité de Ministros sobre Principios y Métodos de Conservación y Rehabilitación de Sitios y Conjuntos de Interés Histórico (29 de abril de 1968).
+
+<a href="https://search.coe.int/cm?i=09000016804bb7e6" target="_blank">https://search.coe.int/cm?i=09000016804bb7e6</a></li><li class="list-text-item">Resolución (68) 12 del Comité de Ministros sobre la Conservación Activa de Sitios, Monumentos y Conjuntos de Interés Histórico o Artístico en el Marco de Ordenación del Territorio (29 de abril de 1968).
+
+<a href="https://search.coe.int/cm?i=09000016804bb7e6" target="_blank">https://search.coe.int/cm?i=09000016804bb7e6</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Resolución (72) 21 del Comité de Ministros sobre el Establecimiento de Inventarios Nacionales de Monumentos, Conjuntos y Sitios Históricos y Artísticos (24 de mayo de 1972).
+
+<a href="https://rm.coe.int/native/09000016804e2562" target="_blank">https://rm.coe.int/native/09000016804e2562</a></li><li class="list-text-item">Resolución de 16 de enero de 2001 del Parlamento Europeo sobre la Aplicación de la Convención sobre la Protección del Patrimonio Mundial, Cultural y Natural en los Estados de la Unión Europea.
+
+<a href="https://www.europarl.europa.eu/doceo/document/TA-5-2001-0005_EN.html" target="_blank">https://www.europarl.europa.eu/doceo/document/TA-5-2001-0005_EN.html</a>
+<a href="https://eur-lex.europa.eu/resource.html?uri=cellar:b38fc89b-c072-4932-9e93-da04356df5d2.0004.01/DOC_20&amp;format=PDF" target="_blank">https://eur-lex.europa.eu/resource.html?uri=cellar:b38fc89b-c072-4932-9e93-da04356df5d2.0004.01/DOC_20&amp;format=PDF</a></li><li class="list-text-item">Convenio Marco sobre el valor del patrimonio cultural para la sociedad, Faro, de 27 de octubre de 2005.
+
+<a href="https://rm.coe.int/16806a18d3" target="_blank">https://rm.coe.int/16806a18d3</a></li><li class="list-text-item">Directiva 2014/60/UE del Parlamento Europeo y del Consejo, de 15 de mayo de 2014, relativa a la restitución de bienes culturales que hayan salido de forma ilegal del territorio de un Estado miembro.
+
+<a href="https://www.boe.es/buscar/doc.php?id=DOUE-L-2014-81096" target="_blank">https://www.boe.es/buscar/doc.php?id=DOUE-L-2014-81096</a></li><li class="list-text-item">Real Decreto 620/1987, de 10 de abril por el que se aprueba el Reglamento de Museos de Titularidad Estatal y del Sistema Español de Museos.
+
+<a href="https://www.cultura.gob.es/mnceramica/dam/jcr:266b0143-226f-431c-be54-34c2fcb2f999/2-2-normativa-mte-y-sem-1987.pdf" target="_blank">https://www.cultura.gob.es/mnceramica/dam/jcr:266b0143-226f-431c-be54-34c2fcb2f999/2-2-normativa-mte-y-sem-1987.pdf</a></li><li class="list-text-item">Orden de 18 de mayo de 1994 para la reordenación de los museos de titularidad estatal adscritos al Ministerio de Cultura y ubicados en la Comunidad Autónoma de Andalucía.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1994-11604" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1994-11604</a></li><li class="list-text-item">Real Decreto 1305/2009, de 31 de julio, por el que se crea la Red de Museos de España.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-2009-13761" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-2009-13761</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Orden ECD/868/2015, de 5 de mayo, por la que se regula la visita pública a los museos de titularidad estatal adscritos y gestionados por el Ministerio de Educación, Cultura y Deporte y por el Instituto Nacional de las Artes Escénicas y de la Música.
+
+<a href="https://www.boe.es/diario_boe/txt.php?id=BOE-A-2015-5290" target="_blank">https://www.boe.es/diario_boe/txt.php?id=BOE-A-2015-5290</a></li><li class="list-text-item">Ley 8/2007, de 5 de octubre, de Museos y Colecciones Museográficas de Andalucía.
+
+<a href="https://www.boe.es/buscar/pdf/2007/BOE-A-2007-18779-consolidado.pdf" target="_blank">https://www.boe.es/buscar/pdf/2007/BOE-A-2007-18779-consolidado.pdf</a></li></ul></div>
+</div>
+        <a id="equipo"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Organigrama</div>
+    <div class="simple-content"><ul><li class="list-text-item">Maria Soria Velmonte - consultant (Organización)</li><li class="list-text-item">Antonio Garcia Moreno - consultant (Fundación)</li><li class="list-text-item">Dolores Sanchez Madueño - external_advisor (Organizaciónn)</li><li class="list-text-item">Valeria Mata Ramos - external_advisor (g)</li><li class="list-text-item">Elena Suarez Casas - manager (Organización de prueba)</li></ul><div class="photo-container">
+<img alt="Organigrama" class="photo-img" src="/static/uploads/organization_charts/report_5_organization_chart_4091194f-75c4-47f0-b8cf-052e5112fcae.jpg"/>
+</div><div class="photo-caption">Organigrama</div></div>
+</div>
+        
+        <a id="stakeholders"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Análisis de los grupos de interés</div>
+    <div class="simple-content"><h3>Internos</h3><ul><li class="list-text-item">Interno de gestión de sostenibilidad</li><li class="list-text-item">Trabajadores</li></ul><h3>Externos</h3><ul><li class="list-text-item">Visitantes</li></ul></div>
+</div>
+
+        <a id="diagnostico"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Diagnóstico</div>
+    <div class="simple-content"><p>Esta es la descripciónnn</p></div>
+</div>
+        
+
+
+<div class="page">
+<table id="topics-table" class="table" style="border: 3px solid #000;">
+    <tr>
+        <th style="width: 20%; padding: 10px; text-align: center; border: 1px solid #ddd;">Dimensión</th>
+        <th style="width: 70%; padding: 10px; text-align: center; border: 1px solid #ddd;">Asuntos de Materialidad</th>
+    </tr>
+    
+    
+        
+        
+            <tr>
+                <td style="background-color: #706cb4; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="3">
+                    PERSONAS
+                </td>
+                
+                    
+                    <td style="background-color: #d8dcf4; padding: 10px; border: 1px solid #ddd;">
+                        1. Difusión y sensibilización
+                    </td>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #d8dcf4; padding: 10px; border: 1px solid #ddd;">
+                        2. Formación
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #d8dcf4; padding: 10px; border: 1px solid #ddd;">
+                        3. Salud pública
+                    </td>
+                    
+                        </tr>
+                    
+                
+            </tr>
+        
+    
+        
+        
+            <tr>
+                <td style="background-color: #08a44c; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="5">
+                    PLANETA
+                </td>
+                
+                    
+                    <td style="background-color: #c8dcb4; padding: 10px; border: 1px solid #ddd;">
+                        4. Contratación de servicios
+                    </td>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #c8dcb4; padding: 10px; border: 1px solid #ddd;">
+                        5. Economía circular y gestión de residuos
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #c8dcb4; padding: 10px; border: 1px solid #ddd;">
+                        6. Gestión sostenible del recurso hídrico
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #c8dcb4; padding: 10px; border: 1px solid #ddd;">
+                        7. Gestión sostenible de equipamientos y mobiliario
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #c8dcb4; padding: 10px; border: 1px solid #ddd;">
+                        8. Transición energética y cambio climático
+                    </td>
+                    
+                        </tr>
+                    
+                
+            </tr>
+        
+    
+        
+        
+            <tr>
+                <td style="background-color: #e89c24; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="9">
+                    PROSPERIDAD
+                </td>
+                
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        9. Accesibilidad e inclusión
+                    </td>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        10. Conservación, protección y salvaguarda del patrimonio
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        11. Empleo y condiciones laborales
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        12. Gestión económica sostenible
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        13. Gestión sostenible del turismo
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        14. Igualdad de oportunidades
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        15. Inversión y financiación
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        16. Transformación digital
+                    </td>
+                    
+                        </tr>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #ffe4c4; padding: 10px; border: 1px solid #ddd;">
+                        17. Usuarios, usuarias y comunidad local
+                    </td>
+                    
+                        </tr>
+                    
+                
+            </tr>
+        
+    
+        
+        
+            <tr>
+                <td style="background-color: #08acdc; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="2">
+                    PAZ
+                </td>
+                
+                    
+                    <td style="background-color: #c8e4f4; padding: 10px; border: 1px solid #ddd;">
+                        18. Gestión ética, buen gobierno y transparencia
+                    </td>
+                    
+                
+                    
+                        <tr>
+                    
+                    <td style="background-color: #c8e4f4; padding: 10px; border: 1px solid #ddd;">
+                        19. Participación ciudadana
+                    </td>
+                    
+                        </tr>
+                    
+                
+            </tr>
+        
+    
+        
+        
+            <tr>
+                <td style="background-color: #c04c94; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="1">
+                    ALIANZAS
+                </td>
+                
+                    
+                    <td style="background-color: #e0cce4; padding: 10px; border: 1px solid #ddd;">
+                        20. Alianzas y colaboraciones público-privadas
+                    </td>
+                    
+                
+            </tr>
+        
+    
+</table>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Asuntos de materialidad</div>
+    <div class="simple-content"><h2 class="dimension-title">PLANETA</h2><ul class='topic-list'><li>
+<span class="topic-title">Contratación de servicios</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para evaluar, controlar y gestionar los servicios contratados dentro del mismo. Esto engloba el análisis de estas contrataciones, valorando la procedencia de sus productos si los tuviera, si tienen criterios de sostenibilidad o no, las condiciones de su personal, etc.</p>
+</li><li>
+<span class="topic-title">Economía circular y gestión de residuos</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para garantizar una correcta gestión de los residuos generados y fomentar un aprovechamiento de los mismos donde prime la reducción de elementos, promoviendo la utilización de materiales biodegradables que al agotar su vida útil no supongan un daño para el medioambiente.</p>
+</li><li>
+<span class="topic-title">Gestión sostenible del recurso hídrico</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para administrar de manera sostenible el uso del agua en las instalaciones. Incluye plantear sistemas de almacenamiento y aprovechamiento de aguas recuperadas para su utilización en las necesidades del recurso.</p>
+</li><li>
+<span class="topic-title">Gestión sostenible de equipamientos y mobiliario</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para garantizar que sus instalaciones y mobiliario sean fabricados, en la medida de lo posible, con materiales naturales, reciclados y sin tratamientos químicos, de manera que no supongan un daño para el medioambiente, para las propias personas usuarias o encargadas de su fabricación.</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Transición energética y cambio climático</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para implementar y desarrollar mecanismos de aprovechamiento de la energía y fomentar actuaciones para reducir el cambio climático y mermar sus efectos sobre el recurso.</p>
+</li></ul><h2 class="dimension-title">PERSONAS</h2><ul class='topic-list'><li>
+<span class="topic-title">Difusión y sensibilización</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para dar a conocer y transmitir el propio recurso y su legado, tantomaterial como inmaterial, fomentando su comunicación y difusión en todos sus ámbitos de interés de la sociedad.</p>
+</li><li>
+<span class="topic-title">Formación</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar el aprendizaje y capacidades de las personas usuarias, agentes gestores y comunidad del recurso en materia vinculada al mismo. Engloba las actividades de formación ofrecidas por el propio recurso hacia las personas usuarias externas o la formación interna recibida por el propio organismo para avanzar en su gestión.</p>
+</li><li>
+<span class="topic-title">Salud pública</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para controlar, evaluar, mejorar y garantizar un ambiente de confort y bienestar en el mismo, enfocado a las personas usuarias y trabajadoras. Además, pretende evaluar e implementar estrategias que contribuyan a dicho confort.</p>
+</li></ul><h2 class="dimension-title">PROSPERIDAD</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Accesibilidad e inclusión</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para facilitar información y ofrecer instalaciones accesibles e inclusivas del propio recurso para todas las personas, independientemente de sus condiciones socio-económicas, discapacidad u otra condición, de modo que cualquier persona pueda participar, utilizar y acceder al propio recurso de forma autónoma</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Conservación, protección y salvaguarda del patrimonio</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar la conservación, la protección y la salvaguarda de todo tipo de patrimonio, natural y cultural, material e inmaterial para su uso sostenible. Subrayamos también, como lo reconoce el Consejo de Europa, la importancia en la conservación del patrimonio cultural, de la “comunidad patrimonial”. Es decir, las personas y los valores específicos del patrimonio que se desean conservar y transmitir a futuras generaciones.</p>
+</li><li>
+<span class="topic-title">Empleo y condiciones laborales</span>
+<p class="topic-description">Comprende las diferentes acciones a realizar por el recurso patrimonial para favorecer el empleo de calidad, proteger los derechos laborales y promover un entorno de trabajo seguro y sin riesgos para todos los trabajadores.</p>
+</li><li>
+<span class="topic-title">Gestión económica sostenible</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para gestionar sus recursos y cuidarlos, garantizando una rentabilidad responsable y a largo plazo.</p>
+</li><li>
+<span class="topic-title">Gestión sostenible del turismo</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para garantizar modalidades de consumo y producción sostenibles. La gestión sostenible del turismo tiene en cuenta las repercusiones actuales y futuras que sus acciones implican en el ámbito del recurso, tanto económicas como medioambientales o sociales e intenta que estas sean las menos posibles.</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Igualdad de oportunidades</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar la ausencia de toda discriminación, directa o indirecta, por motivo de discapacidad, de género o de cualquier distinción, exclusión o restricción, que tenga el efecto sobre las personas por no poder tener igualdad de condiciones en los ámbitos económico, social, laboral, cultural, etc. del propio recurso.</p>
+</li><li>
+<span class="topic-title">Inversión y financiación</span>
+<p class="topic-description"></p>
+</li><li>
+<span class="topic-title">Transformación digital</span>
+<p class="topic-description"></p>
+</li><li>
+<span class="topic-title">Usuarios, usuarias y comunidad local</span>
+<p class="topic-description"></p>
+</li></ul><h2 class="dimension-title">PAZ</h2><ul class='topic-list'><li>
+<span class="topic-title">Gestión ética, buen gobierno y transparencia</span>
+<p class="topic-description"></p>
+</li><li>
+<span class="topic-title">Participación ciudadana</span>
+<p class="topic-description"></p>
+</li></ul><h2 class="dimension-title">ALIANZAS</h2><ul class='topic-list'><li>
+<span class="topic-title">Alianzas y colaboraciones público-privadas</span>
+<p class="topic-description"></p>
+</li></ul></div>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Indicadores de diagnóstico</div>
+    <div class="simple-content">
+            <p>
+            Una vez definidos los asuntos de materialidad para el recurso patrimonial, se han construido unos indicadores cualitativos y cuantitativos para cada uno y se han recopilado los datos pertinentes.
+            </p>
+            </div>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Indicadores de diagnóstico</div>
+    <div class="simple-content"><a id="diagnosis-Difusión-y-sensibilización"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Difusión y sensibilización</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>Holaa</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Formación"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Formación</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>Hola2</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Salud-pública"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Salud pública</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 3 - Salud y Bienestar</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>3.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Contratación-de-servicios"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Contratación de servicios</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.6</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Economía-circular-y-gestión-de-residuos"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Economía circular y gestión de residuos</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-recurso-hídrico"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del recurso hídrico</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 6 - Agua Limpia y Saneamiento</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>6.4</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-sostenible-de-equipamientos-y-mobiliario"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible de equipamientos y mobiliario</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Transición-energética-y-cambio-climático"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transición energética y cambio climático</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 13 - Acción por el Clima</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>13.2</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Accesibilidad-e-inclusión"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Accesibilidad e inclusión</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Conservación,-protección-y-salvaguarda-del-patrimonio"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Conservación, protección y salvaguarda del patrimonio</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Empleo-y-condiciones-laborales"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Empleo y condiciones laborales</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.8</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-económica-sostenible"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión económica sostenible</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.4</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-turismo"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del turismo</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.b</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Igualdad-de-oportunidades"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Igualdad de oportunidades</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.5</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Inversión-y-financiación"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Inversión y financiación</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Transformación-digital"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transformación digital</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>9.4</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 10 - Reducción de las Desigualdades</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Usuarios,-usuarias-y-comunidad-local"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Usuarios, usuarias y comunidad local</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.a</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-ética,-buen-gobierno-y-transparencia"></a><h2 class="dimension-title">PAZ</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión ética, buen gobierno y transparencia</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.6</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Participación-ciudadana"></a><h2 class="dimension-title">PAZ</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Participación ciudadana</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Alianzas-y-colaboraciones-público-privadas"></a><h2 class="dimension-title">ALIANZAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#e0cce4;">ALIANZAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Alianzas y colaboraciones público-privadas</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>17.7</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table></div>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Matriz de materialidad</div>
+    <div class="simple-content"><div style="height: 20px"></div><div class="photo-container">
+<img alt="Matriz de materialidad" class="photo-img" src="C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\static\uploads\reports\5_materiality_matrix.png"/>
+</div><div class="photo-caption">Matriz de materialidad</div></div>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Impactos principales y secundarios</div>
+    <div class="simple-content"><p>Escribe aquí el texto de impactos principales y secundarios...</p><a id="diagnosis-Difusión-y-sensibilización"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Difusión y sensibilización</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>Holaa</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Formación"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Formación</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>Hola2</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Salud-pública"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Salud pública</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 3 - Salud y Bienestar</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>3.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Contratación-de-servicios"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Contratación de servicios</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.6</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Economía-circular-y-gestión-de-residuos"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Economía circular y gestión de residuos</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-recurso-hídrico"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del recurso hídrico</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 6 - Agua Limpia y Saneamiento</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>6.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-sostenible-de-equipamientos-y-mobiliario"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible de equipamientos y mobiliario</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Transición-energética-y-cambio-climático"></a><h2 class="dimension-title">PLANETA</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transición energética y cambio climático</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 13 - Acción por el Clima</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>13.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Accesibilidad-e-inclusión"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Accesibilidad e inclusión</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Conservación,-protección-y-salvaguarda-del-patrimonio"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Conservación, protección y salvaguarda del patrimonio</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Empleo-y-condiciones-laborales"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Empleo y condiciones laborales</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.8</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-económica-sostenible"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión económica sostenible</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-turismo"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del turismo</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.b</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Igualdad-de-oportunidades"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Igualdad de oportunidades</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.5</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Inversión-y-financiación"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Inversión y financiación</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Transformación-digital"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transformación digital</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>9.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 10 - Reducción de las Desigualdades</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Usuarios,-usuarias-y-comunidad-local"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Usuarios, usuarias y comunidad local</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.a</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-ética,-buen-gobierno-y-transparencia"></a><h2 class="dimension-title">PAZ</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión ética, buen gobierno y transparencia</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.6</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Participación-ciudadana"></a><h2 class="dimension-title">PAZ</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Participación ciudadana</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Alianzas-y-colaboraciones-público-privadas"></a><h2 class="dimension-title">ALIANZAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#e0cce4;">ALIANZAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Alianzas y colaboraciones público-privadas</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>17.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table></div>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Impactos principales y secundarios</div>
+    <div class="simple-content"><div style="height: 20px"></div><div class="photo-container">
+<img alt="Impactos principales" class="photo-img" src="C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\static\uploads\reports\5_main_impacts.png"/>
+</div><div class="photo-caption">Impactos principales</div><div class="photo-container">
+<img alt="Impactos secundarios" class="photo-img" src="C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\static\uploads\reports\5_secondary_impacts.png"/>
+</div><div class="photo-caption">Impactos secundarios</div></div>
+</div>
+
+        <a id="hoja-ruta"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Hoja de ruta de la sostenibilidad</div>
+    <div class="simple-content"><p>Escribe aquí la descripción de la hoja de ruta y sus objetivos principales....</p></div>
+</div>
+        
+        
+        
+
+    <div class="photo-container">
+        <img src="C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\static\uploads\reports\5_internal_consistency.png" alt="Gráfico de coherencia interna" class="photo-img">
+    </div>
+    
+    <div class="photo-caption">Gráfico de coherencia interna</div>
+    
+
+
+        <a id="difusion"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Difusión</div>
+    <div class="simple-content"><p>Escribe aquí la información sobre la difusión del reporte...</p></div>
+</div>
+        <a id="acuerdos"></a>
+        
+        <a id="bibliografia"></a>
+        
+        <a id="galeria-fotografica"></a>
+    </body>
+    </html>
+    

@@ -95,7 +95,7 @@ class SustainabilityReportBase(BaseModel):
     org_chart_figure: Optional[str] = None
     diagnosis_description: Optional[str] = None
     scale: int = 5
-    internal_coherence_description: Optional[str] = None
+    internal_consistency_description: Optional[str] = None
     main_impact_weight: Optional[Decimal] = None
     secondary_impact_weight: Optional[Decimal] = None
     roadmap_description: Optional[str] = None
@@ -127,7 +127,7 @@ class SustainabilityReportUpdate(BaseModel):
     org_chart_figure: Optional[str] = None
     diagnosis_description: Optional[str] = None
     scale: Optional[int] = None
-    internal_coherence_description: Optional[str] = None
+    internal_consistency_description: Optional[str] = None
     main_impact_weight: Optional[Decimal] = None
     secondary_impact_weight: Optional[Decimal] = None
     roadmap_description: Optional[str] = None

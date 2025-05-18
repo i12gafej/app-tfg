@@ -91,7 +91,7 @@ def upgrade() -> None:
     sa.Column('diagnosis_description', sa.Text(), nullable=True),
     sa.Column('scale', sa.Integer(), nullable=False),
     sa.Column('action_plan_description', sa.Text(), nullable=True),
-    sa.Column('internal_coherence_description', sa.Text(), nullable=True),
+    sa.Column('internal_consistency_description', sa.Text(), nullable=True),
     sa.Column('main_impact_weight', sa.DECIMAL(precision=5, scale=2), nullable=True),
     sa.Column('secondary_impact_weight', sa.DECIMAL(precision=5, scale=2), nullable=True),
     sa.Column('roadmap_description', sa.Text(), nullable=True),

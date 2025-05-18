@@ -11,9 +11,9 @@ from app.models.models import (
     ReportBibliography as ReportBibliographyModel,
     ReportNorm as ReportNormModel,
     MaterialTopic,
-    DiagnosticIndicator,
-    DiagnosticIndicatorQualitative,
-    DiagnosticIndicatorQuantitative,
+    DiagnosisIndicator,
+    DiagnosisIndicatorQualitative,
+    DiagnosisIndicatorQuantitative,
     SpecificObjective,
     Action,
     PerformanceIndicator,
@@ -42,7 +42,10 @@ from app.schemas.reports import (
     ReportPhoto,
     ReportPhotoResponse
 )
+
+from app.schemas.diagnosis_indicators import DiagnosisIndicator as DiagnosisIndicatorSchema
 import os
+import base64
 import uuid
 import shutil
 from pathlib import Path
@@ -52,6 +55,17 @@ from app.core.config import Settings
 from fastapi import UploadFile
 import requests
 from io import BytesIO
+from app.graphs.materiality_matrix import create_materiality_matrix_data, generate_matrix_image
+from app.graphs.main_secondary_impacts import get_main_impacts_material_topics_graph, get_secondary_impacts_material_topics_graph
+from app.graphs.internal_consistency import generate_internal_consistency_graph, get_dimension_totals
+from app.crud import resources as crud_resources
+from app.crud import material_topics as crud_material_topic
+from app.crud import diagnosis_indicators as crud_diagnosis_indicators
+from app.crud import ods as crud_ods
+from app.crud import action_plan as crud_action_plan
+from app.crud import stakeholders as crud_stakeholders
+from app.crud import team as crud_team
+from app.utils.report_generator import ReportGenerator
 
 settings = Settings()
 
@@ -211,6 +225,9 @@ def delete_report(db: Session, report_id: int) -> bool:
     except Exception as e:
         raise e
 
+import logging
+logger = logging.getLogger(__name__)
+
 def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
     """
     Obtiene todos los datos de un reporte de sostenibilidad, incluyendo:
@@ -236,8 +253,7 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             raise Exception("Reporte no encontrado")
 
         # Obtener el recurso patrimonial
-        resource = resources.get(db, report.heritage_resource_id)
-
+        resource = crud_resources.get(db, report.heritage_resource_id)
         # Obtener todas las tablas relacionadas
         norms = get_all_norms_by_report_id(db, report_id)
         logos = get_all_report_logos(db, report_id)
@@ -245,18 +261,21 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
         bibliographies = get_all_report_bibliographies(db, report_id)
         photos = get_all_report_photos(db, report_id)
         material_topics = crud_material_topic.get_all_by_report(db, report_id)
-        diagnostic_indicators = crud_diagnostic_indicators.get_all_by_report(db, report_id)
+        diagnosis_indicators:List[DiagnosisIndicatorSchema] = crud_diagnosis_indicators.get_all_by_report(db, report_id)
         secondary_impacts = crud_ods.get_all_secondary_impacts_by_report(db, report_id)
         ods = crud_ods.get_all_ods(db)
         action_secondary_impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        primary_impacts = crud_action_plan.get_all_action_main_impacts(db, report_id)
+        dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, secondary_impacts, float(report.main_impact_weight), float(report.secondary_impact_weight))
         
         # Obtener acciones y objetivos relacionados
         action_plan = crud_action_plan.get_action_plan_by_report(db, report_id)
         
         # Obtener stakeholders y miembros del equipo
-        stakeholders = crud_stakeholders.get_all_stakeholders_by_report(db, report_id)
+        stakeholders = crud_stakeholders.get_all_stakeholders_by_report(db, report_id)  
+        
         team_members = crud_team.get_all_team_members_by_report(db, report_id)
-
+        
         # Construir el diccionario de respuesta
         return {
             # Datos básicos del reporte
@@ -266,25 +285,29 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             'year': report.year,
             'observation': report.observation,
             'ods': ods,
-            # Campos de texto
-            'commitment_letter': report.commitment_letter,
-            'mission': report.mission,
-            'vision': report.vision,
-            'values': report.values,
-            'org_chart_text': report.org_chart_text,
-            'diagnosis_description': report.diagnosis_description,
-            'scale': report.scale,
-            'permissions': report.permissions,
-            'action_plan_description': report.action_plan_description,
-            'internal_coherence_description': report.internal_coherence_description,
             'main_impact_weight': report.main_impact_weight,
             'secondary_impact_weight': report.secondary_impact_weight,
-            'roadmap_description': report.roadmap_description,
-            'data_tables_text': report.data_tables_text,
-            'stakeholders_description': report.stakeholders_description,
-            'materiality_text': report.materiality_text,
-            'main_secondary_impacts_text': report.main_secondary_impacts_text,
-            'materiality_matrix_text': report.materiality_matrix_text,
+            'scale': report.scale,
+            'permissions': report.permissions,
+
+
+            # Campos de texto
+            'commitment_letter': report.commitment_letter or "",
+            'mission': report.mission or "",
+            'vision': report.vision or "",
+            'values': report.values or "",
+            'org_chart_text': report.org_chart_text or "",
+            'diagnosis_description': report.diagnosis_description or "",
+            'action_plan_text': report.action_plan_text or "",
+            'internal_consistency_description': report.internal_consistency_description or "",
+            'roadmap_description': report.roadmap_description or "",
+            'data_tables_text': report.data_tables_text or "",
+            'stakeholders_description': report.stakeholders_description or "",
+            'materiality_text': report.materiality_text or "",
+            'main_secondary_impacts_text': report.main_secondary_impacts_text or "",
+            'materiality_matrix_text': report.materiality_matrix_text or "",
+            'internal_consistency_description': report.internal_consistency_description or "",
+            'diffusion_text': report.diffusion_text or "",
             # Enlaces a archivos
             'cover_photo': report.cover_photo,
             'org_chart_figure': report.org_chart_figure,
@@ -308,24 +331,76 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             } if resource else None,
             
             # Tablas relacionadas
-            'norms': norms,
-            'logos': logos,
-            'agreements': agreements,
-            'bibliographies': bibliographies,
-            'photos': photos,
-            'material_topics': material_topics,
-            'diagnostic_indicators': diagnostic_indicators,
-            'secondary_impacts': secondary_impacts,
-            'action_secondary_impacts': action_secondary_impacts,
-            'actions': action_plan['actions'],
-            'performance_indicators': action_plan['performance_indicators'],
-            'specific_objectives': action_plan['specific_objectives'],
-            'stakeholders': stakeholders,
-            'team_members': team_members
+            'norms': norms or [],
+            'logos': logos or [],
+            'agreements': agreements or [],
+            'bibliographies': bibliographies or [],
+            'photos': photos or [],
+            'material_topics': material_topics or [],
+            'diagnosis_indicators': diagnosis_indicators or [],
+            'secondary_impacts': secondary_impacts or [],
+            'action_secondary_impacts': action_secondary_impacts or [],
+            'dimension_totals': dimension_totals,
+            'actions': action_plan['actions'] or [],
+            'performance_indicators': action_plan['performance_indicators'] or [],
+            'specific_objectives': action_plan['specific_objectives'] or [],
+            'stakeholders': stakeholders or [],
+            'team_members': team_members or []
         }
 
     except Exception as e:
-        raise Exception(f"Error al obtener los datos del reporte: {str(e)}")
+        logger.error(f"Error al obtener los datos del reporte: {str(e)}")
+        raise 
+
+def generate_report_html(db: Session, report_id: int) -> str:
+    try: 
+        report_data = get_report_data(db, report_id)
+        matrix_data = create_materiality_matrix_data(db, report_id, scale=report_data['scale'])
+        def save_base64_image(data_url, path):
+            # data_url: "data:image/png;base64,...."
+            
+            header, encoded = data_url.split(',', 1)
+            dir_path = os.path.dirname(path)
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path, exist_ok=True)
+            with open(path, "wb") as f:
+                f.write(base64.b64decode(encoded))
+
+        # 1. Matriz de materialidad
+        matrix_img_b64 = generate_matrix_image(matrix_data, scale=report_data['scale'])
+        matrix_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_materiality_matrix.png")
+        save_base64_image(matrix_img_b64, matrix_img_path)
+        report_data['materiality_matrix'] = matrix_img_path
+        report_data['legend'] = matrix_data
+
+        # 2. Gráfico de impactos principal
+        main_impacts_img_b64 = get_main_impacts_material_topics_graph(report_data['material_topics'])
+        main_impacts_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_main_impacts.png")
+        save_base64_image(main_impacts_img_b64, main_impacts_img_path)
+        report_data['main_impacts_graph'] = main_impacts_img_path
+
+        # 3. Gráfico de impactos secundarios
+        secondary_impacts_img_b64 = get_secondary_impacts_material_topics_graph(report_data['secondary_impacts'])
+        secondary_impacts_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_secondary_impacts.png")
+        save_base64_image(secondary_impacts_img_b64, secondary_impacts_img_path)
+        report_data['secondary_impacts_graph'] = secondary_impacts_img_path
+
+        # 4. Gráfico de coherencia interna
+        # Suponiendo que tienes un dict 'dimension_totals' en report_data
+        internal_consistency_img_b64, dimension_totals_list = generate_internal_consistency_graph(report_data['dimension_totals'])
+        internal_consistency_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_internal_consistency.png")
+        save_base64_image(internal_consistency_img_b64, internal_consistency_img_path)
+        report_data['internal_consistency_graph'] = internal_consistency_img_path
+        report_data['dimension_totals'] = dimension_totals_list
+        
+        # Guardar el HTML de la memoria
+        generator = ReportGenerator()
+        url = generator.generate_report(report_data)
+        logger.info(f"URL: {url}")
+        return url
+    except Exception as e:
+        logger.error(f"Error al generar el HTML del reporte: {str(e)}")
+        raise 
 
 def get_all_norms_by_report_id(db: Session, report_id: int) -> List[ReportNorm]:
     try:
@@ -408,7 +483,7 @@ def upload_logo(db: Session, report: SustainabilityReport, content: bytes, file_
             file_object.write(content)
 
         # Crear registro en la base de datos (usando ruta relativa para la URL)
-        file_url = f"/static/uploads/logos/{filename}"
+        file_url = f"{settings.LOGOS_DIR}/{filename}"
         new_logo = ReportLogoModel(
             logo=file_url,
             report_id=report.id
@@ -429,7 +504,7 @@ def update_organization_chart(db: Session, report: SustainabilityReport, content
         with open(file_path, "wb") as file_object:
             file_object.write(content)
 
-        file_url = f"/static/uploads/organization_charts/{filename}"
+        file_url = f"{settings.ORGANIZATION_CHART_DIR}/{filename}"
         report.org_chart_figure = file_url
         db.commit()
         return file_url
@@ -453,8 +528,7 @@ def get_all_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse
                 
 
                 # Leer el archivo y convertirlo a base64
-                with open(file_path, "rb") as image_file:
-                    import base64
+                with open(file_path, "rb") as image_file:            
                     encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
                     
                     # Determinar el tipo MIME basado en la extensión del archivo
@@ -515,9 +589,11 @@ def get_all_report_agreements(db: Session, report_id: int) -> List[ReportAgreeme
     except Exception as e:
         raise e
 
+
+
 def create_agreement(db: Session, agreement: ReportAgreementCreate) -> ReportAgreement:
     try:
-        db_agreement = ReportAgreement(**agreement.dict())
+        db_agreement = ReportAgreementModel(**agreement.dict())
         db.add(db_agreement)
         db.commit()
         db.refresh(db_agreement)
@@ -554,7 +630,7 @@ def delete_agreement(db: Session, agreement_id: int, agreement: ReportAgreement)
 
 def create_bibliography(db: Session, bibliography: ReportBibliographyCreate) -> ReportBibliography:
     try:
-        db_bibliography = ReportBibliography(**bibliography.dict())
+        db_bibliography = ReportBibliographyModel(**bibliography.dict())
         db.add(db_bibliography)
         db.commit()
         db.refresh(db_bibliography)
@@ -564,7 +640,7 @@ def create_bibliography(db: Session, bibliography: ReportBibliographyCreate) -> 
 
 def get_bibliography_by_id(db: Session, bibliography_id: int) -> ReportBibliography:
     try:
-        return db.query(ReportBibliography).filter(ReportBibliography.id == bibliography_id).first()
+        return db.query(ReportBibliographyModel).filter(ReportBibliographyModel.id == bibliography_id).first()
     except Exception as e:
         raise e
 
@@ -642,7 +718,6 @@ def get_all_report_photos(db: Session, report_id: int) -> List[ReportPhoto]:
 
                 # Leer el archivo y convertirlo a base64
                 with open(file_path, "rb") as image_file:
-                    import base64
                     encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
                     
                     # Determinar el tipo MIME basado en la extensión del archivo
@@ -768,13 +843,15 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         text_attributes = [
             'commitment_letter', 'mission', 'vision', 'values',
             'org_chart_text', 'diagnosis_description',
-            'internal_coherence_description', 'roadmap_description', 'data_tables_text',
+            'internal_consistency_description', 'roadmap_description', 'data_tables_text',
             'stakeholders_description', 'materiality_text', 'main_secondary_impacts_text',
             'materiality_matrix_text', 'action_plan_text', 'diffusion_text'
         ]
 
         for attr in text_attributes:
-            setattr(new_report, attr, getattr(template_report, attr))
+            valor = getattr(template_report, attr)
+            if valor not in [None, '']:
+                setattr(new_report, attr, valor)
         
         db.commit()
         db.refresh(new_report)
@@ -809,15 +886,15 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for old_mt, new_mt in zip(template_material_topics, new_material_topics):
             material_topic_id_map[old_mt.id] = new_mt.id
 
-        # 3. Copiar Diagnostic Indicators y sus valores
-        template_indicators = db.query(DiagnosticIndicator).filter(
-            DiagnosticIndicator.material_topic_id.in_(material_topic_id_map.keys())
+        # 3. Copiar diagnosis Indicators y sus valores
+        template_indicators = db.query(DiagnosisIndicator).filter(
+            DiagnosisIndicator.material_topic_id.in_(material_topic_id_map.keys())
         ).all()
 
         indicator_id_map = {}
 
         for di in template_indicators:
-            new_di = DiagnosticIndicator(
+            new_di = DiagnosisIndicator(
                 name=di.name,
                 type=di.type,
                 material_topic_id=material_topic_id_map[di.material_topic_id]
@@ -826,36 +903,36 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         
         db.commit()
 
-        # Obtener los nuevos Diagnostic Indicators y crear el mapeo de IDs
-        new_indicators = db.query(DiagnosticIndicator).filter(
-            DiagnosticIndicator.material_topic_id.in_(material_topic_id_map.values())
+        # Obtener los nuevos diagnosis Indicators y crear el mapeo de IDs
+        new_indicators = db.query(DiagnosisIndicator).filter(
+            DiagnosisIndicator.material_topic_id.in_(material_topic_id_map.values())
         ).all()
 
         for old_di, new_di in zip(template_indicators, new_indicators):
             indicator_id_map[old_di.id] = new_di.id
 
-        # 4. Copiar valores de Diagnostic Indicators
+        # 4. Copiar valores de diagnosis Indicators
         # Cuantitativos
-        template_quantitative = db.query(DiagnosticIndicatorQuantitative).filter(
-            DiagnosticIndicatorQuantitative.diagnostic_indicator_id.in_(indicator_id_map.keys())
+        template_quantitative = db.query(DiagnosisIndicatorQuantitative).filter(
+            DiagnosisIndicatorQuantitative.diagnosis_indicator_id.in_(indicator_id_map.keys())
         ).all()
 
         for diq in template_quantitative:
-            new_diq = DiagnosticIndicatorQuantitative(
-                diagnostic_indicator_id=indicator_id_map[diq.diagnostic_indicator_id],
+            new_diq = DiagnosisIndicatorQuantitative(
+                diagnosis_indicator_id=indicator_id_map[diq.diagnosis_indicator_id],
                 numeric_response=diq.numeric_response,
                 unit=diq.unit
             )
             db.add(new_diq)
 
         # Cualitativos
-        template_qualitative = db.query(DiagnosticIndicatorQualitative).filter(
-            DiagnosticIndicatorQualitative.diagnostic_indicator_id.in_(indicator_id_map.keys())
+        template_qualitative = db.query(DiagnosisIndicatorQualitative).filter(
+            DiagnosisIndicatorQualitative.diagnosis_indicator_id.in_(indicator_id_map.keys())
         ).all()
 
         for diq in template_qualitative:
-            new_diq = DiagnosticIndicatorQualitative(
-                diagnostic_indicator_id=indicator_id_map[diq.diagnostic_indicator_id],
+            new_diq = DiagnosisIndicatorQualitative(
+                diagnosis_indicator_id=indicator_id_map[diq.diagnosis_indicator_id],
                 response=diq.response
             )
             db.add(new_diq)
@@ -1171,7 +1248,7 @@ def initialize_default_text(report):
         'main_secondary_impacts_text',
         'materiality_matrix_text',
         'action_plan_text',
-        'internal_coherence_description',
+        'internal_consistency_description',
     ]
     for attr in atributos:
         file_path = settings.DEFAULT_TEXT_DIR / f"{attr}.html"

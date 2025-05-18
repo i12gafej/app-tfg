@@ -7,12 +7,12 @@
     {% for dimension in dimensions %}
         {% set dimension_topics = material_topics|selectattr('dimension', 'equalto', dimension)|list %}
         {% if dimension_topics %}
-            <h2 class="dimension-title">{{ dimension }}</h2>
+            <h2 class="dimension-title">{{ dimension | safe }}</h2>
             <ul class="topic-list">
                 {% for topic in dimension_topics %}
                     <li>
-                        <span class="topic-title">{{ topic.name }}</span>
-                        <p class="topic-description">{{ topic.description }}</p>
+                        <span class="topic-title">{{ topic.name | safe }}</span>
+                        <p class="topic-description">{{ topic.description | safe }}</p>
                     </li>
                 {% endfor %}
             </ul>

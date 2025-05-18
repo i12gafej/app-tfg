@@ -1,0 +1,160 @@
+= AsciiDoc3 Installation
+
+TIP: AsciiDoc3 requires 'Python 3.7' or higher
+to run, it will definitely crash when using Python2.x. Probably there are 
+few systems in the real world running with Python < 3.7 any more - these versions have reached their end of live. Please consider updating to a newer version!
+Python is installed by default in most Unix and GNU/Linux distributions. If you don't find an up-to-date version
+of Python installed it can be downloaded from the official Python website https://www.python.org/. +
+Windows users please look link:windows.html[here]. 
+
+
+[WARNING]
+To run AsciiDoc3 the executable command 'python3' is a must-have. That means, typing 'python3' at the command line starts the Python3 executable and you see something like +
+'$ python3' +
+'$ Python 3.7.3 (default, Apr  3 2019, 05:39:12) [GCC 8.3.0] on linux' +
+'Type "help", "copyright", "credits" or "license" for more information.' +
+'>>>' +
+In (almost) every Unix and GNU/Linux distribution this is a given. If not, you can easily add a symlink python3 -> python3.7 (please take your current version). Be sure that 'python3' is in your PATH. +
+Windows users need in many cases an alias for python3 -> python. This is 'not' necessary when installing via the recommended Python virtual environment https://docs.python.org/3/library/venv.html[venv]. For further information about AsciiDoc3 and Windows see link:windows.html[here]. 
+
+
+== Which way to install?
+AsciiDoc3 is available in a few different flavors (which work all the same, naturally). Please choose the appropriate files for downloading and installing. +
+Some hints follow, hope they help - but you are of course free to check out whatever you like. 
+
+- "Normal" users (normal means, you are an unique user who wants AsciiDoc3 work for your personal projects) may install local, ideally via https://pip.pypa.io/en/stable/[pip] and https://docs.python.org/3/library/venv.html[venv]. It's easy, works right out of the box and is safe (no interdependency with the system and you can delete the entire directory with one click!). Of course you need some knowledge about pip and venv, but this should be no problem at all. Or you use pip local without venv, that is almost the same. 
+- And, yes, if you are an experienced user, we recommend pip/venv, too. There are a lot of advantages, see the lines above. 
+- The system wide installing via tarball/deb/rpm is ok for the "long time" user who needs AsciiDoc3 every day and in different projects. Or you are an Admin and want to provide the software for all users. 
+- Windows users are strongly advised to install via pip/venv! 
+- Developers may take a look at the Git repo at https://gitlab.com/asciidoc3/asciidoc3[GitLab]. 
+
+
+
+== Obtaining AsciiDoc3
+
+You may download the files link:download.html[here]. +
+The PyPI source is https://pypi.org/project/asciidoc3/[here], please visit the link:pypi.html[distinct page] before installing.
+
+
+== Installation
+
+.Unix, GNU/Linux, BSD, OS X
+*********************
+This page covers GNU/Linux and other POSIX systems (Unix, BSD, and assumably OS X) - except link:pypi.html[PyPI]. +
+Windows users go link:windows.html[here], - except link:pypi.html[PyPI]. 
+*********************
+
+
+=== System Wide (Tarball)
+
+==== Install
+
+- 1. Create a new directory where AsciiDoc3 shall live in, say 'mkdir ~/ad3'
+- 2. Download the tarball in any directory with read-write access, e.g. ~/Downloads.
+- 3. Open a terminal and change to \~/Downloads ('cd ~/Downloads').
+- 4. Deflate the tarball to the new dir: 'tar -xzf asciidoc3-3.2.0.tar.gz --directory ~/ad3'
+- 5. Change to the new directory 'cd ~/ad3'.
+- 6. You'll find the AsciiDoc3 files in ~/ad3. Run 'installscript' as root/superuser. 
+  Ubuntu-like systems: 'sudo ./installscript' (don't forget the dot-slash);
+  other POSIX os like Debian, Fedora, BSD: 'su <password>  ./installscript' (don't forget the dot-slash).
+- 7. AsciiDoc3 is ready to use ... continue link:quickstart.html[here].
+
+
+==== Update
+If you want to install a newer version of AsciiDoc3, it is strongly recommended to uninstall first - see next section. This is to avoid the survival of any 'zombie file' belonging to the older version. +
+In the next step just install the new version as described above. +
+You may in an alternative way install the new tarball via installscript just over the previous version - the executable files like /usr/bin/asciidoc3 will be replaced as requested. Check this with 'asciidoc3 --version'. Take a look in your ~/asciidoc3 directory to keep a check on the new files - almost always everything's ok.
+
+==== Uninstall
+If you ran the AsciiDoc3 'installscript' as root/superuser - see above (that means, you have directories/files like /etc/asciidoc3/\*.* or /usr/share/asciidoc3/ et al.)
+
+- 1. Backup your personal files.
+- 2. Change to your AsciiDoc3 directory, say ad3: 'cd ~/ad3'
+- 3  Make uninstallscript executable: 'chmod u+x uninstallscript'
+- 4. 'su/sudo ./uninstallscript'
+- 5. Uninstallscript removes the files in /etc and /usr, but does not know anything about your local directory layout, so you have to delete your local files manually:
+- 6. 'rm ~/ad3'  
+
+
+=== Local (Tarball)
+
+You may use the tarball to install 'local' without having superuser rights. Precondition is of course, Python is already installed (and also the other software like dblatex, FOP, highlighter, ...).
+
+
+==== Install
+
+- 1. Steps 1. - 5. like above section 'System Wide (Tarball) -> Install'.
+- ...
+- 6. Do not run 'installscript' (you may delete this file and 'uninstallscript', too)
+- 7. Yes, it's already done, please fasten seat belts and start:
+- 8. 'python3 asciidoc3.py -a toc -a icons -n doc/test.txt'. From now on you have to replace 'asciidoc3' / 'a2x3' by 'python3 asciidoc3.py' and 'python3 a2x3.py' ... continue link:quickstart.html[here].
+
+
+==== Update
+If you like to install a newer version of AsciiDoc3, it is recommended to uninstall first - see next section. Or you install in another directory, so you'll have two different versions of AsciiDoc3.
+
+
+==== Uninstall
+To uninstall 'local' as described before makes it easy to uninstall: just delete ~/ad3. Do not forget to backup your private data.
+
+
+=== Debian-like Systems
+==== Install
+
+- Download the deb-file in any directory with read-write access, e.g. ~/download.
+- Open a terminal and change to \~/download (cd ~/download).
+- Change user to 'root' with command 'su' and then 'apt install ./asciidoc3.deb' or 'sudo apt install ./asciidoc3.deb'
+- You see a new directory ~/asciidoc3.
+- If this directory already exists the old directory is saved to ~/asciidoc3_<random_number>.
+
+- You may also use tools like 'GDebi' to install the downloaded file asciidoc3.deb (rightclick in your filemanager).
+
+
+==== Update
+If you want to go the 'safety first' way, uninstall the previous version - see section below. Do not forget to backup your personal files. +
+But uninstalling is not really necessary, you may just 'apt install ./asciidoc3.deb' - with the new version, of course. apt will backup the former directory ./asciidoc3 to ./asciidoc3_<random_number>. You can ignore the message here and there 'ln was not able to symlink, because the file already exists'. +
+To verify update installation type 'asciidoc3 --version'
+
+==== Uninstall
+To uninstall open a terminal, change to root (su/sudo) and run 'apt remove asciidoc3'. You can use the well-known graphical interfaces, too. +
+
+[TIP]
+Please keep in mind, that the folder ~/asciidoc3 will *not* be removed. Do that by yourself to make everything gone. Do not forget to backup your private data.
+
+
+
+=== RPM-using Systems
+==== Install
+- Download the rpm-file in any directory with read-write access, e.g. ~/download.
+- Open a terminal and change to \~/download (cd ~/download).
+- Change user to 'root' with command 'su' and then 'rpm --install ./asciidoc3-3.1.0-2.noarch.rpm'
+- You'll see a warning message 'package is damaged / not signed'. Just ignore that, when in doubt please check the md5sum.
+- There is a new directory ~/asciidoc3.
+- If this directory already exists the old directory is saved to ~/asciidoc3_<random_number>.
+
+- You may also use tools like 'yast' or so to install the downloaded file asciidoc3-3.1.0-2.noarch.rpm (rightclick in your filemanager).
+
+==== Update
+If you want to go the 'safety first' way, uninstall the previous version - see section below. Do not forget to backup your personal files. +
+But uninstalling is not really necessary, you may just 'rpm --install ./asciidoc3-3.2.0-noarch.rpm' - with the new version, of course.
+This will backup the former directory ./asciidoc3 to ./sciidoc3_<random_number>. +
+To verify update installation type 'asciidoc3 --version'
+
+
+==== Uninstall
+To uninstall open a terminal, change to root and 'rpm -e asciidoc3'. You can use the well-known graphical interfaces, too. +
+
+
+[TIP]
+Please keep in mind, that the folder ~/asciidoc3 will *not* be removed. Do that by yourself to make everything gone. Do not forget to backup your private data.
+
+
+
+=== Testing your installation
+See link:quickstart.html[here].
+
+
+== Uninstalling and Updating
+Information is given in the appropriate chapter on this page above.
+
+

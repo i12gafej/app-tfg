@@ -1,6 +1,11 @@
 import os
 from typing import Optional
 from app.core.config import Settings
+import datetime
+from app.models.models import SustainabilityTeamMember
+from app.schemas.diagnosis_indicators import DiagnosisIndicator as DiagnosisIndicatorSchema
+
+
 
 settings = Settings()
 
@@ -47,10 +52,11 @@ class DataDump:
         """
         Vuelca los datos de la portada en un diccionario.
         """
+        logos_names = [logo.logo for logo in data["logos"]]
         return {
             "title": f"Memoria de Sostenibilidad {data['heritage_resource_name']}",
-            "cover_image": self.get_photo(settings.COVERS_DIR, data["cover_photo"]),
-            "logos": [self.get_photo(settings.LOGOS_DIR, logo) for logo in data["logos"]],
+            "cover_image": data["cover_photo"],
+            "logos": [logo for logo in logos_names],
             "year": data["year"]
         }
     
@@ -82,7 +88,9 @@ class DataDump:
         Vuelca los datos de los miembros del equipo ordenados por rol (de gestor a aseor externo) en un diccionario.
         """
         data = sorted(data, key=lambda x: x["role"])
-        return [f"{member.name} {member.surname} - {member.role} ({member.organization})" for member in data]
+        
+        
+        return [f"{member['name']} {member['surname']} - {member['role']} ({member['organization']})" for member in data]
             
     @staticmethod
     def dump_stakeholders_data(data: dict) -> dict:
@@ -94,10 +102,10 @@ class DataDump:
             "external": []
         }
         for stakeholder in data:
-            if stakeholder.type == "internal":
-                stakeholders["internal"].append(stakeholder)
+            if stakeholder["type"] == "internal":
+                stakeholders["internal"].append(stakeholder["name"])
             else:
-                stakeholders["external"].append(stakeholder)
+                stakeholders["external"].append(stakeholder["name"])
         return stakeholders
 
     @staticmethod
@@ -130,7 +138,7 @@ class DataDump:
         """
         Vuelca los datos de los asuntos de materialidad en un diccionario.
         Calcula el número de elementos por dimensión y asigna la dimensión a cada asunto.
-        Ordena los temas por dimensión y por id, asignando un número secuencial.
+        Ordena los asuntos por dimensión y por id, asignando un número secuencial.
         
         Args:
             data (list): Lista de asuntos de materialidad
@@ -164,7 +172,7 @@ class DataDump:
                 "id": topic.id  # Guardamos el id para ordenar
             })
         
-        # Ordenar los temas primero por dimensión según el orden definido y luego por id
+        # Ordenar los asuntos primero por dimensión según el orden definido y luego por id
         material_topics.sort(key=lambda x: (
             dimension_order.index(x['dimension']) if x['dimension'] in dimension_order else len(dimension_order),
             x['id']
@@ -208,11 +216,11 @@ class DataDump:
         # Obtener el diccionario de ODS para mapear IDs a nombres
         ods_dict = {ods.id: ods.name for ods in data['ods']}
         
-        # Procesar cada tema material
+        # Procesar cada asunto material
         for topic in data['material_topics']:
-            # Obtener los indicadores de diagnóstico para este tema
+            # Obtener los indicadores de diagnóstico para este asunto
             topic_indicators = [
-                indicator for indicator in data['diagnostic_indicators']
+                indicator for indicator in data['diagnosis_indicators']
                 if indicator.material_topic_id == topic.id
             ]
             
@@ -222,39 +230,33 @@ class DataDump:
             
             for indicator in topic_indicators:
                 if indicator.type == 'qualitative':
-                    qualitative_response = next(
-                        (q.response for q in indicator.qualitative_responses),
-                        None
-                    )
-                    if qualitative_response:
+                    # La respuesta cualitativa ya viene en el schema
+                    if indicator.qualitative_data:
                         qualitative_indicators.append({
                             "name": indicator.name,
-                            "response": qualitative_response
+                            "response": indicator.qualitative_data.response
                         })
                 else:  # quantitative
-                    quantitative_response = next(
-                        (q for q in indicator.quantitative_responses),
-                        None
-                    )
-                    if quantitative_response:
+                    # La respuesta cuantitativa ya viene en el schema
+                    if indicator.quantitative_data:
                         quantitative_indicators.append({
                             "name": indicator.name,
-                            "response": str(quantitative_response.numeric_response),
-                            "unit": quantitative_response.unit
+                            "response": str(indicator.quantitative_data.numeric_response),
+                            "unit": indicator.quantitative_data.unit
                         })
-            
+
             # Obtener ODS secundarios
             secondary_ods = [
-                ods_dict[impact.ods_id]
-                for impact in data['secondary_impacts']
-                if impact.material_topic_id == topic.id
+                f"ODS {ods_id} - {ods_dict[ods_id]}"
+                for impact in data['secondary_impacts'] if impact["material_topic_id"] == topic.id
+                for ods_id in (impact['ods_ids'] if isinstance(impact['ods_ids'], list) else [impact['ods_ids']])
             ]
             
             # Obtener ODS principal
             main_ods = f"ODS {topic.goal_ods_id} - {ods_dict[topic.goal_ods_id]}" if topic.goal_ods_id else None
             main_ods_goal = f"{topic.goal_ods_id}.{topic.goal_number}" if topic.goal_ods_id and topic.goal_number else None
             
-            # Crear entrada del tema material
+            # Crear entrada del asunto material
             diagnosis_tables["material_topics"].append({
                 "dimension": DataDump.get_dimension_order(topic.goal_ods_id),
                 "topic": topic.name,
@@ -266,5 +268,131 @@ class DataDump:
             })
         
         return diagnosis_tables
+    
+    @staticmethod
+    def dump_action_plan_data(data: dict) -> dict:
+        """
+        Vuelca los datos del plan de acción en un diccionario.
+        Transforma los datos del modelo a la estructura de plan de acción requerida.
+        
+        Args:
+            data (dict): Diccionario con los datos del reporte obtenidos de get_report_data
+            
+        Returns:
+            dict: Diccionario con la estructura de plan de acción
+        """
+        action_plan = {
+            "action_plan": []
+        }
+        
+        # Obtener el diccionario de ODS para mapear IDs a nombres
+        ods_dict = {ods.id: ods.name for ods in data['ods']}
+        
+        # Procesar cada asunto material
+        for topic in data['material_topics']:
+            # Obtener los objetivos específicos para este asunto material
+            specific_objectives = [
+                obj for obj in data['specific_objectives']
+                if obj.material_topic_id == topic.id
+            ]
+            
+            if not specific_objectives:
+                continue
+                
+            # Crear entrada del asunto material
+            topic_entry = {
+                "dimension": DataDump.get_dimension_order(topic.goal_ods_id),
+                "topic": topic.name,
+                "priority": topic.priority.capitalize() if topic.priority else None,
+                "main_objective": topic.main_objective,
+                "specific_objectives": []
+            }
+            
+            # Procesar cada objetivo específico
+            for obj in specific_objectives:
+                # Obtener las acciones para este objetivo
+                actions = [
+                    action for action in data['actions']
+                    if action.specific_objective_id == obj.id
+                ]
+                
+                if not actions:
+                    continue
+                    
+                # Crear entrada del objetivo específico
+                objective_entry = {
+                    "objective": obj.description,
+                    "responsible": obj.responsible,
+                    "execution_time": obj.execution_time,
+                    "actions": []
+                }
+                
+                # Procesar cada acción
+                for action in actions:
+                    # Obtener los indicadores de rendimiento para esta acción
+                    performance_indicators = [
+                        indicator for indicator in data['performance_indicators']
+                        if indicator.action_id == action.id
+                    ]
+                    
+                    # Obtener ODS secundarios para esta acción
+                    secondary_ods = [
+                        f"ODS {impact.ods_id} - {ods_dict[impact.ods_id]}"
+                        for impact in data['action_secondary_impacts']
+                        if impact.action_id == action.id
+                    ]
+                    
+                    # Obtener ODS principal
+                    main_ods = f"ODS {action.ods_id} - {ods_dict[action.ods_id]}" if action.ods_id else None
+                    
+                    # Crear entrada de la acción
+                    action_entry = {
+                        "action": action.description,
+                        "difficulty": action.difficulty.capitalize() if action.difficulty else None,
+                        "main_ODS": main_ods,
+                        "secondary_ODS": secondary_ods,
+                        "indicators": []
+                    }
+                    
+                    # Procesar indicadores de rendimiento
+                    for indicator in performance_indicators:
+                        indicator_entry = {
+                            "name": indicator.name,
+                            "type": indicator.type.capitalize(),
+                            "human_resources": indicator.human_resources,
+                            "material_resources": indicator.material_resources
+                        }
+                        action_entry["indicators"].append(indicator_entry)
+                    
+                    objective_entry["actions"].append(action_entry)
+                
+                topic_entry["specific_objectives"].append(objective_entry)
+            
+            action_plan["action_plan"].append(topic_entry)
+        
+        return action_plan
+
+    @staticmethod
+    def material_topics_data_from_legend(legend: dict) -> dict:
+        # Calcular el tamaño de cada dimensión
+        dimension_size = {dim: 0 for dim in ['PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS']}
+        for tid in legend['leyenda_order']:
+            dim = legend['dimensions'][tid]
+            if dim in dimension_size:
+                dimension_size[dim] += 1
+
+        # Construir la lista de topics en el orden de leyenda
+        material_topics = []
+        for order, tid in enumerate(legend['leyenda_order'], 1):
+            material_topics.append({
+                "name": legend['topic_names'][tid],
+                "dimension": legend['dimensions'][tid],
+                "order": order
+            })
+
+        return {
+            "dimension_size": dimension_size,
+            "material_topics": material_topics
+        }
 
         

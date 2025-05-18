@@ -13,19 +13,18 @@
     'PAZ': '#08acdc',
     'ALIANZAS': '#c04c94'
 } %}
-
-<table class="table" style="border: 3px solid #000;">
+<div class="page">
+<table id="topics-table" class="table" style="border: 3px solid #000;">
     <tr>
-        
         <th style="width: 20%; padding: 10px; text-align: center; border: 1px solid #ddd;">Dimensión</th>
         <th style="width: 70%; padding: 10px; text-align: center; border: 1px solid #ddd;">Asuntos de Materialidad</th>
     </tr>
     
     {% for dimension in ['PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'] %}
-        {% set topics_in_dimension = material_topics | selectattr('dimension', 'equalto', dimension) | list %}
+        {% set topics_in_dimension = data.material_topics | selectattr('dimension', 'equalto', dimension) | list %}
         {% if topics_in_dimension | length > 0 %}
             <tr>
-                <td style="background-color: {{ dimension_header_colors[dimension] }}; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="{{ dimension_size[dimension] }}">
+                <td style="background-color: {{ dimension_header_colors[dimension] }}; color: white; padding: 10px; text-align: center; border: 1px solid #ddd;" rowspan="{{ data.dimension_size[dimension] }}">
                     {{ dimension }}
                 </td>
                 {% for topic in topics_in_dimension %}
@@ -43,3 +42,4 @@
         {% endif %}
     {% endfor %}
 </table>
+</div>

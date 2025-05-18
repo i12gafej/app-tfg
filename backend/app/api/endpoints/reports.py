@@ -441,6 +441,31 @@ async def delete_report_endpoint(
             detail=f"Error al eliminar la memoria: {str(e)}"
         )
 
+@router.get("/reports/generate-preview/{report_id}")
+async def generate_preview_endpoint(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """
+    Generar un preview de una memoria de sostenibilidad.
+    """
+    if not current_user.admin:
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id,
+            require_manager=True
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
+        
+    try: 
+        url = crud_reports.generate_report_html(db, report_id)
+        return {"url": url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/reports/publish/{report_id}")
 async def publish_report_endpoint(
     report_id: int,
@@ -903,9 +928,10 @@ async def create_agreement_endpoint(
                 raise HTTPException(status_code=403, detail=error_message)
 
         db_agreement = crud_reports.create_agreement(db, agreement)
-        return db_agreement
+        return ReportAgreement.model_validate(db_agreement, from_attributes=True)
 
     except Exception as e:
+        logger.error(f"Error al crear el acuerdo: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Error al crear el acuerdo: {str(e)}"
@@ -1137,6 +1163,10 @@ async def get_all_report_bibliographies_endpoint(
             detail=f"Error al obtener las referencias bibliográficas: {str(e)}"
         )
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @router.post("/reports/update/organization-chart/{report_id}")
 async def update_organization_chart(
     report_id: int,
@@ -1179,13 +1209,14 @@ async def update_organization_chart(
                 # Continuamos con el proceso aunque falle la eliminación
 
         # Leer el contenido del archivo
-            content = await file.read()
+        content = await file.read()
 
         file_url = crud_reports.update_organization_chart(db, report, content)
 
         return {"url": file_url}
 
     except Exception as e:
+        logger.error(f"Error al actualizar el organigrama: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/reports/upload/photos/{report_id}", response_model=ReportPhotoResponse)

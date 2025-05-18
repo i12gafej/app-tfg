@@ -21,7 +21,7 @@ def calcular_escala_y(max_val: float, divisiones: int = 3) -> Tuple[float, float
 
 def generate_internal_consistency_graph(
     dimension_totals: Dict[str, float]
-) -> str:
+) -> (str, list):
     logger.info("Iniciando generación de gráfico de coherencia interna")
     logger.debug(f"Datos de entrada: {dimension_totals}")
 
@@ -75,11 +75,50 @@ def generate_internal_consistency_graph(
 
         graph = base64.b64encode(image_png).decode('utf-8')
         logger.info("Gráfico generado y convertido a base64 correctamente")
-        return f"data:image/png;base64,{graph}"
+        dimension_totals_list = [
+            {"dimension": dim, "total": dimension_totals.get(dim, 0)}
+            for dim in dimensiones
+        ]
+        return f"data:image/png;base64,{graph}", dimension_totals_list
     except Exception as e:
         logger.error(f"Error al generar gráfico de coherencia interna: {str(e)}")
         raise
     finally:
         plt.close('all')
+
+def get_dimension_totals(
+    primary_impacts: list,
+    secondary_impacts: list,
+    main_weight: float,
+    secondary_weight: float
+) -> (dict, list):
+    ods_dimensions = {
+        1: "PERSONAS", 2: "PERSONAS", 3: "PERSONAS", 4: "PERSONAS", 5: "PERSONAS",
+        6: "PLANETA", 12: "PLANETA", 13: "PLANETA", 14: "PLANETA", 15: "PLANETA",
+        7: "PROSPERIDAD", 8: "PROSPERIDAD", 9: "PROSPERIDAD", 10: "PROSPERIDAD", 11: "PROSPERIDAD",
+        16: "PAZ",
+        17: "ALIANZAS"
+    }
+    dimension_totals = {dim: 0.0 for dim in ["PERSONAS", "PLANETA", "PROSPERIDAD", "PAZ", "ALIANZAS"]}
+
+    for impact in primary_impacts:
+        if impact.get('ods_id') and impact['ods_id'] in ods_dimensions:
+            dimension = ods_dimensions[impact['ods_id']]
+            count = float(impact.get('count', 0))
+            weighted_count = count * main_weight
+            dimension_totals[dimension] += weighted_count
+
+    for impact in secondary_impacts:
+        if impact.get('ods_id') and impact['ods_id'] in ods_dimensions:
+            dimension = ods_dimensions[impact['ods_id']]
+            count = float(impact.get('count', 0))
+            weighted_count = count * secondary_weight
+            dimension_totals[dimension] += weighted_count
+
+    dimension_totals_list = [
+        {"dimension": dim, "total": dimension_totals[dim]}
+        for dim in ["PERSONAS", "PLANETA", "PROSPERIDAD", "PAZ", "ALIANZAS"]
+    ]
+    return dimension_totals, dimension_totals_list
 
 

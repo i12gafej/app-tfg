@@ -1,0 +1,3330 @@
+<!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Memoria de Sostenibilidad</title>
+        <style>
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Poppins', sans-serif;
+                box-sizing: border-box;
+                width: 21cm;                     
+                height: 29.7cm;                  
+            }
+
+            /* ---------- Página de contenido ---------- */
+            .page {
+                padding: 2.5cm 2cm 2.5cm 2cm;
+                min-height: 100%;
+                box-sizing: border-box;
+            }
+
+            /* ---------- Títulos y contenido simple ---------- */
+            .simple-title {
+                font-size: 1.8em;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 1.5em;
+            }
+
+            .simple-content {
+                font-size: 1.1em;
+                line-height: 1.7;
+                color: #222;
+            }
+
+            /* Estilos para el botón de descarga */
+            .download-button {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #3498db;
+                color: white;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .download-button:hover {
+                background-color: #2980b9;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .download-button:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .download-icon {
+                width: 20px;
+                height: 20px;
+                fill: currentColor;
+            }
+
+            /* Estilos del menú lateral */
+            #side-menu {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 280px;
+                height: 100%;
+                background: #fff;
+                z-index: 2000;
+                overflow-y: auto;
+                padding-top: 60px;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+                transition: transform 0.3s ease;
+            }
+
+            #side-menu.collapsed {
+                transform: translateX(-280px);
+            }
+
+            #toggle-menu {
+                position: fixed;
+                left: 20px;
+                top: 20px;
+                z-index: 2001;
+                background: #fff;
+                border: none;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .menu-section {
+                margin: 15px 0;
+                padding: 0 20px;
+            }
+
+            .menu-section-title {
+                font-size: 1.2em;
+                font-weight: 600;
+                margin-bottom: 10px;
+                padding: 8px 12px;
+                border-radius: 4px;
+            }
+
+            .menu-section-title.paso-1 { background-color: #a8d4ec; }
+            .menu-section-title.paso-2 { background-color: #a8cc54; }
+            .menu-section-title.paso-3 { background-color: #f8b4c4; }
+            .menu-section-title.paso-4 { background-color: #b0acd4; }
+            .menu-section-title.paso-5 { background-color: #ffc48c; }
+
+            .menu-item {
+                list-style: none;
+                margin: 5px 0;
+            }
+
+            .menu-item a {
+                display: block;
+                padding: 8px 12px;
+                text-decoration: none;
+                color: #333;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+            }
+
+            .menu-item a:hover {
+                background-color: #f5f5f5;
+            }
+
+            .menu-item.paso-1 a { background-color: #f0f4fc; }
+            .menu-item.paso-2 a { background-color: #f0f4e4; }
+            .menu-item.paso-3 a { background-color: #ffecf4; }
+            .menu-item.paso-4 a { background-color: #e8e4f4; }
+            .menu-item.paso-5 a { background-color: #fff4ec; }
+
+            .submenu {
+                padding-left: 20px;
+                margin: 5px 0;
+            }
+
+            .submenu-item {
+                list-style: none;
+                margin: 3px 0;
+            }
+
+            .submenu-item a {
+                display: block;
+                padding: 6px 12px;
+                text-decoration: none;
+                color: #555;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+            }
+
+            .submenu-item a:hover {
+                background-color: #f5f5f5;
+            }
+
+            @media print {
+                #side-menu, #toggle-menu {
+                    display: none;
+                }
+            }
+
+            @media print {
+                body, .page, .photo-page {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                .download-button {
+                    display: none;
+                }
+            }
+
+            .photo-page {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-sizing: border-box;
+                padding: 2cm;
+            }
+            .photo-container {
+                max-width: 15cm;
+                max-height: 20cm;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+            }
+            .photo-img {
+                max-width: 100%;
+                max-height: 100%;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+                display: block;
+                margin: 0 auto;
+                border-radius: 0.5em;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            }
+            .photo-caption {
+                margin-top: 1em;
+                text-align: center;
+                font-size: 1.1em;
+                color: #333;
+            }
+
+            /* Estilos globales para los templates parciales */
+            .narrow-th { width: 29%; min-width: 100px; max-width: 400px;}
+            .tab-cell.empty-cell { width: 7%; min-width: 10px; max-width: 40px; border-right: none !important; border-left: none !important; background: transparent !important; padding: 0; }
+            .tab-cell.first-empty-cell { width: 7%; min-width: 10px; max-width: 40px; border-right: none !important; background: transparent !important; padding: 0; }
+            .header { background-color: #d4eac7; padding: 10px; font-weight: 400; font-size: 10px; }
+            .subheader { background-color: #e1ecf4; padding: 10px; font-weight: 400; font-size: 10px; }
+            .table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-left: auto; margin-right: auto; }
+            .table th, .table td { padding: 10px; border: 1px solid #000; text-align: left; vertical-align: top; font-size: 14px; }
+            .table td[style*="border-right: none"] { border-right: none !important; background: transparent !important; width: 2%; min-width: 10px; max-width: 20px; padding: 0; }
+            .table th { font-weight: 600; }
+            .table .category { background-color: #f1f8e9; font-weight: 400; }
+
+            .material-topics { margin: 5px 0; }
+            .dimension-title { color: #333; font-weight: bold; margin-bottom: 5px; }
+            .topic-list { padding-left: 20px; }
+            .topic-title { font-weight: bold; color: #444; }
+            .topic-description { color: #666; margin-top: 2px; }
+
+
+        .list-text-item {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        .list-text-item a {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        </style>
+    </head>
+    <body>
+        <button id="toggle-menu" onclick="toggleMenu()">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            </svg>
+        </button>
+
+        <!-- Menú lateral -->
+    
+    <div id="side-menu">
+        <ul>
+            <li class="menu-item"><a href="#carta-compromiso">Carta de compromiso</a></li>
+            <li class="menu-item"><a href="#mision">Misión</a></li>
+            <li class="menu-item"><a href="#vision">Visión</a></li>
+            <li class="menu-item"><a href="#valores">Valores</a></li>
+            <li class="menu-item"><a href="#normativa">Normativa</a></li>
+            <li class="menu-item"><a href="#equipo-sostenibilidad">Equipo de sostenibilidad</a></li>
+            <li class="menu-item"><a href="#organigrama">Organigrama</a></li>
+            <li class="menu-item"><a href="#grupos-interes">Análisis de grupos de interés</a></li>
+            <li class="menu-item"><a href="#diagnostico">Diagnóstico</a></li>
+            <li class="menu-item"><a href="#hoja-ruta">Hoja de ruta de la sostenibilidad</a></li>
+            <li class="menu-item"><a href="#difusion">Difusión</a></li>
+            <li class="menu-item"><a href="#anexos">Anexos</a></li>
+        </ul>
+    </div>
+
+        <script>
+            function toggleMenu() {
+                const menu = document.getElementById('side-menu');
+                menu.classList.toggle('collapsed');
+            }
+        </script>
+
+        <button class="download-button" onclick="window.print()">
+            <svg class="download-icon" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            Descargar PDF
+        </button>
+        <a id="portada"></a>
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria de Sostenibilidad Plantilla PATRIMONIO CULTURAL</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .cover-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title-container {
+            position: absolute;
+            top: 15%;
+            left: 36%;
+            width: 75%;
+            transform: translate(-50%, -50%);
+            min-width: 300px;
+            min-height: 80px;
+            height: auto;
+            color: white;
+            background: rgba(255,255,255,0.7);
+            border-radius: 0 1.5em 1.5em 0;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            box-sizing: border-box;
+            padding: 2cm;
+            padding: 1.2em 2em 1.2em 2em;
+        }
+
+        .title {
+            color: #222 !important;
+            background: none !important;
+            text-shadow: none !important;
+            font-size: clamp(1.2em, 2.5vw, 2em);
+            font-weight: 600;
+            margin: 0;
+            margin-bottom: 20px;
+            padding: 0;
+            border-radius: 0;
+            letter-spacing: 1px;
+            word-break: break-word;
+            white-space: normal;
+            text-align: left;
+            width: 100%;
+            display: inline-block;
+        }
+
+        .year {
+            font-size: 1.8em;
+        }
+
+        .logos-container {
+            position: absolute;
+            bottom: 2cm;
+            right: 2cm;
+            display: flex;
+            gap: 1cm;
+        }
+
+        .logo {
+            height: 3cm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+            }
+
+            .cover-container {
+                page-break-after: always;
+            }
+
+            .title{
+                color: #222 !important;
+                background: none !important;
+                text-shadow: none !important;
+                font-size: clamp(1.2em, 2.5vw, 2em);
+                font-weight: 600;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+                letter-spacing: 1px;
+                word-break: break-word;
+                white-space: normal;
+                text-align: left;
+                width: 100%;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cover-container">
+        <img src="None" alt="Portada" class="cover-image">
+        <div class="title-container">
+            <h1 class="title">Memoria de Sostenibilidad Plantilla PATRIMONIO CULTURAL - Año 2025</h1>
+        </div>
+        <div class="logos-container">
+            
+        </div>
+    </div>
+</body>
+</html> 
+        <a id="recurso"></a>
+        <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorización del Recurso Patrimonial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        .page {
+            padding: 2cm;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2cm;
+            color: #000;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin: 0;
+            padding-bottom: 0.5cm;
+            border-bottom: 2px solid #000000;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-section {
+            margin-bottom: 1cm;
+        }
+
+        .info-section h2 {
+            color: #000000;
+            font-size: 1.2em;
+            margin-bottom: 0.5cm;
+            padding-bottom: 0.2cm;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0.5cm;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-value {
+            color: #000;
+        }
+
+        .social-networks {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .social-networks li {
+            margin-bottom: 0.2cm;
+        }
+
+        .social-networks a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .social-networks a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 0;
+                padding: 0;
+            }
+            .page {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="simple-title">
+            Categorización del Recurso Patrimonial
+        </div>
+
+        <div class="info-section">
+            <h2>Información Básica</h2>
+            <div class="info-grid">
+                <div class="info-label">Nombre:</div>
+                <div class="info-value">Plantilla PATRIMONIO CULTURAL</div>
+
+                <div class="info-label">Tipología:</div>
+                <div class="info-value">
+                <div class="info-value">Patrimonio Cultural</div>
+                </div>
+
+                <div class="info-label">Titularidad:</div>
+                <div class="info-value"></div>
+
+                <div class="info-label">Modelo de Gestión:</div>
+                <div class="info-value"></div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Información de Contacto</h2>
+            <div class="info-grid">
+                <div class="info-label">Dirección Postal:</div>
+                <div class="info-value"></div>
+
+                <div class="info-label">Sitio Web:</div>
+                <div class="info-value">
+                    <a href="" target="_blank"></a>
+                </div>
+
+                <div class="info-label">Teléfono:</div>
+                <div class="info-value"></div>
+
+                <div class="info-label">Redes Sociales:</div>
+                <div class="info-value">
+                    <ul class="social-networks">
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:right; margin-top: 2cm; font-size:1em; color:#000; font-family: 'Poppins', sans-serif;">
+            Fecha de publicación: 18 de mayo del 2025
+        </div>
+    </div>
+</body>
+</html> 
+        <a id="carta"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Carta de compromiso</div>
+    <div class="simple-content"><p>Nos complace expresar nuestro compromiso firme con la sostenibilidad y los Objetivos de Desarrollo</p><p>Sostenible (ODS) de Naciones Unidas. Como [título/puesto] de [institución/organización], me es grato</p><p>comunicarle nuestra determinación de contribuir activamente al avance hacia un mundo más equitativo,</p><p>próspero y sostenible para las generaciones presentes y futuras.</p><p></p><p>Reconociendo la urgencia de los desafíos ambientales, sociales y económicos con que nos enfrentamos</p><p>a nivel global, nos comprometemos a alinear nuestras operaciones y decisiones con los principios de</p><p>sostenibilidad y los ODS. A través de este compromiso, buscamos integrar prácticas responsables en</p><p>todas las áreas de nuestra [institución/organización] y maximizar nuestro impacto positivo en la sociedad</p><p>y el medioambiente.</p><p></p><p>Nuestros compromisos específicos incluyen:</p><ol start="1"><li><p>Integrar la sostenibilidad en nuestra estrategia: revisaremos y ajustaremos nuestra estrategia corporativa para asegurarnos de que esté alineada con los ODS y con las mejores prácticas de sostenibilidad en nuestro sector </p></li><li><p>Gestión responsable de recursos: implementaremos medidas para reducir nuestro consumo de recursos naturales, minimizar residuos y promover la economía circular en nuestras operaciones.</p></li><li><p>Acción climática: reduciremos nuestras emisiones de gases de efecto invernadero y buscaremos fuentes de energía renovable para disminuir nuestro impacto ambiental.</p></li></ol></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ol start="4"><li><p>Diversidad e inclusión: fomentaremos un entorno diverso e inclusivo dentro de nuestra organización, promoviendo la igualdad de oportunidades para todas las personas y rechazando cualquier forma de discriminación.</p></li><li><p>Responsabilidad social: colaboraremos con comunidades locales para apoyar proyectos que beneficien a la sociedad, como la educación, el acceso a la salud y el desarrollo comunitario.</p></li><li><p>Educación y concienciación: promoveremos la educación y la concienciación pública sobre la importancia del patrimonio cultural, su historia y su valor intrínseco para nuestras comunidades.</p></li><li><p>Transparencia y rendición de cuentas: informaremos regularmente sobre nuestros avances en sostenibilidad, compartiendo nuestros logros y desafíos de manera transparente.</p></li></ol><p></p><p>Este compromiso no es simplemente una declaración de intenciones, sino que implicará un plan de acción concreto que guiará nuestras decisiones y esfuerzos a largo plazo. Reconocemos que el compromiso con la sostenibilidad es continuo y requiere esfuerzo constante. Es nuestro deseo colaborar con otras organizaciones, socios y actores clave para lograr un impacto colectivo significativo en la consecución de los ODS.</p><p></p><p>Agradecemos su apoyo en esta empresa y esperamos poder compartir nuestros avances con usted en el futuro. Juntos, podemos forjar un mundo más sostenible y resiliente.</p><p></p><p>Atentamente,</p><p></p><p>Persona responsable de la gestión del recurso patrimonial</p><p>Lugar y fecha</p></div>
+</div>
+        <a id="mision"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Misión</div>
+    <div class="simple-content"><p>Texto para la misión.</p></div>
+</div>
+        <a id="vision"></a>
+        
+        <a id="valores"></a>
+        <built-in method values of dict object at 0x0000018E708FB580>
+        <a id="normativa"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Normativa</div>
+    <div class="simple-content"><ul><li class="list-text-item">Convención para la protección de los bienes culturales en caso de conflicto armado, de 14 de mayo de 1954.
+
+<a href="https://www.unesco.org/es/legal-affairs/convention-protection-cultural-property-event-armed-conflict-regulations-execution-convention" target="_blank">https://www.unesco.org/es/legal-affairs/convention-protection-cultural-property-event-armed-conflict-regulations-execution-convention</a></li><li class="list-text-item">Recomendación sobre los medios más eficaces para hacer los Museos Accesibles a Todos. París, Francia. 14 de diciembre de 1960.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-most-effective-means-rendering-museums-accessible-everyone" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-most-effective-means-rendering-museums-accessible-everyone</a></li><li class="list-text-item">Declaración de los principios de cooperación cultural internacional, de 4 de noviembre de 1966.
+
+<a href="https://www.unesco.org/es/legal-affairs/declaration-principles-international-cultural-co-operation" target="_blank">https://www.unesco.org/es/legal-affairs/declaration-principles-international-cultural-co-operation</a></li><li class="list-text-item">Recomendación sobre la conservación de bienes culturales que la ejecución de obras públicas o privadas pueda poner en peligro, de 19 de noviembre de 1968.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works</a></li><li class="list-text-item">Convención sobre las medidas que deben adoptarse para prohibir e impedir la importación, la exportación y la transferencia de propiedades ilícitas de bienes culturales, de 14 de noviembre de 1970.
+
+<a href="https://www.unesco.org/es/legal-affairs/convention-means-prohibiting-and-preventing-illicit-import-export-and-transfer-ownership-cultural" target="_blank">https://www.unesco.org/es/legal-affairs/convention-means-prohibiting-and-preventing-illicit-import-export-and-transfer-ownership-cultural</a></li><li class="list-text-item">Recomendación relativa a la Salvaguardia de los Conjuntos Históricos o Tradicionales y su Función en la Vida Contemporánea. Nairobi, Kenia. 26 de noviembre de 1976.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-safeguarding-and-contemporary-role-historic-areas" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-safeguarding-and-contemporary-role-historic-areas</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Recomendación relativa a la Participación y la Contribución de las Masas Populares en la Vida Cultural. Nairobi, Kenia. 26 de noviembre de 1976.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-participation-people-large-cultural-life-and-their-contribution-it" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-participation-people-large-cultural-life-and-their-contribution-it</a></li><li class="list-text-item">Recomendación sobre la Conservación de los Bienes Culturales que la Ejecución de Obras Públicas o Privadas pueda poner en Peligro. París, Francia. 19 de noviembre de 1968.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works</a></li><li class="list-text-item">Declaración Universal de Derechos Culturales.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-preservation-cultural-property-endangered-public-or-private-works</a></li><li class="list-text-item">Declaración de Córdoba como Ciudad. Patrimonio de la Humanidad por la UNESCO.
+
+<a href="https://whc.unesco.org/en/list/313/" target="_blank">https://whc.unesco.org/en/list/313/</a></li><li class="list-text-item">Declaración Universal de Derechos Humanos.
+
+<a href="https://www.un.org/es/about-us/universal-declaration-of-human-rights" target="_blank">https://www.un.org/es/about-us/universal-declaration-of-human-rights</a></li><li class="list-text-item">Convención Cultural Europea, Paris, de 19 de diciembre de 1954.
+
+<a href="https://www.coe.int/en/web/culture-and-heritage/european-cultural-convention" target="_blank">https://www.coe.int/en/web/culture-and-heritage/european-cultural-convention</a></li><li class="list-text-item">Resolución (86) 3, del Comité de Ministros, sobre cooperación cultural europea, de 23 de abril de 1986.
+
+<a href="https://redined.educacion.gob.es/xmlui/handle/11162/81666" target="_blank">https://redined.educacion.gob.es/xmlui/handle/11162/81666</a></li><li class="list-text-item">Resolución (98) 4, del Comité de Ministros, sobre los itinerarios culturales del Consejo de Europa, de 17 de marzo de 1998.
+
+<a href="https://www.cultura.gob.es/dam/jcr:590c8c17-0eb5-48ba-b47f-5d42b5206dbd/itinerarios-culturales.pdf" target="_blank">https://www.cultura.gob.es/dam/jcr:590c8c17-0eb5-48ba-b47f-5d42b5206dbd/itinerarios-culturales.pdf</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Reglamento (UE) 2021/818 del Parlamento Europeo y del Consejo de 20 de mayo de 2021 por el que se establece el Programa Europa Creativa (2021 a 2027).
+
+<a href="https://www.boe.es/buscar/doc.php?id=DOUE-L-2021-80686" target="_blank">https://www.boe.es/buscar/doc.php?id=DOUE-L-2021-80686</a></li><li class="list-text-item">Carta de los Derechos Fundamentales de la Unión Europea.
+
+<a href="https://www.boe.es/doue/2010/083/Z00389-00403.pdf" target="_blank">https://www.boe.es/doue/2010/083/Z00389-00403.pdf</a></li><li class="list-text-item">Ley 16/1985 de Patrimonio Histórico Español.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1985-12534" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1985-12534</a></li><li class="list-text-item">Ley 23/1982, de 16 de junio, reguladora del Patrimonio Nacional. (Texto consolidado, ultima modificación: 31 de diciembre de 1997).
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1982-15230" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1982-15230</a></li><li class="list-text-item">Real Decreto 111/1986 de desarrollo parcial de la Ley 16/1985.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1986-2277" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1986-2277</a></li><li class="list-text-item">Real Decreto 2568/1986, de 28 de noviembre, por el que se aprueba el Reglamento de Organización, Funcionamiento y Régimen Jurídico de las Entidades Locales.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1986-33252" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1986-33252</a></li><li class="list-text-item">Constitución Española. Art. 44.
+
+<a href="https://app.congreso.es/consti/constitucion/indice/titulos/articulos.jsp?ini=44&amp;tipo=2" target="_blank">https://app.congreso.es/consti/constitucion/indice/titulos/articulos.jsp?ini=44&amp;tipo=2</a></li><li class="list-text-item">Ley 14/2007, de 26 de noviembre, del Patrimonio Histórico de Andalucía.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-2008-2494" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-2008-2494</a></li><li class="list-text-item">Ley de Ordenación Urbanística de Andalucía (Ley 7/2002).
+
+<a href="https://www.boe.es/diario_boe/txt.php?id=BOE-A-2012-2627" target="_blank">https://www.boe.es/diario_boe/txt.php?id=BOE-A-2012-2627</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Catálogo General de Patrimonio Histórico Andaluz.
+
+<a href="https://www.juntadeandalucia.es/organismos/culturaydeporte/areas/cultura/bienes-culturales/catalogo-pha.html" target="_blank">https://www.juntadeandalucia.es/organismos/culturaydeporte/areas/cultura/bienes-culturales/catalogo-pha.html</a></li><li class="list-text-item">Ley 5/2007, de 26 de junio, por la que se crea como entidad de derecho público el Instituto Andaluz de Patrimonio Histórico.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-2007-14405" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-2007-14405</a></li><li class="list-text-item">Decreto 550/2022, de 29 de noviembre, por el que se aprueba el Reglamento General de la Ley 7/2021, de 1 de diciembre, de impulso para la sostenibilidad del territorio de Andalucía.
+
+<a href="https://www.juntadeandalucia.es/boja/2022/232/6" target="_blank">https://www.juntadeandalucia.es/boja/2022/232/6</a></li><li class="list-text-item">Decreto 379/2009, de 1 de diciembre, por el que se modifica el decreto 4/1993, de 26 de enero. Reglamento de Organización Administrativa del Patrimonio Histórico de Andalucía.
+
+<a href="https://www.juntadeandalucia.es/boja/2009/244/46" target="_blank">https://www.juntadeandalucia.es/boja/2009/244/46</a></li><li class="list-text-item">Orden VIV/561/2010, de 1 de febrero, por la que se desarrolla el documento técnico de condiciones básicas de accesibilidad y no discriminación para el acceso y utilización de los espacios públicos urbanizados.
+
+<a href="https://www.boe.es/buscar/doc.php?id=BOE-A-2010-4057" target="_blank">https://www.boe.es/buscar/doc.php?id=BOE-A-2010-4057</a></li><li class="list-text-item">ORDEN de 9 de enero de 2012, por la que se aprueban los modelos de fichas y tablas justificativas del Reglamento que regula las normas para la accesibilidad en las infraestructuras, el urbanismo, la edificación y el transporte en Andalucía.
+
+<a href="https://www.juntadeandalucia.es/boja/2012/12/2.html" target="_blank">https://www.juntadeandalucia.es/boja/2012/12/2.html</a></li><li class="list-text-item">Plan General de Ordenación Urbana de Córdoba.
+
+<a href="https://www.gmucordoba.es/urbanismo/plan-general-de-ordenacion-urbanistica-pgou" target="_blank">https://www.gmucordoba.es/urbanismo/plan-general-de-ordenacion-urbanistica-pgou</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Plan Especial de Protección del Conjunto Histórico de Córdoba.
+
+<a href="https://www.gmucordoba.es/casco-historico/plan-especial-de-proteccion-del-casco-historico-pepch-01" target="_blank">https://www.gmucordoba.es/casco-historico/plan-especial-de-proteccion-del-casco-historico-pepch-01</a></li><li class="list-text-item">Ordenanza Municipal sobre Supresión de Barreras Arquitectónicas, Urbanísticas, en el Transporte y en la Comunicación Sensorial.
+
+<a href="https://www.cordoba.es/sites/default/files/PDF/Ayuntamiento/ordenanzas_bandos_y_otros/ordenanzas-y-reglamentos-municipales-no-fiscales/via_publica/Ordenanza_municipal_sobre_supresion_de_barreras_arquitectonicas_urbanisticas_en_el_transporte_y_en_la_comunicacion_sensorial.pdf" target="_blank">https://www.cordoba.es/sites/default/files/PDF/Ayuntamiento/ordenanzas_bandos_y_otros/ordenanzas-y-reglamentos-municipales-no-fiscales/via_publica/Ordenanza_municipal_sobre_supresion_de_barreras_arquitectonicas_urbanisticas_en_el_transporte_y_en_la_comunicacion_sensorial.pdf</a></li><li class="list-text-item">Recomendación que define los Principios Internacionales que deberían aplicarse a las Excavaciones Arqueológicas. Nueva Delhi, India. 5 de diciembre de 1956.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-international-principles-applicable-archaeological-excavations" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-international-principles-applicable-archaeological-excavations</a></li><li class="list-text-item">Convención sobre la Protección del Patrimonio Mundial, Cultural y Natural, de 16 de noviembre de 1972.
+
+<a href="https://patrimoniomundial.cultura.pe/patrimoniomundial/laconvencionde1972" target="_blank">https://patrimoniomundial.cultura.pe/patrimoniomundial/laconvencionde1972</a></li><li class="list-text-item">Recomendación sobre la protección, en el ámbito nacional, del Patrimonio cultural y natural.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-national-level-cultural-and-natural-heritage" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-national-level-cultural-and-natural-heritage</a></li><li class="list-text-item">Recomendación sobre el Intercambio Internacional de Bienes Culturales. Nairobi, Kenia. 26 de noviembre de 1976.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-international-exchange-cultural-property" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-international-exchange-cultural-property</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Recomendación sobre la Protección de los Bienes Culturales Muebles. Paris, Francia. 28 de noviembre de 1978.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-protection-movable-cultural-property" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-protection-movable-cultural-property</a></li><li class="list-text-item">Declaración de la UNESCO relativa a la destrucción intencional del patrimonio cultural, de 17 de octubre de 2003.
+
+<a href="https://www.unesco.org/es/legal-affairs/unesco-declaration-concerning-intentional-destruction-cultural-heritage" target="_blank">https://www.unesco.org/es/legal-affairs/unesco-declaration-concerning-intentional-destruction-cultural-heritage</a></li><li class="list-text-item">Recomendación relativa a la protección y promoción de los museos y colecciones, su diversidad y su función en la sociedad, 17 de noviembre de 2015.
+
+<a href="https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-and-promotion-museums-and-collections-their-diversity-and-their" target="_blank">https://www.unesco.org/es/legal-affairs/recommendation-concerning-protection-and-promotion-museums-and-collections-their-diversity-and-their</a></li><li class="list-text-item">Declaración Patrimonio de la Humanidad Medina Azahara.
+
+<a href="https://whc.unesco.org/en/list/1560/" target="_blank">https://whc.unesco.org/en/list/1560/</a></li><li class="list-text-item">Resolución (66) 20 del Comité de Ministros sobre la Rehabilitación de Monumentos (21 de marzo de 1966).
+
+<a href="https://search.coe.int/cm?i=09000016804f508d" target="_blank">https://search.coe.int/cm?i=09000016804f508d</a></li><li class="list-text-item">Resolución (68) 11 del Comité de Ministros sobre Principios y Métodos de Conservación y Rehabilitación de Sitios y Conjuntos de Interés Histórico (29 de abril de 1968).
+
+<a href="https://search.coe.int/cm?i=09000016804bb7e6" target="_blank">https://search.coe.int/cm?i=09000016804bb7e6</a></li><li class="list-text-item">Resolución (68) 12 del Comité de Ministros sobre la Conservación Activa de Sitios, Monumentos y Conjuntos de Interés Histórico o Artístico en el Marco de Ordenación del Territorio (29 de abril de 1968).
+
+<a href="https://search.coe.int/cm?i=09000016804bb7e6" target="_blank">https://search.coe.int/cm?i=09000016804bb7e6</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Resolución (72) 21 del Comité de Ministros sobre el Establecimiento de Inventarios Nacionales de Monumentos, Conjuntos y Sitios Históricos y Artísticos (24 de mayo de 1972).
+
+<a href="https://rm.coe.int/native/09000016804e2562" target="_blank">https://rm.coe.int/native/09000016804e2562</a></li><li class="list-text-item">Resolución de 16 de enero de 2001 del Parlamento Europeo sobre la Aplicación de la Convención sobre la Protección del Patrimonio Mundial, Cultural y Natural en los Estados de la Unión Europea.
+
+<a href="https://www.europarl.europa.eu/doceo/document/TA-5-2001-0005_EN.html" target="_blank">https://www.europarl.europa.eu/doceo/document/TA-5-2001-0005_EN.html</a>
+<a href="https://eur-lex.europa.eu/resource.html?uri=cellar:b38fc89b-c072-4932-9e93-da04356df5d2.0004.01/DOC_20&amp;format=PDF" target="_blank">https://eur-lex.europa.eu/resource.html?uri=cellar:b38fc89b-c072-4932-9e93-da04356df5d2.0004.01/DOC_20&amp;format=PDF</a></li><li class="list-text-item">Convenio Marco sobre el valor del patrimonio cultural para la sociedad, Faro, de 27 de octubre de 2005.
+
+<a href="https://rm.coe.int/16806a18d3" target="_blank">https://rm.coe.int/16806a18d3</a></li><li class="list-text-item">Directiva 2014/60/UE del Parlamento Europeo y del Consejo, de 15 de mayo de 2014, relativa a la restitución de bienes culturales que hayan salido de forma ilegal del territorio de un Estado miembro.
+
+<a href="https://www.boe.es/buscar/doc.php?id=DOUE-L-2014-81096" target="_blank">https://www.boe.es/buscar/doc.php?id=DOUE-L-2014-81096</a></li><li class="list-text-item">Real Decreto 620/1987, de 10 de abril por el que se aprueba el Reglamento de Museos de Titularidad Estatal y del Sistema Español de Museos.
+
+<a href="https://www.cultura.gob.es/mnceramica/dam/jcr:266b0143-226f-431c-be54-34c2fcb2f999/2-2-normativa-mte-y-sem-1987.pdf" target="_blank">https://www.cultura.gob.es/mnceramica/dam/jcr:266b0143-226f-431c-be54-34c2fcb2f999/2-2-normativa-mte-y-sem-1987.pdf</a></li><li class="list-text-item">Orden de 18 de mayo de 1994 para la reordenación de los museos de titularidad estatal adscritos al Ministerio de Cultura y ubicados en la Comunidad Autónoma de Andalucía.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-1994-11604" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-1994-11604</a></li><li class="list-text-item">Real Decreto 1305/2009, de 31 de julio, por el que se crea la Red de Museos de España.
+
+<a href="https://www.boe.es/buscar/act.php?id=BOE-A-2009-13761" target="_blank">https://www.boe.es/buscar/act.php?id=BOE-A-2009-13761</a></li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul><li class="list-text-item">Orden ECD/868/2015, de 5 de mayo, por la que se regula la visita pública a los museos de titularidad estatal adscritos y gestionados por el Ministerio de Educación, Cultura y Deporte y por el Instituto Nacional de las Artes Escénicas y de la Música.
+
+<a href="https://www.boe.es/diario_boe/txt.php?id=BOE-A-2015-5290" target="_blank">https://www.boe.es/diario_boe/txt.php?id=BOE-A-2015-5290</a></li><li class="list-text-item">Ley 8/2007, de 5 de octubre, de Museos y Colecciones Museográficas de Andalucía.
+
+<a href="https://www.boe.es/buscar/pdf/2007/BOE-A-2007-18779-consolidado.pdf" target="_blank">https://www.boe.es/buscar/pdf/2007/BOE-A-2007-18779-consolidado.pdf</a></li></ul></div>
+</div>
+        <a id="equipo"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Organigrama</div>
+    <div class="simple-content"><ul><li class="list-text-item">Maria Soria Velmonte - consultant (d)</li><li class="list-text-item">Valeria Mata Ramos - external_advisor (d)</li></ul><img alt="Imagen" src="None"/></div>
+</div>
+        <a id="stakeholders"></a>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Análisis de los grupos de interés</div>
+    <div class="simple-content"><h3>Internos</h3><ul><li class="list-text-item">Persona empleada </li></ul><h3>Externos</h3><ul><li class="list-text-item">Empresa proveedora </li><li class="list-text-item">Negocio relacionado con el turismo o la hostelería</li><li class="list-text-item">Guía turístico o intérprete del patrimonio</li><li class="list-text-item">Administración pública (personal técnico y autoridades)</li><li class="list-text-item">Organismo o institución relacionada con la cultura y el patrimonio</li><li class="list-text-item">Asociación o fundación social sin ánimo de lucro</li><li class="list-text-item">Universidad y mundo académico</li><li class="list-text-item">Persona gestora o técnica de otro recurso patrimonial</li><li class="list-text-item">Resido en Córdoba</li><li class="list-text-item">Visitante</li></ul></div>
+</div>
+
+        <a id="diagnostico"></a>
+        
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Asuntos de materialidad</div>
+    <div class="simple-content"><h2 class="dimension-title">PLANETA</h2><ul class='topic-list'><li>
+<span class="topic-title">Biodiversidad</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para conservar, estudiar y fomentar la biodiversidad dentro del mismo, implementando estrategias que ayuden a su valorización y reconocimiento del papel que
+juegan en estos espacios y sus posibles beneficios.</p>
+</li><li>
+<span class="topic-title">Contratación de servicios</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para evaluar, controlar y gestionar los servicios contratados dentro del mismo. Esto engloba el análisis de estas contrataciones, valorando la procedencia de sus productos si los tuviera, si tienen criterios de sostenibilidad o no, las condiciones de su
+personal, etc.</p>
+</li><li>
+<span class="topic-title">Economía circular y gestión de residuos</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para garantizar una correcta gestión de los residuos generados y fomentar un aprovechamiento de los mismos donde prime la reducción de elementos, promoviendo la
+utilización de materiales biodegradables que al agotar su vida útil no supongan un daño para el medioambiente.</p>
+</li><li>
+<span class="topic-title">Gestión sostenible del recurso hídrico</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para administrar de manera sostenible el uso del agua en las instalaciones. Incluye plantear sistemas de almacenamiento y aprovechamiento de aguas recuperadas
+para su utilización en las necesidades del recurso.</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Gestión sostenible de equipamientos y mobiliario</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para garantizar que sus instalaciones y mobiliario sean fabricados, en la medida de lo posible, con materiales naturales, reciclados y sin tratamientos químicos, de manera que no supongan un daño para el medioambiente, para las propias personas
+usuarias o encargadas de su fabricación.</p>
+</li><li>
+<span class="topic-title">Sanidad vegetal</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para el mantenimiento y gestión de las especies vegetales dentro del recurso, proponiendo actuaciones de conservación, tratamiento y desarrollo de estas, ligadas a un
+proceso sostenible.</p>
+</li><li>
+<span class="topic-title">Transición energética y cambio climático</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para implementar y desarrollar mecanismos de aprovechamiento de la energía y fomentar actuaciones para reducir el cambio climático y mermar sus efectos sobre el recurso.</p>
+</li></ul><h2 class="dimension-title">PERSONAS</h2><ul class='topic-list'><li>
+<span class="topic-title">Difusión y sensibilización</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para dar a conocer y transmitir el propio recurso y su legado, tanto material como inmaterial, fomentando su comunicación y difusión en todos sus ámbitos de interés de la sociedad.</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Formación</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar el aprendizaje y capacidades de las personas usuarias, agentes gestores y comunidad del recurso en materia vinculada al mismo. Engloba las actividades de formación ofrecidas por el propio recurso hacia las personas usuarias externas o la formación interna recibida por el propio organismo para avanzar en su gestión.</p>
+</li><li>
+<span class="topic-title">Salud pública</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para controlar, evaluar, mejorar y garantizar un ambiente de confort y bienestar en el mismo, enfocado a las personas usuarias y trabajadoras. Además, pretende evaluar e implementar estrategias que contribuyan a dicho confort.</p>
+</li></ul><h2 class="dimension-title">PROSPERIDAD</h2><ul class='topic-list'><li>
+<span class="topic-title">Accesibilidad e inclusión</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para facilitar información y ofrecer instalaciones accesibles e inclusivas del propio recurso para todas las personas, independientemente de sus condiciones socioeconómicas, discapacidad u otra condición, de modo que cualquier persona pueda
+participar, utilizar y acceder al propio recurso de forma autónoma.</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Conservación, protección y salvaguarda del patrimonio</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar la conservación, la protección y la salvaguarda de todo tipo de patrimonio, natural y cultural, material e inmaterial para su uso sostenible.
+Subrayamos también, como lo reconoce el Consejo de Europa (Dentro del Convenio Marco del Consejo de Europa sobre el Valor del Patrimonio Cultural para la Sociedad), la importancia en la
+conservación del patrimonio cultural, de la “comunidad patrimonial”. Es decir, las personas y los valores específicos del patrimonio que se desean conservar y transmitir a futuras generaciones.</p>
+</li><li>
+<span class="topic-title">Empleo y condiciones laborales</span>
+<p class="topic-description">Comprende las diferentes acciones a realizar por el recurso patrimonial para favorecer el empleo de calidad, proteger los derechos laborales y promover un entorno de trabajo seguro y sin riesgos para todos los trabajadores.</p>
+</li><li>
+<span class="topic-title">Gestión económica sostenible</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para gestionar sus recursos y cuidarlos, garantizando una rentabilidad responsable y a largo plazo.</p>
+</li><li>
+<span class="topic-title">Gestión sostenible del turismo</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para garantizar modalidades de consumo y producción sostenibles. La gestión sostenible del turismo tiene en cuenta las repercusiones actuales y futuras que sus acciones implican en el ámbito del recurso, tanto económicas como medioambientales o
+sociales e intenta que estas sean las menos posibles.</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Igualdad de oportunidades</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar la ausencia de toda discriminación, directa o indirecta, por motivo de discapacidad, de género o de cualquier distinción, exclusión o restricción, que
+tenga el efecto sobre las personas por no poder tener igualdad de condiciones en los ámbitos económico, social, laboral, cultural, etc. del propio recurso.</p>
+</li><li>
+<span class="topic-title">Inversión y financiación</span>
+<p class="topic-description">Comprende las diferentes acciones y estrategias que se han de realizar por parte del recurso patrimonial para asegurar la financiación del recurso con el fin de garantizar su conservación, protección y mantenimiento.</p>
+</li><li>
+<span class="topic-title">Transformación digital</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para integrar tecnologías sostenibles, desarrollar soluciones digitales y fomentar la innovación en el propio recurso, para su mejor avance y gestión.</p>
+</li><li>
+<span class="topic-title">Usuarios, usuarias y comunidad local</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para integrar a la comunidad local en las actividades del recurso y mejorar la experiencia de las personas usuarias respecto al mismo.</p>
+</li></ul><h2 class="dimension-title">PAZ</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Gestión ética, buen gobierno y transparencia</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para ampliar y reforzar una gestión responsable, transparente y ética, que permita que la ciudadanía tenga acceso a una información de calidad y transparente sobre
+el propio recurso.</p>
+</li></ul></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><ul class='topic-list'><li>
+<span class="topic-title">Participación ciudadana</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar la participación de la ciudadanía en la toma de decisiones respecto al manejo del recurso para una gestión del patrimonio más democrática, incluyente y representativa que responda a sus necesidades.</p>
+</li></ul><h2 class="dimension-title">ALIANZAS</h2><ul class='topic-list'><li>
+<span class="topic-title">Alianzas y colaboraciones público-privadas</span>
+<p class="topic-description">Comprende las diferentes acciones que se han de realizar por parte del recurso patrimonial para fomentar y promover la constitución de alianzas eficaces con entidades públicas o privadas y de la sociedad civil para la gestión sostenible del recurso.</p>
+</li></ul></div>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Indicadores de diagnóstico</div>
+    <div class="simple-content">
+            <p>
+            Una vez definidos los asuntos de materialidad para el recurso patrimonial, se han construido unos indicadores cualitativos y cuantitativos para cada uno y se han recopilado los datos pertinentes.
+            </p>
+            </div>
+</div>
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Indicadores de diagnóstico</div>
+    <div class="simple-content"><a id="diagnosis-Difusión-y-sensibilización"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Difusión y sensibilización</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso tiene o participa en algún plan o estrategia de divulgación y educación en sostenibilidad basada en el patrimonio cultural? (En caso afirmativo, indique cuál o cuáles y una breve descripción [nombre, objetivos, temporalidad…])</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Su recurso cuenta con algún reconocimiento, mención o premio? (En caso afirmativo, indique cuál o cuáles.)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se llevan a cabo acciones para innovar y actualizar los contenidos en el recurso patrimonial? </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Dispone de redes sociales u otros canales similares de información y difusión?</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de actividades de divulgación y educación realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de canales de divulgación que posee el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de personas que han asistido a las actividades realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de publicaciones presentadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de publicaciones mensuales en redes sociales y canales de divulgación</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de visitas anuales al recurso patrimonial. </td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Tasa de participación en las actividades realizadas según las plazas ofertadas</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Formación"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Formación</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan o estrategia de formación? En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se llevan a cabo actividades de formación para las personas que forman la plantilla del recurso patrimonial?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se llevan a cabo actividades de formación para personas ajenas al recurso patrimonial?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de actividades de formación realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Tasa de participación en las actividades realizadas según las plazas ofertadas</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>N.º de personas que han asistido a las actividades de formación realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Salud-pública"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Salud pública</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 3 - Salud y Bienestar</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>3.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Cuenta o participa en algún plan o estrategia de evaluación, control o mejora de la salud pública y confort de los usuarios de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial existen elementos que mejoran el bienestar y confort del usuario?</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>Índice de presencia de alérgenos (solo en caso de recursos patrimoniales culturales con jardines)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Capacidad de amortiguación del ruido en el interior del recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de elementos que ayudan al confort de la persona usuaria (vegetación, agua, calidad del aire, iluminación…)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Temperatura media en verano en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Temperatura media en invierno en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Humedad media en verano en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Humedad media en invernio en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Biodiversidad"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Biodiversidad</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>15.5</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Existe variedad de especies vegetales en su recurso patrimonial? ¿Cuenta con alguna estrategia que contribuya a su mantenimiento y enriquecimiento?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de especies vegetales diferentes existentes en el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Contratación-de-servicios"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Contratación de servicios</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.6</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿El recurso patrimonial necesita y hace uso de servicios externos? </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta o participa en algún plan o estrategia para la contratación de servicios y proveedores que cumplan criterios sostenibles? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de servicios externos contratados</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de productos y proveedores locales</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción o nº de proveedores sostenibles</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Economía-circular-y-gestión-de-residuos"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Economía circular y gestión de residuos</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta o participa en algún plan o estrategia de gestión de residuos que favorezca la recogida selectiva y la posterior administración controlada de residuos? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de residuos reciclados</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-recurso-hídrico"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del recurso hídrico</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 6 - Agua Limpia y Saneamiento</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>6.4</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta o participa en algún plan o estrategia de gestión sostenible del recurso hídrico? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se dispone de infraestructuras para gestionar la recogida y aprovechamiento del agua? ¿En su recurso patrimonial existen pozos o aljibes de los cuales obtener agua de riego?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Consumo de agua en el recurso patrimonial durante el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de agua procedente de pozos o aljibes empleada en el riego de la vegetación o patios existentes en el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>Proporción de riegos eficientes (para recursos patrimoniales culturales con grandes espacios ajardinados)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-sostenible-de-equipamientos-y-mobiliario"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible de equipamientos y mobiliario</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿En su recurso patrimonial cuentan con elementos y mobiliario de bajo mantenimiento y largo rendimiento? </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial reutilizan elementos en distintas actividades u ocasiones?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de materiales y elementos reutilizados en distintas actividades</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Sanidad-vegetal"></a><h2 class="dimension-title">PLANETA</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Sanidad vegetal</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>15.1</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Se disponen de medios y/o mecanismos de evaluación, control y prevención de riesgos para garantizar el cuidado y mantenimiento de las plantas? </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Cantidad de productos químicos -fertilizantes y fitosanitarios- empleados</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Transición-energética-y-cambio-climático"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transición energética y cambio climático</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 13 - Acción por el Clima</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>13.2</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿En su recurso patrimonial existe algún plan o estrategia de eficiencia energética? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial existe algún plan o estrategia de adaptación y/o mitigación del cambio climático? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Consumo de electricidad durante un año (facturas)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de energía procedente de autoconsumo</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de sistemas de acondicionamiento pasivo</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Accesibilidad-e-inclusión"></a></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Accesibilidad e inclusión</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Cuenta con algún plan o estrategia de accesibilidad e inclusión al recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existe información para personas en situación de discapacidad? (véanse tipos de discapacidad)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existen señales adaptadas a personas en situación de discapacidad? (véanse tipos de discapacidad)</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Existen tasas reducidas para usuarios de distintos colectivos? (riesgo de exclusión social, 3ª edad, estudiantes…)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de superficie accesible a personas con discapacidad</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de equipamiento y mobiliario adaptado</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Grado de satisfacción de visitantes (encuestas)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Conservación,-protección-y-salvaguarda-del-patrimonio"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Conservación, protección y salvaguarda del patrimonio</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan o estrategia relativa a la conservación, protección y/o salvaguarda del patrimonio? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal) </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial se llevan a cabo actuaciones de conservación preventiva?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial se llevan a cabo actuaciones concretas sobre elementos patrimoniales para su conservación?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de actividades dedicadas a la conservación, protección y salvaguarda del recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de actuaciones dedicadas a la conservación, protección y salvaguarda del recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Empleo-y-condiciones-laborales"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Empleo y condiciones laborales</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.8</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Cuenta o participa en algún plan o estrategia que fomente el empleo en el recurso patrimonial? En caso afirmativo, indique cuál o cuáles y una breve descripción</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan de conciliación familiar?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-económica-sostenible"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión económica sostenible</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿En su recurso patrimonial cuentan con algún plan o estrategia de gestión económica sostenible? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existen mecanismos de seguimiento y control de gastos e ingresos? </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Porcentaje anual de ingresos sobre gastos</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Porcentaje de gasto corriente destinado a cada asunto relevante</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Porcentaje de gasto anual procedente de financiación externa</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-turismo"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del turismo</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.b</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Existe alguna estrategia en su recurso patrimonial que ayude a minimizar el impacto negativo del turismo en el entorno y así hacerlo más sostenible?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de estrategias o actuaciones vinculadas a fomentar el turismo sostenible </td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Capacidad de carga en el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de visitantes a lo largo del año teniendo en cuenta la temporalidad</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Grado de satisfacción de la población local respecto al turismo (encuestas)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Igualdad-de-oportunidades"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Igualdad de oportunidades</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.5</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Existe algún plan o estrategia que favorezca la igualdad de oportunidades en su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Índice de paridad de género en la estructura organizativa</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de personas en riesgo de pobreza y exclusión (ERPE) que regularmente prestan servicio</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de personas con una discapacidad igual o superior al 33% que regularmente prestan servicio</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Inversión-y-financiación"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Inversión y financiación</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan para obtener inversión y financiación alternativa? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existe financiación pública y/o privada que permita el mantenimiento de su recurso? En caso afirmativo, indique cuál. </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de gasto de inversiones</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de gasto corriente en un año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de presupuesto anual procedente de financiación externa</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Transformación-digital"></a><h2 class="dimension-title">PROSPERIDAD</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transformación digital</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>9.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 10 - Reducción de las Desigualdades</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Dispone de algún plan para la incorporación de nuevas tecnologías al servicio de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal y breve descripción)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se fomenta el empleo de recursos digitales para su gestión, así como para las personas usuarias?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de recursos tecnológicos empleados en la gestión del recurso patrimonial (gestión informática de visitantes, publicación en redes sociales, página web, etc.)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>Porcentaje de archivo digitalizado</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Porcentaje de patrimonio digitalizado (vistas 360º, levantamientos, recreaciones virtuales, etc.)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Usuarios,-usuarias-y-comunidad-local"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Usuarios, usuarias y comunidad local</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.a</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con alguna estrategia que favorezca la vinculación con la comunidad? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan que vele por la seguridad y salud de las personas usuarias? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial existe un plan para mejora de la experiencia de las personas usuarias?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de actividades llevadas a cabo con la comunidad local </td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de visitantes locales respecto a las totales</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-ética,-buen-gobierno-y-transparencia"></a><h2 class="dimension-title">PAZ</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión ética, buen gobierno y transparencia</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.6</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con un código de buenas prácticas o instrumento similar para su gestión? (En caso afirmativo, adjunte el mismo como anexo)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Cuenta con un plan de información o comunicación sobre el estado y la gestión del recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se publican memorias de sostenibilidad o progreso? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal) </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existe transparencia en las tomas de decisiones acerca de la gestión del recurso patrimonial?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Participación-ciudadana"></a><h2 class="dimension-title">PAZ</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Participación ciudadana</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Existe algún plan que fomente la participación ciudadana en la toma de decisiones de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Cuenta con algún plan o estrategia de formación de voluntariado en su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Cuenta con algún plan o estrategia de integración de personas mayores en voluntariado o metodologías participativas en su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de procesos y eventos participativos realizados en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de actividades o trabajos realizados por petición de los grupos de interés</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de personas activas en labores de voluntariado</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Alianzas-y-colaboraciones-público-privadas"></a><h2 class="dimension-title">ALIANZAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#e0cce4;">ALIANZAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Alianzas y colaboraciones público-privadas</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>17.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Cuenta o participa en alianzas o colaboraciones con otras entidades o servicios públicos a fin de mejorar la gestión sostenible de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Cuenta o participa en alianzas o colaboraciones con otras entidades privadas a fin de mejorar la gestión sostenible?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de convenios o acciones de colaboración con entidades tanto públicas como privadas</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de instituciones o entidades con las que colabora el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div>
+        
+        <div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title">Impactos principales y secundarios</div>
+    <div class="simple-content"><a id="diagnosis-Difusión-y-sensibilización"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Difusión y sensibilización</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso tiene o participa en algún plan o estrategia de divulgación y educación en sostenibilidad basada en el patrimonio cultural? (En caso afirmativo, indique cuál o cuáles y una breve descripción [nombre, objetivos, temporalidad…])</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Su recurso cuenta con algún reconocimiento, mención o premio? (En caso afirmativo, indique cuál o cuáles.)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se llevan a cabo acciones para innovar y actualizar los contenidos en el recurso patrimonial? </td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Dispone de redes sociales u otros canales similares de información y difusión?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de actividades de divulgación y educación realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de canales de divulgación que posee el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de personas que han asistido a las actividades realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de publicaciones presentadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de publicaciones mensuales en redes sociales y canales de divulgación</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de visitas anuales al recurso patrimonial. </td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Tasa de participación en las actividades realizadas según las plazas ofertadas</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Formación"></a><h2 class="dimension-title">PERSONAS</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Formación</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 4 - Educación de Calidad</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>4.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan o estrategia de formación? En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se llevan a cabo actividades de formación para las personas que forman la plantilla del recurso patrimonial?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se llevan a cabo actividades de formación para personas ajenas al recurso patrimonial?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>N.º de actividades de formación realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Tasa de participación en las actividades realizadas según las plazas ofertadas</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de personas que han asistido a las actividades de formación realizadas en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Salud-pública"></a><h2 class="dimension-title">PERSONAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#d8dcf4;">PERSONAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Salud pública</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 3 - Salud y Bienestar</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>3.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Cuenta o participa en algún plan o estrategia de evaluación, control o mejora de la salud pública y confort de los usuarios de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial existen elementos que mejoran el bienestar y confort del usuario?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>Índice de presencia de alérgenos (solo en caso de recursos patrimoniales culturales con jardines)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Capacidad de amortiguación del ruido en el interior del recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de elementos que ayudan al confort de la persona usuaria (vegetación, agua, calidad del aire, iluminación…)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Temperatura media en verano en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>Temperatura media en invierno en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Humedad media en verano en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Humedad media en invernio en el recurso patrimonial cultural</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Biodiversidad"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Biodiversidad</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>15.5</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Existe variedad de especies vegetales en su recurso patrimonial? ¿Cuenta con alguna estrategia que contribuya a su mantenimiento y enriquecimiento?</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de especies vegetales diferentes existentes en el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Contratación-de-servicios"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Contratación de servicios</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.6</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿El recurso patrimonial necesita y hace uso de servicios externos? </td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Su recurso patrimonial cuenta o participa en algún plan o estrategia para la contratación de servicios y proveedores que cumplan criterios sostenibles? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de servicios externos contratados</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de productos y proveedores locales</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción o nº de proveedores sostenibles</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Economía-circular-y-gestión-de-residuos"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Economía circular y gestión de residuos</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta o participa en algún plan o estrategia de gestión de residuos que favorezca la recogida selectiva y la posterior administración controlada de residuos? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de residuos reciclados</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-recurso-hídrico"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del recurso hídrico</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 6 - Agua Limpia y Saneamiento</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>6.4</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta o participa en algún plan o estrategia de gestión sostenible del recurso hídrico? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se dispone de infraestructuras para gestionar la recogida y aprovechamiento del agua? ¿En su recurso patrimonial existen pozos o aljibes de los cuales obtener agua de riego?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Consumo de agua en el recurso patrimonial durante el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>Proporción de agua procedente de pozos o aljibes empleada en el riego de la vegetación o patios existentes en el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de riegos eficientes (para recursos patrimoniales culturales con grandes espacios ajardinados)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-sostenible-de-equipamientos-y-mobiliario"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible de equipamientos y mobiliario</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 12 - Producción y Consumo Responsables</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>12.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿En su recurso patrimonial cuentan con elementos y mobiliario de bajo mantenimiento y largo rendimiento? </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial reutilizan elementos en distintas actividades u ocasiones?</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de materiales y elementos reutilizados en distintas actividades</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Sanidad-vegetal"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Sanidad vegetal</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>15.1</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 13 - Acción por el Clima</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Se disponen de medios y/o mecanismos de evaluación, control y prevención de riesgos para garantizar el cuidado y mantenimiento de las plantas? </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Cantidad de productos químicos -fertilizantes y fitosanitarios- empleados</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><a id="diagnosis-Transición-energética-y-cambio-climático"></a><h2 class="dimension-title">PLANETA</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8dcb4;">PLANETA</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transición energética y cambio climático</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 13 - Acción por el Clima</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>13.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 6 - Agua Limpia y Saneamiento<br/>ODS 7 - Energía Asequible y no Contaminante<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿En su recurso patrimonial existe algún plan o estrategia de eficiencia energética? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial existe algún plan o estrategia de adaptación y/o mitigación del cambio climático? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Consumo de electricidad durante un año (facturas)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de energía procedente de autoconsumo</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de sistemas de acondicionamiento pasivo</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Accesibilidad-e-inclusión"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Accesibilidad e inclusión</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.2</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Cuenta con algún plan o estrategia de accesibilidad e inclusión al recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existe información para personas en situación de discapacidad? (véanse tipos de discapacidad)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existen señales adaptadas a personas en situación de discapacidad? (véanse tipos de discapacidad)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existen tasas reducidas para usuarios de distintos colectivos? (riesgo de exclusión social, 3ª edad, estudiantes…)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de superficie accesible a personas con discapacidad</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de equipamiento y mobiliario adaptado</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Grado de satisfacción de visitantes (encuestas)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><a id="diagnosis-Conservación,-protección-y-salvaguarda-del-patrimonio"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Conservación, protección y salvaguarda del patrimonio</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan o estrategia relativa a la conservación, protección y/o salvaguarda del patrimonio? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal) </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial se llevan a cabo actuaciones de conservación preventiva?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial se llevan a cabo actuaciones concretas sobre elementos patrimoniales para su conservación?</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de actividades dedicadas a la conservación, protección y salvaguarda del recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de actuaciones dedicadas a la conservación, protección y salvaguarda del recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Empleo-y-condiciones-laborales"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Empleo y condiciones laborales</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.8</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Cuenta o participa en algún plan o estrategia que fomente el empleo en el recurso patrimonial? En caso afirmativo, indique cuál o cuáles y una breve descripción</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan de conciliación familiar?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Gestión-económica-sostenible"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión económica sostenible</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿En su recurso patrimonial cuentan con algún plan o estrategia de gestión económica sostenible? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existen mecanismos de seguimiento y control de gastos e ingresos? </td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Porcentaje anual de ingresos sobre gastos</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Porcentaje de gasto corriente destinado a cada asunto relevante</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Porcentaje de gasto anual procedente de financiación externa</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-sostenible-del-turismo"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión sostenible del turismo</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 10 - Reducción de las Desigualdades</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>10.b</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables<br/>ODS 14 - Vida Submarina<br/>ODS 15 - Vida de Ecosistemas Terrestres</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Existe alguna estrategia en su recurso patrimonial que ayude a minimizar el impacto negativo del turismo en el entorno y así hacerlo más sostenible?</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de estrategias o actuaciones vinculadas a fomentar el turismo sostenible </td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Capacidad de carga en el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de visitantes a lo largo del año teniendo en cuenta la temporalidad</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Grado de satisfacción de la población local respecto al turismo (encuestas)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Igualdad-de-oportunidades"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Igualdad de oportunidades</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 8 - Trabajo Decente y Crecimiento Económico</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>8.5</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 4 - Educación de Calidad<br/>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Existe algún plan o estrategia que favorezca la igualdad de oportunidades en su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Índice de paridad de género en la estructura organizativa</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de personas en riesgo de pobreza y exclusión (ERPE) que regularmente prestan servicio</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de personas con una discapacidad igual o superior al 33% que regularmente prestan servicio</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Inversión-y-financiación"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Inversión y financiación</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.4</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 1 - Fin de la Pobreza<br/>ODS 2 - Hambre Cero<br/>ODS 3 - Salud y Bienestar<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan para obtener inversión y financiación alternativa? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existe financiación pública y/o privada que permita el mantenimiento de su recurso? En caso afirmativo, indique cuál. </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>Proporción de gasto de inversiones</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de gasto corriente en un año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de presupuesto anual procedente de financiación externa</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Transformación-digital"></a><h2 class="dimension-title">PROSPERIDAD</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Transformación digital</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 9 - Industria, Innovación e Infraestructura</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>9.4</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 4 - Educación de Calidad<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 10 - Reducción de las Desigualdades</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Dispone de algún plan para la incorporación de nuevas tecnologías al servicio de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal y breve descripción)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Se fomenta el empleo de recursos digitales para su gestión, así como para las personas usuarias?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>N.º de recursos tecnológicos empleados en la gestión del recurso patrimonial (gestión informática de visitantes, publicación en redes sociales, página web, etc.)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Porcentaje de archivo digitalizado</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Porcentaje de patrimonio digitalizado (vistas 360º, levantamientos, recreaciones virtuales, etc.)</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Usuarios,-usuarias-y-comunidad-local"></a><h2 class="dimension-title">PROSPERIDAD</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#ffe4c4;">PROSPERIDAD</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Usuarios, usuarias y comunidad local</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 11 - Ciudades y Comunidades Sostenibles</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>11.a</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 3 - Salud y Bienestar<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Su recurso patrimonial cuenta con alguna estrategia que favorezca la vinculación con la comunidad? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con algún plan que vele por la seguridad y salud de las personas usuarias? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿En su recurso patrimonial existe un plan para mejora de la experiencia de las personas usuarias?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de actividades llevadas a cabo con la comunidad local </td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>Proporción de visitantes locales respecto a las totales</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Gestión-ética,-buen-gobierno-y-transparencia"></a><h2 class="dimension-title">PAZ</h2></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Gestión ética, buen gobierno y transparencia</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.6</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 8 - Trabajo Decente y Crecimiento Económico<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 12 - Producción y Consumo Responsables</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Su recurso patrimonial cuenta con un código de buenas prácticas o instrumento similar para su gestión? (En caso afirmativo, adjunte el mismo como anexo)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Cuenta con un plan de información o comunicación sobre el estado y la gestión del recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Se publican memorias de sostenibilidad o progreso? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal) </td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Existe transparencia en las tomas de decisiones acerca de la gestión del recurso patrimonial?</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr></table><a id="diagnosis-Participación-ciudadana"></a><h2 class="dimension-title">PAZ</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#c8e4f4;">PAZ</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Participación ciudadana</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>16.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>¿Existe algún plan que fomente la participación ciudadana en la toma de decisiones de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Cuenta con algún plan o estrategia de formación de voluntariado en su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Cuenta con algún plan o estrategia de integración de personas mayores en voluntariado o metodologías participativas en su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de procesos y eventos participativos realizados en el último año</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de actividades o trabajos realizados por petición de los grupos de interés</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<td>N.º de personas activas en labores de voluntariado</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table><a id="diagnosis-Alianzas-y-colaboraciones-público-privadas"></a><h2 class="dimension-title">ALIANZAS</h2><table class="table"><tr>
+<th class="narrow-th">Dimensión</th>
+<td class="subheader" style="background-color:#e0cce4;">ALIANZAS</td>
+</tr><tr>
+<th class="narrow-th">Asunto de Materialidad</th>
+<td>Alianzas y colaboraciones público-privadas</td>
+</tr><tr>
+<th class="narrow-th">ODS principal</th>
+<td>ODS 17 - Alianzas para Lograr los Objetivos</td>
+</tr><tr>
+<th class="narrow-th">Meta ODS principal</th>
+<td>17.7</td>
+</tr><tr>
+<th class="narrow-th">ODS secundarios</th>
+<td>ODS 5 - Igualdad de Género<br/>ODS 9 - Industria, Innovación e Infraestructura<br/>ODS 10 - Reducción de las Desigualdades<br/>ODS 11 - Ciudades y Comunidades Sostenibles<br/>ODS 13 - Acción por el Clima<br/>ODS 16 - Paz, Justicia e Instituciones Sólidas</td>
+</tr></table><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cualitativos</th>
+</tr><tr>
+<td>¿Cuenta o participa en alianzas o colaboraciones con otras entidades o servicios públicos a fin de mejorar la gestión sostenible de su recurso patrimonial? (En caso afirmativo, indique específicamente cuál, la fase en la que se encuentra (en elaboración o vigente) y su vigencia temporal)</td>
+<td>Sin respuesta</td>
+</tr><tr>
+<td>¿Cuenta o participa en alianzas o colaboraciones con otras entidades privadas a fin de mejorar la gestión sostenible?</td>
+<td>Sin respuesta</td>
+</tr></table></div>
+</div><div class="page" style="background-color: #FFFFFF;">
+    <style>
+        .simple-content p {
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="simple-title"></div>
+    <div class="simple-content"><table class="table"><tr>
+<th colspan="2" style="background-color:#f0f0f0;">Indicadores cuantitativos</th>
+</tr><tr>
+<td>N.º de convenios o acciones de colaboración con entidades tanto públicas como privadas</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr><tr>
+<td>N.º de instituciones o entidades con las que colabora el recurso patrimonial</td>
+<td>0.00 <span style="color:#888;">(Unidad)</span></td>
+</tr></table></div>
+</div>
+
+
+        <a id="hoja-ruta"></a>
+        
+        
+        
+        
+
+        <a id="difusion"></a>
+        
+        <a id="acuerdos"></a>
+        
+        <a id="bibliografia"></a>
+        
+        <a id="galeria-fotografica"></a>
+    </body>
+    </html>
+    
