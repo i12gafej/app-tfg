@@ -631,5 +631,22 @@ export const reportService = {
             console.error('Error al actualizar la foto:', error);
             throw error;
         }
+    },
+
+    publishReport: async (reportId: number, token: string): Promise<{message: string, url: string}> => {
+        try {
+            const response = await api.post<{message: string, url: string}>(`/reports/publish/${reportId}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.data?.detail?.includes("'Session' object has no attribute 'update'")) {
+                throw new Error('Error al actualizar el estado del reporte en la base de datos');
+            }
+            console.error('Error al publicar la memoria:', error);
+            throw error;
+        }
     }
 };

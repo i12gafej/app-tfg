@@ -63,14 +63,21 @@ const PublishReport: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Actualizar el estado de la memoria a Published
-      await reportService.updateReport(report.id, { state: 'Published' }, token || '');
+      // Publicar la memoria usando el nuevo endpoint
+      const response = await reportService.publishReport(report.id, token || '');
+      
+      // Si la publicación fue exitosa, abrir el reporte en una nueva pestaña
+      if (response.url) {
+        window.open(response.url, '_blank');
+      }
       
       // Cerrar el diálogo y navegar a la vista de consulta
       setConfirmDialogOpen(false);
       navigate(`/memorias/consultar/${report.id}/${report.heritage_resource_name}/${report.year}`);
-    } catch (err) {
-      setError('Error al publicar la memoria');
+    } catch (err: any) {
+      // Mostrar el mensaje de error específico
+      const errorMessage = err.message || err.response?.data?.detail || 'Error al publicar la memoria';
+      setError(errorMessage);
       console.error('Error al publicar:', err);
     } finally {
       setLoading(false);

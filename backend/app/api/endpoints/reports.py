@@ -286,16 +286,21 @@ async def search_public_reports_endpoint(
         # Crear un diccionario para acceder rápidamente a los recursos por ID
         resources_dict = {resource.id: resource for resource in resources}
 
-        # Añadir el nombre del recurso a cada memoria
+        # Convertir los reportes al formato de lista de items
+        items = []
         for report in reports:
             if report.heritage_resource_id in resources_dict:
-                report.heritage_resource_name = resources_dict[report.heritage_resource_id].name
-
-        total = len(reports)
+                resource = resources_dict[report.heritage_resource_id]
+                items.append({
+                    "resource_id": report.heritage_resource_id,
+                    "resource_name": resource.name,
+                    "year": report.year,
+                    "report_id": report.id
+                })
 
         return {
-            "items": reports,
-            "total": total
+            "items": items,
+            "total": len(items)
         }
         
     except Exception as e:
@@ -488,16 +493,16 @@ async def publish_report_endpoint(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
         
+        # Actualizar el estado del reporte a Published
+        report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
+        if report:
+            report.state = 'Published'
+            db.commit()
+
         # Generar el reporte
-        report_generator = ReportGenerator()
-        report_data = crud_reports.get_report_data(db, report_id)
-        report_generator.generate_report(report_data)
+        report_url = crud_reports.generate_report_html(db, report_id)
 
-        query = db.update(SustainabilityReportModel).where(SustainabilityReportModel.id == report_id).values(state="Published")
-        db.execute(query)
-        db.commit()
-
-        return {"message": "Reporte publicado correctamente"}
+        return {"message": "Reporte publicado correctamente", "url": report_url}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

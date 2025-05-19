@@ -147,7 +147,8 @@ const PublicReportSearch = () => {
   };
 
   const handleView = (report: ReportListItem) => {
-    navigate(`/memorias/consultar/${report.resource_id}/${report.resource_name}/${report.year}`);
+    // Abrir el reporte en una nueva pestaña
+    window.open(`http://localhost:8000/static/uploads/reports/${report.report_id}/report_${report.report_id}.html`, '_blank');
   };
 
   return (
@@ -315,7 +316,7 @@ const PublicReportSearch = () => {
       {reports.length > 0 && (
         <Grid container spacing={2} sx={{ mt: 2 }}>
           {reports.map((report) => (
-            <Grid item xs={12} sm={6} md={4} key={report.resource_id}>
+            <Grid item xs={12} sm={6} md={4} key={report.report_id}>
               <Card 
                 sx={{ 
                   height: '100%',
@@ -328,7 +329,7 @@ const PublicReportSearch = () => {
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" gutterBottom>
-                    {report.resource_name || 'Sin nombre'}
+                    {report.resource_name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Año: {report.year}
