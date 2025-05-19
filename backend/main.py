@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import auth, users, resources, team, reports, stakeholders, material_topics, goals
-from app.api.endpoints import ods, surveys, diagnosis_indicators, action_plan, monitoring, backup
+from app.api.endpoints import ods, surveys, diagnosis_indicators, action_plan, monitoring, backup, email
 from app.core.config import settings
 from fastapi.staticfiles import StaticFiles
 
@@ -34,6 +34,7 @@ app.include_router(diagnosis_indicators.router, prefix=settings.API_V1_STR, tags
 app.include_router(action_plan.router, prefix=settings.API_V1_STR, tags=["action_plan"])
 app.include_router(monitoring.router, prefix=settings.API_V1_STR, tags=["monitoring"])
 app.include_router(backup.router, prefix=settings.API_V1_STR, tags=["backup"])
+app.include_router(email.router, prefix=settings.API_V1_STR, tags=["email"])
 
 # Montar archivos estáticos con acceso público
 app.mount("/static", StaticFiles(directory="static", html=True), name="static")

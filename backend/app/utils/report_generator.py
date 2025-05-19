@@ -404,7 +404,7 @@ class ReportGenerator:
             materiality_matrix = data["materiality_matrix_text"] if data["materiality_matrix_text"] else ""
             # Añadir la imagen de la matriz
             materiality_matrix += self.generate_photo({"photo_url": data["materiality_matrix"], "description": "Matriz de materialidad"}, background_color="#FFFFFF")
-            print("MATERIALITY MATRIX:", data["materiality_matrix"])
+            
             materiality_matrix_text_html = ""
             pages = paginate_html_text(materiality_matrix, max_lines=40, chars_per_line=60)
             for page,i in zip(pages, range(1, len(pages) + 1)):
@@ -415,22 +415,12 @@ class ReportGenerator:
 
             # IMPACTOS PRINCIPALES Y SECUNDARIOS
             
-            main_secondary_impacts_tables = self.generate_diagnosis_tables(diagnosis_tables_data, show_indicators=False, introduction_text=data["main_secondary_impacts_text"])
-            tables = paginate_html_tables(main_secondary_impacts_tables, max_lines=60)
-            
-            main_secondary_impacts_tables_html = ""
-            if tables is not None:
-                for table,i in zip(tables, range(1, len(tables) + 1)):
-                    if i == 1:
-                        main_secondary_impacts_tables_html += self.generate_simple_text({"title": "Impactos principales y secundarios", "text": table})
-                    else:
-                        main_secondary_impacts_tables_html += self.generate_simple_text({"title": "", "text": table})
-
             
             main_impacts_graph = self.generate_photo({"photo_url": data["main_impacts_graph"], "description": "Impactos principales"}, background_color="#FFFFFF")
             secondary_impacts_graph = self.generate_photo({"photo_url": data["secondary_impacts_graph"], "description": "Impactos secundarios"}, background_color="#FFFFFF")
 
             main_secondary_impacts_graphs_html = ""
+            main_secondary_impacts_graphs_html += data["main_secondary_impacts_text"] if data["main_secondary_impacts_text"] else ""
             main_secondary_impacts_graphs_html += main_impacts_graph
             main_secondary_impacts_graphs_html += secondary_impacts_graph
 
@@ -522,7 +512,6 @@ class ReportGenerator:
                 "diagnosis_indicators": diagnosis_indicators_text_html,
                 "diagnosis_indicators_tables": diagnosis_indicators_tables_html,
                 "materiality_matrix": materiality_matrix_text_html,
-                "main_secondary_impacts": main_secondary_impacts_tables_html,
                 "main_secondary_impacts_graphs": main_secondary_impacts_graphs_html,
                 "roadmap": roadmap_description_html,
                 "action_plan": action_plan_text_html,

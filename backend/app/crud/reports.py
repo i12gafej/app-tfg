@@ -356,8 +356,17 @@ def generate_report_html(db: Session, report_id: int) -> str:
     try: 
         report_data = get_report_data(db, report_id)
         matrix_data = create_materiality_matrix_data(db, report_id, scale=report_data['scale'])
-        def save_base64_image(data_url, path):
+        def save_base64_image(data_url, path, base_dir=None, report_id=None):
             # data_url: "data:image/png;base64,...."
+            
+            # Crear directorio específico para el reporte si no existe
+            if report_id:
+                report_dir = settings.REPORTS_DIR / str(report_id)
+                if not os.path.exists(report_dir):
+                    os.makedirs(report_dir, exist_ok=True)
+                # Modificar el path para usar el directorio del reporte
+                filename = os.path.basename(path)
+                path = report_dir / filename
             
             header, encoded = data_url.split(',', 1)
             dir_path = os.path.dirname(path)
@@ -365,32 +374,35 @@ def generate_report_html(db: Session, report_id: int) -> str:
                 os.makedirs(dir_path, exist_ok=True)
             with open(path, "wb") as f:
                 f.write(base64.b64decode(encoded))
+            
+            # Convertir la ruta absoluta a relativa
+            if base_dir:
+                relative_path = str(path).replace(str(base_dir), '').replace('/', '\\')
+                if relative_path.startswith('\\'):
+                    relative_path = relative_path[1:]
+                return f"\\{base_dir.name}\\{relative_path}"
+            return str(path)
 
         # 1. Matriz de materialidad
         matrix_img_b64 = generate_matrix_image(matrix_data, scale=report_data['scale'])
-        matrix_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_materiality_matrix.png")
-        save_base64_image(matrix_img_b64, matrix_img_path)
-        report_data['materiality_matrix'] = matrix_img_path
+        matrix_img_path = settings.REPORTS_DIR / f"{report_id}_materiality_matrix.png"
+        report_data['materiality_matrix'] = save_base64_image(matrix_img_b64, matrix_img_path, settings.STATIC_DIR, report_id)
         report_data['legend'] = matrix_data
 
         # 2. Gráfico de impactos principal
         main_impacts_img_b64 = get_main_impacts_material_topics_graph(report_data['material_topics'])
-        main_impacts_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_main_impacts.png")
-        save_base64_image(main_impacts_img_b64, main_impacts_img_path)
-        report_data['main_impacts_graph'] = main_impacts_img_path
+        main_impacts_img_path = settings.REPORTS_DIR / f"{report_id}_main_impacts.png"
+        report_data['main_impacts_graph'] = save_base64_image(main_impacts_img_b64, main_impacts_img_path, settings.STATIC_DIR, report_id)
 
         # 3. Gráfico de impactos secundarios
         secondary_impacts_img_b64 = get_secondary_impacts_material_topics_graph(report_data['secondary_impacts'])
-        secondary_impacts_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_secondary_impacts.png")
-        save_base64_image(secondary_impacts_img_b64, secondary_impacts_img_path)
-        report_data['secondary_impacts_graph'] = secondary_impacts_img_path
+        secondary_impacts_img_path = settings.REPORTS_DIR / f"{report_id}_secondary_impacts.png"
+        report_data['secondary_impacts_graph'] = save_base64_image(secondary_impacts_img_b64, secondary_impacts_img_path, settings.STATIC_DIR, report_id)
 
         # 4. Gráfico de coherencia interna
-        # Suponiendo que tienes un dict 'dimension_totals' en report_data
         internal_consistency_img_b64, dimension_totals_list = generate_internal_consistency_graph(report_data['dimension_totals'])
-        internal_consistency_img_path = os.path.join(settings.REPORTS_DIR, f"{report_id}_internal_consistency.png")
-        save_base64_image(internal_consistency_img_b64, internal_consistency_img_path)
-        report_data['internal_consistency_graph'] = internal_consistency_img_path
+        internal_consistency_img_path = settings.REPORTS_DIR / f"{report_id}_internal_consistency.png"
+        report_data['internal_consistency_graph'] = save_base64_image(internal_consistency_img_b64, internal_consistency_img_path, settings.STATIC_DIR, report_id)
         report_data['dimension_totals'] = dimension_totals_list
         
         # Guardar el HTML de la memoria

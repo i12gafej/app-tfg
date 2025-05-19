@@ -37,7 +37,6 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
 
     def image_block_to_lines(img_tag, caption_text=None, px_per_line=20, margin_top=0, margin_bottom=0):
         height_px = get_visual_height(img_tag)
-        print(height_px)
         image_lines = max(1, int(height_px) // px_per_line)
         margin_lines = (margin_top + margin_bottom) // px_per_line
         caption_lines = 0

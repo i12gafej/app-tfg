@@ -42,7 +42,7 @@ class Settings(BaseModel):
     MYSQL_PORT: str = "3306"
     #BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    
+    FRONTEND_URL: str = "http://localhost:3000"
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

@@ -156,3 +156,24 @@ def change_password(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/users/verify-reset-token/{token}")
+async def verify_reset_token(token: str, db: Session = Depends(get_db)):
+    user = crud_user.verify_reset_token(db, token)
+    if not user:
+        raise HTTPException(status_code=400, detail="Token inválido o expirado")
+    return {"email": user.email}
+
+@router.post("/users/reset-password", response_model=dict)
+async def reset_password(
+    token: str = Body(...),
+    new_password: str = Body(...),
+    db: Session = Depends(get_db)
+):
+
+    try:
+        user = crud_user.reset_password(db, token, new_password)
+        if not user:
+            raise HTTPException(status_code=400, detail="Token inválido o expirado")
+        return {"message": "Contraseña actualizada correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

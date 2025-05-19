@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, Text, DECIMAL, ForeignKey, Boolean, ForeignKeyConstraint
+from sqlalchemy import Column, Integer, String, Enum, Text, DECIMAL, ForeignKey, Boolean, ForeignKeyConstraint, DateTime
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
@@ -12,6 +12,11 @@ class User(Base):
     name = Column(String(100), nullable=False)
     surname = Column(String(255), nullable=False)
     phone_number = Column(String(20), nullable=True)
+
+    # Seguridad 
+    reset_token = Column(String(255), nullable=True)
+    reset_token_expiration = Column(DateTime, nullable=True)
+    reset_token_state = Column(Boolean, nullable=False, default=False)
 
 class Dimension(Base):
     __tablename__ = "dimensions"

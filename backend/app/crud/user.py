@@ -4,6 +4,8 @@ from app.core.security import verify_password
 from app.models.models import User
 from app.schemas.user import UserCreate
 from app.core.security import get_password_hash
+from datetime import datetime, timedelta
+import secrets
 import logging
 
 
@@ -165,5 +167,57 @@ def change_password(db: Session, user_id: int, old_password: str, new_password: 
         db.commit()
         db.refresh(user)
         return user 
+    except Exception as e:
+        raise e
+
+async def generate_change_password_token(db: Session, email: str) -> str:
+    try:
+        user = get_by_email(db, email=email)
+        if not user:
+            return None
+        
+        # Generar token único
+        token = secrets.token_urlsafe(32)
+        expiration = datetime.utcnow() + timedelta(minutes=30)
+        
+        # Guardar token en la base de datos
+        user.reset_token = token
+        user.reset_token_expiration = expiration
+        db.commit()
+        
+        return token
+    except Exception as e:
+        logger.error(f"Error al generar token de cambio de contraseña: {str(e)}")
+        raise e
+
+def verify_reset_token(db: Session, token: str) -> User:
+    try:
+        user = db.query(User).filter(
+            User.reset_token == token,
+            User.reset_token_expiration > datetime.utcnow()
+        ).first()
+        return user
+    except Exception as e:
+        raise e
+
+def reset_password(db: Session, token: str, new_password: str) -> User:
+    try:
+        user = db.query(User).filter(
+            User.reset_token == token,
+            User.reset_token_expiration > datetime.utcnow()
+        ).first()
+        if not user:
+            return None
+        
+        # Actualizar la contraseña
+        user.password = get_password_hash(new_password)
+        
+        # Eliminar el token y la fecha de expiración
+        user.reset_token = None
+        user.reset_expires = None
+        
+        db.commit()
+        db.refresh(user)
+        return user
     except Exception as e:
         raise e
