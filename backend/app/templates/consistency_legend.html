@@ -1,0 +1,36 @@
+{% set dimension_header_colors = {
+    'PERSONAS': '#706cb4',
+    'PLANETA': '#08a44c',
+    'PROSPERIDAD': '#e89c24',
+    'PAZ': '#08acdc',
+    'ALIANZAS': '#c04c94'
+} %}
+
+{% set dimension_colors = {
+    'PERSONAS': '#d8dcf4',
+    'PLANETA': '#c8dcb4',
+    'PROSPERIDAD': '#ffe4c4',
+    'PAZ': '#c8e4f4',
+    'ALIANZAS': '#e0cce4'
+} %}
+
+<div class="page" style="width: 100%; margin: 0 auto;">
+    <h3 style="text-align: center;">Totales por dimensión</h3>
+    <table style="width: 60%; margin: 0 auto; border-collapse: collapse; border: 2px solid #000;">
+        <tr>
+            <th style="background-color: #222; color: #fff; padding: 10px; border: 1px solid #ddd;">Dimensión</th>
+            <th style="background-color: #222; color: #fff; padding: 10px; border: 1px solid #ddd;">Total</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td style="background-color: {{ dimension_header_colors[item.dimension] }}; color: #fff; padding: 10px; border: 1px solid #ddd; text-align: center;">
+                {{ item.dimension }}
+            </td>
+            <td style="background-color: {{ dimension_colors[item.dimension] }}; padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;">
+                {{ item.total | int }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+

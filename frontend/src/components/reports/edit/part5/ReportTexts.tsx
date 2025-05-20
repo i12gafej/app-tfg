@@ -6,6 +6,7 @@ import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
 import { reportService } from '@/services/reportServices';
+import Link from '@tiptap/extension-link'
 import { useAuth } from '@/hooks/useAuth';
 
 type TextField = {
@@ -39,7 +40,8 @@ const ReportTexts = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline
+      Underline,
+      Link
     ],
     content: report?.[selectedField.field] || `<p>Escribe aquí el texto de ${selectedField.label.toLowerCase()}...</p>`,
     editable: !readOnly,

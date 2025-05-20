@@ -4,6 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
+import Link from '@tiptap/extension-link'
 import { useReport } from '@/context/ReportContext';
 import { useAuth } from '@/hooks/useAuth';
 import { reportService } from '@/services/reportServices';
@@ -21,6 +22,7 @@ const OrganizationChart = () => {
     extensions: [
       StarterKit,
       Underline,
+      Link
     ],
     content: report?.org_chart_text || '',
     editable: !readOnly,

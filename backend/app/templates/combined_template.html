@@ -7,6 +7,11 @@
             @page {
                 size: A4;
                 margin: 0;
+                @bottom-right {
+                    content: counter(page);
+                    font-size: 12px;
+                    color: #666;
+                }
             }
 
             body {
@@ -23,6 +28,18 @@
                 padding: 2.5cm 2cm 2.5cm 2cm;
                 min-height: 100%;
                 box-sizing: border-box;
+                counter-increment: page;
+            }
+
+            /* Ocultar números de página en la portada y página de información del recurso */
+            .page:first-of-type,
+            .page:nth-of-type(2) {
+                counter-increment: none;
+            }
+
+            .page:first-of-type::after,
+            .page:nth-of-type(2)::after {
+                content: none;
             }
 
             /* ---------- Títulos y contenido simple ---------- */
@@ -159,6 +176,11 @@
             .submenu {
                 padding-left: 20px;
                 margin: 5px 0;
+                display: none;
+            }
+
+            .menu-item:hover .submenu {
+                display: block;
             }
 
             .submenu-item {
@@ -173,15 +195,28 @@
                 color: #555;
                 border-radius: 4px;
                 transition: background-color 0.2s;
+                font-size: 0.9em;
             }
 
             .submenu-item a:hover {
                 background-color: #f5f5f5;
             }
+            footer {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                text-align: right;
+                font-size: 12px;
+                color: #666;
+                }
 
             @media print {
                 #side-menu, #toggle-menu {
                     display: none;
+                }
+                footer {
+                    display: block;
                 }
             }
 
@@ -209,17 +244,18 @@
                 max-width: 15cm;
                 max-height: 20cm;
                 width: 100%;
-                height: 100%;
+                height: auto;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 margin: 0 auto;
+                padding-top: 2em;
             }
+
             .photo-img {
-                max-width: 100%;
-                max-height: 100%;
-                width: auto;
+                width: 100%;
                 height: auto;
+                max-height: 20cm;
                 object-fit: contain;
                 display: block;
                 margin: 0 auto;
@@ -271,6 +307,15 @@
             max-width: 100%;
         }
 
+        .preview_page {
+            width: 210mm;
+            padding: 20mm;
+            margin: 0 auto;
+            background: white;
+            box-sizing: border-box;
+            page-break-after: always;
+        }
+
         </style>
     </head>
     <body>
@@ -289,13 +334,24 @@
             <li class="menu-item"><a href="#vision">Visión</a></li>
             <li class="menu-item"><a href="#valores">Valores</a></li>
             <li class="menu-item"><a href="#normativa">Normativa</a></li>
-            <li class="menu-item"><a href="#equipo-sostenibilidad">Equipo de sostenibilidad</a></li>
-            <li class="menu-item"><a href="#organigrama">Organigrama</a></li>
+            <li class="menu-item"><a href="#equipo-sostenibilidad">Organigrama</a></li>
             <li class="menu-item"><a href="#grupos-interes">Análisis de grupos de interés</a></li>
-            <li class="menu-item"><a href="#diagnostico">Diagnóstico</a></li>
+            <li class="menu-item">
+                <a href="#diagnostico">Diagnóstico</a>
+                <ul class="submenu">
+                    <li class="submenu-item"><a href="#diagnostico">Introducción</a></li>
+                    <li class="submenu-item"><a href="#asuntos-materialidad">Asuntos de materialidad</a></li>
+                    <li class="submenu-item"><a href="#indicadores-diagnostico">Indicadores de diagnóstico</a></li>
+                    <li class="submenu-item"><a href="#matriz-materialidad">Matriz de materialidad</a></li>
+                    <li class="submenu-item"><a href="#impactos-principales-secundarios">Impactos principales y secundarios</a></li>
+                </ul>
+            </li>
             <li class="menu-item"><a href="#hoja-ruta">Hoja de ruta de la sostenibilidad</a></li>
             <li class="menu-item"><a href="#difusion">Difusión</a></li>
-            <li class="menu-item"><a href="#anexos">Anexos</a></li>
+            <li class="menu-item"><a href="#convenios-colaboracion">Convenios de colaboración</a></li>
+            <li class="menu-item"><a href="#bibliografia">Bibliografía</a></li>
+            <li class="menu-item"><a href="#galeria-fotografica">Galería fotográfica</a></li>
+            
         </ul>
     </div>
 
@@ -306,7 +362,7 @@
             }
         </script>
 
-        <button class="download-button" onclick="window.print()">
+        <button class="download-button" onclick="window.open('report_{{data.id}}.html', '_blank').print()">
             <svg class="download-icon" viewBox="0 0 24 24">
                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
             </svg>
@@ -316,45 +372,57 @@
         {{data.cover | safe}}
         <a id="recurso"></a>
         {{data.resource_info | safe}}
-        <a id="carta"></a>
+        <a id="indice"></a>
+        {{data.index | safe}}
+        <a id="carta-compromiso"></a>
         {{data.commitment_letter | safe}}
         <a id="mision"></a>
         {{data.mission | safe}}
         <a id="vision"></a>
         {{data.vision | safe}}
         <a id="valores"></a>
-        {{data.values | safe}}
+        {{data.values_section | safe}}
         <a id="normativa"></a>
         {{data.norms | safe}}
-        <a id="equipo"></a>
+        <a id="equipo-sostenibilidad"></a>
         {{data.org_chart | safe}}
         
-        <a id="stakeholders"></a>
+        <a id="grupos-interes"></a>
         {{data.stakeholders | safe}}
 
         <a id="diagnostico"></a>
         {{data.diagnosis | safe}}
         {{data.topics_table | safe}}
+        <a id="asuntos-materialidad"></a>
+        {{ data.materiality_text | safe}}
+        {{ data.ods_dimensions | safe}}
         {{data.material_topics | safe}}
+        <a id="indicadores-diagnostico"></a>
         {{data.diagnosis_indicators | safe}}
         {{data.diagnosis_indicators_tables | safe}}
+        <a id="matriz-materialidad"></a>
         {{data.materiality_matrix | safe}}
+        {{data.topics_priority_table | safe}}
+        <a id="impactos-principales-secundarios"></a>
         {{data.main_secondary_impacts | safe}}
         {{data.main_secondary_impacts_graphs | safe}}
+        {{data.impacts_graphs_legend | safe}}
 
         <a id="hoja-ruta"></a>
         {{data.roadmap | safe}}
         {{data.action_plan | safe}}
         {{data.action_plan_tables | safe}}
         {{data.internal_consistency | safe}}
+        {{data.internal_consistency_legend | safe}}
 
         <a id="difusion"></a>
         {{data.diffusion | safe}}
-        <a id="acuerdos"></a>
-        
+        <a id="convenios-colaboracion"></a>
+        {{data.agreements | safe}}
         <a id="bibliografia"></a>
-        
+        {{data.bibliography | safe}}
         <a id="galeria-fotografica"></a>
+        {{data.gallery | safe}}
     </body>
     </html>
     

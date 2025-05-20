@@ -4,6 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
+import Link from '@tiptap/extension-link'
 import { useReport } from '@/context/ReportContext';
 
 const Mission = () => {
@@ -14,7 +15,8 @@ const Mission = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline
+      Underline,
+      Link
     ],
     content: report?.mission || '<p>Escribe aquí la misión de la organización...</p>',
     editable: !readOnly,

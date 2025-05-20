@@ -17,7 +17,10 @@
 <table id="topics-table" class="table" style="border: 3px solid #000;">
     <tr>
         <th style="width: 20%; padding: 10px; text-align: center; border: 1px solid #ddd;">Dimensión</th>
-        <th style="width: 70%; padding: 10px; text-align: center; border: 1px solid #ddd;">Asuntos de Materialidad</th>
+        <th style="width: 60%; padding: 10px; text-align: center; border: 1px solid #ddd;">Asuntos de Materialidad</th>
+        {% if show_priority %}
+        <th style="width: 20%; padding: 10px; text-align: center; border: 1px solid #ddd;">Prioridad</th>
+        {% endif %}
     </tr>
     
     {% for dimension in ['PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'] %}
@@ -34,6 +37,11 @@
                     <td style="background-color: {{ dimension_colors[dimension] }}; padding: 10px; border: 1px solid #ddd;">
                         {{ topic.order }}. {{ topic.name }}
                     </td>
+                    {% if show_priority %}
+                    <td style="background-color: #f7f7f7; padding: 10px; border: 1px solid #ddd; text-align: center;">
+                        {{ topic.priority }}
+                    </td>
+                    {% endif %}
                     {% if not loop.first %}
                         </tr>
                     {% endif %}

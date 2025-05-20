@@ -4,6 +4,7 @@ from app.core.config import Settings
 import datetime
 from app.models.models import SustainabilityTeamMember
 from app.schemas.diagnosis_indicators import DiagnosisIndicator as DiagnosisIndicatorSchema
+import re
 
 
 
@@ -81,7 +82,29 @@ class DataDump:
         Vuelca los datos de la normativa en un diccionario.
         """
         return [norm.norm for norm in data]
+    
+    @staticmethod
+    def dump_agreements_data(data: dict) -> dict:
+        """
+        Vuelca los datos de los acuerdos en un diccionario.
+        """
+        return [agreement.agreement for agreement in data]
+    
+    @staticmethod
+    def dump_bibliography_data(data: dict) -> dict:
+        """
+        Vuelca los datos de la bibliografía en un diccionario. Detecta si tiene link, y los mete en un enlace html.
+        """
+        
+        return [bibliography.reference for bibliography in data]
 
+    @staticmethod
+    def dump_gallery_data(data: dict) -> dict:
+        """
+        Vuelca los datos de la galería fotográfica en un diccionario.
+        """
+        return [{'photo': gallery.photo, 'description': gallery.description} for gallery in data]
+    
     @staticmethod
     def dump_team_members_data(data: dict) -> dict:
         """
@@ -193,8 +216,8 @@ class DataDump:
         '''
         Obtiene un diccionario con las URLs de las imágenes de los ODS y la 5P.
         '''
-        ods_dict = {f"{i}": f"{os.path.join(base_dir, f'ods_{i}.jpg')}" for i in range(1, 18)}
-        ods_dict["5p"] = f"{os.path.join(base_dir, '5p.png')}"
+        ods_dict = {f"{i}": f"/static/on_report/images/ods_{i}.jpg" for i in range(1, 18)}
+        ods_dict["5p"] = "/static/on_report/images/5p.png"
         return ods_dict
 
     @staticmethod
@@ -216,6 +239,13 @@ class DataDump:
         # Obtener el diccionario de ODS para mapear IDs a nombres
         ods_dict = {ods.id: ods.name for ods in data['ods']}
         
+        # Crear diccionario de goals por ODS
+        goals_dict = {}
+        for goal in data['goals']:
+            if goal.ods_id not in goals_dict:
+                goals_dict[goal.ods_id] = {}
+            goals_dict[goal.ods_id][goal.goal_number] = goal.description
+
         # Procesar cada asunto material
         for topic in data['material_topics']:
             # Obtener los indicadores de diagnóstico para este asunto
@@ -254,7 +284,22 @@ class DataDump:
             
             # Obtener ODS principal
             main_ods = f"ODS {topic.goal_ods_id} - {ods_dict[topic.goal_ods_id]}" if topic.goal_ods_id else None
-            main_ods_goal = f"{topic.goal_ods_id}.{topic.goal_number}" if topic.goal_ods_id and topic.goal_number else None
+            
+            # Formatear main_ods_goal y obtener su descripción
+            main_ods_goal = None
+            if topic.goal_ods_id and topic.goal_number:
+                # Verificar si goal_number es numérico
+                if topic.goal_number.isdigit():
+                    goal_number = f"{topic.goal_ods_id}.{topic.goal_number}"
+                else:
+                    goal_number = f"{topic.goal_ods_id}{topic.goal_number}"
+                
+                # Obtener la descripción del goal si existe
+                goal_description = ""
+                if topic.goal_ods_id in goals_dict and topic.goal_number in goals_dict[topic.goal_ods_id]:
+                    goal_description = f" - {goals_dict[topic.goal_ods_id][topic.goal_number]}"
+                
+                main_ods_goal = f"{goal_number}{goal_description}"
             
             # Crear entrada del asunto material
             diagnosis_tables["material_topics"].append({
@@ -328,19 +373,19 @@ class DataDump:
                     
                     # Procesar cada acción
                     for action in actions:
-                        
+                            
                         # Obtener los indicadores de rendimiento para esta acción
                         performance_indicators = [
                             indicator for indicator in data['performance_indicators']
                             if indicator.action_id == action.id
                         ]
-                        
+                            
                         
                         # Obtener ODS secundarios para esta acción
                         secondary_ods = [
-                            f"ODS {impact['ods_id']} - {ods_dict[impact['ods_id']]}"
+                                f"ODS {impact['ods_id']} - {ods_dict[impact['ods_id']]}"
                             for impact in data['action_secondary_impacts']
-                            if impact['action_id'] == action.id
+                                if impact['action_id'] == action.id
                         ]
                         
                         # Obtener ODS principal
@@ -363,7 +408,7 @@ class DataDump:
                                 "human_resources": indicator.human_resources,
                                 "material_resources": indicator.material_resources
                             }
-                            
+                                
                             # Añadir datos específicos según el tipo
                             if indicator.type == 'quantitative' and indicator.quantitative_data:
                                 indicator_entry.update({
@@ -376,7 +421,7 @@ class DataDump:
                                     "response": indicator.qualitative_data.response,
                                     "unit": None
                                 })
-                                
+                                    
                             action_entry["indicators"].append(indicator_entry)
                         
                         objective_entry["actions"].append(action_entry)
@@ -384,7 +429,7 @@ class DataDump:
                     topic_entry["specific_objectives"].append(objective_entry)
                     
                 action_plan.append(topic_entry)
-            
+        
             return {"action_plan": action_plan}
         except Exception as e:
             print(f"Error al obtener el plan de acción: {str(e)}")
@@ -394,6 +439,8 @@ class DataDump:
     def material_topics_data_from_legend(legend: dict) -> dict:
         # Calcular el tamaño de cada dimensión
         dimension_size = {dim: 0 for dim in ['PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS']}
+        scale = legend.get('scale', 10)  # Valor por defecto si no está presente
+
         for tid in legend['leyenda_order']:
             dim = legend['dimensions'][tid]
             if dim in dimension_size:
@@ -402,10 +449,21 @@ class DataDump:
         # Construir la lista de topics en el orden de leyenda
         material_topics = []
         for order, tid in enumerate(legend['leyenda_order'], 1):
+            # Calcular prioridad
+            punto = legend['points'][tid]
+            media = (punto['x'] + punto['y']) / 2
+            if media < 0.6 * scale:
+                priority = "Baja"
+            elif media < 0.8 * scale:
+                priority = "Media"
+            else:
+                priority = "Alta"
+
             material_topics.append({
                 "name": legend['topic_names'][tid],
                 "dimension": legend['dimensions'][tid],
-                "order": order
+                "order": order,
+                "priority": priority
             })
 
         return {

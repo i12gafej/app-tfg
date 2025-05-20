@@ -177,6 +177,8 @@ def generate_matrix_image(matrix_data: Dict, scale: int = None) -> str:
         yticks = [round(y, 1) for y in list(frange(1, max_escala + 0.1, 1))]
         ax.set_xticks(xticks)
         ax.set_yticks(yticks)
+        ax.set_xlabel("Media valoraciones grupos internos", fontsize=12, fontweight='bold')
+        ax.set_ylabel("Media valoraciones grupos externos", fontsize=12, fontweight='bold')
         ax.grid(False)  # Desactiva el grid general
 
         # Dibuja solo líneas horizontales punteadas

@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
+import Link from '@tiptap/extension-link'
 
 const RoadmapDescription = () => {
   const { report, updateReport, loading: reportLoading, readOnly } = useReport();
@@ -14,7 +15,8 @@ const RoadmapDescription = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline
+      Underline,
+      Link
     ],
     content: report?.roadmap_description || '<p>Escribe aquí la descripción de la hoja de ruta y sus objetivos principales...</p>',
     editable: !readOnly,

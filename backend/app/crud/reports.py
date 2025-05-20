@@ -65,6 +65,7 @@ from app.crud import ods as crud_ods
 from app.crud import action_plan as crud_action_plan
 from app.crud import stakeholders as crud_stakeholders
 from app.crud import team as crud_team
+from app.crud import goals as crud_goals
 from app.utils.report_generator import ReportGenerator
 
 settings = Settings()
@@ -264,8 +265,8 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
         diagnosis_indicators:List[DiagnosisIndicatorSchema] = crud_diagnosis_indicators.get_all_by_report(db, report_id)
         secondary_impacts = crud_ods.get_all_secondary_impacts_by_report(db, report_id)
         ods = crud_ods.get_all_ods(db)
+        goals = crud_goals.get_all_goals(db)
         action_secondary_impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
-        print("ACTION SECONDARY IMPACTS:", action_secondary_impacts)
         primary_impacts = crud_action_plan.get_all_action_main_impacts(db, report_id)
         dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, secondary_impacts, float(report.main_impact_weight), float(report.secondary_impact_weight))
         
@@ -286,6 +287,7 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             'year': report.year,
             'observation': report.observation,
             'ods': ods,
+            'goals': goals,
             'main_impact_weight': report.main_impact_weight,
             'secondary_impact_weight': report.secondary_impact_weight,
             'scale': report.scale,
@@ -336,7 +338,7 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             'logos': logos or [],
             'agreements': agreements or [],
             'bibliographies': bibliographies or [],
-            'photos': photos or [],
+            'gallery': photos or [],
             'material_topics': material_topics or [],
             'diagnosis_indicators': diagnosis_indicators or [],
             'secondary_impacts': secondary_impacts or [],
@@ -408,9 +410,10 @@ def generate_report_html(db: Session, report_id: int) -> str:
         
         # Guardar el HTML de la memoria
         generator = ReportGenerator()
-        url = generator.generate_report(report_data)
-        logger.info(f"URL: {url}")
-        return url
+        url_preview = generator.generate_report_preview(report_data)
+        url_preview = generator.generate_report(report_data)
+        logger.info(f"URL: {url_preview}")
+        return url_preview
     except Exception as e:
         logger.error(f"Error al generar el HTML del reporte: {str(e)}")
         raise 
@@ -1262,6 +1265,7 @@ def initialize_default_text(report):
         'materiality_matrix_text',
         'action_plan_text',
         'internal_consistency_description',
+        'diffusion_text',
     ]
     for attr in atributos:
         file_path = settings.DEFAULT_TEXT_DIR / f"{attr}.html"

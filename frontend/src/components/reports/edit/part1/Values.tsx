@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
-
+import Link from '@tiptap/extension-link'
 const Values = () => {
   const { report, updateReport, loading: reportLoading, readOnly } = useReport();
   const [error, setError] = useState<string | null>(null);
@@ -14,7 +14,8 @@ const Values = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline
+      Underline,
+      Link
     ],
     content: report?.values || '<p>Escribe aquí los valores de la organización...</p>',
     editable: !readOnly,

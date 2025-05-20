@@ -61,11 +61,8 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
             return None, idx
         elem = elems[idx]
         if elem.name and elem.name.lower() in [f"h{i}" for i in range(1, 3)]:
-            next_idx = idx + 2
-            if next_idx < len(elems):
-                return [elem, elems[next_idx]], idx + 2
-            else:
-                return [elem], idx + 1
+            # Si es un título, solo devolvemos el título
+            return [elem], idx + 1
         else:
             return [elem], idx + 1
 
@@ -121,35 +118,47 @@ def paginate_html_text(html: str, max_lines: int = 60, chars_per_line: int = 40)
             current_lines += lines
             continue
         # --- FIN: Manejo de bloques de imagen tipo photo-container ---
-        if len(block) == 1 and isinstance(block[0], Tag) and block[0].name in ["ul", "ol"]:
+        if len(block) == 1 and isinstance(block[0], Tag) and block[0].name in [f"h{i}" for i in range(1, 3)]:
+            # Manejo de títulos
+            title = block[0]
+            title_lines = count_lines(title.get_text())
+            if current_lines + title_lines > max_lines and current_page:
+                add_page()
+            current_page += str(title)
+            current_lines += title_lines
+        elif len(block) == 1 and isinstance(block[0], Tag) and block[0].name in ["ul", "ol"]:
             tag = block[0]
             is_ordered = tag.name == "ol"
             start = int(tag.get("start", 1)) if is_ordered else 1
             items = tag.find_all("li", recursive=False)
-            i = 0
-            while i < len(items):
-                list_html = f'<ol start="{start + i}">' if is_ordered else "<ul>"
-                list_lines = 0
-                while i < len(items):
-                    li = items[i]
-                    has_span = li.find("span") is not None
-                    has_p = li.find("p") is not None
-                    li_lines = count_lines(li.get_text()) + 1
-                    if has_span and has_p:
-                        li_lines *= 2
-                    li_html = str(li)
-                    if current_lines + list_lines + li_lines > max_lines and list_lines > 0:
-                        break
-                    list_html += li_html
-                    list_lines += li_lines
-                    i += 1
-                list_html += "</ol>" if is_ordered else "</ul>"
-                if current_lines + list_lines > max_lines and current_page:
+            
+            # Procesar todos los items de la lista
+            list_html = f'<ol start="{start}">' if is_ordered else "<ul>"
+            list_lines = 0
+            
+            for li in items:
+                has_span = li.find("span") is not None
+                has_p = li.find("p") is not None
+                li_lines = count_lines(li.get_text()) + 1
+                if has_span and has_p:
+                    li_lines *= 2  # Solo para contar líneas, no afecta al HTML
+                
+                if current_lines + list_lines + li_lines > max_lines and list_lines > 0:
+                    list_html += "</ol>" if is_ordered else "</ul>"
+                    current_page += list_html
+                    current_lines += list_lines
                     add_page()
-                current_page += list_html
-                current_lines += list_lines
-                if i < len(items):
-                    add_page()
+                    list_html = f'<ol start="{start + len(current_page.split("</li>"))}">' if is_ordered else "<ul>"
+                    list_lines = 0
+                
+                list_html += str(li)
+                list_lines += li_lines
+            
+            list_html += "</ol>" if is_ordered else "</ul>"
+            if current_lines + list_lines > max_lines and current_page:
+                add_page()
+            current_page += list_html
+            current_lines += list_lines
         elif len(block) == 1 and isinstance(block[0], Tag) and block[0].name == "p":
             p = block[0]
             text = p.get_text()

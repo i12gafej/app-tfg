@@ -4,6 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
+import Link from '@tiptap/extension-link'
 import { useReport } from '@/context/ReportContext';
 
 const Diffusion = () => {
@@ -14,7 +15,8 @@ const Diffusion = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline
+      Underline,
+      Link
     ],
     content: report?.diffusion_text || '<p>Escribe aquí la información sobre la difusión del reporte...</p>',
     editable: !readOnly,

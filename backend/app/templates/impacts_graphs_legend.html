@@ -1,0 +1,18 @@
+<div class="photo-container" style="width: 100%; margin: 0 auto; text-align: center;">
+    <div style="display: inline-block;">
+        {% set ods_keys = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17'] %}
+        {% for row in range(0, 17, 6) %}
+            <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                {% for i in range(row, row+6) %}
+                    {% if i < 17 %}
+                        <div style="margin: 0 8px;">
+                            <img src="{{ ods[ods_keys[i]] }}" alt="ODS {{ ods_keys[i] }}" style="max-width: 50px; max-height: 50px; display: block; margin: 0 auto;" />
+                            <div style="font-size: 0.8em; color: #555;">ODS {{ ods_keys[i] }}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+

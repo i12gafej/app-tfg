@@ -49,6 +49,7 @@ def generate_graph(values: List[int], title: str) -> str:
         ax.tick_params(axis='y', length=0)
         for spine in ax.spines.values():
             spine.set_visible(False)
+        ax.set_ylabel("Nº de impactos")
         fig.tight_layout()
 
         buffer = io.BytesIO()

@@ -4,6 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../../common/EditorMenuBar';
+import Link from '@tiptap/extension-link'
 import { useReport } from '@/context/ReportContext';
 
 const Description = () => {
@@ -14,7 +15,8 @@ const Description = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline
+      Underline,
+      Link
     ],
     content: report?.diagnosis_description || '<p>Escribe aquí la descripción del diagnóstico...</p>',
   });

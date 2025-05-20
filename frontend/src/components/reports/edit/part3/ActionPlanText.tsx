@@ -4,6 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
+import Link from '@tiptap/extension-link'
 import { useReport } from '@/context/ReportContext';
 
 interface ActionPlanTextProps {
@@ -18,7 +19,8 @@ const ActionPlanText: React.FC<ActionPlanTextProps> = ({ readOnly = false }) => 
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline
+      Underline,
+      Link
     ],
     content: report?.action_plan_text || '<p>Describe aquí el texto de introducción del Plan de sostenibilidad...</p>',
     editable: !readOnly,
