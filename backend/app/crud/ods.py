@@ -132,13 +132,13 @@ def update_action_secondary_impacts(
     except Exception as e:
         raise e
 
-def get_all_action_secondary_impacts(db: Session, report_id: int) -> List[dict]:
+def get_all_action_secondary_impacts_counts(db: Session, report_id: int) -> List[dict]:
     """
     Obtiene el recuento de impactos secundarios de todas las acciones de un reporte.
     """
     try:
         # Obtener todos los impactos secundarios del reporte a través de las relaciones
-        secondary_impacts = db.query(SecondaryODSAction.ods_id, ODS.name.label('ods_name'))\
+        secondary_impacts = db.query(SecondaryODSAction.ods_id, SecondaryODSAction.action_id, ODS.name.label('ods_name'))\
             .join(Action, SecondaryODSAction.action_id == Action.id)\
             .join(SpecificObjective, Action.specific_objective_id == SpecificObjective.id)\
             .join(MaterialTopic, SpecificObjective.material_topic_id == MaterialTopic.id)\
@@ -150,11 +150,38 @@ def get_all_action_secondary_impacts(db: Session, report_id: int) -> List[dict]:
         ods_counts = {}
         for ods_id, ods_name in secondary_impacts:
             if ods_id not in ods_counts:
-                ods_counts[ods_id] = {"ods_id": ods_id, "ods_name": ods_name, "count": 0}
+                ods_counts[ods_id] = {"ods_id": ods_id, "action_id": action_id, "ods_name": ods_name, "count": 0}
             ods_counts[ods_id]["count"] += 1
         
         # Convertir a lista de diccionarios
         result = list(ods_counts.values())
+        
+        return result
+    except Exception as e:
+        raise e
+
+def get_all_action_secondary_impacts(db: Session, report_id: int) -> List[dict]:
+    """
+    Obtiene el recuento de impactos secundarios de todas las acciones de un reporte.
+    """
+    try:
+        # Obtener todos los impactos secundarios del reporte a través de las relaciones
+        secondary_impacts = db.query(SecondaryODSAction.ods_id, SecondaryODSAction.action_id, ODS.name.label('ods_name'))\
+            .join(Action, SecondaryODSAction.action_id == Action.id)\
+            .join(SpecificObjective, Action.specific_objective_id == SpecificObjective.id)\
+            .join(MaterialTopic, SpecificObjective.material_topic_id == MaterialTopic.id)\
+            .join(ODS, SecondaryODSAction.ods_id == ODS.id)\
+            .filter(MaterialTopic.report_id == report_id)\
+            .all()
+
+        # Convertir a lista de diccionarios manteniendo todos los campos
+        result = []
+        for ods_id, action_id, ods_name in secondary_impacts:
+            result.append({
+                "ods_id": ods_id,
+                "action_id": action_id,
+                "ods_name": ods_name
+            })
         
         return result
     except Exception as e:

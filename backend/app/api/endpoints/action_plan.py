@@ -346,7 +346,7 @@ def get_internal_consistency_graph(
 
         # 2. Obtener impactos principales y secundarios
         primary_impacts = crud_action_plan.get_all_action_main_impacts(db, report_id)
-        secondary_impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        secondary_impacts = crud_ods.get_all_action_secondary_impacts_counts(db, report_id)
 
         # 3. Calcular totales por dimensión y lista ordenada
         dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, secondary_impacts, main_weight, secondary_weight)

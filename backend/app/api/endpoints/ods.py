@@ -321,7 +321,7 @@ def update_action_secondary_impacts(
 
 
 @router.get("/ods/get-all/action-secondary-impacts/{report_id}", response_model=ActionSecondaryImpactCountList)
-def get_all_action_secondary_impacts(
+def get_all_action_secondary_impacts_counts(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -343,7 +343,7 @@ def get_all_action_secondary_impacts(
                 raise HTTPException(status_code=403, detail=error_message)
         
 
-        impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        impacts = crud_ods.get_all_action_secondary_impacts_counts(db, report_id)
         
         return {
             "items": [ActionSecondaryImpactCount(**impact) for impact in impacts],

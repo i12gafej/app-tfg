@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { Container, Typography, Box, TextField, Button, Paper, Alert } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Container, Typography, Box, TextField, Button, Paper, Alert, Checkbox, FormControlLabel, Link, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '@/components/layout/PageContainer';
 import { authService } from '@/services/authService';
 import { useAuth } from '@/hooks/useAuth';
 import { User } from '@/context/auth.context';
+import { emailService } from '@/services/emailService';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,8 +14,22 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [rememberEmail, setRememberEmail] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [isResetLoading, setIsResetLoading] = useState(false);
+
+  // Cargar el correo guardado al iniciar
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      setFormData(prev => ({ ...prev, email: savedEmail }));
+      setRememberEmail(true);
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,6 +37,13 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleRememberEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRememberEmail(e.target.checked);
+    if (!e.target.checked) {
+      localStorage.removeItem('rememberedEmail');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,6 +58,13 @@ const Login = () => {
       if (!response.user) {
         console.error('No se recibió información del usuario en la respuesta');
         throw new Error('Error en la respuesta del servidor');
+      }
+      
+      // Guardar el correo si se marcó la opción
+      if (rememberEmail) {
+        localStorage.setItem('rememberedEmail', formData.email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
       }
       
       // Convertir la respuesta a tipo User
@@ -57,6 +86,20 @@ const Login = () => {
       setError('Credenciales inválidas');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setResetError('');
+    setIsResetLoading(true);
+    try {
+      await emailService.sendChangePasswordVerification(resetEmail);
+      setIsDialogOpen(false);
+      alert('Se ha enviado un correo con las instrucciones para cambiar tu contraseña');
+    } catch (error) {
+      setResetError('Error al enviar el correo. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsResetLoading(false);
     }
   };
 
@@ -125,6 +168,34 @@ const Login = () => {
                 required
                 disabled={isLoading}
               />
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={rememberEmail}
+                      onChange={handleRememberEmailChange}
+                      disabled={isLoading}
+                    />
+                  }
+                  label="Recordar mi correo"
+                />
+                <Link
+                  href="#"
+                  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                    e.preventDefault();
+                    setIsDialogOpen(true);
+                  }}
+                  sx={{
+                    color: 'primary.main',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  ¿Has olvidado tu contraseña?
+                </Link>
+              </Box>
               <Button
                 type="submit"
                 fullWidth
@@ -147,6 +218,42 @@ const Login = () => {
             </form>
           </Paper>
         </Box>
+
+        <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+          <DialogTitle>Recuperar contraseña</DialogTitle>
+          <DialogContent>
+            <Typography sx={{ mb: 2 }}>
+              Introduce tu correo electrónico y te enviaremos las instrucciones para cambiar tu contraseña.
+            </Typography>
+            {resetError && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {resetError}
+              </Alert>
+            )}
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Correo electrónico"
+              type="email"
+              fullWidth
+              value={resetEmail}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setResetEmail(e.target.value)}
+              disabled={isResetLoading}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setIsDialogOpen(false)} disabled={isResetLoading}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleResetPassword} 
+              variant="contained"
+              disabled={isResetLoading || !resetEmail}
+            >
+              {isResetLoading ? 'Enviando...' : 'Enviar'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </PageContainer>
   );

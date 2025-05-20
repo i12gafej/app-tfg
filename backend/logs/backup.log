@@ -48,3 +48,8 @@ subprocess.CalledProcessError: Command 'docker exec mysql-container sh -c 'mysql
 2025-05-01 20:46:03,550 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250501_204603.sql
 2025-05-01 20:46:03,550 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
 2025-05-01 20:46:03,807 - app.api.endpoints.backup - INFO - Backup creado exitosamente
+2025-05-19 21:40:34,305 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-19 21:40:34,310 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-19 21:40:34,313 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250519_214034.sql
+2025-05-19 21:40:34,314 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
+2025-05-19 21:40:34,539 - app.api.endpoints.backup - INFO - Backup creado exitosamente

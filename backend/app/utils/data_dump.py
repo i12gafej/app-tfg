@@ -281,96 +281,114 @@ class DataDump:
         Returns:
             dict: Diccionario con la estructura de plan de acción
         """
-        action_plan = {
-            "action_plan": []
-        }
-        
-        # Obtener el diccionario de ODS para mapear IDs a nombres
-        ods_dict = {ods.id: ods.name for ods in data['ods']}
-        
-        # Procesar cada asunto material
-        for topic in data['material_topics']:
-            # Obtener los objetivos específicos para este asunto material
-            specific_objectives = [
-                obj for obj in data['specific_objectives']
-                if obj.material_topic_id == topic.id
-            ]
+        try: 
+            action_plan = []
             
-            if not specific_objectives:
-                continue
-                
-            # Crear entrada del asunto material
-            topic_entry = {
-                "dimension": DataDump.get_dimension_order(topic.goal_ods_id),
-                "topic": topic.name,
-                "priority": topic.priority.capitalize() if topic.priority else None,
-                "main_objective": topic.main_objective,
-                "specific_objectives": []
-            }
+            # Obtener el diccionario de ODS para mapear IDs a nombres
+            ods_dict = {ods.id: ods.name for ods in data['ods']}
             
-            # Procesar cada objetivo específico
-            for obj in specific_objectives:
-                # Obtener las acciones para este objetivo
-                actions = [
-                    action for action in data['actions']
-                    if action.specific_objective_id == obj.id
+            # Procesar cada asunto material
+            for topic in data['material_topics']:
+                # Obtener los objetivos específicos para este asunto material
+                specific_objectives = [
+                    obj for obj in data['specific_objectives']
+                    if obj.material_topic_id == topic.id
                 ]
                 
-                if not actions:
+                if not specific_objectives:
                     continue
                     
-                # Crear entrada del objetivo específico
-                objective_entry = {
-                    "objective": obj.description,
-                    "responsible": obj.responsible,
-                    "execution_time": obj.execution_time,
-                    "actions": []
+                # Crear entrada del asunto material
+                topic_entry = {
+                    "dimension": DataDump.get_dimension_order(topic.goal_ods_id),
+                    "topic": topic.name,
+                    "priority": topic.priority.capitalize() if topic.priority else None,
+                    "main_objective": topic.main_objective,
+                    "specific_objectives": []
                 }
                 
-                # Procesar cada acción
-                for action in actions:
-                    # Obtener los indicadores de rendimiento para esta acción
-                    performance_indicators = [
-                        indicator for indicator in data['performance_indicators']
-                        if indicator.action_id == action.id
+                # Procesar cada objetivo específico
+                for obj in specific_objectives:
+                    # Obtener las acciones para este objetivo
+                    actions = [
+                        action for action in data['actions']
+                        if action.specific_objective_id == obj.id
                     ]
                     
-                    # Obtener ODS secundarios para esta acción
-                    secondary_ods = [
-                        f"ODS {impact.ods_id} - {ods_dict[impact.ods_id]}"
-                        for impact in data['action_secondary_impacts']
-                        if impact.action_id == action.id
-                    ]
-                    
-                    # Obtener ODS principal
-                    main_ods = f"ODS {action.ods_id} - {ods_dict[action.ods_id]}" if action.ods_id else None
-                    
-                    # Crear entrada de la acción
-                    action_entry = {
-                        "action": action.description,
-                        "difficulty": action.difficulty.capitalize() if action.difficulty else None,
-                        "main_ODS": main_ods,
-                        "secondary_ODS": secondary_ods,
-                        "indicators": []
+                    if not actions:
+                        continue
+                        
+                    # Crear entrada del objetivo específico
+                    objective_entry = {
+                        "objective": obj.description,
+                        "responsible": obj.responsible,
+                        "execution_time": obj.execution_time,
+                        "actions": []
                     }
                     
-                    # Procesar indicadores de rendimiento
-                    for indicator in performance_indicators:
-                        indicator_entry = {
-                            "name": indicator.name,
-                            "type": indicator.type.capitalize(),
-                            "human_resources": indicator.human_resources,
-                            "material_resources": indicator.material_resources
+                    # Procesar cada acción
+                    for action in actions:
+                        
+                        # Obtener los indicadores de rendimiento para esta acción
+                        performance_indicators = [
+                            indicator for indicator in data['performance_indicators']
+                            if indicator.action_id == action.id
+                        ]
+                        
+                        
+                        # Obtener ODS secundarios para esta acción
+                        secondary_ods = [
+                            f"ODS {impact['ods_id']} - {ods_dict[impact['ods_id']]}"
+                            for impact in data['action_secondary_impacts']
+                            if impact['action_id'] == action.id
+                        ]
+                        
+                        # Obtener ODS principal
+                        main_ods = f"ODS {action.ods_id} - {ods_dict[action.ods_id]}" if action.ods_id else None
+                        
+                        # Crear entrada de la acción
+                        action_entry = {
+                            "action": action.description,
+                            "difficulty": action.difficulty.capitalize() if action.difficulty else None,
+                            "main_ODS": main_ods,
+                            "secondary_ODS": secondary_ods,
+                            "indicators": []
                         }
-                        action_entry["indicators"].append(indicator_entry)
+                        
+                        # Procesar indicadores de rendimiento
+                        for indicator in performance_indicators:
+                            indicator_entry = {
+                                "name": indicator.name,
+                                "type": indicator.type.capitalize(),
+                                "human_resources": indicator.human_resources,
+                                "material_resources": indicator.material_resources
+                            }
+                            
+                            # Añadir datos específicos según el tipo
+                            if indicator.type == 'quantitative' and indicator.quantitative_data:
+                                indicator_entry.update({
+                                    "numeric_response": indicator.quantitative_data.numeric_response,
+                                    "unit": indicator.quantitative_data.unit,
+                                    "response": str(indicator.quantitative_data.numeric_response)
+                                })
+                            elif indicator.type == 'qualitative' and indicator.qualitative_data:
+                                indicator_entry.update({
+                                    "response": indicator.qualitative_data.response,
+                                    "unit": None
+                                })
+                                
+                            action_entry["indicators"].append(indicator_entry)
+                        
+                        objective_entry["actions"].append(action_entry)
                     
-                    objective_entry["actions"].append(action_entry)
-                
-                topic_entry["specific_objectives"].append(objective_entry)
+                    topic_entry["specific_objectives"].append(objective_entry)
+                    
+                action_plan.append(topic_entry)
             
-            action_plan["action_plan"].append(topic_entry)
-        
-        return action_plan
+            return {"action_plan": action_plan}
+        except Exception as e:
+            print(f"Error al obtener el plan de acción: {str(e)}")
+            raise e
 
     @staticmethod
     def material_topics_data_from_legend(legend: dict) -> dict:

@@ -20,7 +20,7 @@ import NotFound from './pages/NotFound';
 import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Backup from './pages/Backup/index';
-import Dashboard from './pages/Dashboard/Admin';
+import Dashboard from './pages/Dashboard/index';
 import Users from './pages/Users';
 import Resources from './pages/Resources';
 import Team from './pages/Team';
@@ -28,6 +28,8 @@ import ReportNavController from './components/reports/ReportNavController';
 import ProfilePage from './pages/Account/index';
 import ChangePassword from './pages/ChangePassword';
 import PublicReports from './pages/Reports/index';
+import ForgottenPassword from './pages/ForgottenPassword';
+
 const App = () => {
   return (
     <AuthProvider>
@@ -115,6 +117,7 @@ const App = () => {
               } 
             />
             <Route path="/not-found" element={<NotFound />} />
+            <Route path="/restaurar-contrasena" element={<ForgottenPassword />} />
             <Route path="*" element={<Navigate to="/not-found" replace />} />
           </Routes>
         </MainContent>

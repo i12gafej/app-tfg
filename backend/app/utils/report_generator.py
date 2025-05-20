@@ -136,15 +136,6 @@ class ReportGenerator:
         template = self.template_env.get_template("topics_table_template.html")
         return template.render(data=data)
 
-    def generate_diagnosis_impact_tables(self, data: Dict[str, Any]) -> str:
-        """
-        Genera las tablas de impactos ODS.
-        Returns:
-            str: HTML renderizado de las tablas de impactos
-        """
-        template = self.template_env.get_template("diagnosis_impact_tables_template.html")
-        return template.render(data=data)
-
     def generate_diagnosis_tables(self, data: Dict[str, Any], show_indicators: bool = True, introduction_text: str = None) -> str:
         """
         Genera las tablas de indicadores de diagnóstico.
@@ -153,24 +144,6 @@ class ReportGenerator:
         """
         template = self.template_env.get_template("diagnosis_tables_template.html")
         return template.render(data=data, show_indicators=show_indicators, intro_text=introduction_text)
-
-    def generate_materiality_matrix(self, data: Dict[str, Any]) -> str:
-        """
-        Genera la matriz de materialidad con su leyenda.
-        Returns:
-            str: HTML renderizado de la matriz de materialidad
-        """
-        template = self.template_env.get_template("materiality_matrix_template.html")
-        return template.render(data=data)
-
-    def generate_impact_graph(self, data: Dict[str, Any]) -> str:
-        """
-        Genera el gráfico de impactos con su leyenda.
-        Returns:
-            str: HTML renderizado del gráfico de impactos
-        """
-        template = self.template_env.get_template("impact_graph_template.html")
-        return template.render(data=data)
 
     def generate_action_plan_tables(self, data: Dict[str, Any], show_responsible: bool = False, show_indicators: bool = True) -> str:
         """
@@ -181,33 +154,6 @@ class ReportGenerator:
         template = self.template_env.get_template("action_plan_tables_template.html")
         return template.render(data=data, show_responsible=show_responsible, show_indicators=show_indicators)
 
-    def generate_action_plan_impact_tables(self, data: Dict[str, Any]) -> str:
-        """
-        Genera las tablas de impactos del plan de acción.
-        Returns:
-            str: HTML renderizado de las tablas de impactos del plan
-        """
-        template = self.template_env.get_template("action_plan_impact_tables_template.html")
-        return template.render(data=data)
-
-    def generate_internal_consistency_graph(self, data: Dict[str, Any]) -> str:
-        """
-        Genera el gráfico de coherencia interna con su leyenda.
-        Returns:
-            str: HTML renderizado del gráfico de coherencia
-        """
-        template = self.template_env.get_template("internal_consistency_graph_template.html")
-        return template.render(data=data)
-
-    def generate_simple(self, data: Dict[str, Any]) -> str:
-        """
-        Genera el reporte completo combinando todas las secciones.
-        Returns:
-            str: HTML renderizado del reporte completo
-        """
-        template = self.template_env.get_template("simple.html")
-        return template.render(data=data)
-
     def generate_report(self, data: Dict[str, Any]) -> str:
         """
         Genera el reporte completo combinando todas las secciones.
@@ -216,7 +162,6 @@ class ReportGenerator:
         """
         try:
             data_dump = DataDump()
-            
 
             import logging
             logger = logging.getLogger(__name__)
@@ -286,7 +231,6 @@ class ReportGenerator:
             team_members = data_dump.dump_team_members_data(data["team_members"])
             organization_chart += self.generate_list_text(team_members)
             organization_chart += self.generate_photo({"photo_url": data["org_chart_figure"], "description": "Organigrama"}, background_color="#FFFFFF")
-            print("ORGANIGRAMA:", data["org_chart_figure"])
             pages = paginate_html_text(organization_chart, max_lines=40, chars_per_line=35)
             organization_chart_html = ""
             if pages is not None:
@@ -331,7 +275,10 @@ class ReportGenerator:
             topics_table_html = self.generate_topics_table(material_topic_legend)
 
             
+            # 5p y ODS
             
+            ods_images = data_dump.get_ods_images_dict(settings.IMAGES_DIR)
+            ods_dimensions_html = self.generate_ods_dimensions_text(ods_images)
 
             material_topics_table = paginate_html_tables(topics_table_html, max_lines=60)
             material_topics_table_html = ""
@@ -354,11 +301,6 @@ class ReportGenerator:
                         materiality_text_html += self.generate_simple_text({"title": "Asuntos de materialidad", "text": page})
                     else:
                         materiality_text_html += self.generate_simple_text({"title": "", "text": page})
-
-            # 5p y ODS
-            
-            ods_images = data_dump.get_ods_images_dict(settings.IMAGES_DIR)
-            ods_dimensions_html = self.generate_ods_dimensions_text(ods_images)
 
             # ASUNTOS DE MATERIALIZIDAD: LISTA
             
@@ -458,7 +400,9 @@ class ReportGenerator:
             # PLAN DE ACCIÓN: TABLAS
             
             action_plan = data_dump.dump_action_plan_data(data)
+            print("ACTION PLAN:", action_plan)
             action_plan_tables = self.generate_action_plan_tables(action_plan)
+
             tables = paginate_html_tables(action_plan_tables, max_lines=60)
             action_plan_tables_html = ""
             if tables is not None:
@@ -467,7 +411,7 @@ class ReportGenerator:
                         action_plan_tables_html += self.generate_simple_text({"title": "Plan de acción", "text": table})
                     else:
                         action_plan_tables_html += self.generate_simple_text({"title": "", "text": table})
-
+            
             # COHERENCIA INTERNA
             
             internal_consistency_text = data["internal_consistency_description"] if data["internal_consistency_description"] else ""
@@ -508,6 +452,9 @@ class ReportGenerator:
                 "org_chart": organization_chart_html,
                 "stakeholders": stakeholders_html,
                 "diagnosis": diagnosis_html,
+                "topics_table": topics_table_html,
+                "materiality_text": materiality_text_html,
+                "ods_dimensions": ods_dimensions_html,
                 "material_topics": material_topics_html,
                 "diagnosis_indicators": diagnosis_indicators_text_html,
                 "diagnosis_indicators_tables": diagnosis_indicators_tables_html,
@@ -518,7 +465,6 @@ class ReportGenerator:
                 "action_plan_tables": action_plan_tables_html,
                 "internal_consistency": internal_consistency_text_html,
                 "diffusion": diffusion_text_html,
-                "topics_table": topics_table_html,
             }
 
             combined_html = self.generate_combined_html(combined_text_data)

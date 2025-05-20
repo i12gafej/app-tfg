@@ -13,7 +13,9 @@ from app.models.models import (
 from app.schemas.action_plan import (
     SpecificObjectiveCreate, SpecificObjectiveUpdate,
     ActionCreate, ActionUpdate,
-    PerformanceIndicatorCreate, PerformanceIndicatorUpdate
+    PerformanceIndicatorCreate, PerformanceIndicatorUpdate,
+    PerformanceIndicator as PerformanceIndicatorSchema,
+    PerformanceIndicatorQuantitativeData, PerformanceIndicatorQualitativeData
 )
 
 # Funciones para Objetivos Específicos
@@ -21,6 +23,17 @@ def get_all_specific_objectives(db: Session, material_topic_id: int) -> List[Spe
     try:
         return db.query(SpecificObjective).filter(
             SpecificObjective.material_topic_id == material_topic_id
+        ).all()
+    except Exception as e:
+        raise e
+
+def get_all_specific_objectives_by_report(db: Session, report_id: int) -> List[SpecificObjective]:
+    try:
+        return db.query(SpecificObjective).join(
+            MaterialTopic,
+            SpecificObjective.material_topic_id == MaterialTopic.id
+        ).filter(
+            MaterialTopic.report_id == report_id
         ).all()
     except Exception as e:
         raise e
@@ -101,6 +114,19 @@ def get_all_actions(db: Session, specific_objective_id: int) -> List[Action]:
     except Exception as e:
         raise e
 
+def get_all_actions_by_report(db: Session, report_id: int) -> List[Action]:
+    try:
+        return db.query(Action).join(
+            SpecificObjective,
+            Action.specific_objective_id == SpecificObjective.id
+        ).join(
+            MaterialTopic,
+            SpecificObjective.material_topic_id == MaterialTopic.id
+        ).filter(
+            MaterialTopic.report_id == report_id
+        ).all()
+    except Exception as e:
+        raise e
 
 def get_action_by_id(db: Session, action_id: int) -> Optional[Action]:
     try:
@@ -189,15 +215,67 @@ def get_all_performance_indicators(db: Session, action_id: int) -> List[Performa
     except Exception as e:
         raise e
 
+def get_all_performance_indicators_by_report(db: Session, report_id: int) -> List[PerformanceIndicatorSchema]:
+    try:
+        indicators = db.query(PerformanceIndicator).join(
+            Action,
+            PerformanceIndicator.action_id == Action.id
+        ).join(
+            SpecificObjective,
+            Action.specific_objective_id == SpecificObjective.id
+        ).join(
+            MaterialTopic,
+            SpecificObjective.material_topic_id == MaterialTopic.id
+        ).filter(
+            MaterialTopic.report_id == report_id
+        ).all()
+
+        result = []
+        # Cargar datos específicos para cada indicador
+        for indicator in indicators:
+            indicator_dict = {
+                "id": indicator.id,
+                "name": indicator.name,
+                "human_resources": indicator.human_resources,
+                "material_resources": indicator.material_resources,
+                "type": indicator.type,
+                "action_id": indicator.action_id
+            }
+            
+            if indicator.type == 'quantitative':
+                quantitative_data = db.query(PerformanceIndicatorQuantitative).filter(
+                    PerformanceIndicatorQuantitative.performance_indicator_id == indicator.id
+                ).first()
+                if quantitative_data:
+                    indicator_dict["quantitative_data"] = PerformanceIndicatorQuantitativeData(
+                        numeric_response=quantitative_data.numeric_response,
+                        unit=quantitative_data.unit
+                    ).model_dump()
+            else:
+                qualitative_data = db.query(PerformanceIndicatorQualitative).filter(
+                    PerformanceIndicatorQualitative.performance_indicator_id == indicator.id
+                ).first()
+                if qualitative_data:
+                    indicator_dict["qualitative_data"] = PerformanceIndicatorQualitativeData(
+                        response=qualitative_data.response
+                    ).model_dump()
+            
+            result.append(PerformanceIndicatorSchema.model_validate(indicator_dict))
+
+        return result
+    except Exception as e:
+        raise e
+
 def get_action_plan_by_report(db: Session, report_id: int) -> dict:
     try:
         return {
-            "specific_objectives": get_all_specific_objectives(db, report_id),
-            "actions": get_all_actions(db, report_id),
-            "performance_indicators": get_all_performance_indicators(db, report_id)
+            "specific_objectives": get_all_specific_objectives_by_report(db, report_id),
+            "actions": get_all_actions_by_report(db, report_id),
+            "performance_indicators": get_all_performance_indicators_by_report(db, report_id)
         }
     except Exception as e:
         raise e
+
 def create_performance_indicator(
     db: Session,
     indicator: PerformanceIndicatorCreate

@@ -118,4 +118,16 @@ export const userService = {
       throw error;
     }
   },
+
+  async verifyResetToken(token: string): Promise<{ email: string }> {
+    const response = await api.get(`/users/verify-reset-token/${token}`);
+    return response.data;
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await api.post('/users/reset-password', {
+      token,
+      new_password: newPassword
+    });
+  }
 }; 

@@ -798,7 +798,7 @@ const SpecificObjectives = () => {
                       )}
                       {indicator.type === 'qualitative' && indicator.qualitative_data && (
                         <Typography variant="body2" color="text.secondary">
-                          Respuesta: {indicator.qualitative_data.response}
+                          Valor: {indicator.qualitative_data.response}
                         </Typography>
                       )}
                       {!readOnly && (
@@ -1157,7 +1157,7 @@ const SpecificObjectives = () => {
           {newIndicator.type === 'qualitative' && (
             <TextField
               fullWidth
-              label="Respuesta"
+              label="Valor"
               value={newIndicator.response || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewIndicator({ 
                 ...newIndicator, 
@@ -1260,7 +1260,7 @@ const SpecificObjectives = () => {
           {editIndicatorData.type === 'qualitative' && (
             <TextField
               fullWidth
-              label="Respuesta"
+              label="Valor"
               value={editIndicatorData.response || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditIndicatorData({ 
                 ...editIndicatorData, 

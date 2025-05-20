@@ -3,8 +3,8 @@ from sqlalchemy import select
 from typing import List, Optional
 from decimal import Decimal
 
-from app.models.models import DiagnosisIndicator, DiagnosisIndicatorQuantitative, DiagnosisIndicatorQualitative, MaterialTopic
-from app.schemas.diagnosis_indicators import DiagnosisIndicatorCreate, DiagnosisIndicatorUpdate
+from app.models.models import DiagnosisIndicator as DiagnosisIndicatorModel, DiagnosisIndicatorQuantitative, DiagnosisIndicatorQualitative, MaterialTopic
+from app.schemas.diagnosis_indicators import DiagnosisIndicatorCreate, DiagnosisIndicatorUpdate, DiagnosisIndicator
 
 
 
@@ -12,7 +12,7 @@ def get_all_by_report(db: Session, report_id: int) -> List[DiagnosisIndicator]:
     try:
         # Obtener todos los indicadores del reporte
         indicators = (
-            db.query(DiagnosisIndicator)
+            db.query(DiagnosisIndicatorModel)
             .join(MaterialTopic)
             .filter(MaterialTopic.report_id == report_id)
             .all()
@@ -36,8 +36,7 @@ def get_all_by_report(db: Session, report_id: int) -> List[DiagnosisIndicator]:
                 )
                 if qualitative_data:
                     indicator.qualitative_data = qualitative_data
-        
-        return indicators
+        return [DiagnosisIndicator.from_orm(indicator) for indicator in indicators]
     except Exception as e:
         raise e
 
@@ -48,10 +47,10 @@ def create_indicator(
     numeric_response: Optional[Decimal] = None,
     unit: Optional[str] = None,
     response: Optional[str] = None
-) -> DiagnosisIndicator:
+) -> DiagnosisIndicatorModel:
 
     try:
-        db_indicator = DiagnosisIndicator(
+        db_indicator = DiagnosisIndicatorModel(
             name=indicator.name,
             type=indicator.type,
             material_topic_id=indicator.material_topic_id
@@ -81,7 +80,7 @@ def create_indicator(
 
 def get_report_id_by_indicator(db: Session, indicator_id: int) -> int:
     try:
-        material_topic_indicator = db.query(MaterialTopic).join(DiagnosisIndicator, DiagnosisIndicator.material_topic_id == MaterialTopic.id).filter(DiagnosisIndicator.id == indicator_id).first()
+        material_topic_indicator = db.query(MaterialTopic).join(DiagnosisIndicatorModel, DiagnosisIndicatorModel.material_topic_id == MaterialTopic.id).filter(DiagnosisIndicatorModel.id == indicator_id).first()
         if not material_topic_indicator:
             return None
         return material_topic_indicator.report_id
@@ -92,10 +91,10 @@ def update_indicator(
     db: Session,
     indicator_id: int,
     indicator_update: DiagnosisIndicatorUpdate
-) -> Optional[DiagnosisIndicator]:
+) -> Optional[DiagnosisIndicatorModel]:
     try:
         # 1. Obtener el indicador actual
-        db_indicator = db.query(DiagnosisIndicator).filter(DiagnosisIndicator.id == indicator_id).first()
+        db_indicator = db.query(DiagnosisIndicatorModel).filter(DiagnosisIndicatorModel.id == indicator_id).first()
         if not db_indicator:
             return None
 
@@ -186,7 +185,7 @@ def update_indicator(
 
 def delete_indicator(db: Session, indicator_id: int) -> bool:
     try:
-        db_indicator = db.query(DiagnosisIndicator).filter(DiagnosisIndicator.id == indicator_id).first()
+        db_indicator = db.query(DiagnosisIndicatorModel).filter(DiagnosisIndicatorModel.id == indicator_id).first()
         if not db_indicator:
             return False
 
@@ -196,10 +195,10 @@ def delete_indicator(db: Session, indicator_id: int) -> bool:
     except Exception as e:
         raise e
 
-def get_indicator(db: Session, indicator_id: int) -> Optional[DiagnosisIndicator]:
+def get_indicator(db: Session, indicator_id: int) -> Optional[DiagnosisIndicatorModel]:
     try:
         # Obtener el indicador
-        indicator = db.query(DiagnosisIndicator).filter(DiagnosisIndicator.id == indicator_id).first()
+        indicator = db.query(DiagnosisIndicatorModel).filter(DiagnosisIndicatorModel.id == indicator_id).first()
         if not indicator:
             return None
 

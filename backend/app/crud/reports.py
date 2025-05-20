@@ -265,6 +265,7 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
         secondary_impacts = crud_ods.get_all_secondary_impacts_by_report(db, report_id)
         ods = crud_ods.get_all_ods(db)
         action_secondary_impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        print("ACTION SECONDARY IMPACTS:", action_secondary_impacts)
         primary_impacts = crud_action_plan.get_all_action_main_impacts(db, report_id)
         dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, secondary_impacts, float(report.main_impact_weight), float(report.secondary_impact_weight))
         

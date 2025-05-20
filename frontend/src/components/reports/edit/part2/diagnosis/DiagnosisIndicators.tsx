@@ -26,7 +26,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, sortMaterialTopics, MaterialTopic } from '@/services/materialTopicService';
 import { getBackgroundColor } from '@/services/odsService';
-import { diagnosisIndicatorService, DiagnosticIndicator, DiagnosticIndicatorCreate, DiagnosticIndicatorUpdate } from '@/services/diagnosisIndicatorService';
+import { diagnosisIndicatorService, DiagnosisIndicator, DiagnosisIndicatorCreate, DiagnosisIndicatorUpdate } from '@/services/diagnosisIndicatorService';
 import DiagnosisIndicatorsDeleteDialog from './DiagnosisIndicators/DiagnosisIndicatorsDeleteDialog';
 
 const DiagnosisIndicators: React.FC = () => {
@@ -36,11 +36,11 @@ const DiagnosisIndicators: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<MaterialTopic | null>(null);
-  const [allIndicators, setAllIndicators] = useState<DiagnosticIndicator[]>([]);
-  const [selectedIndicator, setSelectedIndicator] = useState<DiagnosticIndicator | null>(null);
+  const [allIndicators, setAllIndicators] = useState<DiagnosisIndicator[]>([]);
+  const [selectedIndicator, setSelectedIndicator] = useState<DiagnosisIndicator | null>(null);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [newIndicator, setNewIndicator] = useState<DiagnosticIndicatorCreate>({
+  const [newIndicator, setNewIndicator] = useState<DiagnosisIndicatorCreate>({
     name: '',
     type: 'quantitative',
     material_topic_id: 0,
@@ -49,7 +49,7 @@ const DiagnosisIndicators: React.FC = () => {
     response: ''
   });
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [indicatorToDelete, setIndicatorToDelete] = useState<DiagnosticIndicator | null>(null);
+  const [indicatorToDelete, setIndicatorToDelete] = useState<DiagnosisIndicator | null>(null);
 
   // Función para cargar los indicadores
   const fetchIndicators = async () => {
@@ -132,7 +132,7 @@ const DiagnosisIndicators: React.FC = () => {
       }
 
       // Preparar los datos de actualización
-      const updateData: DiagnosticIndicatorUpdate = {
+      const updateData: DiagnosisIndicatorUpdate = {
         name: selectedIndicator.name,
         type: selectedIndicator.type
       };
@@ -171,7 +171,7 @@ const DiagnosisIndicators: React.FC = () => {
     }
   };
 
-  const handleDeleteClick = (indicator: DiagnosticIndicator) => {
+  const handleDeleteClick = (indicator: DiagnosisIndicator) => {
     setIndicatorToDelete(indicator);
     setOpenDeleteDialog(true);
   };
@@ -388,7 +388,7 @@ const DiagnosisIndicators: React.FC = () => {
                       onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
                         ...selectedIndicator,
                         quantitative_data: {
-                          diagnostic_indicator_id: selectedIndicator.id,
+                          diagnosis_indicator_id: selectedIndicator.id,
                           numeric_response: Number(e.target.value),
                           unit: selectedIndicator.quantitative_data?.unit || ''
                         }
@@ -403,7 +403,7 @@ const DiagnosisIndicators: React.FC = () => {
                       onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
                         ...selectedIndicator,
                         quantitative_data: {
-                          diagnostic_indicator_id: selectedIndicator.id,
+                          diagnosis_indicator_id: selectedIndicator.id,
                           numeric_response: selectedIndicator.quantitative_data?.numeric_response || 0,
                           unit: e.target.value
                         }
@@ -415,14 +415,14 @@ const DiagnosisIndicators: React.FC = () => {
                 ) : (
                   <TextField
                     fullWidth
-                    label="Respuesta"
+                    label="Valor"
                     multiline
                     rows={4}
                     value={selectedIndicator.qualitative_data?.response || ''}
                     onChange={readOnly ? undefined : (e: React.ChangeEvent<HTMLInputElement>) => setSelectedIndicator({
                       ...selectedIndicator,
                       qualitative_data: {
-                        diagnostic_indicator_id: selectedIndicator.id,
+                        diagnosis_indicator_id: selectedIndicator.id,
                         response: e.target.value
                       }
                     })}
@@ -501,7 +501,7 @@ const DiagnosisIndicators: React.FC = () => {
           ) : (
             <TextField
               fullWidth
-              label="Respuesta"
+              label="Valor"
               multiline
               rows={4}
               value={newIndicator.response || ''}
