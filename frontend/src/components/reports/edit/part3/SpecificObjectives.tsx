@@ -45,7 +45,6 @@ const SpecificObjectives = () => {
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [newObjective, setNewObjective] = useState<SpecificObjectiveCreate>({
     description: '',
-    execution_time: '',
     material_topic_id: 0
   });
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -54,7 +53,7 @@ const SpecificObjectives = () => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editFormData, setEditFormData] = useState<SpecificObjectiveUpdate>({
     description: '',
-    execution_time: ''
+    responsible: ''
   });
   const [selectedObjective, setSelectedObjective] = useState<SpecificObjective | null>(null);
   const [actions, setActions] = useState<Action[]>([]);
@@ -68,11 +67,13 @@ const SpecificObjectives = () => {
   const [newAction, setNewAction] = useState<ActionCreate>({
     description: '',
     difficulty: 'low',
+    execution_time: '',
     specific_objective_id: 0
   });
   const [editActionData, setEditActionData] = useState<ActionUpdate>({
     description: '',
-    difficulty: 'low'
+    difficulty: 'low',
+    execution_time: ''
   });
 
   // Estados para gestión de indicadores
@@ -204,7 +205,6 @@ const SpecificObjectives = () => {
       setOpenCreateDialog(false);
       setNewObjective({
         description: '',
-        execution_time: '',
         material_topic_id: 0
       });
     } catch (error) {
@@ -240,7 +240,7 @@ const SpecificObjectives = () => {
     setObjectiveToEdit(objective);
     setEditFormData({
       description: objective.description || '',
-      execution_time: objective.execution_time || ''
+      responsible: objective.responsible || ''
     });
     setOpenEditDialog(true);
   };
@@ -261,7 +261,7 @@ const SpecificObjectives = () => {
       setObjectiveToEdit(null);
       setEditFormData({
         description: '',
-        execution_time: ''
+        responsible: ''
       });
     } catch (error) {
       console.error('Error al actualizar objetivo específico:', error);
@@ -299,6 +299,7 @@ const SpecificObjectives = () => {
       setNewAction({
         description: '',
         difficulty: 'low',
+        execution_time: '',
         specific_objective_id: 0
       });
     } catch (error) {
@@ -313,7 +314,8 @@ const SpecificObjectives = () => {
     setActionToEdit(action);
     setEditActionData({
       description: action.description || '',
-      difficulty: action.difficulty || 'low'
+      difficulty: action.difficulty || 'low',
+      execution_time: action.execution_time || ''
     });
     setOpenEditActionDialog(true);
   };
@@ -567,11 +569,8 @@ const SpecificObjectives = () => {
                       position: 'relative',
                       pr: 8
                     }}>
-                      <Typography variant="body1" component="div" sx={{ mb: 1 }}>
-                        {objective.description}
-                      </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {objective.execution_time}
+                        {objective.description}
                       </Typography>
                       {!readOnly && (
                         <Box sx={{ 
@@ -680,6 +679,11 @@ const SpecificObjectives = () => {
                       {action.difficulty && (
                         <Typography variant="body2" color="text.secondary">
                           Dificultad: {action.difficulty === 'low' ? 'Baja' : action.difficulty === 'medium' ? 'Media' : 'Alta'}
+                        </Typography>
+                      )}
+                      {action.execution_time && (
+                        <Typography variant="body2" color="text.secondary">
+                          Tiempo de ejecución: {action.execution_time}
                         </Typography>
                       )}
                       {!readOnly && (
@@ -863,36 +867,6 @@ const SpecificObjectives = () => {
             multiline
             rows={3}
           />
-          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-            Elija el tiempo de ejecución o defina otro diferente.
-          </Typography>
-          <Autocomplete
-            freeSolo
-            options={["1 año", "3 años", "5 años"]}
-            value={newObjective.execution_time || ''}
-            inputValue={newObjective.execution_time || ''}
-            onInputChange={(event, newInputValue) => {
-              setNewObjective({ ...newObjective, execution_time: newInputValue });
-            }}
-            onChange={(event, newValue) => {
-              if (typeof newValue === 'string') {
-                setNewObjective({ ...newObjective, execution_time: newValue });
-              } else if (newValue) {
-                setNewObjective({ ...newObjective, execution_time: newValue });
-              } else {
-                setNewObjective({ ...newObjective, execution_time: '' });
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Tiempo de Ejecución"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-              />
-            )}
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenCreateDialog(false)}>Cancelar</Button>
@@ -911,52 +885,26 @@ const SpecificObjectives = () => {
         <DialogTitle>Editar Objetivo Específico</DialogTitle>
         <DialogContent>
           <TextField
-            fullWidth
+            autoFocus
+            margin="dense"
             label="Descripción"
+            type="text"
+            fullWidth
             value={editFormData.description}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({ ...editFormData, description: e.target.value })}
-            margin="normal"
-            multiline
-            rows={3}
           />
-          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-            Elija el tiempo de ejecución o defina otro diferente.
-          </Typography>
-          <Autocomplete
-            freeSolo
-            options={["1 año", "3 años", "5 años"]}
-            value={editFormData.execution_time || ''}
-            inputValue={editFormData.execution_time || ''}
-            onInputChange={(event, newInputValue) => {
-              setEditFormData({ ...editFormData, execution_time: newInputValue });
-            }}
-            onChange={(event, newValue) => {
-              if (typeof newValue === 'string') {
-                setEditFormData({ ...editFormData, execution_time: newValue });
-              } else if (newValue) {
-                setEditFormData({ ...editFormData, execution_time: newValue });
-              } else {
-                setEditFormData({ ...editFormData, execution_time: '' });
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Tiempo de Ejecución"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-              />
-            )}
+          <TextField
+            margin="dense"
+            label="Responsable"
+            type="text"
+            fullWidth
+            value={editFormData.responsible}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({ ...editFormData, responsible: e.target.value })}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancelar</Button>
-          <Button 
-            onClick={handleEditConfirm} 
-            variant="contained"
-            disabled={!editFormData.description?.trim()}
-          >
+          <Button onClick={handleEditConfirm} color="primary">
             Guardar
           </Button>
         </DialogActions>
@@ -1008,6 +956,36 @@ const SpecificObjectives = () => {
               <MenuItem value="high">Alta</MenuItem>
             </Select>
           </FormControl>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            Elija el tiempo de ejecución o defina otro diferente.
+          </Typography>
+          <Autocomplete
+            freeSolo
+            options={["1 año", "3 años", "5 años"]}
+            value={newAction.execution_time || ''}
+            inputValue={newAction.execution_time || ''}
+            onInputChange={(event, newInputValue) => {
+              setNewAction({ ...newAction, execution_time: newInputValue });
+            }}
+            onChange={(event, newValue) => {
+              if (typeof newValue === 'string') {
+                setNewAction({ ...newAction, execution_time: newValue });
+              } else if (newValue) {
+                setNewAction({ ...newAction, execution_time: newValue });
+              } else {
+                setNewAction({ ...newAction, execution_time: '' });
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Tiempo de Ejecución"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+              />
+            )}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenCreateActionDialog(false)}>Cancelar</Button>
@@ -1046,6 +1024,36 @@ const SpecificObjectives = () => {
               <MenuItem value="high">Alta</MenuItem>
             </Select>
           </FormControl>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            Elija el tiempo de ejecución o defina otro diferente.
+          </Typography>
+          <Autocomplete
+            freeSolo
+            options={["1 año", "3 años", "5 años"]}
+            value={editActionData.execution_time || ''}
+            inputValue={editActionData.execution_time || ''}
+            onInputChange={(event, newInputValue) => {
+              setEditActionData({ ...editActionData, execution_time: newInputValue });
+            }}
+            onChange={(event, newValue) => {
+              if (typeof newValue === 'string') {
+                setEditActionData({ ...editActionData, execution_time: newValue });
+              } else if (newValue) {
+                setEditActionData({ ...editActionData, execution_time: newValue });
+              } else {
+                setEditActionData({ ...editActionData, execution_time: '' });
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Tiempo de Ejecución"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+              />
+            )}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditActionDialog(false)}>Cancelar</Button>

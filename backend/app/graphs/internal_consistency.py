@@ -87,8 +87,8 @@ def generate_internal_consistency_graph(
 def get_dimension_totals(
     primary_impacts: list,
     secondary_impacts: list,
-    main_weight: float,
-    secondary_weight: float
+    main_weight,
+    secondary_weight
 ) -> (dict, list):
     ods_dimensions = {
         1: "PERSONAS", 2: "PERSONAS", 3: "PERSONAS", 4: "PERSONAS", 5: "PERSONAS",

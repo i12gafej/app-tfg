@@ -112,7 +112,13 @@ class DataDump:
         """
         data = sorted(data, key=lambda x: x["role"])
         
-        
+        for member in data:
+            if member['role'] == "external_advisor":
+                member['role'] = "Asesor externo"
+            elif member['role'] == "manager":
+                member['role'] = "Gestor"
+            elif member['role'] == "consultant":
+                member['role'] = "Consultor"
         return [f"{member['name']} {member['surname']} - {member['role']} ({member['organization']})" for member in data]
             
     @staticmethod
@@ -347,7 +353,7 @@ class DataDump:
                 topic_entry = {
                     "dimension": DataDump.get_dimension_order(topic.goal_ods_id),
                     "topic": topic.name,
-                    "priority": topic.priority.capitalize() if topic.priority else None,
+                    "priority": "-" if topic.priority is None else "Alta" if topic.priority == "high" else "Media" if topic.priority == "medium" else "Baja" if topic.priority == "low" else topic.priority,
                     "main_objective": topic.main_objective,
                     "specific_objectives": []
                 }
@@ -366,8 +372,7 @@ class DataDump:
                     # Crear entrada del objetivo específico
                     objective_entry = {
                         "objective": obj.description,
-                        "responsible": obj.responsible,
-                        "execution_time": obj.execution_time,
+                        "responsible": "-" if obj.responsible is None else obj.responsible,
                         "actions": []
                     }
                     
@@ -394,7 +399,8 @@ class DataDump:
                         # Crear entrada de la acción
                         action_entry = {
                             "action": action.description,
-                            "difficulty": action.difficulty.capitalize() if action.difficulty else None,
+                            "difficulty": "-" if action.difficulty is None else "Alta" if action.difficulty == "high" else "Media" if action.difficulty == "medium" else "Baja" if action.difficulty == "low" else action.difficulty,
+                            "execution_time": "-" if action.execution_time is None else action.execution_time,
                             "main_ODS": main_ods,
                             "secondary_ODS": secondary_ods,
                             "indicators": []
@@ -404,16 +410,16 @@ class DataDump:
                         for indicator in performance_indicators:
                             indicator_entry = {
                                 "name": indicator.name,
-                                "type": indicator.type.capitalize(),
-                                "human_resources": indicator.human_resources,
-                                "material_resources": indicator.material_resources
+                                "type": "Cualitativo" if indicator.type == "qualitative" else "Cuantitativo",
+                                "human_resources": "-" if indicator.human_resources is None else indicator.human_resources,
+                                "material_resources": "-" if indicator.material_resources is None else indicator.material_resources
                             }
                                 
                             # Añadir datos específicos según el tipo
                             if indicator.type == 'quantitative' and indicator.quantitative_data:
                                 indicator_entry.update({
                                     "numeric_response": indicator.quantitative_data.numeric_response,
-                                    "unit": indicator.quantitative_data.unit,
+                                    "unit": "-" if indicator.quantitative_data.unit is None else indicator.quantitative_data.unit,
                                     "response": str(indicator.quantitative_data.numeric_response)
                                 })
                             elif indicator.type == 'qualitative' and indicator.qualitative_data:

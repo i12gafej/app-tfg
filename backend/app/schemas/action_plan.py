@@ -5,7 +5,6 @@ from decimal import Decimal
 # Schemas para Objetivos Específicos
 class SpecificObjectiveBase(BaseModel):
     description: str
-    execution_time: Optional[str] = None
     responsible: Optional[str] = None
     material_topic_id: int
 
@@ -14,7 +13,6 @@ class SpecificObjectiveCreate(SpecificObjectiveBase):
 
 class SpecificObjectiveUpdate(BaseModel):
     description: Optional[str] = None
-    execution_time: Optional[str] = None
     responsible: Optional[str] = None
 
 class SpecificObjective(SpecificObjectiveBase):
@@ -27,6 +25,7 @@ class SpecificObjective(SpecificObjectiveBase):
 class ActionBase(BaseModel):
     description: str
     difficulty: Optional[Literal['low', 'medium', 'high']] = None
+    execution_time: Optional[str] = None
     ods_id: Optional[int] = None
     specific_objective_id: int
 
@@ -36,6 +35,7 @@ class ActionCreate(ActionBase):
 class ActionUpdate(BaseModel):
     description: Optional[str] = None
     difficulty: Optional[Literal['low', 'medium', 'high']] = None
+    execution_time: Optional[str] = None
     ods_id: Optional[int] = None
 
 class Action(ActionBase):

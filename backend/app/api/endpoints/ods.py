@@ -319,9 +319,12 @@ def update_action_secondary_impacts(
             detail=f"Error al actualizar impactos secundarios de la acción: {str(e)}"
         )
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 @router.get("/ods/get-all/action-secondary-impacts/{report_id}", response_model=ActionSecondaryImpactCountList)
-def get_all_action_secondary_impacts_counts(
+def get_all_action_secondary_impacts(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -350,6 +353,7 @@ def get_all_action_secondary_impacts_counts(
             "total": len(impacts)
         }
     except Exception as e:
+        logger.error(f"Error al obtener impactos secundarios de acciones: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener impactos secundarios de acciones: {str(e)}"

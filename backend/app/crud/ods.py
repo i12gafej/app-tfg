@@ -148,7 +148,7 @@ def get_all_action_secondary_impacts_counts(db: Session, report_id: int) -> List
 
         # Contar las ocurrencias de cada ODS y mantener el nombre
         ods_counts = {}
-        for ods_id, ods_name in secondary_impacts:
+        for ods_id, action_id, ods_name in secondary_impacts:
             if ods_id not in ods_counts:
                 ods_counts[ods_id] = {"ods_id": ods_id, "action_id": action_id, "ods_name": ods_name, "count": 0}
             ods_counts[ods_id]["count"] += 1
@@ -158,6 +158,7 @@ def get_all_action_secondary_impacts_counts(db: Session, report_id: int) -> List
         
         return result
     except Exception as e:
+        print(e)
         raise e
 
 def get_all_action_secondary_impacts(db: Session, report_id: int) -> List[dict]:

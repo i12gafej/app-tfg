@@ -346,7 +346,15 @@
                     <li class="submenu-item"><a href="#impactos-principales-secundarios">Impactos principales y secundarios</a></li>
                 </ul>
             </li>
-            <li class="menu-item"><a href="#hoja-ruta">Hoja de ruta de la sostenibilidad</a></li>
+            <li class="menu-item">
+                <a href="#hoja-ruta">Hoja de ruta de la sostenibilidad</a>
+                <ul class="submenu">
+                    <li class="submenu-item"><a href="#hoja-ruta">Introducción</a></li>
+                    <li class="submenu-item"><a href="#plan-accion">Plan de acción</a></li>
+                    <li class="submenu-item"><a href="#impactos-accion">Impactos del Plan de acción en las dimensiones del desarrollo sostenible </a></li>
+                </ul>
+            </li>
+
             <li class="menu-item"><a href="#difusion">Difusión</a></li>
             <li class="menu-item"><a href="#convenios-colaboracion">Convenios de colaboración</a></li>
             <li class="menu-item"><a href="#bibliografia">Bibliografía</a></li>
@@ -410,8 +418,10 @@
 
         <a id="hoja-ruta"></a>
         {{data.roadmap | safe}}
+        <a id="plan-accion"></a>
         {{data.action_plan | safe}}
         {{data.action_plan_tables | safe}}
+        <a id="impactos-accion"></a>
         {{data.internal_consistency | safe}}
         {{data.internal_consistency_legend | safe}}
 

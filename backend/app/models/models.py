@@ -227,7 +227,6 @@ class SpecificObjective(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(Text, nullable=False)
-    execution_time = Column(String(100), nullable=True)
     responsible = Column(String(255), nullable=True)
     material_topic_id = Column(Integer, ForeignKey("material_topics.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
@@ -237,6 +236,7 @@ class Action(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(Text, nullable=False)
     difficulty = Column(Enum('low', 'medium', 'high', name='difficulty_level'), nullable=True)
+    execution_time = Column(String(100), nullable=True)
     ods_id = Column(Integer, ForeignKey("ods.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     specific_objective_id = Column(Integer, ForeignKey("specific_objectives.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 

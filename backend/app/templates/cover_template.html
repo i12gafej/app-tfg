@@ -79,15 +79,31 @@
         .logos-container {
             position: absolute;
             bottom: 2cm;
-            right: 2cm;
+            right: 0;
             display: flex;
+            flex-wrap: wrap;
             gap: 1cm;
+            background: rgba(255,255,255,0.7);
+            border-radius: 1.5em 0 0 1.5em;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            padding: 1.2em 2em 1.2em 2em;
+            align-items: center;
+            max-width: 75%;
+            
+            justify-content: flex-end;
+            overflow: hidden;
+            max-height: 25%;
+            min-height: unset;
         }
 
         .logo {
-            height: 3cm;
+            max-height: 1.5cm;
+            max-width: 5em;
             width: auto;
+            height: auto;
             object-fit: contain;
+            flex-shrink: 1;
+            filter: grayscale(100%);
         }
 
         @media print {

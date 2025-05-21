@@ -10,7 +10,8 @@ import {
   Alert,
   Box,
   IconButton,
-  Typography
+  Typography,
+  Autocomplete
 } from '@mui/material';
 import { Resource } from '@/services/resourceService';
 import AddIcon from '@mui/icons-material/Add';
@@ -51,6 +52,13 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
   const [socialNetworks, setSocialNetworks] = useState<SocialNetworkField[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Añadir opciones predefinidas para tipologías
+  const predefinedTypologies = [
+    'Patrimonio cultural',
+    'Patrimonio verde urbano',
+    'Patrimonio casa-patio'
+  ];
 
   useEffect(() => {
     if (resource) {
@@ -238,13 +246,22 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
               </Typography>
               {typologies.map((typology) => (
                 <Box key={typology.id} sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                  <TextField
+                  <Autocomplete
+                    freeSolo
                     fullWidth
-                    label="Tipología"
+                    options={predefinedTypologies}
                     value={typology.value}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                      handleTypologyChange(typology.id, e.target.value)
-                    }
+                    onChange={(event: React.SyntheticEvent, newValue: string | null) => {
+                      handleTypologyChange(typology.id, newValue || '');
+                    }}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        label="Tipología"
+                        helperText="Selecciona una tipología, o escribe una diferente"
+                      />
+                    )}
                   />
                   <IconButton 
                     onClick={() => removeTypologyField(typology.id)}

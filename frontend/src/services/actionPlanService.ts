@@ -4,21 +4,18 @@ import axios from 'axios';
 export interface SpecificObjective {
   id: number;
   description: string;
-  execution_time?: string;
   responsible?: string;
   material_topic_id: number;
 }
 
 export interface SpecificObjectiveCreate {
   description: string;
-  execution_time?: string;
   responsible?: string;
   material_topic_id: number;
 }
 
 export interface SpecificObjectiveUpdate {
   description?: string;
-  execution_time?: string;
   responsible?: string;
 }
 
@@ -27,6 +24,7 @@ export interface Action {
   id: number;
   description: string;
   difficulty?: 'low' | 'medium' | 'high';
+  execution_time?: string;
   ods_id?: number;
   specific_objective_id: number;
 }
@@ -34,6 +32,7 @@ export interface Action {
 export interface ActionCreate {
   description: string;
   difficulty?: 'low' | 'medium' | 'high';
+  execution_time?: string;
   ods_id?: number;
   specific_objective_id: number;
 }
@@ -41,6 +40,7 @@ export interface ActionCreate {
 export interface ActionUpdate {
   description?: string;
   difficulty?: 'low' | 'medium' | 'high';
+  execution_time?: string;
   ods_id?: number;
 }
 

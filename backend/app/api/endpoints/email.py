@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.utils.email import send_contact_info_to_server, send_change_password_verification_mail
+from app.services.email import send_contact_info_to_server, send_change_password_verification_mail
 from app.schemas.email import ContactFormData
 from app.crud import user as crud_user
 from app.schemas.email import PasswordResetRequest
 import logging
 from app.api.deps import get_db
 from sqlalchemy.orm import Session
+
 
 router = APIRouter()
 

@@ -35,12 +35,6 @@
         <td>{{ obj['responsible'] }}</td>
     </tr>
     {% endif %}
-    <tr>
-        <td class="tab-cell first-empty-cell"></td>
-        <td class="tab-cell empty-cell"></td>
-        <td colspan="3"><strong>Tiempo de ejecución:</strong></td>
-        <td>{{ obj['execution_time'] }}</td>
-    </tr>
         {% for action in obj['actions'] %}
         <!-- Nombre de acción -->
         <tr>
@@ -56,6 +50,13 @@
             <td class="tab-cell empty-cell"></td>
             <td colspan="2"><strong>Dificultad:</strong></td>
             <td>{{ action['difficulty'] }}</td>
+        </tr>
+        <!-- Tiempo de ejecución -->
+        <tr>
+            <td class="tab-cell first-empty-cell"></td>
+            <td class="tab-cell empty-cell"></td>
+            <td colspan="3"><strong>Tiempo de ejecución:</strong></td>
+            <td>{{ action['execution_time'] }}</td>
         </tr>
 
         {% if show_indicators %}

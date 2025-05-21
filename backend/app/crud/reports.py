@@ -66,7 +66,7 @@ from app.crud import action_plan as crud_action_plan
 from app.crud import stakeholders as crud_stakeholders
 from app.crud import team as crud_team
 from app.crud import goals as crud_goals
-from app.utils.report_generator import ReportGenerator
+from app.services.report_generator import ReportGenerator
 
 settings = Settings()
 
@@ -218,12 +218,64 @@ def update_report(db: Session, report_id: int, report: SustainabilityReportUpdat
 def delete_report(db: Session, report_id: int) -> bool:
     try:
         db_report = get_report(db, report_id)
-        if db_report:
-            db.delete(db_report)
-            db.commit()
-            return True
-        return False
+        if not db_report:
+            return False
+
+        # 1. Eliminar archivos físicos
+        # Eliminar cover_photo
+        if db_report.cover_photo:
+            cover_path = settings.BASE_DIR / db_report.cover_photo.lstrip('/')
+            if cover_path.exists():
+                cover_path.unlink()
+
+        # Eliminar org_chart_figure
+        if db_report.org_chart_figure:
+            org_chart_path = settings.BASE_DIR / db_report.org_chart_figure.lstrip('/')
+            if org_chart_path.exists():
+                org_chart_path.unlink()
+
+        # Eliminar logos
+        logos = db.query(ReportLogoModel).filter(ReportLogoModel.report_id == report_id).all()
+        for logo in logos:
+            logo_path = settings.BASE_DIR / logo.logo.lstrip('/')
+            if logo_path.exists():
+                logo_path.unlink()
+            db.delete(logo)
+
+        # Eliminar fotos
+        photos = db.query(ReportPhotoModel).filter(ReportPhotoModel.report_id == report_id).all()
+        for photo in photos:
+            photo_path = settings.BASE_DIR / photo.photo.lstrip('/')
+            if photo_path.exists():
+                photo_path.unlink()
+            db.delete(photo)
+
+        # Eliminar directorio del reporte si existe
+        report_dir = settings.REPORTS_DIR / str(report_id)
+        if report_dir.exists():
+            shutil.rmtree(report_dir)
+
+        # 2. Eliminar elementos relacionados en la base de datos
+        # Los siguientes elementos se eliminarán en cascada debido a las restricciones de clave foránea:
+        # - MaterialTopics (elimina en cascada):
+        #   - SecondaryODSMaterialTopics
+        #   - DiagnosisIndicators (elimina en cascada):
+        #     - DiagnosisIndicatorQualitative
+        #     - DiagnosisIndicatorQuantitative
+        #   - SpecificObjectives (elimina en cascada):
+        #     - Actions (elimina en cascada):
+        #       - SecondaryODSActions
+        #       - PerformanceIndicators (elimina en cascada):
+        #         - PerformanceIndicatorQualitative
+        #         - PerformanceIndicatorQuantitative
+
+        # 3. Eliminar el reporte de la base de datos
+        db.delete(db_report)
+        db.commit()
+        return True
+
     except Exception as e:
+        db.rollback()
         raise e
 
 import logging
@@ -267,8 +319,10 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
         ods = crud_ods.get_all_ods(db)
         goals = crud_goals.get_all_goals(db)
         action_secondary_impacts = crud_ods.get_all_action_secondary_impacts(db, report_id)
+        action_secondary_impacts_counts = crud_ods.get_all_action_secondary_impacts_counts(db, report_id)
         primary_impacts = crud_action_plan.get_all_action_main_impacts(db, report_id)
-        dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, secondary_impacts, float(report.main_impact_weight), float(report.secondary_impact_weight))
+        dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, action_secondary_impacts_counts, float(report.main_impact_weight), float(report.secondary_impact_weight))
+        
         
         # Obtener acciones y objetivos relacionados
         action_plan = crud_action_plan.get_action_plan_by_report(db, report_id)
@@ -343,6 +397,7 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             'diagnosis_indicators': diagnosis_indicators or [],
             'secondary_impacts': secondary_impacts or [],
             'action_secondary_impacts': action_secondary_impacts or [],
+            'dimension_totals_list': dimension_totals_list,
             'dimension_totals': dimension_totals,
             'actions': action_plan['actions'] or [],
             'performance_indicators': action_plan['performance_indicators'] or [],
@@ -411,7 +466,7 @@ def generate_report_html(db: Session, report_id: int) -> str:
         # Guardar el HTML de la memoria
         generator = ReportGenerator()
         url_preview = generator.generate_report_preview(report_data)
-        url_preview = generator.generate_report(report_data)
+        url = generator.generate_report(report_data)
         logger.info(f"URL: {url_preview}")
         return url_preview
     except Exception as e:
@@ -499,7 +554,7 @@ def upload_logo(db: Session, report: SustainabilityReport, content: bytes, file_
             file_object.write(content)
 
         # Crear registro en la base de datos (usando ruta relativa para la URL)
-        file_url = f"{settings.LOGOS_DIR}/{filename}"
+        file_url = f"static/uploads/logos/{filename}"
         new_logo = ReportLogoModel(
             logo=file_url,
             report_id=report.id
@@ -520,7 +575,7 @@ def update_organization_chart(db: Session, report: SustainabilityReport, content
         with open(file_path, "wb") as file_object:
             file_object.write(content)
 
-        file_url = f"{settings.ORGANIZATION_CHART_DIR}/{filename}"
+        file_url = f"static/uploads/organization_charts/{filename}"
         report.org_chart_figure = file_url
         db.commit()
         return file_url

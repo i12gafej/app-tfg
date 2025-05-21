@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List
-import re
+import io
 from app.api.deps import get_db, get_current_user
 from app.schemas.auth import TokenData
 from app.schemas.monitoring import MonitoringTemplateResponse
@@ -10,7 +11,7 @@ from app.schemas.action_plan import SpecificObjective, Action, PerformanceIndica
 from app.crud import material_topics as crud_material_topics
 from app.crud import action_plan as crud_action_plan
 from app.crud import ods as crud_ods
-from app.utils.monitoring_templates import generate_monitoring_template
+from app.services.monitoring_templates import generate_monitoring_template
 
 
 router = APIRouter()
@@ -23,18 +24,16 @@ def translate_level(level: str) -> str:
     }
     return level_map.get(level, "No definida")
 
-@router.get("/monitoring/get/template/{report_id}", response_model=MonitoringTemplateResponse)
+@router.get("/monitoring/get/template/{report_id}")
 def get_monitoring_template(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Genera una plantilla de monitorización para todas las acciones del reporte.
+    Genera una plantilla de monitorización para todas las acciones del reporte en formato DOCX.
     """
     try:
-        
-
         # 1. Obtener todos los asuntos relevantes
         material_topics = crud_material_topics.get_all_by_report(db, report_id)
         if not material_topics:
@@ -72,6 +71,7 @@ def get_monitoring_template(
                     action_dict = {
                         "id": action.id,
                         "description": action.description,
+                        "execution_time": action.execution_time,
                         "difficulty": translate_level(action.difficulty) if action.difficulty else "No definida",
                         "main_impact": ods_info,
                         "indicators": [
@@ -90,7 +90,6 @@ def get_monitoring_template(
                     "id": objective.id,
                     "description": objective.description,
                     "responsible": objective.responsible or "No definido",
-                    "execution_time": objective.execution_time,
                     "actions": objective_actions
                 }
                 topic_objectives.append(objective_dict)
@@ -105,14 +104,25 @@ def get_monitoring_template(
             }
             template_data.append(topic_dict)
 
-        # 4. Generar el HTML de la plantilla
+        # 4. Generar el documento DOCX
+        doc = generate_monitoring_template(template_data)
         
-        html_content = generate_monitoring_template(template_data)
-        
+        # 5. Guardar el documento en un buffer
+        docx_buffer = io.BytesIO()
+        doc.save(docx_buffer)
+        docx_buffer.seek(0)
 
-        return MonitoringTemplateResponse(html_content=html_content)
+        # 6. Devolver el archivo como respuesta
+        return StreamingResponse(
+            docx_buffer,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": "attachment; filename=plantilla_seguimiento.docx"
+            }
+        )
 
     except Exception as e:
+        print(f"Error al generar la plantilla de monitorización: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Error al generar la plantilla de monitorización: {str(e)}"
