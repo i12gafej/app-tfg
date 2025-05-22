@@ -5,6 +5,10 @@ from urllib.parse import quote_plus
 import logging
 import os
 from pathlib import Path
+import dotenv
+
+dotenv.load_dotenv()
+
 logger = logging.getLogger(__name__)
 
 class Settings(BaseModel):
@@ -35,14 +39,33 @@ class Settings(BaseModel):
     A4_HEIGHT: int = 3508   # Alto en píxeles para 300 DPI
 
     # Configuración MySQL
-    MYSQL_SERVER: str = "localhost"
-    MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = "root"
-    MYSQL_DB: str = "sustainability_db"
-    MYSQL_PORT: str = "3306"
+    MYSQL_SERVER: str = os.getenv("MYSQL_SERVER")
+    MYSQL_USER: str = os.getenv("MYSQL_USER")
+    MYSQL_PASSWORD: str = os.getenv("MYSQL_PASSWORD")
+    MYSQL_DB: str = os.getenv("MYSQL_DB")
+    MYSQL_PORT: str = os.getenv("MYSQL_PORT")
     #BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    FRONTEND_URL: str = "http://localhost:3000"
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL")
+
+    def create_directories(self):
+        """Crea todos los directorios necesarios si no existen."""
+        directories = [
+            self.STATIC_DIR,
+            self.UPLOADS_DIR,
+            self.COVERS_DIR,
+            self.LOGOS_DIR,
+            self.PHOTOS_DIR,
+            self.REPORTS_DIR,
+            self.ORGANIZATION_CHART_DIR,
+            self.ON_REPORT_DIR,
+            self.IMAGES_DIR,
+            self.DEFAULT_TEXT_DIR
+        ]
+        
+        for directory in directories:
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Directorio verificado/creado: {directory}")
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
@@ -56,4 +79,5 @@ class Settings(BaseModel):
     class Config:
         case_sensitive = True
 
-settings = Settings() 
+settings = Settings()
+settings.create_directories()  # Crear directorios al inicializar la configuración 
