@@ -4,6 +4,9 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+import dotenv
+
+dotenv.load_dotenv()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,7 +29,7 @@ target_metadata = Base.metadata
 # ... etc.
 
 # Establecer la URL de la base de datos directamente
-config.set_main_option("sqlalchemy.url", "mysql+pymysql://root:root@localhost:3306/sustainability_db")
+config.set_main_option("sqlalchemy.url", f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_SERVER')}:{os.getenv('MYSQL_PORT')}/{os.getenv('MYSQL_DB')}")
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
