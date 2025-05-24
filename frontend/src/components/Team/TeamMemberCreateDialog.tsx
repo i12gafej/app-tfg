@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { teamService } from '@/services/teamService';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 interface TeamMemberCreateDialogProps {
   open: boolean;

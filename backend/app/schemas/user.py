@@ -49,3 +49,8 @@ class UserCreate(BaseModel):
     password: str
     admin: bool = False
     phone_number: Optional[str] = None
+
+class ChangePasswordRequest(BaseModel):
+    user_id: int
+    old_password: str
+    new_password: str

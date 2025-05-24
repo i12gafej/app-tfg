@@ -1,4 +1,4 @@
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import PublicNavbar from './PublicNavbar';
 import UserNavbar from './UserNavbar';
 import AdminNavbar from './AdminNavbar';

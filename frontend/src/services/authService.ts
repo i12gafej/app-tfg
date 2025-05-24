@@ -1,11 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import api from './api';
 
 export interface LoginCredentials {
   email: string;
@@ -34,9 +27,7 @@ class AuthService {
       );
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.detail || 'Error al iniciar sesión');
-      }
+      console.error('Error al iniciar sesión:', error);
       throw error;
     }
   }

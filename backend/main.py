@@ -2,18 +2,26 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import auth, users, resources, team, reports, stakeholders, material_topics, goals
 from app.api.endpoints import ods, surveys, diagnosis_indicators, action_plan, monitoring, backup, email
-from app.core.config import settings
+from app.config import settings
 from fastapi.staticfiles import StaticFiles
+import os
+import dotenv
+
+dotenv.load_dotenv()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
+origins = ["http://localhost:3000"]
+if os.getenv("FRONTEND_URL"):
+    origins.append(os.getenv("FRONTEND_URL"))
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=origins,  # Frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

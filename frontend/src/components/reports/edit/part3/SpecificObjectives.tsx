@@ -30,7 +30,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, sortMaterialTopics, MaterialTopic } from '@/services/materialTopicService';
 import { actionPlanService, SpecificObjective, SpecificObjectiveCreate, SpecificObjectiveUpdate, Action, ActionCreate, ActionUpdate, PerformanceIndicator, PerformanceIndicatorCreate, PerformanceIndicatorUpdate } from '@/services/actionPlanService';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { getBackgroundColor } from '@/services/odsService';
 import Autocomplete from '@mui/material/Autocomplete';
 

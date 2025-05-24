@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 export interface SocialNetwork {
   network: string;
@@ -31,12 +31,7 @@ export interface ResourceSearchParams {
   postal_address?: string;
 }
 
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
+ 
 
 export const resourceService = {
   async searchResources(params: ResourceSearchParams, token: string): Promise<{items: Resource[], total: number}> {

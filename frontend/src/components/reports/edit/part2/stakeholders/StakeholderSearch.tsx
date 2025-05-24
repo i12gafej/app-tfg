@@ -28,7 +28,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { stakeholderService, Stakeholder, StakeholderType } from '@/services/stakeholderService';
 import { StakeholderDetailsDialog } from './StakeholderDetailsDialog';
 import { StakeholderEditDialog } from './StakeholderEditDialog';

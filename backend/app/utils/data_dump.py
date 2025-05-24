@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from app.core.config import Settings
+from app.config import Settings
 import datetime
 from app.models.models import SustainabilityTeamMember
 from app.schemas.diagnosis_indicators import DiagnosisIndicator as DiagnosisIndicatorSchema
@@ -15,6 +15,7 @@ class DataDump:
     Clase para volcar los datos de la memoria en el report_generator.
     Proporciona funciones para obtener y procesar diferentes tipos de datos.
     """
+    
     
     @staticmethod
     def get_photo(base_dir: str, url: str) -> Optional[str]:

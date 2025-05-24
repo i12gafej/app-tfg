@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 from sqlalchemy.orm import Session
-from app.core import security
+from app.services import security
 from app.models.models import User, SustainabilityTeamMember
 from app.schemas.user import UserCreate, UserUpdate
 from fastapi import HTTPException

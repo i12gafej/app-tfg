@@ -22,7 +22,7 @@ import {
   ArrowDownward as ArrowDownwardIcon
 } from '@mui/icons-material';
 import { useState, useEffect, ChangeEvent, useMemo } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { teamService, User, TeamMember } from '@/services/teamService';
 import UserList from '@/components/Team/UserList';
 import TeamMemberAssignDialog from '@/components/Team/TeamMemberAssignDialog';

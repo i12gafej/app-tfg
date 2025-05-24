@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SustainabilityReport, reportService } from '@/services/reportServices';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 interface ReportContextType {
   report: SustainabilityReport | null;

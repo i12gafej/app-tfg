@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 
 export interface TeamMember {
@@ -29,13 +29,7 @@ interface UserSearchParams {
   organization?: string;
 }
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+
 
 export const teamService = {
   // Obtener miembros del equipo de un reporte

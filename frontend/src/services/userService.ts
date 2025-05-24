@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 interface UserSearchParams {
   search_term?: string;
@@ -24,13 +24,7 @@ export interface Account {
   phone_number: string | null;
 }
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+
 
 export const userService = {
   async searchUsers(params: UserSearchParams, token: string): Promise<{items: User[], total: number}> {

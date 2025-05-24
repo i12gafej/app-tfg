@@ -13,7 +13,7 @@ import {
   Typography,
   CircularProgress
 } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { useState, useEffect } from 'react';
 import { teamService, TeamMember } from '@/services/teamService';
 

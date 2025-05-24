@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 export interface Assessment {
     id: number;
@@ -48,12 +48,7 @@ export interface SurveyResponse {
     total: number;
 }
 
-const api = axios.create({
-    baseURL: '/api',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+
 
 export const surveyService = {
     createAssessments: async (data: AssessmentCreate, token: string): Promise<AssessmentResponse> => {

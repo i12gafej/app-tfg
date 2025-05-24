@@ -7,7 +7,7 @@ import EditorMenuBar from '../common/EditorMenuBar';
 import { useReport } from '@/context/ReportContext';
 import { reportService } from '@/services/reportServices';
 import Link from '@tiptap/extension-link'
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 type TextField = {
   id: string;

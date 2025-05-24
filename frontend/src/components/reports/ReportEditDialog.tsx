@@ -13,7 +13,7 @@ import {
   Typography
 } from '@mui/material';
 import { reportService } from '@/services/reportServices';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 interface ReportEditDialogProps {
   open: boolean;

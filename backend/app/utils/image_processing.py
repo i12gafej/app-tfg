@@ -2,7 +2,7 @@ import io
 from PIL import Image
 import os
 from pathlib import Path
-from app.core.config import Settings
+from app.config import Settings
 
 settings = Settings().copy()
 

@@ -28,7 +28,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import SearchIcon from '@mui/icons-material/Search';
 import { useReport } from '@/context/ReportContext';
 import { reportService, ReportBibliography } from '@/services/reportServices';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 // Diálogo de consulta
 const ViewDialog = ({ open, onClose, bibliography }: { open: boolean; onClose: () => void; bibliography: ReportBibliography }) => (

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from app.api.deps import get_db, get_current_user
-from app.schemas.user import User, UserSearch, UserUpdate, UserCreate
+from app.schemas.user import User, UserSearch, UserUpdate, UserCreate, ChangePasswordRequest
 from app.schemas.auth import TokenData
 from app.models.models import User as UserModel
 from app.crud import user as crud_user
@@ -136,9 +136,7 @@ def create_user(
 
 @router.put("/user/change-password", response_model=dict)
 def change_password(
-    user_id: int,
-    old_password: str = Body(...),
-    new_password: str = Body(...),
+    data: ChangePasswordRequest = Body(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -146,10 +144,11 @@ def change_password(
     Cambiar la contraseña de un usuario autenticado.
     """
     # Solo el propio usuario o un admin pueden cambiar la contraseña
-    if not (current_user.admin or current_user.id == user_id):
+    if not (current_user.admin or current_user.id == data.user_id):
         raise HTTPException(status_code=403, detail="No tienes permisos para cambiar esta contraseña")
     try:
-        user = crud_user.change_password(db, user_id, old_password, new_password)
+
+        user = crud_user.change_password(db, data.user_id, data.old_password, data.new_password)
         if not user:
             raise HTTPException(status_code=400, detail="Usuario no encontrado o contraseña incorrecta")
         return {"message": "Contraseña actualizada correctamente"}

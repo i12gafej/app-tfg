@@ -35,7 +35,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { resourceService, type Resource, type ResourceSearchParams } from '@/services/resourceService';
 import ResourceDetailsDialog from './ResourceDetailsDialog';
 import ResourceEditDialog from './ResourceEditDialog';

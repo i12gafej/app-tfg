@@ -1,9 +1,9 @@
 from typing import Optional, List
 from sqlalchemy.orm import Session
-from app.core.security import verify_password
+from app.services.security import verify_password
 from app.models.models import User
 from app.schemas.user import UserCreate
-from app.core.security import get_password_hash
+from app.services.security import get_password_hash
 from datetime import datetime, timedelta
 import secrets
 import logging
@@ -168,6 +168,7 @@ def change_password(db: Session, user_id: int, old_password: str, new_password: 
         db.refresh(user)
         return user 
     except Exception as e:
+        print("Error al cambiar la contraseña: ", e)
         raise e
 
 async def generate_change_password_token(db: Session, email: str) -> str:

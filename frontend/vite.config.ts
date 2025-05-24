@@ -5,6 +5,9 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:8000';
+
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -25,7 +28,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000', // WSL2 IP
+        target: process.env.VITE_API_URL || 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },

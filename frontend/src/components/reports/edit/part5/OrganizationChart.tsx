@@ -6,7 +6,7 @@ import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
 import Link from '@tiptap/extension-link'
 import { useReport } from '@/context/ReportContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { reportService } from '@/services/reportServices';
 
 const OrganizationChart = () => {

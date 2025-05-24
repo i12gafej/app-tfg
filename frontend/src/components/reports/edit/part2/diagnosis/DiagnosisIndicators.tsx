@@ -22,7 +22,7 @@ import {
   Grid
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, sortMaterialTopics, MaterialTopic } from '@/services/materialTopicService';
 import { getBackgroundColor } from '@/services/odsService';

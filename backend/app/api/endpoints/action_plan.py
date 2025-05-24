@@ -13,7 +13,7 @@ from app.schemas.auth import TokenData
 from app.crud import action_plan as crud_action_plan
 from app.crud import reports as crud_reports
 from app.crud import ods as crud_ods
-from app.graphs.internal_consistency import get_dimension_totals, generate_internal_consistency_graph
+from app.utils.graphs.internal_consistency import get_dimension_totals, generate_internal_consistency_graph
 
 router = APIRouter()
 

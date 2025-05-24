@@ -14,7 +14,7 @@ import {
   TableHead,
   TableRow
 } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, MaterialityMatrixResponse } from '@/services/materialTopicService';
 import DownloadIcon from '@mui/icons-material/Download';

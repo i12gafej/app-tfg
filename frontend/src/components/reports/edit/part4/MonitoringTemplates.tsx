@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, CircularProgress, Alert } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { monitoringService } from '@/services/monitoringServices';
 
 const MonitoringTemplates = () => {

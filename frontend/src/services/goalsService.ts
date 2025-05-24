@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 export interface Goal {
   id: number;
@@ -18,13 +18,6 @@ export interface MainImpactUpdate {
   goal_number: string;
 }
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
 export const goalsService = {
   async getAllGoals(token: string): Promise<GoalList> {

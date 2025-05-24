@@ -51,13 +51,13 @@ import shutil
 from pathlib import Path
 from fastapi import HTTPException
 from app.utils.image_processing import process_cover_image
-from app.core.config import Settings
+from app.config import Settings
 from fastapi import UploadFile
 import requests
 from io import BytesIO
-from app.graphs.materiality_matrix import create_materiality_matrix_data, generate_matrix_image
-from app.graphs.main_secondary_impacts import get_main_impacts_material_topics_graph, get_secondary_impacts_material_topics_graph
-from app.graphs.internal_consistency import generate_internal_consistency_graph, get_dimension_totals
+from app.utils.graphs.materiality_matrix import create_materiality_matrix_data, generate_matrix_image
+from app.utils.graphs.main_secondary_impacts import get_main_impacts_material_topics_graph, get_secondary_impacts_material_topics_graph
+from app.utils.graphs.internal_consistency import generate_internal_consistency_graph, get_dimension_totals
 from app.crud import resources as crud_resources
 from app.crud import material_topics as crud_material_topic
 from app.crud import diagnosis_indicators as crud_diagnosis_indicators

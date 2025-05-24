@@ -13,7 +13,7 @@ import {
   TableRow
 } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { actionPlanService } from '@/services/actionPlanService';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { DIMENSION_COLORS } from '@/services/odsService';

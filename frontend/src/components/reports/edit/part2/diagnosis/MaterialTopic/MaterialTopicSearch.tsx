@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { materialTopicService, MaterialTopic } from '@/services/materialTopicService';
 import { MaterialTopicDetailsDialog } from './MaterialTopicDetailsDialog';
 import { MaterialTopicEditDialog } from './MaterialTopicEditDialog';

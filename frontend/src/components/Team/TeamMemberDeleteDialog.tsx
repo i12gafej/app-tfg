@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { teamService, TeamMember } from '@/services/teamService';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 interface TeamMemberDeleteDialogProps {
   open: boolean;

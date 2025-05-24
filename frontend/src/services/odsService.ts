@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 export interface ODS {
   id: number;
@@ -104,13 +104,7 @@ export const getBackgroundColor = (odsId: number | undefined): string => {
   return 'transparent';
 };
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+ 
 
 export const odsService = {
   async getAllODS(token: string): Promise<{items: ODS[], total: number}> {

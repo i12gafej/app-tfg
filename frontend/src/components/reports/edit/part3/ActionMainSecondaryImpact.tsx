@@ -16,7 +16,7 @@ import {
   OutlinedInput
 } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { materialTopicService, sortMaterialTopics } from '@/services/materialTopicService';
 import { actionPlanService } from '@/services/actionPlanService';
 import { odsService, getBackgroundColor } from '@/services/odsService';

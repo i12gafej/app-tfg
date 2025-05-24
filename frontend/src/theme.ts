@@ -1,9 +1,15 @@
 import { createTheme } from '@mui/material/styles';
+import { ButtonPropsColorOverrides } from '@mui/material/Button';
 
-// Paleta de colores basada en patrimonio2030.org
+declare module '@mui/material/Button' {
+  interface ButtonPropsColorOverrides {
+    view: true;
+  }
+}
+
 const colors = {
   primary: {
-    main: '#267FE7', // Azul principal de la web
+    main: '#267FE7', 
     light: '#2B6B8E',
     dark: '#0F2F3F',
     contrastText: '#FFFFFF',
@@ -11,7 +17,7 @@ const colors = {
     hovertext: "#FFFFFF",
   },
   secondary: {
-    main: '#4CAF50', // Verde para elementos secundarios
+    main: '#4CAF50', 
     light: '#6FBF73',
     dark: '#357A38',
     contrastText: '#FFFFFF',
@@ -19,15 +25,22 @@ const colors = {
   view: {
     main: '#e6ac1b',
     light: '#FFFF99',
-    dark: '#FAF622',
+    dark: '#C79816',
     contrastText: '#FFFFFF',
+  },
+  dimensions: {
+    people: '#D3DDF2',    // ODS 1-5
+    planet: '#C1DDB0',    // ODS 6,12,13,14,15
+    prosperity: '#F9E4C7', // ODS 7-11
+    peace: '#C6E6F5',     // ODS 16
+    alliance: '#DCCAE4',   // ODS 17
   },
   background: {
     default: '#F6F1C5',
     paper: '#FFFFFF',
   },
   text: {
-    primary: '#2F2F2F', // Color principal para textos
+    primary: '#2F2F2F', 
     secondary: '#546E7A',
     black: '#000000', 
   },
@@ -105,6 +118,18 @@ const theme = createTheme({
       `,
     },
     MuiButton: {
+      variants: [
+        {
+          props: { color: 'view' },
+          style: {
+            borderColor: colors.view.main,
+            color: colors.view.main,
+            '&:hover': {
+              borderColor: colors.view.dark,
+            },
+          },
+        },
+      ],
       styleOverrides: {
         root: {
           borderRadius: '4px',

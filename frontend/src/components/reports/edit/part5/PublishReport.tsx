@@ -16,7 +16,7 @@ import PreviewIcon from '@mui/icons-material/Preview';
 import PublishIcon from '@mui/icons-material/Publish';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '@/services/reportServices';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { useReport } from '@/context/ReportContext';
 
 const PublishReport: React.FC = () => {

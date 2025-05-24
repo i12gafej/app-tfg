@@ -1,17 +1,11 @@
-import axios from 'axios';
+import api from './api';
 
 // Interfaces
 interface MonitoringTemplateResponse {
   html_content: string;
 }
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-    baseURL: '/api',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+ 
 
 // Servicios
 export const monitoringService = {

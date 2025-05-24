@@ -1,4 +1,5 @@
-import axios from 'axios';
+import api from './api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export interface ReportNorm {
     id: number;
@@ -93,13 +94,6 @@ export interface PublicReportSearchParams {
     heritage_resource_name?: string;
     year?: number;
 }
-
-const api = axios.create({
-    baseURL: '/api',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
 
 export const reportService = {
     getReport: async (id: number, token: string): Promise<SustainabilityReport> => {
@@ -226,7 +220,7 @@ export const reportService = {
                     Authorization: `Bearer ${token}`
                 }
             });
-            return response.data;
+            return {url: API_URL + response.data.url};
         } catch (error) {
             console.error('Error al generar el preview:', error);
             throw error;
@@ -640,7 +634,7 @@ export const reportService = {
                     Authorization: `Bearer ${token}`
                 }
             });
-            return response.data;
+            return {message: response.data.message, url: API_URL + response.data.url};
         } catch (error: any) {
             if (error.response?.data?.detail?.includes("'Session' object has no attribute 'update'")) {
                 throw new Error('Error al actualizar el estado del reporte en la base de datos');

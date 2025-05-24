@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 export type PriorityLevel = 'high' | 'medium' | 'low';
 
@@ -41,14 +41,6 @@ export interface MaterialityMatrixResponse {
   matrix_data: MaterialityMatrixData;
   matrix_image: string;
 }
-
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
 export const materialTopicService = {
   async searchMaterialTopics(params: MaterialTopicSearchParams, token: string): Promise<{items: MaterialTopic[], total: number}> {

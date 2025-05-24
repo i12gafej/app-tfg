@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 // Interfaces para Objetivos Específicos
 export interface SpecificObjective {
@@ -106,14 +106,6 @@ export interface InternalConsistencyGraphResponse {
   graph_data_url: string;
   dimension_totals: DimensionTotal[];
 }
-
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
 export const actionPlanService = {
   // Funciones para Objetivos Específicos

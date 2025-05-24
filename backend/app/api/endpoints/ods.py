@@ -11,7 +11,7 @@ from app.schemas.auth import TokenData
 from app.crud import ods as crud_ods
 from app.crud import material_topics as crud_material_topics
 from app.crud import action_plan as crud_action_plan
-from app.graphs.main_secondary_impacts import (
+from app.utils.graphs.main_secondary_impacts import (
     get_main_impacts_material_topics_graph,
     get_secondary_impacts_material_topics_graph
 )

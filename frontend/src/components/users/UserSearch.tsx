@@ -37,7 +37,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { userService, type User } from '@/services/userService';
 import UserDetailsDialog from './UserDetailsDialog';
 import UserEditDialog from './UserEditDialog';

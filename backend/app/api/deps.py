@@ -4,8 +4,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from app import crud
-from app.core import security
-from app.core.config import settings
+from app.services import security
+from app.config import settings
 from app.db.session import SessionLocal
 from app.schemas.auth import TokenData
 from app.models.models import SustainabilityTeamMember

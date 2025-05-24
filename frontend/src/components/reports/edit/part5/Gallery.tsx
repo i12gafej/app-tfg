@@ -21,7 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useReport } from '@/context/ReportContext';
 import { reportService, ReportPhoto } from '@/services/reportServices';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 interface UploadDialogProps {
   open: boolean;

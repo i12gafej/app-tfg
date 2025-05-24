@@ -24,7 +24,7 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { useReport } from '@/context/ReportContext';
 import { reportService } from '@/services/reportServices';
 import { materialTopicService, MaterialTopic } from '@/services/materialTopicService';

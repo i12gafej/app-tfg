@@ -19,7 +19,7 @@ import {
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, sortMaterialTopics } from '@/services/materialTopicService';
 import { actionPlanService } from '@/services/actionPlanService';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { getBackgroundColor } from '@/services/odsService';
 import Autocomplete from '@mui/material/Autocomplete';
 

@@ -1,34 +1,32 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import AuthProvider from '@/context/AuthContext';
-import ProtectedRoute from './components/common/ProtectedRoute';
+import ProtectedRoute from '@/components/common/ProtectedRoute';
 
 // Layout
 import NavbarController from '@/components/layout/NavbarController';
-import Footer from './components/layout/Footer';
-import ScrollToTop from './components/common/ScrollToTop';
-import MainContent from './components/layout/MainContent';
+import Footer from '@/components/layout/Footer';
+import ScrollToTop from '@/components/common/ScrollToTop';
+import MainContent from '@/components/layout/MainContent';
 
 // Pages
-import Home from './pages/Home';
-import About from './pages/About';
-import Reports from './pages/Reports/index';
-import Surveys from './pages/Surveys/index';
-import Contact from './pages/Contact/index';
-import Login from './pages/Login';
-import NotFound from './pages/NotFound';
-import Privacy from './pages/Privacy';
-import Cookies from './pages/Cookies';
-import Backup from './pages/Backup/index';
-import Dashboard from './pages/Dashboard/index';
-import Users from './pages/Users';
-import Resources from './pages/Resources';
-import Team from './pages/Team';
-import ReportNavController from './components/reports/ReportNavController';
-import ProfilePage from './pages/Account/index';
-import ChangePassword from './pages/ChangePassword';
-import PublicReports from './pages/Reports/index';
-import ForgottenPassword from './pages/ForgottenPassword';
+import Home from '@/components/pages/Home/index';
+import Surveys from '@/components/pages/Surveys/index';
+import Contact from '@/components/pages/Contact/index';
+import Login from '@/components/pages/Login/index';
+import NotFound from '@/components/pages/NotFound/index';
+import Privacy from '@/components/pages/Privacy/index';
+import Cookies from '@/components/pages/Cookies/index';
+import Backup from '@/components/pages/Backup/index';
+import Dashboard from '@/components/pages/Dashboard/index';
+import Users from '@/components/pages/Users/index';
+import Resources from '@/components/pages/Resources/index';
+import Team from '@/components/pages/Team/index';
+import ReportNavController from '@/components/reports/ReportNavController';
+import ProfilePage from '@/components/pages/Account/index';
+import ChangePassword from '@/components/pages/ChangePassword/index';
+import PublicReports from '@/components/pages/Reports/index';
+import ForgottenPassword from '@/components/pages/ForgottenPassword/index';
 
 const App = () => {
   return (
@@ -52,7 +50,6 @@ const App = () => {
         <MainContent>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/quienes-somos" element={<About />} />
             <Route path="/memorias/*" element={<ReportNavController />} />
             <Route path="/memorias-publicas" element={<PublicReports />} />
             <Route path="/encuestas" element={<Surveys />} />

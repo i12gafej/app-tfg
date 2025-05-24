@@ -27,7 +27,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
 import { useReport } from '@/context/ReportContext';
 import { reportService, ReportAgreement } from '@/services/reportServices';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 // Diálogo de edición
 const EditDialog = ({

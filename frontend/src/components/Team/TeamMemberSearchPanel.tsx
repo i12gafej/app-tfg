@@ -7,7 +7,7 @@ import TeamMemberList from '@/components/Team/TeamMemberList';
 import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import TablePagination from '@mui/material/TablePagination';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 interface TeamMemberSearchPanelProps {
   resourceId: string | null;

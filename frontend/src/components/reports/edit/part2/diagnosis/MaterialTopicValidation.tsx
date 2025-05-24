@@ -25,7 +25,7 @@ import {
   DialogActions,
   useTheme
 } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { useReport } from '@/context/ReportContext';
 import { materialTopicService, MaterialTopic, PriorityLevel, sortMaterialTopics } from '@/services/materialTopicService';
 import { surveyService, Assessment } from '@/services/surveyService';

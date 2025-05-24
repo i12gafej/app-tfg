@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
-from app.core.config import settings
+from app.config import settings
 import logging
 
 # Desactivar logs de SQLAlchemy
@@ -13,15 +13,12 @@ logger = logging.getLogger(__name__)
 
 # Mostrar la configuración de la base de datos
 logger.info("Configuración de la base de datos:")
-logger.info(f"URL: {settings.SQLALCHEMY_DATABASE_URI}")
-logger.info(f"Database: {settings.MYSQL_DB}")
-logger.info(f"User: {settings.MYSQL_USER}")
-logger.info(f"Host: {settings.MYSQL_SERVER}")
-logger.info(f"Port: {settings.MYSQL_PORT}")
+logger.info(f"URL: {settings.DATABASE_URL}")
+
 
 # Configuración del engine con manejo de reconexiones
 engine = create_engine(
-    str(settings.SQLALCHEMY_DATABASE_URI),
+    str(settings.DATABASE_URL),
     pool_size=5,
     max_overflow=10,
     pool_timeout=30,

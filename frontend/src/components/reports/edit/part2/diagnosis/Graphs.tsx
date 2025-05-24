@@ -11,7 +11,7 @@ import {
   Tooltip
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { useReport } from '@/context/ReportContext';
 import { graphsService } from '@/services/graphsService';
 import { odsService, getODSColor, ODS } from '@/services/odsService';

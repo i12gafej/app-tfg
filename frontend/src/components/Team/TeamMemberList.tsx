@@ -200,7 +200,7 @@ const TeamMemberList = ({
                       <>
                     <Button 
                       size="small" 
-                      //color="view"
+                      color="view"
                       onClick={() => handleEdit(member)}
                       title="Editar"
                       startIcon={<EditIcon />}

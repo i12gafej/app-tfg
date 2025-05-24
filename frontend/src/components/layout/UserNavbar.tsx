@@ -4,7 +4,7 @@ import Logo from '../common/Logo';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 import { Drawer, List, ListItem, ListItemText } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 
 const UserNavbar = () => {
   const theme = useTheme();

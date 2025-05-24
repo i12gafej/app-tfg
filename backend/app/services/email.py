@@ -4,7 +4,7 @@ from typing import Optional
 import os
 from dotenv import load_dotenv
 from app.schemas.email import ContactFormData
-from app.core.config import settings
+from app.config import settings
 import logging
 
 load_dotenv()

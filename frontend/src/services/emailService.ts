@@ -1,5 +1,4 @@
-import { API_URL } from '@/config';
-import axios from 'axios';
+import api from './api';
 
 interface ContactFormData {
   name: string;
@@ -10,13 +9,6 @@ interface ContactFormData {
   message: string;
 }
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-    baseURL: '/api',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
 
 export const emailService = {
   sendContactInfo: async (data: ContactFormData) => {

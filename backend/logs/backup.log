@@ -53,3 +53,36 @@ subprocess.CalledProcessError: Command 'docker exec mysql-container sh -c 'mysql
 2025-05-19 21:40:34,313 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250519_214034.sql
 2025-05-19 21:40:34,314 - app.api.endpoints.backup - INFO - Ejecutando comando de backup
 2025-05-19 21:40:34,539 - app.api.endpoints.backup - INFO - Backup creado exitosamente
+2025-05-23 22:03:07,987 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-23 22:03:07,988 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-23 22:03:07,990 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250523_220307.sql
+2025-05-23 22:03:08,010 - app.api.endpoints.backup - INFO - Intentando backup con: mysqldump -h localhost -P 3306 -u root -proot sustainability_db
+2025-05-23 22:03:08,024 - app.api.endpoints.backup - WARNING - mysqldump directo falló: [WinError 2] El sistema no puede encontrar el archivo especificado
+2025-05-23 22:03:08,088 - app.api.endpoints.backup - INFO - Intentando backup con Docker: docker exec mysql-container mysqldump -u root -proot sustainability_db
+2025-05-23 22:03:08,458 - app.api.endpoints.backup - INFO - Backup creado exitosamente con Docker
+2025-05-24 09:07:12,493 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-24 09:07:12,494 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-24 09:07:12,496 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250524_090712.sql
+2025-05-24 09:07:12,520 - app.api.endpoints.backup - INFO - Intentando backup con: mysqldump -h localhost -P 3306 -u root -proot sustainability_db
+2025-05-24 09:07:12,535 - app.api.endpoints.backup - WARNING - mysqldump directo falló: [WinError 2] El sistema no puede encontrar el archivo especificado
+2025-05-24 09:07:12,599 - app.api.endpoints.backup - INFO - Intentando backup con Docker: docker exec mysql-container mysqldump -u root -proot sustainability_db
+2025-05-24 09:07:12,950 - app.api.endpoints.backup - INFO - Backup creado exitosamente con Docker
+2025-05-24 09:07:30,259 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-24 09:07:30,262 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-24 09:07:30,264 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250524_090730.sql
+2025-05-24 09:07:30,288 - app.api.endpoints.backup - INFO - Intentando backup con: mysqldump -h localhost -P 3306 -u root -proot sustainability_db
+2025-05-24 09:07:30,303 - app.api.endpoints.backup - WARNING - mysqldump directo falló: [WinError 2] El sistema no puede encontrar el archivo especificado
+2025-05-24 09:07:30,368 - app.api.endpoints.backup - INFO - Intentando backup con Docker: docker exec mysql-container mysqldump -u root -proot sustainability_db
+2025-05-24 09:07:30,567 - app.api.endpoints.backup - INFO - Backup creado exitosamente con Docker
+2025-05-24 09:07:48,035 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-24 09:07:48,036 - app.api.endpoints.backup - INFO - Directorio de backup verificado/creado: C:\Users\USUARIO\Downloads\cosas uni\tfg\App\backend\backups
+2025-05-24 09:07:48,036 - app.api.endpoints.backup - INFO - Archivo de backup a crear: backup_20250524_090748.sql
+2025-05-24 09:07:48,055 - app.api.endpoints.backup - INFO - Intentando backup con: mysqldump -h localhost -P 3306 -u root -proot sustainability_db
+2025-05-24 09:07:48,070 - app.api.endpoints.backup - WARNING - mysqldump directo falló: [WinError 2] El sistema no puede encontrar el archivo especificado
+2025-05-24 09:07:48,140 - app.api.endpoints.backup - INFO - Intentando backup con Docker: docker exec mysql-container mysqldump -u root -proot sustainability_db
+2025-05-24 09:07:48,354 - app.api.endpoints.backup - INFO - Backup creado exitosamente con Docker
+2025-05-24 09:17:47,193 - app.api.endpoints.backup - INFO - Iniciando creación de backup por usuario: i12gafej@uco.es
+2025-05-24 09:17:47,214 - app.api.endpoints.backup - INFO - Intentando backup con: mysqldump -h localhost -P 3306 -u root -proot sustainability_db
+2025-05-24 09:17:47,228 - app.api.endpoints.backup - WARNING - mysqldump directo falló: [WinError 2] El sistema no puede encontrar el archivo especificado
+2025-05-24 09:17:47,296 - app.api.endpoints.backup - INFO - Intentando backup con Docker: docker exec mysql-container mysqldump -u root -proot sustainability_db
+2025-05-24 09:17:47,532 - app.api.endpoints.backup - INFO - Backup creado exitosamente con Docker

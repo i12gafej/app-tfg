@@ -19,7 +19,7 @@ import {
   useTheme,
   Rating
 } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { materialTopicService, MaterialTopic } from '@/services/materialTopicService';
 import { odsService, Dimension, DIMENSION_COLORS } from '@/services/odsService';
 import { surveyService } from '@/services/surveyService';

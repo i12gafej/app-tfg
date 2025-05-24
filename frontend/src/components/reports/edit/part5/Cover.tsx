@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Box, Button, Typography, IconButton, Grid } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PreviewIcon from '@mui/icons-material/Preview';
 import DeleteIcon from '@mui/icons-material/Delete';

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 export type StakeholderType = 'internal' | 'external';
 
@@ -27,14 +27,7 @@ export interface StakeholderUpdate {
   
 }
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
+ 
 export const stakeholderService = {
   async searchStakeholders(params: StakeholderSearchParams, token: string): Promise<{items: Stakeholder[], total: number}> {
     try {

@@ -22,6 +22,10 @@ if config.config_file_name is not None:
 from app.db.base_class import Base
 from app.models.models import *  # noqa
 target_metadata = Base.metadata
+import dotenv
+import os
+
+dotenv.load_dotenv()
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -29,7 +33,7 @@ target_metadata = Base.metadata
 # ... etc.
 
 # Establecer la URL de la base de datos directamente
-config.set_main_option("sqlalchemy.url", f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_SERVER')}:{os.getenv('MYSQL_PORT')}/{os.getenv('MYSQL_DB')}")
+config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

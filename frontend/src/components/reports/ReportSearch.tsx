@@ -28,12 +28,13 @@ import {
   List,
   ListItem,
   ListItemText,
-  Divider
+  Divider,
+  SelectChangeEvent
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { reportService, type SustainabilityReport, type ReportSearchParams } from '@/services/reportServices';
 import { ReportCreateDialog } from './ReportCreateDialog';
 import { ReportPermissionDialog } from './ReportPermissionDialog';
@@ -419,7 +420,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
                 <Select
                   value={filters.state || ''}
                   label="Estado"
-                  onChange={(e: ChangeEvent<{ value: unknown }>) => {
+                  onChange={(e: SelectChangeEvent) => {
                     const value = e.target.value;
                     handleFilterChange('state', value === '' ? undefined : value as 'Draft' | 'Published');
                   }}

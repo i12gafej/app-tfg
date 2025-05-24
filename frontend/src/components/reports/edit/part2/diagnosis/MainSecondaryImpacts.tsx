@@ -21,7 +21,7 @@ import {
   OutlinedInput,
   useTheme
 } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { odsService, ODS, getBackgroundColor, getDimension } from '@/services/odsService';
 import { goalsService, Goal } from '@/services/goalsService';
 import { materialTopicService, sortMaterialTopics } from '@/services/materialTopicService';

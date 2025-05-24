@@ -1,4 +1,5 @@
 import { useState, ChangeEvent, useEffect } from 'react';
+import { API_URL } from '../../config';
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -148,7 +149,7 @@ const PublicReportSearch = () => {
 
   const handleView = (report: ReportListItem) => {
     // Abrir el reporte en una nueva pestaña
-    window.open(`http://localhost:8000/static/uploads/reports/${report.report_id}/report_${report.report_id}_preview.html`, '_blank');
+    window.open(`${API_URL}/static/uploads/reports/${report.report_id}/report_${report.report_id}_preview.html`, '_blank');
   };
 
   return (

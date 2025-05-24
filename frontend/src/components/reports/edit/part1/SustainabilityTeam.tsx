@@ -9,7 +9,7 @@ import {
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useReport } from '@/context/ReportContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { teamService, TeamMember } from '@/services/teamService';
 import UserSearchPanel from '@/components/Team/UserSearchPanel';
 import TeamMemberSearchPanel from '@/components/Team/TeamMemberSearchPanel';

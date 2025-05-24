@@ -29,7 +29,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import SearchIcon from '@mui/icons-material/Search';
 import { useReport } from '@/context/ReportContext';
 import { reportService } from '@/services/reportServices';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { ReportNorm } from '@/services/reportServices';
 
 // Función para extraer URLs del texto

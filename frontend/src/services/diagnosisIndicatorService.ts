@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 export interface DiagnosisIndicatorQuantitativeData {
   diagnosis_indicator_id: number;
@@ -37,13 +37,6 @@ export interface DiagnosisIndicatorUpdate {
   response?: string;
 }
 
-// Crear una instancia de axios con la configuración base
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
 export const diagnosisIndicatorService = {
   async getAllByReport(reportId: number, token: string): Promise<DiagnosisIndicator[]> {

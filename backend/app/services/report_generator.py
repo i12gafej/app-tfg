@@ -2,11 +2,15 @@ import os
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 from typing import Dict, List, Optional, Any
-from app.core.config import Settings
+from app.config import Settings
 from bs4 import BeautifulSoup
 from app.utils.data_dump import DataDump
 import re
 from app.utils.text_processing import paginate_html_text, paginate_html_tables, paginate_material_topics
+import dotenv
+
+dotenv.load_dotenv()
+
 settings = Settings()
 
 
@@ -561,7 +565,7 @@ class ReportGenerator:
             with open(path, "w", encoding="utf-8") as file:
                 file.write(combined_html)
             # Devuelve la URL pública, no la ruta absoluta
-            return f"http://localhost:8000/static/uploads/reports/{data['id']}/{filename}"
+            return f"/static/uploads/reports/{data['id']}/{filename}"
         except Exception as e:
             logger.error(f"Error al generar el reporte: {str(e)}")
             raise e
@@ -823,7 +827,7 @@ class ReportGenerator:
             with open(path, "w", encoding="utf-8") as file:
                 file.write(combined_html)
             # Devuelve la URL pública, no la ruta absoluta
-            return f"http://localhost:8000/static/uploads/reports/{data['id']}/{filename}"
+            return f"/static/uploads/reports/{data['id']}/{filename}"
         except Exception as e:
             logger.error(f"Error al generar la vista previa del reporte: {str(e)}")
             raise e

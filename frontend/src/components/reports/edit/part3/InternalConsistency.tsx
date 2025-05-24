@@ -15,7 +15,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/context/auth.context';
 import { actionPlanService } from '@/services/actionPlanService';
 import { odsService } from '@/services/odsService';
 import type { ActionPrimaryImpact } from '@/services/actionPlanService';

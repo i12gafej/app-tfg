@@ -35,7 +35,7 @@ from app.models.models import SustainabilityReport as SustainabilityReportModel,
 from app.services.user import check_user_permissions
 import logging
 from PIL import Image
-from app.core.config import Settings
+from app.config import Settings
 import io
 
 settings = Settings()
