@@ -17,21 +17,20 @@ localhost {
     }
 }
 
-# Configuración para producción (descomenta y modifica según tu dominio)
-# tu-dominio.com {
-#     # Proxy para las rutas de la API al backend
-#     handle /api/* {
-#         reverse_proxy backend:8000
-#     }
-#     
-#     # Proxy para el resto de rutas al frontend
-#     handle {
-#         reverse_proxy frontend:80
-#     }
-#     
-#     # Logs para debugging
-#     log {
-#         output stdout
-#         level INFO
-#     }
-# } 
+patrimonio2030app.site, www.patrimonio2030app.site {
+   # Proxy para las rutas de la API al backend
+   handle /api/* {
+       reverse_proxy backend:8000
+   }
+   
+   # Proxy para el resto de rutas al frontend
+   handle {
+       reverse_proxy frontend:80
+   }
+   
+   # Logs para debugging
+   log {
+       output stdout
+       level INFO
+   }
+} 
