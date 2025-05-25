@@ -68,15 +68,15 @@ const Backup = () => {
 
   const handleRestore = async () => {
     if (!token || !selectedFile) return;
-  
+
     try {
       setIsLoading(true);
       setError(null);
       setSuccess(null);
       setRestoreProgress('Iniciando restauración...');
-  
+
       const response = await backupService.restoreBackup(selectedFile, token);
-  
+
       setSuccess(response.message || 'Copia de seguridad restaurada correctamente');
       setRestoreProgress('');
       setIsRestoreDialogOpen(false);
@@ -156,8 +156,8 @@ const Backup = () => {
         open={isRestoreDialogOpen}
         onClose={() => {
           if (!isLoading) {
-            setIsRestoreDialogOpen(false);
-            setSelectedFile(null);
+          setIsRestoreDialogOpen(false);
+          setSelectedFile(null);
             setRestoreProgress('');
           }
         }}
@@ -191,8 +191,8 @@ const Backup = () => {
           <Button
             onClick={() => {
               if (!isLoading) {
-                setIsRestoreDialogOpen(false);
-                setSelectedFile(null);
+              setIsRestoreDialogOpen(false);
+              setSelectedFile(null);
                 setRestoreProgress('');
               }
             }}
