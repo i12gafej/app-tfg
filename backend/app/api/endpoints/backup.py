@@ -25,19 +25,15 @@ from app.schemas.auth import TokenData
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-
-
 # Crear un manejador de consola
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 
 # Crear un formateador
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
 console_handler.setFormatter(formatter)
 
 # Añadir los manejadores al logger
-logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
 router = APIRouter()
