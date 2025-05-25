@@ -25,11 +25,7 @@ from app.schemas.auth import TokenData
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# Crear un manejador de archivo
-log_dir = os.path.join(settings.BASE_DIR, "logs")
-os.makedirs(log_dir, exist_ok=True)
-file_handler = logging.FileHandler(os.path.join(log_dir, "backup.log"))
-file_handler.setLevel(logging.INFO)
+
 
 # Crear un manejador de consola
 console_handler = logging.StreamHandler()
