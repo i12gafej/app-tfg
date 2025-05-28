@@ -139,7 +139,7 @@ const Dashboard: React.FC = () => {
   React.useEffect(() => {
     const timer = setInterval(() => {
       handleNext();
-    }, 10000);
+    }, 60000);
 
     return () => clearInterval(timer);
   }, []);
