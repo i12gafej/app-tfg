@@ -48,6 +48,7 @@ class Settings(BaseModel):
     #BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     FRONTEND_URL: str = os.getenv("FRONTEND_URL")
+    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL")
 
     def create_directories(self):
         """Crea todos los directorios necesarios si no existen."""
