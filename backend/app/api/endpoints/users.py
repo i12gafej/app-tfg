@@ -59,6 +59,8 @@ def update_user(
     """
     Update a user.
     """ 
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     # Verificar si el usuario existe
     user = crud_user.get(db, user_id)
     if not user:
