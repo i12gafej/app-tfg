@@ -254,22 +254,7 @@ def delete_report(db: Session, report_id: int) -> bool:
         report_dir = settings.REPORTS_DIR / str(report_id)
         if report_dir.exists():
             shutil.rmtree(report_dir)
-
-        # 2. Eliminar elementos relacionados en la base de datos
-        # Los siguientes elementos se eliminarán en cascada debido a las restricciones de clave foránea:
-        # - MaterialTopics (elimina en cascada):
-        #   - SecondaryODSMaterialTopics
-        #   - DiagnosisIndicators (elimina en cascada):
-        #     - DiagnosisIndicatorQualitative
-        #     - DiagnosisIndicatorQuantitative
-        #   - SpecificObjectives (elimina en cascada):
-        #     - Actions (elimina en cascada):
-        #       - SecondaryODSActions
-        #       - PerformanceIndicators (elimina en cascada):
-        #         - PerformanceIndicatorQualitative
-        #         - PerformanceIndicatorQuantitative
-
-        # 3. Eliminar el reporte de la base de datos
+            
         db.delete(db_report)
         db.commit()
         return True
@@ -554,7 +539,7 @@ def upload_logo(db: Session, report: SustainabilityReport, content: bytes, file_
             file_object.write(content)
 
         # Crear registro en la base de datos (usando ruta relativa para la URL)
-        file_url = f"static/uploads/logos/{filename}"
+        file_url = f"/static/uploads/logos/{filename}"
         new_logo = ReportLogoModel(
             logo=file_url,
             report_id=report.id
@@ -575,7 +560,7 @@ def update_organization_chart(db: Session, report: SustainabilityReport, content
         with open(file_path, "wb") as file_object:
             file_object.write(content)
 
-        file_url = f"static/uploads/organization_charts/{filename}"
+        file_url = f"/static/uploads/organization_charts/{filename}"
         report.org_chart_figure = file_url
         db.commit()
         return file_url

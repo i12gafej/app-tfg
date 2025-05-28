@@ -16,14 +16,6 @@ from app.services.monitoring_templates import generate_monitoring_template
 
 router = APIRouter()
 
-def translate_level(level: str) -> str:
-    level_map = {
-        "low": "Baja",
-        "medium": "Media",
-        "high": "Alta"
-    }
-    return level_map.get(level, "No definida")
-
 @router.get("/monitoring/get/template/{report_id}")
 def get_monitoring_template(
     report_id: int,
@@ -33,6 +25,13 @@ def get_monitoring_template(
     """
     Genera una plantilla de monitorización para todas las acciones del reporte en formato DOCX.
     """
+    def translate_level(level: str) -> str:
+        level_map = {
+            "low": "Baja",
+            "medium": "Media",
+            "high": "Alta"
+        }
+        return level_map.get(level, "No definida")
     try:
         # 1. Obtener todos los asuntos relevantes
         material_topics = crud_material_topics.get_all_by_report(db, report_id)

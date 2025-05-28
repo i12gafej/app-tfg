@@ -1,7 +1,7 @@
 import { Box, Typography, Button } from '@mui/material';
 import { useState } from 'react';
-import TeamSearch from '@/components/Team/TeamSearch';
-import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
+import TeamSearch from '@/components/team/TeamSearch';
+import TeamMemberCreateDialog from '@/components/team/TeamMemberCreateDialog';
 
 const Team = () => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);

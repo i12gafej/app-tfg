@@ -1,5 +1,15 @@
-# Configuración para desarrollo local
-localhost {
+# Configuración para producción
+patrimonio2030app.site {
+    # Proxy para acceso a archivos estáticos del backend (con prefijo /api/)
+    handle /api/static/* {
+        reverse_proxy backend:8000
+    }
+    
+    # Proxy para acceso a archivos estáticos del backend (directo)
+    handle /static/* {
+        reverse_proxy backend:8000
+    }
+    
     # Proxy para las rutas de la API al backend
     handle /api/* {
         reverse_proxy backend:8000
@@ -10,27 +20,35 @@ localhost {
         reverse_proxy frontend:80
     }
     
-    # Logs para debugging
+    # Configuración de seguridad para producción
+    header {
+        # Seguridad HTTPS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Eliminar headers que revelan información del servidor
+        -Server
+        -X-Powered-By
+    }
+    
+    # Configuración de compresión
+    encode gzip
+    
+    # Logs para producción
     log {
-        output stdout
-        level INFO
+        output file /var/log/caddy/access.log {
+            roll_size 100mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        level WARN
     }
 }
 
-patrimonio2030app.site, www.patrimonio2030app.site {
-   # Proxy para las rutas de la API al backend
-   handle /api/* {
-       reverse_proxy backend:8000
-   }
-   
-   # Proxy para el resto de rutas al frontend
-   handle {
-       reverse_proxy frontend:80
-   }
-   
-   # Logs para debugging
-   log {
-       output stdout
-       level INFO
-   }
+# Redirección de www a dominio principal
+www.patrimonio2030app.site {
+    redir https://patrimonio2030app.site{uri} permanent
 } 

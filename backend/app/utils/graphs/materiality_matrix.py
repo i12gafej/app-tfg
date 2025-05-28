@@ -22,21 +22,6 @@ DIMENSION_COLORS = {
 }
 
 
-def get_dimension_by_ods(ods_id: int) -> str:
-    """Determina la dimensión basada en el ODS."""
-    if 1 <= ods_id <= 5:
-        return "PERSONAS"
-    elif ods_id in [6, 12, 13, 14, 15]:
-        return "PLANETA"
-    elif 7 <= ods_id <= 11:
-        return "PROSPERIDAD"
-    elif ods_id == 16:
-        return "PAZ"
-    elif ods_id == 17:
-        return "ALIANZAS"
-    else:
-        return "OTROS"
-
 def calculate_averages(assessments: List[Assessment], stakeholders: Dict[int, Stakeholder]) -> Dict[int, Tuple[float, float]]:
     """Calcula las medias internas y externas para cada material topic."""
     topic_scores: Dict[int, Dict[str, List[float]]] = {}
@@ -63,6 +48,21 @@ def calculate_averages(assessments: List[Assessment], stakeholders: Dict[int, St
 
 def create_materiality_matrix_data(db: Session, report_id: int, normalize: bool = False, scale: int = None) -> Dict:
     """Genera los datos para la matriz de materialidad."""
+    
+    def get_dimension_by_ods(ods_id: int) -> str:
+        """Determina la dimensión basada en el ODS."""
+        if 1 <= ods_id <= 5:
+            return "PERSONAS"
+        elif ods_id in [6, 12, 13, 14, 15]:
+            return "PLANETA"
+        elif 7 <= ods_id <= 11:
+            return "PROSPERIDAD"
+        elif ods_id == 16:
+            return "PAZ"
+        elif ods_id == 17:
+            return "ALIANZAS"
+        else:
+            return "OTROS"
     try:
         # Obtener todos los datos necesarios
         material_topics = db.query(MaterialTopic).filter(MaterialTopic.report_id == report_id).all()

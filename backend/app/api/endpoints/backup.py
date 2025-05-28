@@ -6,14 +6,10 @@ from datetime import datetime
 import os
 import subprocess
 import logging
-from typing import Optional
 import shutil
 import io
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import pymysql
-from pymysql import Error
-import time
 from collections import defaultdict, deque
 
 from app.config import settings

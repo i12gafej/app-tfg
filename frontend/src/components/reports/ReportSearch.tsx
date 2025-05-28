@@ -24,11 +24,6 @@ import {
   useMediaQuery,
   useTheme,
   TablePagination,
-  Popover,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
   SelectChangeEvent
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -80,7 +75,6 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const isAdmin = user?.admin || false;
   const [sortField, setSortField] = useState<SortField>('year');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<SustainabilityReport | null>(null);

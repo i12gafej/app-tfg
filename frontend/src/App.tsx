@@ -16,7 +16,6 @@ import Contact from '@/components/pages/Contact/index';
 import Login from '@/components/pages/Login/index';
 import NotFound from '@/components/pages/NotFound/index';
 import Privacy from '@/components/pages/Privacy/index';
-import Cookies from '@/components/pages/Cookies/index';
 import Backup from '@/components/pages/Backup/index';
 import Dashboard from '@/components/pages/Dashboard/index';
 import Users from '@/components/pages/Users/index';
@@ -56,7 +55,6 @@ const App = () => {
             <Route path="/contacto" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/privacidad" element={<Privacy />} />
-            <Route path="/cookies" element={<Cookies />} />
             <Route 
               path="/dashboard" 
               element={

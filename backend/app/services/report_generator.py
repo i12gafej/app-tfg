@@ -831,36 +831,3 @@ class ReportGenerator:
         except Exception as e:
             logger.error(f"Error al generar la vista previa del reporte: {str(e)}")
             raise e
-
-    
-if __name__ == "__main__":
-    # Ejemplo de uso
-    generator = ReportGenerator()
-    
-    # Aquí irían los datos de ejemplo para cada sección
-    sample_data = {
-        "cover": {
-            "title": "Memoria de Sostenibilidad 2023",
-            "cover_image": "path/to/cover.jpg",
-            "logos": ["path/to/logo1.png", "path/to/logo2.png"]
-        },
-        # ... más datos de ejemplo
-    }
-    
-    # Generar HTML del reporte completo
-    html_content = generator.generate_report(sample_data)
-    print("HTML generado correctamente", html_content)
-
-    # Paginar el texto simple usando los nuevos parámetros
-    pages = paginate_html_text(
-        simple_text_data["text"],
-        max_lines=33,         # Número de líneas virtuales por página (ajusta según tus pruebas)
-        chars_per_line=40     # Número de caracteres por línea virtual (ajusta según el ancho real de tu página)
-    )
-
-    simple_text_html = ""
-    for page in pages:
-        simple_text_html += generator.generate_simple_text({
-            "title": simple_text_data["title"],
-            "text": page
-        }) 

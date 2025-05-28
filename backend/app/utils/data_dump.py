@@ -78,21 +78,21 @@ class DataDump:
         return data
 
     @staticmethod
-    def dump_norms_data(data: dict) -> dict:
+    def dump_norms_data(data: dict) -> list:
         """
         Vuelca los datos de la normativa en un diccionario.
         """
         return [norm.norm for norm in data]
     
     @staticmethod
-    def dump_agreements_data(data: dict) -> dict:
+    def dump_agreements_data(data: dict) -> list:
         """
         Vuelca los datos de los acuerdos en un diccionario.
         """
         return [agreement.agreement for agreement in data]
     
     @staticmethod
-    def dump_bibliography_data(data: dict) -> dict:
+    def dump_bibliography_data(data: dict) -> list:
         """
         Vuelca los datos de la bibliografía en un diccionario. Detecta si tiene link, y los mete en un enlace html.
         """
@@ -100,14 +100,14 @@ class DataDump:
         return [bibliography.reference for bibliography in data]
 
     @staticmethod
-    def dump_gallery_data(data: dict) -> dict:
+    def dump_gallery_data(data: dict) -> list:
         """
         Vuelca los datos de la galería fotográfica en un diccionario.
         """
         return [{'photo': gallery.photo, 'description': gallery.description} for gallery in data]
     
     @staticmethod
-    def dump_team_members_data(data: dict) -> dict:
+    def dump_team_members_data(data: dict) -> list:
         """
         Vuelca los datos de los miembros del equipo ordenados por rol (de gestor a aseor externo) en un diccionario.
         """

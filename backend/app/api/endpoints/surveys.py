@@ -59,7 +59,7 @@ def create_assessments(
         )
 
 @router.post("/survey/search/", response_model=dict)
-async def search_surveys_endpoint(
+async def search_surveys(
     search_params: SurveySearch,
     db: Session = Depends(get_db)
 ):
@@ -106,7 +106,7 @@ async def search_surveys_endpoint(
         )
 
 @router.get("/survey/get-all/assessments/{report_id}", response_model=List[Assessment])
-def get_all_assessments_endpoint(
+def get_all_assessments(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)

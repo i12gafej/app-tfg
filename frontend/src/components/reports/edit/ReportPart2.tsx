@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/context/ReportContext';
-import StakeholderSearch from './part2/stakeholders/StakeholderSearch';
-import MaterialTopicSearch from './part2/diagnosis/MaterialTopic/MaterialTopicSearch';
-import Surveys from './part2/diagnosis/Surveys';
+import StakeholderSearch from './part2/Stakeholders/StakeholderSearch';
+import MaterialTopicSearch from './part2/MaterialTopic/MaterialTopicSearch';
+import Surveys from './part2/Surveys';
 
 // Importar componentes del diagnóstico
-import MainSecondaryImpacts from './part2/diagnosis/MainSecondaryImpacts';
-import Graphs from './part2/diagnosis/Graphs';
-import MaterialityMatrix from './part2/diagnosis/MaterialityMatrix';
-import MaterialTopicValidation from './part2/diagnosis/MaterialTopicValidation';
-import DiagnosisIndicators from './part2/diagnosis/DiagnosisIndicators';
+import MainSecondaryImpacts from './part2/MainSecondaryImpacts';
+import Graphs from './part2/Graphs';
+import MaterialityMatrix from './part2/MaterialityMatrix';
+import MaterialTopicValidation from './part2/MaterialTopicValidation';
+import DiagnosisIndicators from './part2/DiagnosisIndicators';
 
 type Part2Section = 'stakeholders' | 'material-topics' | 'surveys' | 'diagnostic';
 

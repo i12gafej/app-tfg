@@ -86,7 +86,7 @@ def create_material_topic(
         has_permission, error_message = check_user_permissions(
             db=db,
             user_id=current_user.id,
-            report_id=search_params.report_id
+            report_id=material_topic_data.report_id
         )
         if not has_permission:
             raise HTTPException(status_code=403, detail=error_message)

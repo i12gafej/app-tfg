@@ -37,28 +37,6 @@ def create_assessments(
     except Exception as e:
         raise e
 
-def search_assessments(
-    db: Session,
-    material_topic_id: Optional[int] = None,
-    stakeholder_id: Optional[int] = None,
-    is_internal: Optional[bool] = None
-) -> List[Assessment]:
-    try:
-        query = db.query(Assessment)
-
-        if material_topic_id is not None:
-            query = query.filter(Assessment.material_topic_id == material_topic_id)
-        
-        if stakeholder_id is not None:
-            query = query.filter(Assessment.stakeholder_id == stakeholder_id)
-        
-        if is_internal is not None:
-            query = query.join(Stakeholder).filter(Stakeholder.is_internal == is_internal)
-
-        return query.all()
-    except Exception as e:
-        raise e
-
 def search_surveys(
     db: Session,
     search_term: Optional[str] = None,

@@ -4,7 +4,7 @@ import ReportPartNavBar from './ReportPartNavBar';
 import Mission from './part1/Mission';
 import Vision from './part1/Vision';
 import Values from './part1/Values';
-import Regulations from './part1/Regulations';
+import Norms from './part1/Norms';
 import SustainabilityTeam from './part1/SustainabilityTeam';
 import { useReport } from '@/context/ReportContext';
 
@@ -12,7 +12,7 @@ const PART1_SECTIONS = [
   { id: 'mission', label: 'Misión' },
   { id: 'vision', label: 'Visión' },
   { id: 'values', label: 'Valores' },
-  { id: 'regulations', label: 'Normativa' },
+  { id: 'norms', label: 'Normativa' },
   { id: 'sustainability-team', label: 'Equipo de Sostenibilidad' },
 ];
 
@@ -28,8 +28,8 @@ const ReportPart1 = () => {
         return <Vision />;
       case 'values':
         return <Values />;
-      case 'regulations':
-        return <Regulations />;
+      case 'norms':
+        return <Norms />;
       case 'sustainability-team':
         return <SustainabilityTeam />;
       default:

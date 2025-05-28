@@ -1,7 +1,7 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { useState } from 'react';
-import UserSearchPanel from '@/components/Team/UserSearchPanel';
-import TeamMemberSearchPanel from '@/components/Team/TeamMemberSearchPanel';
+import UserSearchPanel from '@/components/team/UserSearchPanel';
+import TeamMemberSearchPanel from '@/components/team/TeamMemberSearchPanel';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TeamMember } from '@/services/teamService';

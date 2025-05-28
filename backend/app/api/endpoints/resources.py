@@ -11,7 +11,7 @@ from app.models.models import HeritageResource as HeritageResourceModel, Sustain
 router = APIRouter()
 
 @router.post("/resources/create", response_model=HeritageResource)
-async def create_resource_endpoint(
+async def create_resource(
     resource: HeritageResourceCreate = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -49,7 +49,7 @@ async def create_resource_endpoint(
         )
 
 @router.post("/resources/search", response_model=dict)
-async def search_resources_endpoint(
+async def search_resources(
     search_params: ResourceSearch = Body(...),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -103,7 +103,7 @@ async def search_resources_endpoint(
         )
 
 @router.put("/resources/update/{resource_id}", response_model=HeritageResource)
-async def update_resource_endpoint(
+async def update_resource(
     resource_id: int,
     resource_data: HeritageResourceUpdate = Body(...),
     db: Session = Depends(get_db),
@@ -144,7 +144,7 @@ async def update_resource_endpoint(
         )
 
 @router.delete("/resources/delete/{resource_id}")
-async def delete_resource_endpoint(
+async def delete_resource(
     resource_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)

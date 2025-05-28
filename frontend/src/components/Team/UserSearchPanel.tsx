@@ -24,8 +24,8 @@ import {
 import { useState, useEffect, ChangeEvent, useMemo } from 'react';
 import { useAuth } from '@/context/auth.context';
 import { teamService, User, TeamMember } from '@/services/teamService';
-import UserList from '@/components/Team/UserList';
-import TeamMemberAssignDialog from '@/components/Team/TeamMemberAssignDialog';
+import UserList from '@/components/team/UserList';
+import TeamMemberAssignDialog from '@/components/team/TeamMemberAssignDialog';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 

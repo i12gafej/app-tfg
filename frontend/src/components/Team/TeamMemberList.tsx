@@ -18,10 +18,10 @@ import { Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-mater
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useState } from 'react';
 import { TeamMember, User } from '@/services/teamService';
-import TeamMemberDetailsDialog from '@/components/Team/TeamMemberDetailsDialog';
-import TeamMemberEditDialog from '@/components/Team/TeamMemberEditDialog';
-import TeamMemberDeleteDialog from '@/components/Team/TeamMemberDeleteDialog';
-import TeamMemberAssignDialog from '@/components/Team/TeamMemberAssignDialog';
+import TeamMemberDetailsDialog from '@/components/team/TeamMemberDetailsDialog';
+import TeamMemberEditDialog from '@/components/team/TeamMemberEditDialog';
+import TeamMemberDeleteDialog from '@/components/team/TeamMemberDeleteDialog';
+import TeamMemberAssignDialog from '@/components/team/TeamMemberAssignDialog';
 import { useDrop, DropTargetMonitor } from 'react-dnd';
 import Button from '@mui/material/Button';
 

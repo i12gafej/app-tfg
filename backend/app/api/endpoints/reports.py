@@ -43,7 +43,7 @@ settings = Settings()
 router = APIRouter()
 
 @router.get("/reports/get/{report_id}", response_model=SustainabilityReport)
-async def get_report_endpoint(
+async def get_report(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -107,7 +107,7 @@ def get_all_report_templates(
         
 
 @router.post("/reports/search", response_model=dict)
-async def search_reports_endpoint(
+async def search_reports(
     search_params: ReportSearch,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -212,7 +212,7 @@ async def search_reports_endpoint(
         )
 
 @router.post("/public-reports/search", response_model=dict)
-async def search_public_reports_endpoint(
+async def search_public_reports(
     search_params: ReportSearch = Body(...),
     db: Session = Depends(get_db)
 ):
@@ -311,7 +311,7 @@ async def search_public_reports_endpoint(
         
 
 @router.post("/reports/create", response_model=SustainabilityReport)
-async def create_report_endpoint(
+async def create_report(
     report: SustainabilityReportCreate,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -363,7 +363,7 @@ async def create_report_endpoint(
         )
 
 @router.put("/reports/update/{report_id}", response_model=SustainabilityReport)
-async def update_report_endpoint(
+async def update_report(
     report_id: int,
     update_request: SustainabilityReportUpdate,
     db: Session = Depends(get_db),
@@ -411,7 +411,7 @@ async def update_report_endpoint(
         )
 
 @router.delete("/reports/delete/{report_id}")
-async def delete_report_endpoint(
+async def delete_report(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -447,7 +447,7 @@ async def delete_report_endpoint(
         )
 
 @router.get("/reports/generate-preview/{report_id}")
-async def generate_preview_endpoint(
+async def generate_preview(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -472,7 +472,7 @@ async def generate_preview_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/reports/publish/{report_id}")
-async def publish_report_endpoint(
+async def publish_report(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -508,7 +508,7 @@ async def publish_report_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/reports/get-all/norms/{report_id}", response_model=List[ReportNorm])
-async def get_all_report_norms_endpoint(
+async def get_all_report_norms(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -547,7 +547,7 @@ async def get_all_report_norms_endpoint(
         )
 
 @router.post("/reports/norms", response_model=ReportNorm)
-async def create_norm_endpoint(
+async def create_norm(
     norm: ReportNormCreate,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -578,7 +578,7 @@ async def create_norm_endpoint(
         )
 
 @router.put("/reports/update/norm/{norm_id}", response_model=ReportNorm)
-async def update_norm_endpoint(
+async def update_norm(
     norm_id: int,
     norm: ReportNormUpdate,
     db: Session = Depends(get_db),
@@ -617,7 +617,7 @@ async def update_norm_endpoint(
         )
 
 @router.delete("/reports/delete/norm/{norm_id}")
-async def delete_norm_endpoint(
+async def delete_norm(
     norm_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -872,7 +872,7 @@ async def get_cover_photo(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/reports/get-all/agreements/{report_id}", response_model=List[ReportAgreement])
-async def get_all_report_agreements_endpoint(
+async def get_all_report_agreements(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -911,7 +911,7 @@ async def get_all_report_agreements_endpoint(
         )
 
 @router.post("/reports/create/agreements", response_model=ReportAgreement)
-async def create_agreement_endpoint(
+async def create_agreement(
     agreement: ReportAgreementCreate,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -936,14 +936,13 @@ async def create_agreement_endpoint(
         return ReportAgreement.model_validate(db_agreement, from_attributes=True)
 
     except Exception as e:
-        logger.error(f"Error al crear el acuerdo: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Error al crear el acuerdo: {str(e)}"
         )
 
 @router.put("/reports/update/agreements/{agreement_id}", response_model=ReportAgreement)
-async def update_agreement_endpoint(
+async def update_agreement(
     agreement_id: int,
     agreement: ReportAgreementUpdate,
     db: Session = Depends(get_db),
@@ -982,7 +981,7 @@ async def update_agreement_endpoint(
         )
 
 @router.delete("/reports/delete/agreements/{agreement_id}")
-async def delete_agreement_endpoint(
+async def delete_agreement(
     agreement_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -1021,7 +1020,7 @@ async def delete_agreement_endpoint(
         )
 
 @router.post("/reports/create/bibliographies", response_model=ReportBibliography)
-async def create_bibliography_endpoint(
+async def create_bibliography(
     bibliography: ReportBibliographyCreate,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -1052,7 +1051,7 @@ async def create_bibliography_endpoint(
         )
 
 @router.put("/reports/update/bibliographies/{bibliography_id}", response_model=ReportBibliography)
-async def update_bibliography_endpoint(
+async def update_bibliography(
     bibliography_id: int,
     bibliography: ReportBibliographyUpdate,
     db: Session = Depends(get_db),
@@ -1091,7 +1090,7 @@ async def update_bibliography_endpoint(
         )
 
 @router.delete("/reports/delete/bibliographies/{bibliography_id}")
-async def delete_bibliography_endpoint(
+async def delete_bibliography(
     bibliography_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -1130,7 +1129,7 @@ async def delete_bibliography_endpoint(
         )
 
 @router.get("/reports/get-all/bibliographies/{report_id}", response_model=List[ReportBibliography])
-async def get_all_report_bibliographies_endpoint(
+async def get_all_report_bibliographies(
     report_id: int,
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -1167,10 +1166,6 @@ async def get_all_report_bibliographies_endpoint(
             status_code=500,
             detail=f"Error al obtener las referencias bibliográficas: {str(e)}"
         )
-
-import logging
-
-logger = logging.getLogger(__name__)
 
 @router.post("/reports/update/organization-chart/{report_id}")
 async def update_organization_chart(
@@ -1221,7 +1216,6 @@ async def update_organization_chart(
         return {"url": file_url}
 
     except Exception as e:
-        logger.error(f"Error al actualizar el organigrama: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/reports/upload/photos/{report_id}", response_model=ReportPhotoResponse)

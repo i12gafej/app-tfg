@@ -220,7 +220,8 @@ export const reportService = {
                     Authorization: `Bearer ${token}`
                 }
             });
-            return {url: API_URL + response.data.url};
+            console.log(response.data.url);
+            return {url: response.data.url};
         } catch (error) {
             console.error('Error al generar el preview:', error);
             throw error;
@@ -634,7 +635,8 @@ export const reportService = {
                     Authorization: `Bearer ${token}`
                 }
             });
-            return {message: response.data.message, url: API_URL + response.data.url};
+            console.log(response.data.url);
+            return {message: response.data.message, url: response.data.url};
         } catch (error: any) {
             if (error.response?.data?.detail?.includes("'Session' object has no attribute 'update'")) {
                 throw new Error('Error al actualizar el estado del reporte en la base de datos');

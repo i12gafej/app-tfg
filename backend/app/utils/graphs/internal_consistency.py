@@ -8,37 +8,37 @@ import logging
 # Configurar el logger
 logger = logging.getLogger(__name__)
 
-def calcular_escala_y(max_val: float, divisiones: int = 3) -> Tuple[float, float]:
-    armoniosos = [2,3,4,5,6,8, 10, 15, 20, 25, 30, 40, 50, 60, 80, 90, 100]
-    for unidad in armoniosos:
-        if unidad * divisiones >= max_val:
-            logger.debug(f"Escala Y calculada: {unidad * divisiones}, paso: {unidad}")
-            return unidad * divisiones, unidad
-    resultado = ((max_val // 5) + 1) * 5, 5
-    return resultado
+
 
 def generate_internal_consistency_graph(
     dimension_totals: Dict[str, float]
-) -> (str, list):
-
+) -> Tuple[str, list]:
+    def calculate_y_scale(max_val: float, divisions: int = 3) -> Tuple[float, float]:
+        armonic_proportions = [2,3,4,5,6,8, 10, 15, 20, 25, 30, 40, 50, 60, 80, 90, 100]
+        for unit in armonic_proportions:
+            if unit * divisions >= max_val:
+                logger.debug(f"Escala Y calculada: {unit * divisions}, step: {unit}")
+                return unit * divisions, unit
+        result = ((max_val // 5) + 1) * 5, 5
+        return result
     try:
-        dimensiones = ["PERSONAS", "PLANETA", "PROSPERIDAD", "PAZ", "ALIANZAS"]
-        valores = [dimension_totals.get(dim, 0) for dim in dimensiones]
-        logger.debug(f"Valores por dimensión: {dict(zip(dimensiones, valores))}")
+        dimensions = ["PERSONAS", "PLANETA", "PROSPERIDAD", "PAZ", "ALIANZAS"]
+        values = [dimension_totals.get(dim, 0) for dim in dimensions]
+        logger.debug(f"Valores por dimensión: {dict(zip(dimensions, values))}")
 
-        colores = ["#c9d6f0", "#bfe0b9", "#fbe3b3", "#c8ebf9", "#dfcce7"]
-        bordes = ["#7183bd", "#5d9d57", "#e3aa32", "#73bcd7", "#ae78b9"]
+        colors = ["#c9d6f0", "#bfe0b9", "#fbe3b3", "#c8ebf9", "#dfcce7"]
+        borders = ["#7183bd", "#5d9d57", "#e3aa32", "#73bcd7", "#ae78b9"]
 
-        y_max, paso = calcular_escala_y(max(valores))
-        y_ticks = list(range(0, int(y_max) + 1, int(paso)))
-        logger.debug(f"Escala Y: máximo={y_max}, paso={paso}, ticks={y_ticks}")
+        y_max, step = calculate_y_scale(max(values))
+        y_ticks = list(range(0, int(y_max) + 1, int(step)))
+        logger.debug(f"Escala Y: máximo={y_max}, step={step}, ticks={y_ticks}")
 
         fig, ax = plt.subplots(figsize=(10, 5), facecolor='none')
         bars = ax.bar(
-            dimensiones,
-            valores,
-            color=colores,
-            edgecolor=bordes,
+            dimensions,
+            values,
+            color=colors,
+            edgecolor=borders,
             linewidth=1.5,
             zorder=3
         )
@@ -53,8 +53,8 @@ def generate_internal_consistency_graph(
         ax.set_ylabel("Impacto total ponderado ODS principal y secundario", fontsize=10, labelpad=20)
         
         # Configuración corregida de los ticks y etiquetas del eje X
-        ax.set_xticks(range(len(dimensiones)))
-        ax.set_xticklabels(dimensiones, fontweight='bold')
+        ax.set_xticks(range(len(dimensions)))
+        ax.set_xticklabels(dimensions, fontweight='bold')
         
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
@@ -75,7 +75,7 @@ def generate_internal_consistency_graph(
         graph = base64.b64encode(image_png).decode('utf-8')
         dimension_totals_list = [
             {"dimension": dim, "total": dimension_totals.get(dim, 0)}
-            for dim in dimensiones
+            for dim in dimensions
         ]
         return f"data:image/png;base64,{graph}", dimension_totals_list
     except Exception as e:
@@ -89,7 +89,7 @@ def get_dimension_totals(
     secondary_impacts: list,
     main_weight,
     secondary_weight
-) -> (dict, list):
+) -> Tuple[dict, list]:
     ods_dimensions = {
         1: "PERSONAS", 2: "PERSONAS", 3: "PERSONAS", 4: "PERSONAS", 5: "PERSONAS",
         6: "PLANETA", 12: "PLANETA", 13: "PLANETA", 14: "PLANETA", 15: "PLANETA",

@@ -11,9 +11,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useReport } from '@/context/ReportContext';
 import { useAuth } from '@/context/auth.context';
 import { teamService, TeamMember } from '@/services/teamService';
-import UserSearchPanel from '@/components/Team/UserSearchPanel';
-import TeamMemberSearchPanel from '@/components/Team/TeamMemberSearchPanel';
-import TeamMemberCreateDialog from '@/components/Team/TeamMemberCreateDialog';
+import UserSearchPanel from '@/components/team/UserSearchPanel';
+import TeamMemberSearchPanel from '@/components/team/TeamMemberSearchPanel';
+import TeamMemberCreateDialog from '@/components/team/TeamMemberCreateDialog';
 
 const SustainabilityTeam = () => {
   const { report, readOnly } = useReport();

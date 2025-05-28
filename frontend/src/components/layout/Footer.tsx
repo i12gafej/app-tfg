@@ -51,9 +51,6 @@ const Footer = () => {
             <Link component={RouterLink} to="/privacidad" color="inherit" display="block">
               Política de Privacidad
             </Link>
-            <Link component={RouterLink} to="/cookies" color="inherit" display="block">
-              Política de Cookies
-            </Link>
           </Grid>
         </Grid>
         <Typography variant="body2" color="inherit" align="center" sx={{ mt: 3 }}>

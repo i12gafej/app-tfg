@@ -235,7 +235,7 @@ const Home = () => {
         setActiveStep((prevStep) => (prevStep + 1) % conceptPages.length);
         setIsTransitioning(false);
       }, 300);
-    }, 5000);
+    }, 60000);
 
     return () => clearInterval(timer);
   }, []);
@@ -320,7 +320,7 @@ const Home = () => {
               }}>
                 <Box
                   component="img"
-                  src="/src/static/logo_cuco.png"
+                  src="/logo_cuco.png"
                   alt="Logo CUCO"
                   sx={{
                     height: '100px',
@@ -329,7 +329,7 @@ const Home = () => {
                 />
                 <Box
                   component="img"
-                  src="/src/static/logo_uco.png"
+                  src="/logo_uco.png"
                   alt="Logo UCO"
                   sx={{
                     height: '100px',
