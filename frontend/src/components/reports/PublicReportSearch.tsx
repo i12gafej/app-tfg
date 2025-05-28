@@ -149,7 +149,7 @@ const PublicReportSearch = () => {
 
   const handleView = (report: ReportListItem) => {
     // Abrir el reporte en una nueva pestaña
-    window.open(`${API_URL}/static/uploads/reports/${report.report_id}/report_${report.report_id}_preview.html`, '_blank');
+    window.open(`/static/uploads/reports/${report.report_id}/report_${report.report_id}_preview.html`, '_blank');
   };
 
   return (
