@@ -58,10 +58,7 @@ def update_user(
 ):
     """
     Update a user.
-    """
-    if not current_user.admin:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    
+    """ 
     # Verificar si el usuario existe
     user = crud_user.get(db, user_id)
     if not user:
