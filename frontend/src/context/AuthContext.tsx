@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { useState, ReactNode, useCallback } from 'react';
 import { AuthContext, AuthContextType, User } from './auth.context';
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -6,16 +6,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
-  // Verificar si hay token al cargar la aplicación
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
-  }, []);
+  // Ya no verificamos localStorage al cargar la aplicación
+  // El usuario tendrá que autenticarse en cada sesión
 
   const login = useCallback((newToken: string, userData: User) => {
     try {
@@ -23,8 +15,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
       
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Ya no guardamos en localStorage
     } catch (error) {
       throw error;
     }
@@ -32,6 +23,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const logout = useCallback(() => {
     try {
+      // Limpiamos cualquier resto que pueda haber en localStorage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
@@ -42,11 +34,6 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       throw error;
     }
   }, []);
-
-  // Debug: monitorear cambios en el estado
-  useEffect(() => {
-    
-  }, [isAuthenticated, token]);
 
   const contextValue = {
     isAuthenticated,

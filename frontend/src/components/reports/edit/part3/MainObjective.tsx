@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useReport } from '@/context/ReportContext';
+import { useAuth } from '@/context/auth.context';
 import { materialTopicService, PriorityLevel, sortMaterialTopics } from '@/services/materialTopicService';
 import { getBackgroundColor } from '@/services/odsService';
 
@@ -20,6 +21,7 @@ const priorityOptions = [
 
 const MainObjective = () => {
   const { report, readOnly } = useReport();
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -29,10 +31,9 @@ const MainObjective = () => {
 
   useEffect(() => {
     const fetchMaterialTopics = async () => {
-      if (!report) return;
+      if (!report || !token) return;
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
         if (!token) {
           throw new Error('No se encontró el token de autenticación');
         }
@@ -50,7 +51,7 @@ const MainObjective = () => {
     };
 
     fetchMaterialTopics();
-  }, [report]);
+  }, [report, token]);
 
   useEffect(() => {
     setMainObjectiveValue(selectedTopic?.main_objective || '');
@@ -62,14 +63,13 @@ const MainObjective = () => {
   };
 
   const handleSave = async () => {
-    if (!selectedTopic) return;
+    if (!selectedTopic || !token) return;
 
     try {
       setLoading(true);
       setError(null);
       setSuccessMessage(null);
 
-      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No se encontró el token de autenticación');
       }

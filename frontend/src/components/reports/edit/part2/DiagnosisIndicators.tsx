@@ -122,11 +122,11 @@ const DiagnosisIndicators: React.FC = () => {
   };
 
   const handleUpdateIndicator = async () => {
-    if (!selectedIndicator) return;
+    if (!selectedIndicator || !token) return;
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      
       if (!token) {
         throw new Error('No se encontró el token de autenticación');
       }

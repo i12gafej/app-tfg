@@ -33,16 +33,11 @@ class AuthService {
   }
 
   logout(): void {
-    // Ya no manejamos localStorage aquí
+    // El logout ahora se maneja completamente en el AuthContext
   }
 
-  getCurrentToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.getCurrentToken();
-  }
+  // Eliminamos getCurrentToken e isAuthenticated ya que ahora
+  // toda la lógica de autenticación se maneja en el contexto
 }
 
 export const authService = new AuthService(); 

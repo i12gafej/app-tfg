@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { useEffect } from 'react';
 import AuthProvider from '@/context/AuthContext';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 
@@ -28,6 +29,14 @@ import PublicReports from '@/components/pages/Reports/index';
 import ForgottenPassword from '@/components/pages/ForgottenPassword/index';
 
 const App = () => {
+  // Limpiar tokens de autenticación existentes al cargar la aplicación
+  // para evitar errores 401 con tokens obsoletos
+  useEffect(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Mantenemos 'rememberedEmail' ya que es una funcionalidad diferente
+  }, []);
+
   return (
     <AuthProvider>
       <Box
