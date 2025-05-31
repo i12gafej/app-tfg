@@ -28,7 +28,7 @@ async def send_contact_info_to_server(data: ContactFormData):
     try:
         message = MessageSchema(
             subject=f"Nuevo mensaje de contacto: {data.subject}",
-            recipients=[settings.CONTACT_EMAIL],
+            recipients=[settings.MAIL_FROM],
             body=f"""
             <html>
                 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
