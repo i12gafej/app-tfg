@@ -47,6 +47,13 @@ class Settings(BaseModel):
     DATABASE_URL: str = os.getenv("DATABASE_URL")
     #BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+    MAIL_USERNAME: str = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD: str = os.getenv("MAIL_PASSWORD")
+    MAIL_FROM: str = os.getenv("MAIL_FROM")
+    MAIL_PORT: int = int(os.getenv("MAIL_PORT", "587"))
+    MAIL_SERVER: str = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    MAIL_FROM_NAME: str = os.getenv("MAIL_FROM_NAME", "Patrimonio 2030"),
+
     FRONTEND_URL: str = os.getenv("FRONTEND_URL")
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL")
 
