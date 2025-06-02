@@ -56,7 +56,7 @@ const Footer = () => {
         <Typography variant="body2" color="inherit" align="center" sx={{ mt: 3 }}>
           {'© '}
           {currentYear}
-          {' Sustainability App. Todos los derechos reservados.'}
+          {' Patrimonio2030 App. Todos los derechos reservados.'}
         </Typography>
       </Container>
     </Box>

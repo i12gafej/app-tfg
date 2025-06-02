@@ -1,1 +1,8 @@
 frontend/node_modules
+Caddyfile.localhost
+deploy-localhost.sh
+deploy-localhost.ps1
+docker-compose.localhost.yml
+docker-compose.yml
+README-localhost.md
+

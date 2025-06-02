@@ -51,7 +51,7 @@ const PARTS = [
     start: 13,
     end: 18,
     sections: [
-      'Contexto y periodo temporal',
+      'Texto de introducción del Plan de acción',
       'Objetivos de los Asuntos de Materialidad',
       'Objetivos de la Acción',
       'Impactos de las acciones',
@@ -106,14 +106,14 @@ interface ReportPermissionDialogProps {
 
 export const ReportPermissionDialog: React.FC<ReportPermissionDialogProps> = ({ open, onClose, report, token, onPermissionsUpdated }) => {
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [permissions, setPermissions] = useState<boolean[]>(Array(29).fill(false));
+  const [permissions, setPermissions] = useState<boolean[]>(Array(31).fill(false));
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (report && typeof report.permissions === 'number') {
-      setPermissions(decimalToBoolArray(report.permissions, 29));
+      setPermissions(decimalToBoolArray(report.permissions, 31));
     } else {
-      setPermissions(Array(29).fill(false));
+      setPermissions(Array(31).fill(false));
     }
   }, [report]);
 

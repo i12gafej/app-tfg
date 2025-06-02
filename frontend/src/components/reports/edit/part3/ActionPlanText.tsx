@@ -22,7 +22,7 @@ const ActionPlanText: React.FC<ActionPlanTextProps> = ({ readOnly = false }) => 
       Underline,
       Link
     ],
-    content: report?.action_plan_text || '<p>Describe aquí el texto de introducción del Plan de sostenibilidad...</p>',
+    content: report?.action_plan_text || '<p>Describe aquí el texto de introducción del Plan de acción...</p>',
     editable: !readOnly,
   });
 
@@ -41,9 +41,9 @@ const ActionPlanText: React.FC<ActionPlanTextProps> = ({ readOnly = false }) => 
 
       const content = editor.getHTML();
       await updateReport('action_plan_text', content);
-      setSuccessMessage('Texto de introducción del Plan de sostenibilidad guardado correctamente');
+      setSuccessMessage('Texto de introducción del Plan de acción guardado correctamente');
     } catch (err) {
-      console.error('Error al guardar el texto de introducción del Plan de sostenibilidad:', err);
+      console.error('Error al guardar el texto de introducción del Plan de acción:', err);
       setError('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
     }
   };
@@ -57,7 +57,7 @@ const ActionPlanText: React.FC<ActionPlanTextProps> = ({ readOnly = false }) => 
         mb: 2 
       }}>
         <Typography variant="h6">
-          Texto de introducción del Plan de sostenibilidad
+          Texto de introducción del Plan de acción
         </Typography>
         {!readOnly && (
           <Button
@@ -117,7 +117,7 @@ const ActionPlanText: React.FC<ActionPlanTextProps> = ({ readOnly = false }) => 
       )}
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-        Define el texto de introducción del Plan de sostenibilidad. Incluye información relevante sobre el marco temporal
+        Define el texto de introducción del Plan de acción. Incluye información relevante sobre el marco temporal
         y las circunstancias específicas que influyen en el plan.
       </Typography>
     </Box>

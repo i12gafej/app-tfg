@@ -40,7 +40,7 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'stakeholders' }) =
 
   useEffect(() => {
     if (report && isExternalAdvisor && typeof report.permissions === 'number') {
-      setPermissions(decimalToBoolArray(report.permissions, 29));
+      setPermissions(decimalToBoolArray(report.permissions, 31));
     }
   }, [report, isExternalAdvisor]);
 

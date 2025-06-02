@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/context/ReportContext';
@@ -12,15 +12,50 @@ interface ReportPart4Props {
 }
 
 const PART4_SECTIONS = [
-  { id: 'assign-responsibles', label: 'Asignar responsable a acciones' },
-  { id: 'monitoring-templates', label: 'Plantilla de seguimiento' },
+  { id: 'assign-responsibles', label: 'Asignar responsable a acciones', permissionIndex: 19 },
+  { id: 'monitoring-templates', label: 'Plantilla de seguimiento', permissionIndex: 20 },
 ];
 
+// Función para convertir decimal a array de booleanos
+function decimalToBoolArray(decimal: number, length: number): boolean[] {
+  const bin = decimal.toString(2).padStart(length, '0');
+  return bin.split('').map(x => x === '1');
+}
+
 const ReportPart4: React.FC<ReportPart4Props> = ({ section = 'monitoring-templates' }) => {
-  const { report } = useReport();
-  const [activeSection, setActiveSection] = useState(PART4_SECTIONS[0].id);
+  const { report, isExternalAdvisor } = useReport();
+  const [activeSection, setActiveSection] = useState('');
+  const [permissions, setPermissions] = useState<boolean[]>([]);
+  const [allowedSections, setAllowedSections] = useState(PART4_SECTIONS);
+
+  useEffect(() => {
+    if (report && isExternalAdvisor && typeof report.permissions === 'number') {
+      const perms = decimalToBoolArray(report.permissions, 31);
+      setPermissions(perms);
+      
+      // Filtrar secciones permitidas
+      const allowed = PART4_SECTIONS.filter(section => perms[section.permissionIndex]);
+      setAllowedSections(allowed);
+      
+      // Establecer la primera sección permitida como activa
+      if (allowed.length > 0) {
+        setActiveSection(allowed[0].id);
+      }
+    } else {
+      // Si no es asesor externo, mostrar todas las secciones
+      setAllowedSections(PART4_SECTIONS);
+      setActiveSection(PART4_SECTIONS[0].id);
+    }
+  }, [report, isExternalAdvisor]);
 
   const renderContent = () => {
+    // Verificar si la sección activa está permitida
+    const hasPermission = !isExternalAdvisor || allowedSections.some(section => section.id === activeSection);
+    
+    if (!hasPermission) {
+      return null;
+    }
+
     switch (activeSection) {
       case 'assign-responsibles':
         return <AssignResponsibles />;
@@ -38,7 +73,7 @@ const ReportPart4: React.FC<ReportPart4Props> = ({ section = 'monitoring-templat
       backgroundColor: 'background.paper' 
     }}>
       <ReportPartNavBar
-        items={PART4_SECTIONS}
+        items={allowedSections}
         activeItem={activeSection}
         onItemClick={setActiveSection}
         activeColor="#aeabd7"

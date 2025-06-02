@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
 import Mission from './part1/Mission';
@@ -9,18 +9,53 @@ import SustainabilityTeam from './part1/SustainabilityTeam';
 import { useReport } from '@/context/ReportContext';
 
 const PART1_SECTIONS = [
-  { id: 'mission', label: 'Misión' },
-  { id: 'vision', label: 'Visión' },
-  { id: 'values', label: 'Valores' },
-  { id: 'norms', label: 'Normativa' },
-  { id: 'sustainability-team', label: 'Equipo de Sostenibilidad' },
+  { id: 'mission', label: 'Misión', permissionIndex: 0 },
+  { id: 'vision', label: 'Visión', permissionIndex: 1 },
+  { id: 'values', label: 'Valores', permissionIndex: 2 },
+  { id: 'norms', label: 'Normativa', permissionIndex: 3 },
+  { id: 'sustainability-team', label: 'Equipo de Sostenibilidad', permissionIndex: 4 },
 ];
 
+// Función para convertir decimal a array de booleanos
+function decimalToBoolArray(decimal: number, length: number): boolean[] {
+  const bin = decimal.toString(2).padStart(length, '0');
+  return bin.split('').map(x => x === '1');
+}
+
 const ReportPart1 = () => {
-  const { report } = useReport();
-  const [activeSection, setActiveSection] = useState(PART1_SECTIONS[0].id);
+  const { report, isExternalAdvisor } = useReport();
+  const [activeSection, setActiveSection] = useState('');
+  const [permissions, setPermissions] = useState<boolean[]>([]);
+  const [allowedSections, setAllowedSections] = useState(PART1_SECTIONS);
+
+  useEffect(() => {
+    if (report && isExternalAdvisor && typeof report.permissions === 'number') {
+      const perms = decimalToBoolArray(report.permissions, 31);
+      setPermissions(perms);
+      
+      // Filtrar secciones permitidas
+      const allowed = PART1_SECTIONS.filter(section => perms[section.permissionIndex]);
+      setAllowedSections(allowed);
+      
+      // Establecer la primera sección permitida como activa
+      if (allowed.length > 0) {
+        setActiveSection(allowed[0].id);
+      }
+    } else {
+      // Si no es asesor externo, mostrar todas las secciones
+      setAllowedSections(PART1_SECTIONS);
+      setActiveSection(PART1_SECTIONS[0].id);
+    }
+  }, [report, isExternalAdvisor]);
 
   const renderContent = () => {
+    // Verificar si la sección activa está permitida
+    const hasPermission = !isExternalAdvisor || allowedSections.some(section => section.id === activeSection);
+    
+    if (!hasPermission) {
+      return null;
+    }
+
     switch (activeSection) {
       case 'mission':
         return <Mission />;
@@ -41,11 +76,10 @@ const ReportPart1 = () => {
     <Box sx={{ 
       display: 'flex', 
       height: '100%',
-      
       backgroundColor: 'background.paper' 
     }}>
       <ReportPartNavBar
-        items={PART1_SECTIONS}
+        items={allowedSections}
         activeItem={activeSection}
         onItemClick={setActiveSection}
         activeColor="#a2d2e9"
