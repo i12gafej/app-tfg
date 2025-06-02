@@ -1167,6 +1167,10 @@ async def get_all_report_bibliographies(
             detail=f"Error al obtener las referencias bibliográficas: {str(e)}"
         )
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @router.post("/reports/update/organization-chart/{report_id}")
 async def update_organization_chart(
     report_id: int,
@@ -1216,6 +1220,7 @@ async def update_organization_chart(
         return {"url": file_url}
 
     except Exception as e:
+        logger.error(f"Error al actualizar el organigrama: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/reports/upload/photos/{report_id}", response_model=ReportPhotoResponse)
@@ -1411,43 +1416,50 @@ async def get_organization_chart(
     Obtener la imagen del organigrama de una memoria.
     Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
     """
-    try:
-        # Verificar permisos
-        if not current_user.admin:
-            has_permission, error_message = check_user_permissions(
-                db=db,
-                user_id=current_user.id,
-                report_id=report_id
-            )
-            if not has_permission:
-                raise HTTPException(status_code=403, detail=error_message)
-
-        # Verificar que el reporte existe y tiene organigrama
-        report = crud_reports.get_report(db, report_id)
-        if not report or not report.org_chart_figure:
-            raise HTTPException(status_code=404, detail="Imagen no encontrada")
-
-        # La ruta en la base de datos es relativa (/static/uploads/organization_charts/filename)
-        # Necesitamos convertirla a ruta absoluta
-        relative_path = report.org_chart_figure.lstrip('/')
-        file_path = settings.BASE_DIR / relative_path
-
-        if not file_path.exists():
-            raise HTTPException(status_code=404, detail="Archivo no encontrado")
-
-        # Determinar el tipo MIME basado en la extensión del archivo
-        file_extension = file_path.suffix.lower()
-        mime_type = {
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.png': 'image/png'
-        }.get(file_extension, 'image/jpeg')
-
-        return FileResponse(
-            file_path,
-            media_type=mime_type,
-            filename=file_path.name
+    
+    # Verificar permisos
+    if not current_user.admin:
+        has_permission, error_message = check_user_permissions(
+            db=db,
+            user_id=current_user.id,
+            report_id=report_id
         )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail=error_message)
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # Verificar que el reporte existe y tiene organigrama
+    report = crud_reports.get_report(db, report_id)
+    if not report or not report.org_chart_figure:
+        raise HTTPException(status_code=404, detail="Imagen no encontrada")
+
+    # La ruta en la base de datos es relativa (/static/uploads/organization_charts/filename)
+    # Necesitamos convertirla a ruta absoluta
+    relative_path = report.org_chart_figure.lstrip('/')
+    file_path = settings.BASE_DIR / relative_path
+
+    # Verificar que el archivo existe físicamente
+    if not file_path.exists():
+        # Si el archivo no existe pero hay referencia en BD, limpiar la referencia
+        report.org_chart_figure = None
+        db.commit()
+        raise HTTPException(status_code=404, detail="Archivo no encontrado")
+
+    # Determinar el tipo MIME basado en la extensión del archivo
+    file_extension = file_path.suffix.lower()
+    mime_type = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png'
+    }.get(file_extension, 'image/jpeg')
+
+    response = FileResponse(
+        file_path,
+        media_type=mime_type,
+        filename=file_path.name
+    )
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+    

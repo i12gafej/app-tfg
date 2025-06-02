@@ -554,8 +554,13 @@ def upload_logo(db: Session, report: SustainabilityReport, content: bytes, file_
 
 def update_organization_chart(db: Session, report: SustainabilityReport, content: bytes) -> str:
     try:
+        # Determinar la extensión basándose en el contenido o usar JPG por defecto
+        # Por ahora mantenemos JPG, pero se podría mejorar para detectar el tipo real
         filename = f"report_{report.id}_organization_chart_{uuid.uuid4()}.jpg"
         file_path = settings.ORGANIZATION_CHART_DIR / filename
+
+        # Asegurar que el directorio existe
+        settings.ORGANIZATION_CHART_DIR.mkdir(parents=True, exist_ok=True)
 
         with open(file_path, "wb") as file_object:
             file_object.write(content)
@@ -565,6 +570,7 @@ def update_organization_chart(db: Session, report: SustainabilityReport, content
         db.commit()
         return file_url
     except Exception as e:
+        db.rollback()
         raise e
 
 def get_all_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse]:

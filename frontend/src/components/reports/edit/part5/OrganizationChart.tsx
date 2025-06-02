@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Paper, Button, Alert, CircularProgress } from '@mui/material';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import EditorMenuBar from '../common/EditorMenuBar';
 import Link from '@tiptap/extension-link'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useReport } from '@/context/ReportContext';
 import { useAuth } from '@/context/auth.context';
 import { reportService } from '@/services/reportServices';
@@ -17,6 +18,7 @@ const OrganizationChart = () => {
   const [loading, setLoading] = useState(false);
   const [orgChartUrl, setOrgChartUrl] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -32,28 +34,34 @@ const OrganizationChart = () => {
   });
 
   useEffect(() => {
-    const loadOrganizationChart = async () => {
-      if (!report?.id || !token) return;
-      try {
-        setLoading(true);
-        const url = await reportService.getOrganizationChart(report.id, token, Date.now());
-        if (orgChartUrl) {
-          URL.revokeObjectURL(orgChartUrl);
-        }
-        setOrgChartUrl(url);
-        if (editor && report.org_chart_text) {
-          editor.commands.setContent(report.org_chart_text);
-        }
-      } catch (err) {
-        console.error('Error al cargar el organigrama:', err);
-        setError('Error al cargar el organigrama');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (report?.id && token) {
+      loadOrganizationChart();
+    }
+  }, [report?.id, token]);
 
-    loadOrganizationChart();
-  }, [report?.id, token, editor]);
+  useEffect(() => {
+    if (editor && report?.org_chart_text) {
+      editor.commands.setContent(report.org_chart_text);
+    }
+  }, [editor, report?.org_chart_text]);
+
+  const loadOrganizationChart = async () => {
+    if (!report?.id || !token) return;
+    
+    try {
+      const url = await reportService.getOrganizationChart(report.id, token, Date.now());
+      if (orgChartUrl) {
+        URL.revokeObjectURL(orgChartUrl);
+      }
+      setOrgChartUrl(url);
+    } catch (error: any) {
+      // Si es un 404, simplemente no hay organigrama, no es un error
+      if (error.response?.status !== 404) {
+        console.error('Error al cargar el organigrama:', error);
+      }
+      setOrgChartUrl(null);
+    }
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -65,18 +73,21 @@ const OrganizationChart = () => {
       setLoading(true);
 
       await reportService.updateOrganizationChart(report.id, file, token);
-      // Recarga el organigrama con timestamp único
-      const url = await reportService.getOrganizationChart(report.id, token, Date.now());
-      if (orgChartUrl) {
-        URL.revokeObjectURL(orgChartUrl);
-      }
-      setOrgChartUrl(url);
+      await loadOrganizationChart(); // Recargar el organigrama
       setSuccessMessage('Organigrama subido correctamente');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error al subir el organigrama:', err);
-      setError('Error al subir el organigrama. Por favor, inténtalo de nuevo.');
+      if (err.response?.status === 413) {
+        setError('El archivo es demasiado grande. El tamaño máximo permitido es 10MB.');
+      } else {
+        setError('Error al subir el organigrama. Por favor, inténtalo de nuevo.');
+      }
     } finally {
       setLoading(false);
+      // Limpiar el input para permitir subir el mismo archivo de nuevo
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -85,6 +96,7 @@ const OrganizationChart = () => {
 
     try {
       setError(null);
+      setSuccessMessage(null);
       setLoading(true);
       const content = editor.getHTML();
       await updateReport('org_chart_text', content);
@@ -98,13 +110,16 @@ const OrganizationChart = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // Limpiar mensajes después de 5 segundos
+  useEffect(() => {
+    if (successMessage || error) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, error]);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -144,9 +159,10 @@ const OrganizationChart = () => {
             <Button
               variant="contained"
               onClick={handleSaveText}
+              disabled={loading}
               sx={{ mt: 1 }}
             >
-              Guardar Texto
+              {loading ? 'Guardando...' : 'Guardar Texto'}
             </Button>
           )}
         </Box>
@@ -154,21 +170,31 @@ const OrganizationChart = () => {
         {!readOnly && (
           <Box sx={{ mb: 2 }}>
             <input
+              ref={fileInputRef}
               accept="image/*"
               style={{ display: 'none' }}
-              id="org-chart-upload"
               type="file"
               onChange={handleFileUpload}
             />
-            <label htmlFor="org-chart-upload">
-              <Button variant="contained" component="span">
-                Subir Organigrama
-              </Button>
-            </label>
+            <Button 
+              variant="contained" 
+              component="span"
+              startIcon={<CloudUploadIcon />}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loading}
+            >
+              {loading ? 'Subiendo...' : 'Subir Organigrama'}
+            </Button>
           </Box>
         )}
 
-        {orgChartUrl ? (
+        {loading && (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        )}
+
+        {!loading && orgChartUrl ? (
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'center',
@@ -176,12 +202,14 @@ const OrganizationChart = () => {
               maxWidth: '100%',
               height: 'auto',
               maxHeight: '600px',
-              objectFit: 'contain'
+              objectFit: 'contain',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }
           }}>
             <img src={orgChartUrl} alt="Organigrama" />
           </Box>
-        ) : (
+        ) : !loading && (
           <Typography variant="body1" color="text.secondary" align="center">
             No hay organigrama subido
           </Typography>
