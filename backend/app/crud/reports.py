@@ -1005,7 +1005,6 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for so in template_objectives:
             new_so = SpecificObjective(
                 description=so.description,
-                execution_time=so.execution_time,
                 responsible=so.responsible,
                 material_topic_id=material_topic_id_map[so.material_topic_id]
             )
@@ -1032,6 +1031,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             new_action = Action(
                 description=action.description,
                 difficulty=action.difficulty,
+                execution_time=action.execution_time,
                 ods_id=action.ods_id,
                 specific_objective_id=objective_id_map[action.specific_objective_id]
             )

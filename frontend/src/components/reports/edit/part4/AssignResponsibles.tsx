@@ -33,7 +33,6 @@ interface SpecificObjective {
   description: string;
   responsible?: string;
   material_topic_id: number;
-  execution_time?: string;
 }
 
 const AssignResponsibles = () => {
