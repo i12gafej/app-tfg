@@ -8,8 +8,6 @@
 
 {% set ordered_dimensions = ['PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'] %}
 
-{{ intro_text | safe }}
-
 {% for dimension in ordered_dimensions %}
     {% for item in data['material_topics'] if item['dimension'] == dimension %}
         <a id="diagnosis-{{ item['topic']|replace(' ', '-') }}"></a>

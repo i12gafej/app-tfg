@@ -75,19 +75,7 @@ const Contact = () => {
                 formulario de consulta o póngase en contacto mediante email
                 o redes sociales:
               </Typography>
-              <Typography 
-                component="a" 
-                href="mailto:contacto@patrimonio2030.org"
-                sx={{ 
-                  color: theme.palette.primary.main,
-                  textDecoration: 'none',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                contacto@patrimonio2030.org
-              </Typography>
+              
             </Box>
           </Grid>
           

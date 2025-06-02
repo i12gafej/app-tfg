@@ -309,7 +309,7 @@ const Home = () => {
                   mb: 4
                 }}
               >
-                Esta iniciativa es fruto de la colaboración entre el Club de Córdoba para la UNESCO (CUCO) y la Universidad de Córdoba (UCO), uniendo esfuerzos para promover la sostenibilidad del patrimonio cultural. Juntos, trabajamos para crear herramientas innovadoras que faciliten la gestión y conservación sostenible de nuestro patrimonio.
+                Esta iniciativa es fruto de la colaboración entre CUCO Club de Córdoba para la UNESCO  y la Universidad de Córdoba (UCO), uniendo esfuerzos para promover la sostenibilidad del patrimonio cultural. Juntos, trabajamos para crear herramientas innovadoras que faciliten la gestión y conservación sostenible de nuestro patrimonio.
               </Typography>
               <Box sx={{ 
                 display: 'flex', 

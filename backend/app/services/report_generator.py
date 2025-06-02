@@ -146,7 +146,7 @@ class ReportGenerator:
         template = self.template_env.get_template("topics_table_template.html")
         return template.render(data=data, show_priority=show_priority)
 
-    def generate_diagnosis_tables(self, data: Dict[str, Any], show_indicators: bool = True, introduction_text: str = None) -> str:
+    def generate_diagnosis_tables(self, data: Dict[str, Any], show_indicators: bool = True, introduction_text: str = "") -> str:
         """
         Genera las tablas de indicadores de diagnóstico.
         Returns:

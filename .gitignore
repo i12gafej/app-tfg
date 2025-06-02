@@ -5,4 +5,5 @@ deploy-localhost.ps1
 docker-compose.localhost.yml
 docker-compose.yml
 README-localhost.md
+backend/static
 

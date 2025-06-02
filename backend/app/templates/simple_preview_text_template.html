@@ -9,7 +9,7 @@
             word-wrap: break-word;
         }
     </style>
-    <div class="simple-title">{{ data.title }}</div>
+    <div class="simple-title">{{ data.title | safe}}</div>
     <div class="simple-content">{{ data.text | safe }}</div>
 </div>
 
