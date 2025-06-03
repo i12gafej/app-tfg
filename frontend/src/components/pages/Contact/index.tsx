@@ -72,8 +72,7 @@ const Contact = () => {
                 }}
               >
                 Si tiene dudas o desea algo específico, rellene nuestro
-                formulario de consulta o póngase en contacto mediante email
-                o redes sociales:
+                formulario de consulta:
               </Typography>
               
             </Box>
