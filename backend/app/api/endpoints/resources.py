@@ -4,7 +4,6 @@ from typing import List, Optional
 from app.schemas.resources import HeritageResourceCreate, HeritageResource, ResourceSearch, HeritageResourceUpdate
 from app.schemas.auth import TokenData
 from app.api.deps import get_db, get_current_user
-from app.services.user import check_user_permissions
 from app.crud import resources as crud_resources
 from sqlalchemy import or_
 from app.models.models import HeritageResource as HeritageResourceModel, SustainabilityReport as SustainabilityReportModel
@@ -170,6 +169,7 @@ async def delete_resource(
             detail=f"Error al eliminar el recurso: {str(e)}"
         )
 
+
 @router.get("/resources/get-all/reports/{resource_id}", response_model=dict)
 async def get_all_reports_by_resource(
     resource_id: int,
@@ -180,15 +180,6 @@ async def get_all_reports_by_resource(
     Obtener todos los reportes de un recurso patrimonial.
     """
     try:
-        if not current_user.admin:
-            has_permission, error_message = check_user_permissions(
-                db=db,
-                user_id=current_user.id,
-                report_id=resource_id,
-                require_manager=True
-            )
-            if not has_permission:
-                raise HTTPException(status_code=403, detail=error_message)
         result = crud_resources.get_all_reports_by_resource(db, resource_id)
         return {
             "items": result,
