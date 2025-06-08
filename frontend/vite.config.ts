@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
 
   
-  const API_URL = env.VITE_API_URL || 'http://localhost:8000';
+  const API_URL = env.VITE_API_URL || 'http://backend:8000';
 
 
   console.log('Vite Config - Mode:', mode)
