@@ -207,8 +207,7 @@ const Dashboard: React.FC = () => {
                   lineHeight: 1.8,
                   textAlign: 'right',
                   color: 'text.primary',
-                  pr: { xs: 0, md: 4 },
-                  mt: { xs: 4, md: 8 }
+                  pr: { xs: 0, md: 4 }
                 }}
               >
                 Como miembro del equipo de sostenibilidad, tu rol es fundamental: liderar el diagnóstico, 

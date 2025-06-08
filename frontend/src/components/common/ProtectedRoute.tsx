@@ -13,10 +13,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [previousPath, setPreviousPath] = useState<string | null>(null);
 
   useEffect(() => {
-    // Si la ruta cambia, actualizamos previousPath
+    
     setPreviousPath(location.pathname);
     
-    // Damos tiempo para que el estado se actualice
+    
     const timer = setTimeout(() => {
       setIsChecking(false);
     }, 100);
@@ -24,13 +24,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  // Si estamos verificando o venimos de /login, esperamos
+  
   if (isChecking || previousPath === '/login') {
    
     return null;
   }
 
-  // Si no hay autenticación, redirigimos a login
+  
   if (!token || !isAuthenticated) {
     
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;

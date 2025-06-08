@@ -18,15 +18,15 @@ const MonitoringTemplates = () => {
       setError(null);
       const blob = await monitoringService.getMonitoringTemplate(report.id, token);
       
-      // Crear URL del blob
+      
       const url = window.URL.createObjectURL(blob);
       
-      // Crear un elemento <a> temporal para la descarga
+      
       const link = document.createElement('a');
       link.href = url;
       link.download = 'plantilla_seguimiento.docx';
       
-      // Simular clic y limpiar
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

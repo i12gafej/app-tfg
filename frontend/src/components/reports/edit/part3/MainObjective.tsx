@@ -38,9 +38,9 @@ const MainObjective = () => {
           throw new Error('No se encontró el token de autenticación');
         }
         const topics = await materialTopicService.getAllByReport(report.id, token);
-        console.log('Material Topics antes de ordenar:', topics);
+        
         const sortedTopics = sortMaterialTopics<MaterialTopic>(topics);
-        console.log('Material Topics después de ordenar:', sortedTopics);
+        
         setMaterialTopics(sortedTopics);
       } catch (error) {
         console.error('Error al cargar asuntos de materialidad:', error);
@@ -80,7 +80,7 @@ const MainObjective = () => {
         token
       );
 
-      // Actualizar el topic en la lista local
+      
       setMaterialTopics(prevTopics =>
         prevTopics.map(topic =>
           topic.id === updatedTopic.id ? { ...topic, main_objective: updatedTopic.main_objective, priority: updatedTopic.priority } : topic

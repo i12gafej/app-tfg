@@ -85,7 +85,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
 
   useEffect(() => {
     handleSearch();
-    // eslint-disable-next-line
+    
   }, []);
 
   const handleSearch = async () => {
@@ -109,23 +109,13 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
           searchParams.state = filters.state;
         }
       }
-
-      console.log('Parámetros de búsqueda:', searchParams);
-
       const response = await reportService.searchReports(searchParams, token || '');
-      
-      console.log('Respuesta del servidor:', response);
-      
       setAllReports(response.items);
       setTotalReports(response.total);
-      
-      // Aplicar paginación inicial
       const start = 0;
       const end = rowsPerPage;
       const visibleReports = response.items.slice(start, end);
       setReports(visibleReports);
-      
-      console.log('Reportes visibles:', visibleReports);
     } catch (err) {
       console.error('Error en la búsqueda:', err);
       setError('Error al buscar memorias. Por favor, inténtalo de nuevo.');
@@ -134,7 +124,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
     }
   };
 
-  // Efecto para manejar la paginación cuando cambian los parámetros
+  
   useEffect(() => {
     if (allReports.length > 0) {
       const sortedReports = sortReports(allReports, sortField, sortOrder);
@@ -152,7 +142,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newRowsPerPage = parseInt(event.target.value, 10);
     setRowsPerPage(newRowsPerPage);
-    setPage(0); // Resetear a la primera página cuando cambia el número de filas por página
+    setPage(0); 
   };
 
   const handleFilterChange = (field: keyof SearchFilters, value: string | number | undefined) => {
@@ -172,10 +162,10 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
-      // Si se hace clic en la misma columna, cambiar el orden
+      
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
-      // Si se hace clic en una nueva columna, ordenar ascendente por defecto
+      
       setSortField(field);
       setSortOrder('asc');
     }
@@ -208,7 +198,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   };
 
   const handleReportCreated = (newReport: SustainabilityReport) => {
-    handleSearch(); // Actualizar la lista de memorias
+    handleSearch(); 
   };
 
   const handleEdit = (report: SustainabilityReport) => {
@@ -222,7 +212,7 @@ const ReportSearch = ({ onSearch }: ReportSearchProps) => {
   };
 
   const handleEditDialogSave = () => {
-    handleSearch(); // Actualizar la lista después de guardar
+    handleSearch(); 
   };
 
   const handleView = (report: SustainabilityReport) => {

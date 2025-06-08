@@ -78,7 +78,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
   }, []);
 
   useEffect(() => {
-    // Obtener el rol del usuario para este reporte
+    
     const fetchUserRole = async () => {
       try {
         const response = await stakeholderService.getUserRole(reportId, token || '');
@@ -97,7 +97,7 @@ const StakeholderSearch: React.FC<StakeholderSearchProps> = ({ reportId, readOnl
     if (token) {
       handleSearch();
     }
-    // eslint-disable-next-line
+    
   }, [token, reportId]);
 
   const handleSearch = async () => {

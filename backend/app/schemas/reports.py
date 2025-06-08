@@ -160,7 +160,7 @@ class SustainabilityReport(SustainabilityReportBase):
 
 class UserReportRole(BaseModel):
     report_id: int
-    role: str  # 'manager', 'consultant', 'external_advisor'
+    role: str  
     organization: str
 
     class Config:

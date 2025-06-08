@@ -29,11 +29,11 @@ const colors = {
     contrastText: '#FFFFFF',
   },
   dimensions: {
-    people: '#D3DDF2',    // ODS 1-5
-    planet: '#C1DDB0',    // ODS 6,12,13,14,15
-    prosperity: '#F9E4C7', // ODS 7-11
-    peace: '#C6E6F5',     // ODS 16
-    alliance: '#DCCAE4',   // ODS 17
+    people: '#D3DDF2',    
+    planet: '#C1DDB0',    
+    prosperity: '#F9E4C7', 
+    peace: '#C6E6F5',     
+    alliance: '#DCCAE4',   
   },
   background: {
     default: '#F6F1C5',

@@ -30,7 +30,7 @@ const Surveys = () => {
 
   const handleSurveyComplete = () => {
     handleCloseDialog();
-    // Aquí podrías actualizar la lista de encuestas si es necesario
+    
   };
 
   return (

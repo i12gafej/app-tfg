@@ -53,7 +53,7 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Añadir opciones predefinidas para tipologías
+  
   const predefinedTypologies = [
     'Patrimonio cultural',
     'Patrimonio verde urbano',
@@ -73,13 +73,13 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
         social_networks: resource.social_networks
       });
 
-      // Inicializar tipologías
+      
       const typologyFields = Array.isArray(resource.typology) 
         ? resource.typology.map(value => ({ id: nextId.current++, value }))
         : [{ id: nextId.current++, value: resource.typology }];
       setTypologies(typologyFields);
 
-      // Inicializar redes sociales
+      
       const networkFields = Array.isArray(resource.social_networks) && resource.social_networks.length > 0
         ? resource.social_networks.map(network => ({
             id: nextId.current++,
@@ -140,13 +140,13 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
       setLoading(true);
       setError(null);
 
-      // Validar que todos los campos requeridos estén completos
+      
       if (!formData.name) {
         setError('Por favor, complete el nombre del recurso.');
         return;
       }
 
-      // Validar que todas las tipologías estén completas
+      
       const validTypologies = typologies.filter(t => t.value.trim() !== '');
       if (validTypologies.length === 0) {
         setError('Por favor, complete al menos una tipología.');
@@ -164,7 +164,7 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
           }))
       };
 
-      // Si no hay redes sociales válidas, enviar un array vacío
+      
       if (resourceData.social_networks.length === 0) {
         resourceData.social_networks = [];
       }
@@ -237,9 +237,7 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
                 value={formData.phone_number}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('phone_number', e.target.value)}
               />
-            </Grid>
-
-            {/* Sección de Tipologías */}
+            </Grid> 
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Tipologías
@@ -280,7 +278,7 @@ const ResourceEditDialog = ({ open, onClose, onSave, resource }: ResourceEditDia
               </Button>
             </Grid>
 
-            {/* Sección de Redes Sociales */}
+            
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Redes Sociales

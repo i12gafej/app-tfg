@@ -4,13 +4,13 @@ import { useEffect } from 'react';
 import AuthProvider from '@/context/AuthContext';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 
-// Layout
+
 import NavbarController from '@/components/layout/NavbarController';
 import Footer from '@/components/layout/Footer';
 import ScrollToTop from '@/components/common/ScrollToTop';
 import MainContent from '@/components/layout/MainContent';
 
-// Pages
+
 import Home from '@/components/pages/Home/index';
 import Surveys from '@/components/pages/Surveys/index';
 import Contact from '@/components/pages/Contact/index';
@@ -29,12 +29,12 @@ import PublicReports from '@/components/pages/Reports/index';
 import ForgottenPassword from '@/components/pages/ForgottenPassword/index';
 
 const App = () => {
-  // Limpiar tokens de autenticación existentes al cargar la aplicación
-  // para evitar errores 401 con tokens obsoletos
+  
+  
   useEffect(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    // Mantenemos 'rememberedEmail' ya que es una funcionalidad diferente
+    
   }, []);
 
   return (

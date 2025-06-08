@@ -49,7 +49,7 @@ const AssignResponsibles = () => {
   const [responsibles, setResponsibles] = useState<string[]>([]);
   const [selectedResponsible, setSelectedResponsible] = useState<string>('');
 
-  // Cargar asuntos relevantes al montar el componente
+  
   useEffect(() => {
     const fetchData = async () => {
       if (!token || !report?.id) return;
@@ -68,7 +68,7 @@ const AssignResponsibles = () => {
     fetchData();
   }, [token, report]);
 
-  // Cargar responsables al montar el componente
+  
   useEffect(() => {
     const fetchResponsibles = async () => {
       if (!token || !report?.id) return;
@@ -82,7 +82,7 @@ const AssignResponsibles = () => {
     fetchResponsibles();
   }, [token, report]);
 
-  // Cargar objetivos específicos cuando se selecciona un asunto de materialidad
+  
   const loadObjectives = async (topicId: number) => {
     if (!token) return;
     try {
@@ -97,13 +97,13 @@ const AssignResponsibles = () => {
     }
   };
 
-  // Manejar la selección de un asunto de materialidad
+  
   const handleTopicSelect = (topic: MaterialTopic) => {
     setSelectedTopic(topic);
     loadObjectives(topic.id);
   };
 
-  // Abrir diálogo para asignar responsable
+  
   const handleOpenDialog = (objective: SpecificObjective) => {
     setSelectedObjective(objective);
     setResponsible(objective.responsible || '');
@@ -111,12 +111,12 @@ const AssignResponsibles = () => {
     setDialogOpen(true);
   };
 
-  // Guardar responsable
+  
   const handleSaveResponsible = async () => {
     if (!selectedObjective || !token) return;
     try {
       setLoading(true);
-      // Preferencia: si hay texto en el campo, ese es el responsable
+      
       const finalResponsible = responsible.trim() !== '' ? responsible : selectedResponsible;
       await actionPlanService.updateSpecificObjective(
         selectedObjective.id,
@@ -126,7 +126,7 @@ const AssignResponsibles = () => {
       if (selectedTopic) {
         await loadObjectives(selectedTopic.id);
       }
-      // Siempre recargar responsables después de guardar
+      
       const resps = await actionPlanService.getAllResponsibles(report!.id, token);
       setResponsibles(resps);
       setDialogOpen(false);
@@ -158,7 +158,6 @@ const AssignResponsibles = () => {
       )}
 
       <Grid container spacing={2}>
-        {/* Panel de Asuntos de Materialidad */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2, height: '500px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" gutterBottom>
@@ -206,8 +205,6 @@ const AssignResponsibles = () => {
             </List>
           </Paper>
         </Grid>
-
-        {/* Panel de Objetivos Específicos */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2, height: '500px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" gutterBottom>
@@ -280,8 +277,6 @@ const AssignResponsibles = () => {
           </Paper>
         </Grid>
       </Grid>
-
-      {/* Diálogo para asignar responsable */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>Asignar Responsable</DialogTitle>
         <DialogContent>

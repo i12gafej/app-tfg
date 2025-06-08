@@ -58,7 +58,7 @@ const SpecificObjectives = () => {
   const [selectedObjective, setSelectedObjective] = useState<SpecificObjective | null>(null);
   const [actions, setActions] = useState<Action[]>([]);
 
-  // Estados para gestión de acciones
+  
   const [openCreateActionDialog, setOpenCreateActionDialog] = useState(false);
   const [openEditActionDialog, setOpenEditActionDialog] = useState(false);
   const [openDeleteActionDialog, setOpenDeleteActionDialog] = useState(false);
@@ -76,7 +76,7 @@ const SpecificObjectives = () => {
     execution_time: ''
   });
 
-  // Estados para gestión de indicadores
+  
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
   const [indicators, setIndicators] = useState<PerformanceIndicator[]>([]);
   const [openCreateIndicatorDialog, setOpenCreateIndicatorDialog] = useState(false);
@@ -91,7 +91,7 @@ const SpecificObjectives = () => {
     response: ''
   });
 
-  // Estados para gestión de indicadores
+  
   const [openEditIndicatorDialog, setOpenEditIndicatorDialog] = useState(false);
   const [openDeleteIndicatorDialog, setOpenDeleteIndicatorDialog] = useState(false);
   const [indicatorToEdit, setIndicatorToEdit] = useState<PerformanceIndicator | null>(null);
@@ -106,11 +106,11 @@ const SpecificObjectives = () => {
     response: ''
   });
 
-  // Estados para opción personalizada de tiempo de ejecución
+  
   const [customExecutionTime, setCustomExecutionTime] = useState('');
   const [editCustomExecutionTime, setEditCustomExecutionTime] = useState('');
 
-  // Cargar asuntos relevantes al montar el componente
+  
   useEffect(() => {
     const fetchMaterialTopics = async () => {
       if (!report || !token) return;
@@ -129,7 +129,7 @@ const SpecificObjectives = () => {
     fetchMaterialTopics();
   }, [report, token]);
 
-  // Cargar objetivos específicos cuando se selecciona un asunto de materialidad
+  
   useEffect(() => {
     const fetchSpecificObjectives = async () => {
       if (!selectedTopic || !token) return;
@@ -148,7 +148,7 @@ const SpecificObjectives = () => {
     fetchSpecificObjectives();
   }, [selectedTopic, token]);
 
-  // Cargar acciones cuando se selecciona un objetivo específico
+  
   useEffect(() => {
     const fetchActions = async () => {
       if (!token || !selectedObjective) {
@@ -170,7 +170,7 @@ const SpecificObjectives = () => {
     fetchActions();
   }, [selectedObjective, token]);
 
-  // Cargar indicadores cuando se selecciona una acción
+  
   useEffect(() => {
     const fetchIndicators = async () => {
       if (!token || !selectedAction) {
@@ -284,7 +284,7 @@ const SpecificObjectives = () => {
     }
   };
 
-  // Funciones para gestionar acciones
+  
   const handleCreateAction = async () => {
     if (!token || !selectedObjective) return;
     try {
@@ -431,7 +431,7 @@ const SpecificObjectives = () => {
         response: ''
       });
 
-      // Cargar los indicadores actualizados
+      
       if (selectedAction) {
         const updatedIndicators = await actionPlanService.getPerformanceIndicators(
           selectedAction.id,
@@ -1125,7 +1125,7 @@ const SpecificObjectives = () => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewIndicator({ 
                 ...newIndicator, 
                 type: e.target.value as 'quantitative' | 'qualitative',
-                // Resetear los campos específicos al cambiar el tipo
+                
                 numeric_response: e.target.value === 'quantitative' ? 0 : undefined,
                 unit: e.target.value === 'quantitative' ? '' : undefined,
                 response: e.target.value === 'qualitative' ? '' : undefined

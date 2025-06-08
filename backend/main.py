@@ -18,16 +18,16 @@ origins = ["http://localhost:3000"]
 if os.getenv("FRONTEND_URL"):
     origins.append(os.getenv("FRONTEND_URL"))
 
-# Configurar CORS
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Frontend URL
+    allow_origins=origins,  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Incluir routers
+
 app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["auth"])
 app.include_router(users.router, prefix=settings.API_V1_STR, tags=["users"]) 
 app.include_router(resources.router, prefix=settings.API_V1_STR, tags=["resources"])
@@ -44,5 +44,5 @@ app.include_router(monitoring.router, prefix=settings.API_V1_STR, tags=["monitor
 app.include_router(backup.router, prefix=settings.API_V1_STR, tags=["backup"])
 app.include_router(email.router, prefix=settings.API_V1_STR, tags=["email"])
 
-# Montar archivos estáticos con acceso público
+
 app.mount("/static", StaticFiles(directory="static", html=True), name="static")

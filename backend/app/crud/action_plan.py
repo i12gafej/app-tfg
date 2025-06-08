@@ -2,8 +2,6 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from decimal import Decimal
 from sqlalchemy import func
-from collections import Counter
-from app.crud import material_topics as crud_material_topics
 
 from app.models.models import (
     SpecificObjective, Action, PerformanceIndicator,
@@ -18,8 +16,11 @@ from app.schemas.action_plan import (
     PerformanceIndicatorQuantitativeData, PerformanceIndicatorQualitativeData
 )
 
-# Funciones para Objetivos Específicos
+
 def get_all_specific_objectives(db: Session, material_topic_id: int) -> List[SpecificObjective]:
+    """
+    Obtiene todos los objetivos específicos de un asunto de materialidad.
+    """
     try:
         return db.query(SpecificObjective).filter(
             SpecificObjective.material_topic_id == material_topic_id
@@ -28,6 +29,9 @@ def get_all_specific_objectives(db: Session, material_topic_id: int) -> List[Spe
         raise e
 
 def get_all_specific_objectives_by_report(db: Session, report_id: int) -> List[SpecificObjective]:
+    """
+    Obtiene todos los objetivos específicos de una memoria.
+    """
     try:
         return db.query(SpecificObjective).join(
             MaterialTopic,
@@ -39,11 +43,14 @@ def get_all_specific_objectives_by_report(db: Session, report_id: int) -> List[S
         raise e
 
 def get_all_responsibles(db: Session, report_id: int) -> List[str]:
+    """
+    Obtiene todos los responsables de una memoria.
+    """
     try:
-        # Obtener todos los ids de asuntos relevantes de la memoria
+        
         topic_ids = db.query(MaterialTopic.id).filter(MaterialTopic.report_id == report_id).all()
         topic_ids = [tid[0] for tid in topic_ids]
-        # Obtener responsables únicos de los objetivos específicos de esos asuntos
+        
         responsibles = db.query(SpecificObjective.responsible)\
             .filter(SpecificObjective.material_topic_id.in_(topic_ids))\
             .filter(SpecificObjective.responsible.isnot(None))\
@@ -58,6 +65,9 @@ def create_specific_objective(
     db: Session,
     objective: SpecificObjectiveCreate
 ) -> SpecificObjective:
+    """
+    Crea un objetivo específico.
+    """
     try:
         db_objective = SpecificObjective(**objective.model_dump())
         db.add(db_objective)
@@ -72,6 +82,9 @@ def update_specific_objective(
     objective_id: int,
     objective_update: SpecificObjectiveUpdate
 ) -> Optional[SpecificObjective]:
+    """
+    Actualiza un objetivo específico.
+    """
     try:
         db_objective = db.query(SpecificObjective).filter(
             SpecificObjective.id == objective_id
@@ -91,6 +104,9 @@ def update_specific_objective(
         raise e
 
 def delete_specific_objective(db: Session, objective_id: int) -> bool:
+    """
+    Elimina un objetivo específico.
+    """
     try:
         db_objective = db.query(SpecificObjective).filter(
             SpecificObjective.id == objective_id
@@ -105,8 +121,11 @@ def delete_specific_objective(db: Session, objective_id: int) -> bool:
     except Exception as e:
         raise e
 
-# Funciones para Acciones
+
 def get_all_actions(db: Session, specific_objective_id: int) -> List[Action]:
+    """
+    Obtiene todas las acciones de un objetivo específico.
+    """
     try:
         return db.query(Action).filter(
             Action.specific_objective_id == specific_objective_id
@@ -115,6 +134,9 @@ def get_all_actions(db: Session, specific_objective_id: int) -> List[Action]:
         raise e
 
 def get_all_actions_by_report(db: Session, report_id: int) -> List[Action]:
+    """
+    Obtiene todas las acciones de una memoria.
+    """
     try:
         return db.query(Action).join(
             SpecificObjective,
@@ -129,12 +151,18 @@ def get_all_actions_by_report(db: Session, report_id: int) -> List[Action]:
         raise e
 
 def get_action_by_id(db: Session, action_id: int) -> Optional[Action]:
+    """
+    Obtiene una acción por su ID.
+    """
     try:
         return db.query(Action).filter(Action.id == action_id).first()
     except Exception as e:
         raise e
 
 def get_report_id_by_action(db: Session, action_id: int) -> int:
+    """
+    Obtiene el ID de una memoria a partir de una acción.
+    """
     try:
         material_topic = db.query(MaterialTopic
         ).join(SpecificObjective, MaterialTopic.id == SpecificObjective.material_topic_id
@@ -147,6 +175,9 @@ def get_report_id_by_action(db: Session, action_id: int) -> int:
         raise e
 
 def create_action(db: Session, action: ActionCreate) -> Action:
+    """
+    Crea una acción.
+    """
     try:
         db_action = Action(**action.model_dump())
         db.add(db_action)
@@ -161,6 +192,9 @@ def update_action(
     action_id: int,
     action_update: ActionUpdate
 ) -> Optional[Action]:
+    """
+    Actualiza una acción.
+    """
     try:
         db_action = db.query(Action).filter(Action.id == action_id).first()
         
@@ -178,6 +212,9 @@ def update_action(
         raise e
 
 def delete_action(db: Session, action_id: int) -> bool:
+    """
+    Elimina una acción.
+    """
     try:
         db_action = db.query(Action).filter(Action.id == action_id).first()
         
@@ -190,8 +227,11 @@ def delete_action(db: Session, action_id: int) -> bool:
     except Exception as e:
         raise e
 
-# Funciones para Indicadores de Rendimiento
+
 def get_all_performance_indicators(db: Session, action_id: int) -> List[PerformanceIndicator]:
+    """
+    Obtiene todos los indicadores de rendimiento de una acción.
+    """
     try:
         indicators = db.query(PerformanceIndicator).filter(
             PerformanceIndicator.action_id == action_id
@@ -216,6 +256,9 @@ def get_all_performance_indicators(db: Session, action_id: int) -> List[Performa
         raise e
 
 def get_all_performance_indicators_by_report(db: Session, report_id: int) -> List[PerformanceIndicatorSchema]:
+    """
+    Obtiene todos los indicadores de rendimiento de una memoria.
+    """
     try:
         indicators = db.query(PerformanceIndicator).join(
             Action,
@@ -231,7 +274,7 @@ def get_all_performance_indicators_by_report(db: Session, report_id: int) -> Lis
         ).all()
 
         result = []
-        # Cargar datos específicos para cada indicador
+        
         for indicator in indicators:
             indicator_dict = {
                 "id": indicator.id,
@@ -267,6 +310,9 @@ def get_all_performance_indicators_by_report(db: Session, report_id: int) -> Lis
         raise e
 
 def get_action_plan_by_report(db: Session, report_id: int) -> dict:
+    """
+    Obtiene el plan de acción de una memoria.
+    """
     try:
         return {
             "specific_objectives": get_all_specific_objectives_by_report(db, report_id),
@@ -280,8 +326,11 @@ def create_performance_indicator(
     db: Session,
     indicator: PerformanceIndicatorCreate
 ) -> PerformanceIndicator:
+    """
+    Crea un indicador de rendimiento.
+    """
     try:
-        # Crear el indicador base
+        
         db_indicator = PerformanceIndicator(
             name=indicator.name,
             human_resources=indicator.human_resources,
@@ -292,7 +341,7 @@ def create_performance_indicator(
         db.add(db_indicator)
         db.flush()
 
-        # Crear datos específicos según el tipo
+        
         if indicator.type == 'quantitative' and indicator.numeric_response is not None:
             db_quantitative = PerformanceIndicatorQuantitative(
                 performance_indicator_id=db_indicator.id,
@@ -318,6 +367,9 @@ def update_performance_indicator(
     indicator_id: int,
     indicator_update: PerformanceIndicatorUpdate
 ) -> Optional[PerformanceIndicator]:
+    """
+    Actualiza un indicador de rendimiento.
+    """
     try:
         db_indicator = db.query(PerformanceIndicator).filter(
             PerformanceIndicator.id == indicator_id
@@ -328,14 +380,14 @@ def update_performance_indicator(
 
         update_data = indicator_update.model_dump(exclude_unset=True)
         
-        # Actualizar campos básicos
+        
         for field in ['name', 'human_resources', 'material_resources', 'type']:
             if field in update_data:
                 setattr(db_indicator, field, update_data[field])
 
-        # Si el tipo ha cambiado, eliminar datos antiguos
+        
         if 'type' in update_data and update_data['type'] != db_indicator.type:
-            # Eliminar datos antiguos
+            
             if db_indicator.type == 'quantitative':
                 db.query(PerformanceIndicatorQuantitative).filter(
                     PerformanceIndicatorQuantitative.performance_indicator_id == indicator_id
@@ -348,9 +400,9 @@ def update_performance_indicator(
             db_indicator.type = update_data['type']
             db.commit()
 
-        # Actualizar o crear datos específicos según el tipo
+        
         if db_indicator.type == 'quantitative':
-            # Eliminar datos cualitativos si existen
+            
             db.query(PerformanceIndicatorQualitative).filter(
                 PerformanceIndicatorQualitative.performance_indicator_id == indicator_id
             ).delete()
@@ -374,7 +426,7 @@ def update_performance_indicator(
                     db.add(db_quantitative)
 
         elif db_indicator.type == 'qualitative':
-            # Eliminar datos cuantitativos si existen
+            
             db.query(PerformanceIndicatorQuantitative).filter(
                 PerformanceIndicatorQuantitative.performance_indicator_id == indicator_id
             ).delete()
@@ -400,6 +452,9 @@ def update_performance_indicator(
         raise e
 
 def delete_performance_indicator(db: Session, indicator_id: int) -> bool:
+    """
+    Elimina un indicador de rendimiento.
+    """
     try:
         db_indicator = db.query(PerformanceIndicator).filter(
             PerformanceIndicator.id == indicator_id
@@ -416,10 +471,10 @@ def delete_performance_indicator(db: Session, indicator_id: int) -> bool:
 
 def get_all_action_main_impacts(db: Session, report_id: int) -> List[dict]:
     """
-    Obtiene el recuento de impactos principales de todas las acciones de un reporte.
+    Obtiene el recuento de impactos principales de todas las acciones de una memoria.
     """
     try:
-        # Obtener todas las acciones del reporte a través de las relaciones
+        
         actions = db.query(Action.ods_id, ODS.name.label('ods_name'))\
             .join(SpecificObjective, Action.specific_objective_id == SpecificObjective.id)\
             .join(MaterialTopic, SpecificObjective.material_topic_id == MaterialTopic.id)\
@@ -428,14 +483,14 @@ def get_all_action_main_impacts(db: Session, report_id: int) -> List[dict]:
             .filter(Action.ods_id.isnot(None))\
             .all()
 
-        # Contar las ocurrencias de cada ODS y mantener el nombre
+        
         ods_counts = {}
         for ods_id, ods_name in actions:
             if ods_id not in ods_counts:
                 ods_counts[ods_id] = {"ods_id": ods_id, "ods_name": ods_name, "count": 0}
             ods_counts[ods_id]["count"] += 1
         
-        # Convertir a lista de diccionarios
+        
         result = list(ods_counts.values())
         
         return result

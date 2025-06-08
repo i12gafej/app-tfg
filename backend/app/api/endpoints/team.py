@@ -14,7 +14,6 @@ from app.schemas.team import (
     TeamMemberUpdate
 )
 from app.schemas.auth import TokenData
-from app.models.models import User as UserModel
 from app.crud import team as crud_team
 from app.crud import user as crud_user
 
@@ -98,9 +97,6 @@ def search_team_members(
             detail=str(e)
         )
 
-import logging
-
-logger = logging.getLogger(__name__)
 
 @router.post("/team/create/member", response_model=TeamMemberBase)
 def create_team_member(
@@ -113,18 +109,17 @@ def create_team_member(
     Primero crea el usuario y luego crea el miembro del equipo asociado.
     """
     try:
-        # Verificar si el email ya está en uso
-        logger.info(f"Intentando crear miembro del equipo con email: {data.email}")
-        logger.info(f"Datos recibidos: {data}")
+        
+        
         existing_user = crud_user.get_by_email(db, email=data.email)
         if existing_user:
             raise HTTPException(
                 status_code=400,
                 detail="El correo electrónico ya está en uso"
             )
-        logger.info(f"Usuario no encontrado, creando usuario...")
+        
 
-        # Crear el usuario usando el crud de usuarios
+        
         user_create = UserCreate(
             name=data.name,
             surname=data.surname,
@@ -133,11 +128,10 @@ def create_team_member(
             admin=False,
             phone_number=data.phone_number
         )
-        logger.info(f"Usuario creado: {user_create}")   
+        
         user = crud_user.create(db, user_create)
-        logger.info(f"Usuario creado: {user}")
 
-        # Mapear el rol del formulario al tipo de miembro
+        
         role_mapping = {
             'Gestor de Sostenibilidad': 'manager',
             'Consultor': 'consultant',
@@ -149,17 +143,16 @@ def create_team_member(
                 status_code=400,
                 detail="Rol no válido"
             )
-        logger.info(f"Rol mapeado: {member_type}")
-        # Crear el miembro del equipo usando el esquema TeamMemberCreate
+        
+        
         team_member_data = TeamMemberCreate(
             report_id=data.report_id,
             user_id=user.id,
             role=member_type,
             organization=data.organization
         )
-        logger.info(f"Miembro del equipo creado: {team_member_data}")
+        
         team_member = crud_team.create_team_member(db, team_member_data)
-        logger.info(f"Miembro del equipo creado: {team_member}")
 
         return team_member
     except Exception as e:
@@ -179,7 +172,7 @@ def update_team_member(
     Actualizar un miembro del equipo de sostenibilidad.
     """
     try:
-        # Mapear el rol del formulario al tipo de miembro
+        
         role_mapping = {
             'Gestor de Sostenibilidad': 'manager',
             'Consultor': 'consultant',
@@ -192,7 +185,7 @@ def update_team_member(
                 detail="Rol no válido"
             )
 
-        # Actualizar el miembro
+        
         update_dict = {
             "role": member_type,
             "organization": update_data.organization
@@ -233,7 +226,7 @@ def assign_team_member(
     Asignar un usuario existente como miembro del equipo de sostenibilidad.
     """
     try:
-        # Mapear el rol del formulario al tipo de miembro
+        
         role_mapping = {
             'Gestor de Sostenibilidad': 'manager',
             'Consultor': 'consultant',
@@ -246,7 +239,7 @@ def assign_team_member(
                 detail="Rol no válido"
             )
 
-        # Crear el miembro del equipo
+        
         team_member_data = TeamMemberCreate(
             report_id=data.report_id,
             user_id=data.user_id,

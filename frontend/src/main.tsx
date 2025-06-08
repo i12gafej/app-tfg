@@ -6,7 +6,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material'
 import App from './App'
 import theme from './theme'
 
-// Configurar las future flags de React Router
+
 const router = {
   future: {
     v7_startTransition: true,

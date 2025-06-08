@@ -46,7 +46,7 @@ const TeamMemberEditDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reiniciar estados cuando cambie el miembro o se abra el diálogo
+  
   useEffect(() => {
     if (open) {
       setRole(member.role);

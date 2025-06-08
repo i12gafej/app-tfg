@@ -9,17 +9,12 @@ import {
   CircularProgress,
   Alert,
   Typography,
-  alpha,
   TablePagination
 } from '@mui/material';
 import { 
   Search as SearchIcon, 
   Close as CloseIcon,
   FilterList as FilterListIcon,
-  Visibility as VisibilityIcon,
-  DragIndicator as DragIndicatorIcon,
-  ArrowUpward as ArrowUpwardIcon,
-  ArrowDownward as ArrowDownwardIcon
 } from '@mui/icons-material';
 import { useState, useEffect, ChangeEvent, useMemo } from 'react';
 import { useAuth } from '@/context/auth.context';
@@ -66,7 +61,7 @@ const UserSearchPanel = ({
   const [sortField, setSortField] = useState<'name' | 'surname' | 'email'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  // Buscar usuarios disponibles
+  
   const handleSearch = async () => {
     try {
       setIsLoading(true);
@@ -87,7 +82,7 @@ const UserSearchPanel = ({
     }
   };
 
-  // Handler de ordenación
+  
   const handleSort = (field: 'name' | 'surname' | 'email') => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -97,14 +92,14 @@ const UserSearchPanel = ({
     }
   };
 
-  // Filtrar usuarios que NO están en ningún miembro del equipo
+  
   const availableUsers = useMemo(() => {
     return allUsers.filter(user =>
       !teamMembers.some(member => member.user_id === parseInt(user.id))
     );
   }, [allUsers, teamMembers]);
 
-  // Ordenar todos los usuarios disponibles antes de paginar
+  
   const sortedUsers = useMemo(() => {
     return [...availableUsers].sort((a, b) => {
       const aValue = a[sortField]?.toLowerCase() || '';
@@ -117,7 +112,7 @@ const UserSearchPanel = ({
     });
   }, [availableUsers, sortField, sortOrder]);
 
-  // Paginar
+  
   const paginatedUsers = useMemo(() => {
     const start = page * rowsPerPage;
     return sortedUsers.slice(start, start + rowsPerPage);
@@ -146,7 +141,7 @@ const UserSearchPanel = ({
     }
   }, [searchTerm]);
 
-  // Escuchar el evento de eliminación de miembro
+  
   useEffect(() => {
     const handleTeamMemberDeleted = () => {
       handleSearch();
@@ -158,7 +153,7 @@ const UserSearchPanel = ({
     };
   }, []);
 
-  // Escuchar el evento de asignación de miembro
+  
   useEffect(() => {
     const handleTeamMemberAssigned = () => {
       handleSearch();
@@ -370,7 +365,7 @@ const UserSearchPanel = ({
             onAssign={() => {
               setIsAssignDialogOpen(false);
               setSelectedUser(null);
-              handleSearch(); // Refrescar la lista después de asignar
+              handleSearch(); 
             }}
           />
         )}

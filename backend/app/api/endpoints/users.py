@@ -1,12 +1,9 @@
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Body, status
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 
 from app.api.deps import get_db, get_current_user
 from app.schemas.user import User, UserSearch, UserUpdate, UserCreate, ChangePasswordRequest
 from app.schemas.auth import TokenData
-from app.models.models import User as UserModel
 from app.crud import user as crud_user
 
 router = APIRouter()
@@ -27,8 +24,6 @@ def search_users(
             detail="No tienes permisos para realizar esta acción"
         )
     try:
-
-        # Usar la función search del crud
         users = crud_user.search(
             db=db,
             search_term=search_params.search_term,
@@ -39,7 +34,7 @@ def search_users(
         )
         total = len(users)
 
-        # Convertir los usuarios a esquema Pydantic
+        
         users_schema = [User.from_orm(user) for user in users]
 
         return {
@@ -57,22 +52,22 @@ def update_user(
     db: Session = Depends(get_db)
 ):
     """
-    Update a user.
+    Actualiza un usuario.
     """ 
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    # Verificar si el usuario existe
+    
     user = crud_user.get(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Verificar si el email ya está en uso por otro usuario
+    
     if user_data.email and user_data.email != user.email:
         existing_user = crud_user.get_by_email(db, email=user_data.email)
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already registered")
     try:
-        # Actualizar el usuario
+        
         updated_user = crud_user.update(db, user, user_data)
         return updated_user
     except Exception as e:
@@ -90,12 +85,12 @@ def delete_user(
     if not current_user.admin:
         raise HTTPException(status_code=403, detail="No tienes permisos para realizar esta acción")
     try:
-        # Verificar si el usuario existe
+        
         user = crud_user.get(db, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-        # Eliminar el usuario
+        
         crud_user.delete(db, user)
         
         return {"message": "Usuario eliminado correctamente"} 
@@ -108,14 +103,17 @@ def create_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Verificar permisos de administrador
+    """
+    Crea un nuevo usuario.
+    """
+    
     if not current_user.admin:
         raise HTTPException(
             status_code=403,
             detail="No tienes permisos para crear usuarios"
         )
     
-    # Verificar si el email ya existe
+    
     user = crud_user.get_by_email(db, email=user_data.email)
     if user:
         raise HTTPException(
@@ -124,7 +122,7 @@ def create_user(
         )
     
     try:
-        # Crear el nuevo usuario
+        
         new_user = crud_user.create(db, user_data)
         return new_user
     except Exception as e:
@@ -142,7 +140,7 @@ def change_password(
     """
     Cambiar la contraseña de un usuario autenticado.
     """
-    # Solo el propio usuario o un admin pueden cambiar la contraseña
+    
     if not (current_user.admin or current_user.id == data.user_id):
         raise HTTPException(status_code=403, detail="No tienes permisos para cambiar esta contraseña")
     try:
@@ -156,6 +154,9 @@ def change_password(
 
 @router.get("/users/verify-reset-token/{token}")
 async def verify_reset_token(token: str, db: Session = Depends(get_db)):
+    """
+    Verifica un token de restablecimiento de contraseña.
+    """
     user = crud_user.verify_reset_token(db, token)
     if not user:
         raise HTTPException(status_code=400, detail="Token inválido o expirado")
@@ -167,7 +168,9 @@ async def reset_password(
     new_password: str = Body(...),
     db: Session = Depends(get_db)
 ):
-
+    """
+    Restablece la contraseña de un usuario.
+    """
     try:
         user = crud_user.reset_password(db, token, new_password)
         if not user:

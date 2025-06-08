@@ -47,7 +47,7 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
     social_networks: []
   });
 
-  // Usar useRef para mantener un contador único de IDs
+  
   const nextId = useRef(1);
   
   const [typologies, setTypologies] = useState<TypologyField[]>([]);
@@ -55,14 +55,14 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Añadir opciones predefinidas para tipologías
+  
   const predefinedTypologies = [
     'Patrimonio cultural',
     'Patrimonio verde urbano',
     'Patrimonio casa-patio'
   ];
 
-  // Inicializar con un campo vacío cuando se abre el diálogo
+  
   useEffect(() => {
     if (open) {
       nextId.current = 1;
@@ -106,7 +106,7 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
     }
     setTypologies(prev => {
       const newTypologies = prev.filter(t => t.id !== id);
-      // Si eliminamos el último campo y hay campos vacíos antes, mover el último campo vacío al final
+      
       if (newTypologies.some(t => t.value.trim() === '')) {
         const emptyTypology = newTypologies.find(t => t.value.trim() === '');
         if (emptyTypology) {
@@ -133,20 +133,20 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
       setLoading(true);
       setError(null);
 
-      // Validar que todos los campos requeridos estén completos
+      
       if (!formData.name) {
         setError('Por favor, complete el nombre del recurso.');
         return;
       }
 
-      // Validar que todas las tipologías estén completas
+      
       const validTypologies = typologies.filter(t => t.value.trim() !== '');
       if (validTypologies.length === 0) {
         setError('Por favor, complete al menos una tipología.');
         return;
       }
 
-      // Preparar los datos para enviar
+      
       const resourceData = {
         ...formData,
         typology: validTypologies.map(t => t.value),
@@ -158,7 +158,7 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
           }))
       };
 
-      // Si no hay redes sociales válidas, enviar un array vacío
+      
       if (resourceData.social_networks.length === 0) {
         resourceData.social_networks = [];
       }
@@ -250,7 +250,7 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
               />
             </Grid>
 
-            {/* Sección de Tipologías */}
+            
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Tipologías
@@ -291,7 +291,7 @@ const ResourceCreateDialog = ({ open, onClose, onResourceCreated, token }: Resou
               </Button>
             </Grid>
 
-            {/* Sección de Redes Sociales */}
+            
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Redes Sociales

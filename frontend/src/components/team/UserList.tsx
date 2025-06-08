@@ -7,18 +7,14 @@ import {
   TableHead, 
   TableRow, 
   Paper,
-  IconButton,
   CircularProgress,
   Typography,
-  alpha,
-  TablePagination,
+  alpha, 
   TableSortLabel,
   Button
 } from '@mui/material';
 import { 
   Visibility as VisibilityIcon,
-  Edit as EditIcon,
-  DeleteOutline as DeleteOutlineIcon,
   DragIndicator as DragIndicatorIcon
 } from '@mui/icons-material';
 

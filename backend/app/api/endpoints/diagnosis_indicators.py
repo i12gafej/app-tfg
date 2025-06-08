@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from decimal import Decimal
 
 from app.crud import diagnosis_indicators as crud
 from app.schemas.diagnosis_indicators import (
@@ -22,6 +21,9 @@ def get_all_by_report(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    """
+    Obtiene todos los indicadores de un reporte
+    """
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
             db=db,
@@ -43,7 +45,9 @@ def create_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
-    # Obtener el report_id a través del material_topic_id
+    """
+    Crea un indicador de diagnóstico
+    """
     material_topic = db.query(MaterialTopic).filter(MaterialTopic.id == indicator.material_topic_id).first()
     if not material_topic:
         raise HTTPException(status_code=404, detail="Asunto de materialidad no encontrado")
@@ -89,6 +93,9 @@ def update_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    """
+    Actualiza un indicador de diagnóstico
+    """
     report_id = crud.get_report_id_by_indicator(db, indicator_id)
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
@@ -111,6 +118,9 @@ def delete_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    """
+    Elimina un indicador de diagnóstico
+    """
     report_id = crud.get_report_id_by_indicator(db, indicator_id)
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
@@ -136,6 +146,9 @@ def get_indicator(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    """
+    Obtiene un indicador de diagnóstico
+    """
     report_id = crud.get_report_id_by_indicator(db, indicator_id)
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(

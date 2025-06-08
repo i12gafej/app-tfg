@@ -1,0 +1,101 @@
+# Configuración para desarrollo en localhost
+localhost:8080 {
+    # Proxy para acceso a archivos estáticos del backend (con prefijo /api/)
+    handle /api/static/* {
+        reverse_proxy backend_localhost:8000
+    }
+    
+    # Proxy para acceso a archivos estáticos del backend (directo)
+    handle /static/* {
+        reverse_proxy backend_localhost:8000
+    }
+    
+    # Proxy para las rutas de la API al backend
+    handle /api/* {
+        reverse_proxy backend_localhost:8000
+    }
+    
+    # Proxy para el resto de rutas al frontend
+    handle {
+        reverse_proxy frontend_localhost:80
+    }
+    
+    # Configuración básica para desarrollo
+    header {
+        # CORS para desarrollo
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        
+        # Headers básicos de seguridad
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        
+        # Eliminar headers que revelan información del servidor
+        -Server
+        -X-Powered-By
+    }
+    
+    # Configuración de compresión
+    encode gzip
+    
+    # Logs para desarrollo (más verbosos)
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 10mb
+            roll_keep 2
+        }
+        level INFO
+    }
+}
+
+# Configuración alternativa para localhost sin puerto específico
+localhost {
+    # Proxy para acceso a archivos estáticos del backend (con prefijo /api/)
+    handle /api/static/* {
+        reverse_proxy backend_localhost:8000
+    }
+    
+    # Proxy para acceso a archivos estáticos del backend (directo)
+    handle /static/* {
+        reverse_proxy backend_localhost:8000
+    }
+    
+    # Proxy para las rutas de la API al backend
+    handle /api/* {
+        reverse_proxy backend_localhost:8000
+    }
+    
+    # Proxy para el resto de rutas al frontend
+    handle {
+        reverse_proxy frontend_localhost:80
+    }
+    
+    # Configuración básica para desarrollo
+    header {
+        # CORS para desarrollo
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        
+        # Headers básicos de seguridad
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        
+        # Eliminar headers que revelan información del servidor
+        -Server
+        -X-Powered-By
+    }
+    
+    # Configuración de compresión
+    encode gzip
+    
+    # Logs para desarrollo
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 10mb
+            roll_keep 2
+        }
+        level INFO
+    }
+} 

@@ -35,7 +35,7 @@ const UserEditDialog = ({ open, onClose, onSave, user }: UserEditDialogProps) =>
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Inicializar el formulario cuando se abre el diálogo
+  
   useEffect(() => {
     if (user && open) {
       setFormData({

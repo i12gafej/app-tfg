@@ -36,10 +36,10 @@ const EditorMenuBar: React.FC<MenuBarProps> = ({ editor }) => {
     const selectedText = editor.state.doc.textBetween(from, to, ' ');
 
     if (selectedText) {
-      // Si hay texto seleccionado, verificar si contiene una URL
+      
       const detectedUrl = detectUrlInText(selectedText);
       if (detectedUrl) {
-        // Si se detecta una URL, convertir todo el texto seleccionado en un enlace
+        
         editor
           .chain()
           .focus()
@@ -50,7 +50,7 @@ const EditorMenuBar: React.FC<MenuBarProps> = ({ editor }) => {
       }
     }
 
-    // Si no hay texto seleccionado o no se detectó una URL, mostrar el diálogo
+    
     setLinkUrl('');
     setIsLinkDialogOpen(true);
   };

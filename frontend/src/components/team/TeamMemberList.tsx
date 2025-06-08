@@ -7,11 +7,9 @@ import {
   TableHead, 
   TableRow, 
   Paper,
-  IconButton,
   CircularProgress,
   Typography,
-  alpha,
-  TablePagination,
+  alpha, 
   TableSortLabel
 } from '@mui/material';
 import { Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
@@ -58,7 +56,7 @@ const TeamMemberList = ({
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'user',
     drop: (item: User) => {
-      console.log('Dropped user:', item);
+      
       setDroppedUser(item);
       setIsAssignOpen(true);
     },
@@ -92,7 +90,7 @@ const TeamMemberList = ({
     setIsDeleteOpen(false);
     setSelectedMember(null);
     onUpdate();
-    // Disparar evento para actualizar ambas listas
+    
     const event = new Event('teamMemberDeleted');
     window.dispatchEvent(event);
   };

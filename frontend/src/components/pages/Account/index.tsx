@@ -12,7 +12,7 @@ const ProfilePage = () => {
   const token = auth?.token;
   const navigate = useNavigate();
 
-  // Estado para el diálogo de edición
+  
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState<Account>({
     name: user?.name || '',
@@ -54,7 +54,7 @@ const ProfilePage = () => {
     try {
       const updated = await userService.updateAccount(user?.id.toString() || '', form, token);
       setSuccess('Datos actualizados correctamente');
-      // Actualizar el contexto de usuario si es posible
+      
       if (auth?.login && auth?.user) {
         auth.login(token, { ...auth.user, ...form });
       }

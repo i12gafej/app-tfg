@@ -33,40 +33,40 @@ def get_monitoring_template(
         }
         return level_map.get(level, "No definida")
     try:
-        # 1. Obtener todos los asuntos relevantes
+        
         material_topics = crud_material_topics.get_all_by_report(db, report_id)
         if not material_topics:
             raise HTTPException(status_code=404, detail="No se encontraron asuntos de materialidad")
         
 
-        # 2. Obtener todos los ODS
+        
         all_ods = crud_ods.get_all_ods(db)
         ods_dict = {ods.id: ods for ods in all_ods}
 
-        # 3. Preparar la estructura de datos para la plantilla
+        
         template_data = []
         for topic in material_topics:
             
-            # Obtener objetivos específicos
+            
             objectives = crud_action_plan.get_all_specific_objectives(db, topic.id)
             topic_objectives = []
 
             for objective in objectives:
-                # Obtener acciones
+                
                 actions = crud_action_plan.get_all_actions(db, objective.id)
                 objective_actions = []
 
                 for action in actions:
-                    # Obtener indicadores
+                    
                     indicators = crud_action_plan.get_all_performance_indicators(db, action.id)
                     
-                    # Obtener información del ODS si existe
+                    
                     ods_info = ""
                     if action.ods_id and action.ods_id in ods_dict:
                         ods = ods_dict[action.ods_id]
                         ods_info = f"ODS {ods.id}: {ods.name}"
                     
-                    # Crear diccionario de acción
+                    
                     action_dict = {
                         "id": action.id,
                         "description": action.description,
@@ -84,7 +84,7 @@ def get_monitoring_template(
                     }
                     objective_actions.append(action_dict)
 
-                # Crear diccionario de objetivo
+                
                 objective_dict = {
                     "id": objective.id,
                     "description": objective.description,
@@ -93,7 +93,7 @@ def get_monitoring_template(
                 }
                 topic_objectives.append(objective_dict)
 
-            # Crear diccionario de asunto de materialidad
+            
             topic_dict = {
                 "id": topic.id,
                 "name": topic.name,
@@ -103,15 +103,15 @@ def get_monitoring_template(
             }
             template_data.append(topic_dict)
 
-        # 4. Generar el documento DOCX
+        
         doc = generate_monitoring_template(template_data)
         
-        # 5. Guardar el documento en un buffer
+        
         docx_buffer = io.BytesIO()
         doc.save(docx_buffer)
         docx_buffer.seek(0)
 
-        # 6. Devolver el archivo como respuesta
+        
         return StreamingResponse(
             docx_buffer,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

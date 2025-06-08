@@ -61,7 +61,7 @@ const PublicReportSearch = () => {
       setError(null);
       
       const searchParams: ReportSearchParams = {
-        state: 'Published' // Solo mostrar memorias publicadas
+        state: 'Published' 
       };
 
       if (searchTerm) {
@@ -78,7 +78,7 @@ const PublicReportSearch = () => {
       
       setAllReports(response.items);
       
-      // Aplicar paginación inicial
+      
       const start = 0;
       const end = rowsPerPage;
       const visibleReports = response.items.slice(start, end);
@@ -148,7 +148,7 @@ const PublicReportSearch = () => {
   };
 
   const handleView = (report: ReportListItem) => {
-    // Abrir el reporte en una nueva pestaña
+    
     window.open(`/static/uploads/reports/${report.report_id}/report_${report.report_id}_preview.html`, '_blank');
   };
 

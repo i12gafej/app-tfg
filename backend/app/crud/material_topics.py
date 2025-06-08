@@ -5,6 +5,9 @@ from app.models.models import MaterialTopic
 from app.schemas.material_topics import MaterialTopicCreate, MaterialTopicUpdate
 
 def create(db: Session, material_topic_data: MaterialTopicCreate) -> MaterialTopic:
+    """
+    Crea un asunto de materialidad.
+    """
     try:
         db_material_topic = MaterialTopic(
             name=material_topic_data.name,
@@ -25,23 +28,31 @@ def create(db: Session, material_topic_data: MaterialTopicCreate) -> MaterialTop
         raise e
 
 def get(db: Session, material_topic_id: int) -> Optional[MaterialTopic]:
+    """
+    Obtiene un asunto de materialidad.
+    """
     try:
         return db.query(MaterialTopic).filter(MaterialTopic.id == material_topic_id).first()
     except Exception as e:
         return None
 
 def get_by_name(db: Session, name: str) -> Optional[MaterialTopic]:
+    """
+    Obtiene un asunto de materialidad por su nombre.
+    """
     try:
         return db.query(MaterialTopic).filter(MaterialTopic.name == name).first()
     except Exception as e:
         return None
 
 def update(db: Session, db_material_topic: MaterialTopic, material_topic_data: MaterialTopicUpdate) -> MaterialTopic:
+    """
+    Actualiza un asunto de materialidad.
+    """
     try:
         if hasattr(material_topic_data, 'dict'):
             material_topic_data = material_topic_data.dict(exclude_unset=True)
 
-        # Si goal_ods_id se actualiza a None, goal_number debe ser None
         if (
             ('goal_ods_id' in material_topic_data and material_topic_data['goal_ods_id'] is None)
         ):
@@ -60,6 +71,9 @@ def update(db: Session, db_material_topic: MaterialTopic, material_topic_data: M
         raise e
 
 def delete(db: Session, db_material_topic: MaterialTopic) -> None:
+    """
+    Elimina un asunto de materialidad.
+    """
     try:
         db.delete(db_material_topic)
         db.commit()
@@ -72,6 +86,9 @@ def search(
     name: Optional[str] = None,
     report_id: Optional[int] = None,
 ) -> tuple[List[MaterialTopic], int]:
+    """
+    Busca asuntos de materialidad.
+    """
     try:
         query = db.query(MaterialTopic)
 
@@ -97,6 +114,9 @@ def search(
         raise
 
 def get_all_by_report(db: Session, report_id: int) -> List[MaterialTopic]:
+    """
+    Obtiene todos los asuntos de materialidad de una memoria.
+    """
     try:
         return db.query(MaterialTopic).filter(MaterialTopic.report_id == report_id).all()
     except Exception as e:

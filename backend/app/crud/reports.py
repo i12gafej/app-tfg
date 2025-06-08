@@ -71,16 +71,19 @@ from app.services.report_generator import ReportGenerator
 settings = Settings()
 
 def create_report(db: Session, report: SustainabilityReportCreate) -> SustainabilityReport:
+    """
+    Crea una memoria de sostenibilidad.
+    """
     try:
-        # Crear la nueva memoria
+        
         db_report = SustainabilityReport(**report.dict(exclude={'template_report_id'}))
-        # Inicializar textos por defecto
+        
         initialize_default_text(db_report)
         db.add(db_report)
         db.commit()
         db.refresh(db_report)
 
-        # Si se proporcionó un ID de plantilla, transferir los datos
+        
         if report.template_report_id:
             transfer_report_data(db, report.template_report_id, db_report.id)
             transfer_report_images(db, report.template_report_id, db_report.id)
@@ -107,14 +110,14 @@ def search_reports(
     try:
         query = db.query(SustainabilityReport)
         
-        # Si no es admin, filtrar por memorias donde el usuario tiene rol
+        
         if not is_admin and user_id:
             query = query.join(
                 SustainabilityTeamMember,
                 SustainabilityReport.id == SustainabilityTeamMember.report_id
             ).filter(SustainabilityTeamMember.user_id == user_id)
         
-        # Aplicar filtros
+        
         if heritage_resource_ids:
             query = query.filter(SustainabilityReport.heritage_resource_id.in_(heritage_resource_ids))
         
@@ -131,10 +134,10 @@ def search_reports(
                 )
             )
         
-        # Obtener todos los resultados sin paginación
+        
         reports = query.all()
         
-        # Obtener roles de usuario para cada memoria
+        
         reports_with_roles = []
         for report in reports:
             report_with_role = SustainabilityReportWithRole.from_orm(report)
@@ -182,12 +185,18 @@ def get_reports_by_resource_ids(
         raise e
 
 def get_report(db: Session, report_id: int) -> Optional[SustainabilityReport]:
+    """
+    Obtiene una memoria de sostenibilidad.
+    """
     try:
         return db.query(SustainabilityReport).filter(SustainabilityReport.id == report_id).first()
     except Exception as e:
         raise e
 
 def get_all_report_templates(db: Session) -> List[tuple]:
+    """
+    Obtiene todas las memorias de sostenibilidad.
+    """
     try:
         return db.query(
             HeritageResource.id,
@@ -204,6 +213,9 @@ def get_all_report_templates(db: Session) -> List[tuple]:
         raise e
 
 def update_report(db: Session, report_id: int, report: SustainabilityReportUpdate) -> Optional[SustainabilityReport]:
+    """
+    Actualiza una memoria.
+    """
     try:
         db_report = get_report(db, report_id)
         if db_report:
@@ -216,25 +228,28 @@ def update_report(db: Session, report_id: int, report: SustainabilityReportUpdat
         raise e
 
 def delete_report(db: Session, report_id: int) -> bool:
+    """
+    Elimina una memoria.
+    """
     try:
         db_report = get_report(db, report_id)
         if not db_report:
             return False
 
-        # 1. Eliminar archivos físicos
-        # Eliminar cover_photo
+        
+        
         if db_report.cover_photo:
             cover_path = settings.BASE_DIR / db_report.cover_photo.lstrip('/')
             if cover_path.exists():
                 cover_path.unlink()
 
-        # Eliminar org_chart_figure
+        
         if db_report.org_chart_figure:
             org_chart_path = settings.BASE_DIR / db_report.org_chart_figure.lstrip('/')
             if org_chart_path.exists():
                 org_chart_path.unlink()
 
-        # Eliminar logos
+        
         logos = db.query(ReportLogoModel).filter(ReportLogoModel.report_id == report_id).all()
         for logo in logos:
             logo_path = settings.BASE_DIR / logo.logo.lstrip('/')
@@ -242,7 +257,7 @@ def delete_report(db: Session, report_id: int) -> bool:
                 logo_path.unlink()
             db.delete(logo)
 
-        # Eliminar fotos
+        
         photos = db.query(ReportPhotoModel).filter(ReportPhotoModel.report_id == report_id).all()
         for photo in photos:
             photo_path = settings.BASE_DIR / photo.photo.lstrip('/')
@@ -250,7 +265,7 @@ def delete_report(db: Session, report_id: int) -> bool:
                 photo_path.unlink()
             db.delete(photo)
 
-        # Eliminar directorio del reporte si existe
+        
         report_dir = settings.REPORTS_DIR / str(report_id)
         if report_dir.exists():
             shutil.rmtree(report_dir)
@@ -268,8 +283,8 @@ logger = logging.getLogger(__name__)
 
 def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
     """
-    Obtiene todos los datos de un reporte de sostenibilidad, incluyendo:
-    - Datos básicos del reporte
+    Obtiene todos los datos de una memoria de sostenibilidad, incluyendo:
+    - Datos básicos de la memoria
     - Imágenes y archivos
     - Normativas
     - Logos
@@ -285,14 +300,14 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
     - Miembros del equipo
     """
     try:
-        # Obtener el reporte base
+        
         report = get_report(db, report_id)
         if not report:
-            raise Exception("Reporte no encontrado")
+            raise Exception("Memoria no encontrada")
 
-        # Obtener el recurso patrimonial
+        
         resource = crud_resources.get(db, report.heritage_resource_id)
-        # Obtener todas las tablas relacionadas
+        
         norms = get_all_norms_by_report_id(db, report_id)
         logos = get_all_report_logos(db, report_id)
         agreements = get_all_report_agreements(db, report_id)
@@ -309,17 +324,17 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
         dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, action_secondary_impacts_counts, float(report.main_impact_weight), float(report.secondary_impact_weight))
         
         
-        # Obtener acciones y objetivos relacionados
+        
         action_plan = crud_action_plan.get_action_plan_by_report(db, report_id)
         
-        # Obtener stakeholders y miembros del equipo
+        
         stakeholders = crud_stakeholders.get_all_stakeholders_by_report(db, report_id)  
         
         team_members = crud_team.get_all_team_members_by_report(db, report_id)
         
-        # Construir el diccionario de respuesta
+        
         return {
-            # Datos básicos del reporte
+            
             'id': report.id,
             'heritage_resource_id': report.heritage_resource_id,
             'heritage_resource_name': resource.name if resource else None,
@@ -333,7 +348,7 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             'permissions': report.permissions,
 
 
-            # Campos de texto
+            
             'commitment_letter': report.commitment_letter or "",
             'mission': report.mission or "",
             'vision': report.vision or "",
@@ -350,11 +365,11 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
             'materiality_matrix_text': report.materiality_matrix_text or "",
             'internal_consistency_description': report.internal_consistency_description or "",
             'diffusion_text': report.diffusion_text or "",
-            # Enlaces a archivos
+            
             'cover_photo': report.cover_photo,
             'org_chart_figure': report.org_chart_figure,
             
-            # Datos del recurso patrimonial
+            
             'resource': {
                 'id': resource.id,
                 'name': resource.name,
@@ -372,7 +387,7 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
                 ]
             } if resource else None,
             
-            # Tablas relacionadas
+            
             'norms': norms or [],
             'logos': logos or [],
             'agreements': agreements or [],
@@ -392,22 +407,25 @@ def get_report_data(db: Session, report_id: int) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"Error al obtener los datos del reporte: {str(e)}")
+        logger.error(f"Error al obtener los datos de la memoria: {str(e)}")
         raise 
 
 def generate_report_html(db: Session, report_id: int) -> str:
+    """
+    Genera el HTML de una memoria de sostenibilidad.
+    """
     try: 
         report_data = get_report_data(db, report_id)
         matrix_data = create_materiality_matrix_data(db, report_id, scale=report_data['scale'])
         def save_base64_image(data_url, path, base_dir=None, report_id=None):
-            # data_url: "data:image/png;base64,...."
             
-            # Crear directorio específico para el reporte si no existe
+            
+            
             if report_id:
                 report_dir = settings.REPORTS_DIR / str(report_id)
                 if not os.path.exists(report_dir):
                     os.makedirs(report_dir, exist_ok=True)
-                # Modificar el path para usar el directorio del reporte
+                
                 filename = os.path.basename(path)
                 path = report_dir / filename
             
@@ -418,7 +436,7 @@ def generate_report_html(db: Session, report_id: int) -> str:
             with open(path, "wb") as f:
                 f.write(base64.b64decode(encoded))
             
-            # Convertir la ruta absoluta a relativa
+            
             if base_dir:
                 relative_path = str(path).replace(str(base_dir), '').replace('/', '\\')
                 if relative_path.startswith('\\'):
@@ -426,29 +444,29 @@ def generate_report_html(db: Session, report_id: int) -> str:
                 return f"\\{base_dir.name}\\{relative_path}"
             return str(path)
 
-        # 1. Matriz de materialidad
+        
         matrix_img_b64 = generate_matrix_image(matrix_data, scale=report_data['scale'])
         matrix_img_path = settings.REPORTS_DIR / f"{report_id}_materiality_matrix.png"
         report_data['materiality_matrix'] = save_base64_image(matrix_img_b64, matrix_img_path, settings.STATIC_DIR, report_id)
         report_data['legend'] = matrix_data
 
-        # 2. Gráfico de impactos principal
+        
         main_impacts_img_b64 = get_main_impacts_material_topics_graph(report_data['material_topics'])
         main_impacts_img_path = settings.REPORTS_DIR / f"{report_id}_main_impacts.png"
         report_data['main_impacts_graph'] = save_base64_image(main_impacts_img_b64, main_impacts_img_path, settings.STATIC_DIR, report_id)
 
-        # 3. Gráfico de impactos secundarios
+        
         secondary_impacts_img_b64 = get_secondary_impacts_material_topics_graph(report_data['secondary_impacts'])
         secondary_impacts_img_path = settings.REPORTS_DIR / f"{report_id}_secondary_impacts.png"
         report_data['secondary_impacts_graph'] = save_base64_image(secondary_impacts_img_b64, secondary_impacts_img_path, settings.STATIC_DIR, report_id)
 
-        # 4. Gráfico de coherencia interna
+        
         internal_consistency_img_b64, dimension_totals_list = generate_internal_consistency_graph(report_data['dimension_totals'])
         internal_consistency_img_path = settings.REPORTS_DIR / f"{report_id}_internal_consistency.png"
         report_data['internal_consistency_graph'] = save_base64_image(internal_consistency_img_b64, internal_consistency_img_path, settings.STATIC_DIR, report_id)
         report_data['dimension_totals'] = dimension_totals_list
         
-        # Guardar el HTML de la memoria
+        
         generator = ReportGenerator()
         url_preview = generator.generate_report_preview(report_data)
         url = generator.generate_report(report_data)
@@ -459,12 +477,18 @@ def generate_report_html(db: Session, report_id: int) -> str:
         raise 
 
 def get_all_norms_by_report_id(db: Session, report_id: int) -> List[ReportNorm]:
+    """
+    Obtiene todas las normas de una memoria.
+    """
     try:
         return db.query(ReportNormModel).filter(ReportNormModel.report_id == report_id).all()
     except Exception as e:
         raise e
 
 def create_norm(db: Session, norm: ReportNormCreate) -> ReportNorm:
+    """
+    Crea una normativa para una memoria.
+    """
     try:
         db_norm = ReportNormModel(
             norm=norm.norm,
@@ -478,12 +502,18 @@ def create_norm(db: Session, norm: ReportNormCreate) -> ReportNorm:
         raise e
 
 def get_norm_by_id(db: Session, norm_id: int) -> ReportNorm:
+    """
+    Obtiene una normativa por su ID.
+    """
     try:
         return db.query(ReportNormModel).filter(ReportNormModel.id == norm_id).first()
     except Exception as e:
         raise e
 
 def update_norm(db: Session, norm_id: int, norm: ReportNormUpdate) -> ReportNorm:
+    """
+    Actualiza una normativa.
+    """
     try:
         db_norm = get_norm_by_id(db, norm_id)
         if db_norm:
@@ -496,6 +526,9 @@ def update_norm(db: Session, norm_id: int, norm: ReportNormUpdate) -> ReportNorm
         raise e
 
 def delete_norm(db: Session, norm_id: int) -> bool:
+    """
+    Elimina una normativa.
+    """
     try:
         db_norm = get_norm_by_id(db, norm_id)
         if db_norm:
@@ -506,19 +539,22 @@ def delete_norm(db: Session, norm_id: int) -> bool:
         raise e
 
 def update_cover_photo(db: Session, report: SustainabilityReport, content: bytes) -> str:
+    """
+    Actualiza la foto de portada de una memoria.
+    """
     try:
-        # Procesar la imagen
+        
         processed_image = process_cover_image(content)
 
-        # Crear nombre único para el archivo
-        filename = f"report_{report.id}_cover_{uuid.uuid4()}.jpg"  # Siempre guardamos como JPG
+        
+        filename = f"report_{report.id}_cover_{uuid.uuid4()}.jpg"  
         file_path = settings.COVERS_DIR / filename
 
-        # Guardar el archivo procesado
+        
         with open(file_path, "wb") as file_object:
             file_object.write(processed_image)
 
-        # Actualizar la URL en la base de datos
+        
         file_url = f"/static/uploads/covers/{filename}"
         report.cover_photo = file_url
         db.commit()
@@ -527,18 +563,21 @@ def update_cover_photo(db: Session, report: SustainabilityReport, content: bytes
         raise e
 
 def upload_logo(db: Session, report: SustainabilityReport, content: bytes, file_extension: str) -> str:
+    """
+    Carga un logo para una memoria.
+    """
     try:
-        # Crear nombre único para el archivo
+        
         filename = f"report_{report.id}_logo_{uuid.uuid4()}{file_extension}"
         file_path = settings.LOGOS_DIR / filename
 
         
 
-        # Guardar el archivo
+        
         with open(file_path, "wb+") as file_object:
             file_object.write(content)
 
-        # Crear registro en la base de datos (usando ruta relativa para la URL)
+        
         file_url = f"/static/uploads/logos/{filename}"
         new_logo = ReportLogoModel(
             logo=file_url,
@@ -553,13 +592,16 @@ def upload_logo(db: Session, report: SustainabilityReport, content: bytes, file_
         raise e
 
 def update_organization_chart(db: Session, report: SustainabilityReport, content: bytes) -> str:
+    """
+    Actualiza el gráfico de organización de una memoria.
+    """
     try:
-        # Determinar la extensión basándose en el contenido o usar JPG por defecto
-        # Por ahora mantenemos JPG, pero se podría mejorar para detectar el tipo real
+        
+        
         filename = f"report_{report.id}_organization_chart_{uuid.uuid4()}.jpg"
         file_path = settings.ORGANIZATION_CHART_DIR / filename
 
-        # Asegurar que el directorio existe
+        
         settings.ORGANIZATION_CHART_DIR.mkdir(parents=True, exist_ok=True)
 
         with open(file_path, "wb") as file_object:
@@ -574,13 +616,16 @@ def update_organization_chart(db: Session, report: SustainabilityReport, content
         raise e
 
 def get_all_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse]:
+    """
+    Obtiene todos los logos de una memoria.
+    """
     try:
         logos = db.query(ReportLogoModel).filter(ReportLogoModel.report_id == report_id).all()
         logo_responses = []
 
         for logo in logos:
             try:
-                # Convertir la ruta relativa a absoluta
+                
                 relative_path = logo.logo.lstrip('/')
                 file_path = settings.BASE_DIR / relative_path
 
@@ -589,11 +634,11 @@ def get_all_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse
                     continue
                 
 
-                # Leer el archivo y convertirlo a base64
+                
                 with open(file_path, "rb") as image_file:            
                     encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
                     
-                    # Determinar el tipo MIME basado en la extensión del archivo
+                    
                     file_extension = file_path.suffix.lower()
                     mime_type = {
                         '.jpg': 'image/jpeg',
@@ -601,7 +646,7 @@ def get_all_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse
                         '.png': 'image/png'
                     }.get(file_extension, 'image/jpeg')
 
-                    # Crear data URL
+                    
                     data_url = f"data:{mime_type};base64,{encoded_string}"
 
                     logo_responses.append(ReportLogoResponse(
@@ -618,27 +663,33 @@ def get_all_report_logos(db: Session, report_id: int) -> List[ReportLogoResponse
         raise e
 
 def get_logo_by_id(db: Session, logo_id: int) -> ReportLogoModel:
+    """
+    Obtiene un logo por su ID.
+    """
     try:
         return db.query(ReportLogoModel).filter(ReportLogoModel.id == logo_id).first()
     except Exception as e:
         raise e
 
 def delete_logo(db: Session, logo_id: int, logo: ReportLogoModel) -> bool:
+    """
+    Elimina un logo.
+    """
     try:
-        # Convertir la ruta relativa a absoluta
+        
         relative_path = logo.logo.lstrip('/')
         file_path = settings.BASE_DIR / relative_path
 
-        # Eliminar el archivo físico si existe
+        
         if file_path.exists():
             try:
-                file_path.unlink()  # Eliminar el archivo
+                file_path.unlink()  
                 
             except Exception as e:
                 raise e
-                # Continuamos con la eliminación del registro aunque falle la eliminación del archivo
+                
 
-        # Eliminar el registro de la base de datos
+        
         db.delete(logo)
         db.commit()
         return True
@@ -646,6 +697,9 @@ def delete_logo(db: Session, logo_id: int, logo: ReportLogoModel) -> bool:
         raise e
 
 def get_all_report_agreements(db: Session, report_id: int) -> List[ReportAgreement]:
+    """
+    Obtiene todos los acuerdos de una memoria.
+    """
     try:
         return db.query(ReportAgreementModel).filter(ReportAgreementModel.report_id == report_id).all()
     except Exception as e:
@@ -654,6 +708,9 @@ def get_all_report_agreements(db: Session, report_id: int) -> List[ReportAgreeme
 
 
 def create_agreement(db: Session, agreement: ReportAgreementCreate) -> ReportAgreement:
+    """
+    Crea un acuerdo para una memoria.
+    """
     try:
         db_agreement = ReportAgreementModel(**agreement.dict())
         db.add(db_agreement)
@@ -664,12 +721,18 @@ def create_agreement(db: Session, agreement: ReportAgreementCreate) -> ReportAgr
         raise e
 
 def get_agreement_by_id(db: Session, agreement_id: int) -> ReportAgreement:
+    """
+    Obtiene un acuerdo por su ID.
+    """
     try:
         return db.query(ReportAgreementModel).filter(ReportAgreementModel.id == agreement_id).first()
     except Exception as e:
         raise e
 
 def update_agreement(db: Session, agreement_id: int, agreement: ReportAgreementUpdate) -> ReportAgreement:
+    """
+    Actualiza un acuerdo.
+    """
     try:
         db_agreement = get_agreement_by_id(db, agreement_id)
         if db_agreement:
@@ -683,6 +746,9 @@ def update_agreement(db: Session, agreement_id: int, agreement: ReportAgreementU
         raise e
 
 def delete_agreement(db: Session, agreement_id: int, agreement: ReportAgreement) -> bool:
+    """
+    Elimina un acuerdo.
+    """
     try:
         db.delete(agreement)
         db.commit()
@@ -691,6 +757,9 @@ def delete_agreement(db: Session, agreement_id: int, agreement: ReportAgreement)
         raise e
 
 def create_bibliography(db: Session, bibliography: ReportBibliographyCreate) -> ReportBibliography:
+    """
+    Crea una referencia bibliográfica para una memoria.
+    """
     try:
         db_bibliography = ReportBibliographyModel(**bibliography.dict())
         db.add(db_bibliography)
@@ -701,12 +770,18 @@ def create_bibliography(db: Session, bibliography: ReportBibliographyCreate) -> 
         raise e
 
 def get_bibliography_by_id(db: Session, bibliography_id: int) -> ReportBibliography:
+    """
+    Obtiene una referencia bibliográfica por su ID.
+    """
     try:
         return db.query(ReportBibliographyModel).filter(ReportBibliographyModel.id == bibliography_id).first()
     except Exception as e:
         raise e
 
 def update_bibliography(db: Session, bibliography_id: int, bibliography: ReportBibliographyUpdate) -> ReportBibliography:
+    """
+    Actualiza una referencia bibliográfica.
+    """
     try:
         db_bibliography = get_bibliography_by_id(db, bibliography_id)
         if db_bibliography:
@@ -720,6 +795,9 @@ def update_bibliography(db: Session, bibliography_id: int, bibliography: ReportB
         raise e
 
 def delete_bibliography(db: Session, bibliography_id: int, bibliography: ReportBibliography) -> bool:
+    """
+    Elimina una referencia bibliográfica.
+    """
     try:
         db.delete(bibliography)
         db.commit()
@@ -728,28 +806,34 @@ def delete_bibliography(db: Session, bibliography_id: int, bibliography: ReportB
         raise e
 
 def get_all_report_bibliographies(db: Session, report_id: int) -> List[ReportBibliography]:
+    """
+    Obtiene todas las referencias bibliográficas de una memoria.
+    """
     try:
         return db.query(ReportBibliographyModel).filter(ReportBibliographyModel.report_id == report_id).all()
     except Exception as e:
         raise e
 
 def upload_photo(db: Session, report: SustainabilityReport, content: bytes, file_extension: str, description: str) -> ReportPhoto:
+    """
+    Carga una foto para una memoria.
+    """
     try:
-        # Verificar extensión del archivo
+        
         if file_extension not in ['.jpg', '.jpeg', '.png']:
             raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
 
-        # Crear nombre único para el archivo
+        
         filename = f"report_{report.id}_photo_{uuid.uuid4()}{file_extension}"
         file_path = settings.PHOTOS_DIR / filename
 
         
 
-        # Guardar el archivo
+        
         with open(file_path, "wb+") as file_object:
             file_object.write(content)
 
-        # Crear registro en la base de datos
+        
         file_url = f"/static/uploads/gallery/{filename}"
         new_photo = ReportPhotoModel(
             photo=file_url,
@@ -764,13 +848,16 @@ def upload_photo(db: Session, report: SustainabilityReport, content: bytes, file
         raise e
 
 def get_all_report_photos(db: Session, report_id: int) -> List[ReportPhoto]:
+    """
+    Obtiene todas las fotos de una memoria.
+    """
     try:
         photos = db.query(ReportPhotoModel).filter(ReportPhotoModel.report_id == report_id).all()
         photo_responses = []
 
         for photo in photos:
             try:
-                # Convertir la ruta relativa a absoluta
+                
                 relative_path = photo.photo.lstrip('/')
                 file_path = settings.BASE_DIR / relative_path
 
@@ -778,11 +865,11 @@ def get_all_report_photos(db: Session, report_id: int) -> List[ReportPhoto]:
                     
                     continue
 
-                # Leer el archivo y convertirlo a base64
+                
                 with open(file_path, "rb") as image_file:
                     encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
                     
-                    # Determinar el tipo MIME basado en la extensión del archivo
+                    
                     file_extension = file_path.suffix.lower()
                     mime_type = {
                         '.jpg': 'image/jpeg',
@@ -790,7 +877,7 @@ def get_all_report_photos(db: Session, report_id: int) -> List[ReportPhoto]:
                         '.png': 'image/png'
                     }.get(file_extension, 'image/jpeg')
 
-                    # Crear data URL
+                    
                     data_url = f"data:{mime_type};base64,{encoded_string}"
 
                     photo_responses.append(ReportPhotoResponse(
@@ -808,27 +895,33 @@ def get_all_report_photos(db: Session, report_id: int) -> List[ReportPhoto]:
         raise e
 
 def get_photo_by_id(db: Session, photo_id: int) -> ReportPhoto:
+    """
+    Obtiene una foto por su ID.
+    """
     try:
         return db.query(ReportPhotoModel).filter(ReportPhotoModel.id == photo_id).first()
     except Exception as e:
         raise e
 
 def delete_photo(db: Session, photo_id: int, photo: ReportPhoto) -> bool:
+    """
+    Elimina una foto.
+    """
     try:
-        # Convertir la ruta relativa a absoluta
+        
         relative_path = photo.photo.lstrip('/')
         file_path = settings.BASE_DIR / relative_path
 
-        # Eliminar el archivo físico si existe
+        
         if file_path.exists():
             try:
-                file_path.unlink()  # Eliminar el archivo
+                file_path.unlink()  
                 
             except Exception as e:
                 raise e
-                # Continuamos con la eliminación del registro aunque falle la eliminación del archivo
+                
 
-        # Eliminar el registro de la base de datos
+        
         db.delete(photo)
         db.commit()
         return True
@@ -836,26 +929,29 @@ def delete_photo(db: Session, photo_id: int, photo: ReportPhoto) -> bool:
         raise e
 
 def update_photo(db: Session, photo_id: int, photo: ReportPhoto) -> ReportPhoto:
+    """
+    Actualiza una foto.
+    """
     try:
-        # Actualizar la descripción
+        
         photo.description = photo_update.description
 
         db.commit()
         db.refresh(photo)
 
-        # Convertir la ruta relativa a absoluta para obtener la imagen
+        
         relative_path = photo.photo.lstrip('/')
         file_path = settings.BASE_DIR / relative_path
 
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Archivo no encontrado")
 
-        # Leer el archivo y convertirlo a base64
+        
         with open(file_path, "rb") as image_file:
             import base64
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
             
-            # Determinar el tipo MIME basado en la extensión del archivo
+            
             file_extension = file_path.suffix.lower()
             mime_type = {
                 '.jpg': 'image/jpeg',
@@ -863,7 +959,7 @@ def update_photo(db: Session, photo_id: int, photo: ReportPhoto) -> ReportPhoto:
                 '.png': 'image/png'
             }.get(file_extension, 'image/jpeg')
 
-            # Crear data URL
+            
             data_url = f"data:{mime_type};base64,{encoded_string}"
 
         return ReportPhoto(
@@ -878,6 +974,9 @@ def update_photo(db: Session, photo_id: int, photo: ReportPhoto) -> ReportPhoto:
 
 
 def get_team_member(db: Session, user_id: int, report_id: int) -> SustainabilityTeamMember:
+    """
+    Obtiene un miembro del equipo de una memoria.
+    """
     try:
         return db.query(SustainabilityTeamMember).filter(
             SustainabilityTeamMember.user_id == user_id,
@@ -891,17 +990,17 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
     Transfiere todos los datos de texto y tablas relacionadas de una memoria a otra.
     """
     try:
-        # Obtener la memoria plantilla
+        
         template_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == template_report_id).first()
         if not template_report:
             raise HTTPException(status_code=404, detail="Memoria plantilla no encontrada")
 
-        # Obtener la nueva memoria
+        
         new_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == new_report_id).first()
         if not new_report:
             raise HTTPException(status_code=404, detail="Nueva memoria no encontrada")
 
-        # 1. Copiar atributos de texto
+        
         text_attributes = [
             'commitment_letter', 'mission', 'vision', 'values',
             'org_chart_text', 'diagnosis_description',
@@ -918,12 +1017,12 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         db.commit()
         db.refresh(new_report)
 
-        # 2. Copiar Material Topics y sus relaciones
+        
         template_material_topics = db.query(MaterialTopic).filter(
             MaterialTopic.report_id == template_report_id
         ).all()
 
-        # Mapeo para mantener la relación entre los IDs antiguos y nuevos
+        
         material_topic_id_map = {}
 
         for mt in template_material_topics:
@@ -940,7 +1039,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         
         db.commit()
 
-        # Obtener los nuevos Material Topics y crear el mapeo de IDs
+        
         new_material_topics = db.query(MaterialTopic).filter(
             MaterialTopic.report_id == new_report_id
         ).all()
@@ -948,7 +1047,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for old_mt, new_mt in zip(template_material_topics, new_material_topics):
             material_topic_id_map[old_mt.id] = new_mt.id
 
-        # 3. Copiar diagnosis Indicators y sus valores
+        
         template_indicators = db.query(DiagnosisIndicator).filter(
             DiagnosisIndicator.material_topic_id.in_(material_topic_id_map.keys())
         ).all()
@@ -965,7 +1064,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         
         db.commit()
 
-        # Obtener los nuevos diagnosis Indicators y crear el mapeo de IDs
+        
         new_indicators = db.query(DiagnosisIndicator).filter(
             DiagnosisIndicator.material_topic_id.in_(material_topic_id_map.values())
         ).all()
@@ -973,8 +1072,8 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for old_di, new_di in zip(template_indicators, new_indicators):
             indicator_id_map[old_di.id] = new_di.id
 
-        # 4. Copiar valores de diagnosis Indicators
-        # Cuantitativos
+        
+        
         template_quantitative = db.query(DiagnosisIndicatorQuantitative).filter(
             DiagnosisIndicatorQuantitative.diagnosis_indicator_id.in_(indicator_id_map.keys())
         ).all()
@@ -987,7 +1086,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             )
             db.add(new_diq)
 
-        # Cualitativos
+        
         template_qualitative = db.query(DiagnosisIndicatorQualitative).filter(
             DiagnosisIndicatorQualitative.diagnosis_indicator_id.in_(indicator_id_map.keys())
         ).all()
@@ -1001,7 +1100,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
 
         db.commit()
 
-        # 5. Copiar Specific Objectives
+        
         template_objectives = db.query(SpecificObjective).filter(
             SpecificObjective.material_topic_id.in_(material_topic_id_map.keys())
         ).all()
@@ -1018,7 +1117,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
 
         db.commit()
 
-        # Obtener los nuevos Specific Objectives y crear el mapeo de IDs
+        
         new_objectives = db.query(SpecificObjective).filter(
             SpecificObjective.material_topic_id.in_(material_topic_id_map.values())
         ).all()
@@ -1026,7 +1125,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for old_so, new_so in zip(template_objectives, new_objectives):
             objective_id_map[old_so.id] = new_so.id
 
-        # 6. Copiar Actions
+        
         template_actions = db.query(Action).filter(
             Action.specific_objective_id.in_(objective_id_map.keys())
         ).all()
@@ -1045,7 +1144,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
 
         db.commit()
 
-        # Obtener las nuevas Actions y crear el mapeo de IDs
+        
         new_actions = db.query(Action).filter(
             Action.specific_objective_id.in_(objective_id_map.values())
         ).all()
@@ -1053,7 +1152,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for old_action, new_action in zip(template_actions, new_actions):
             action_id_map[old_action.id] = new_action.id
 
-        # 7. Copiar Performance Indicators
+        
         template_performance = db.query(PerformanceIndicator).filter(
             PerformanceIndicator.action_id.in_(action_id_map.keys())
         ).all()
@@ -1072,7 +1171,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
 
         db.commit()
 
-        # Obtener los nuevos Performance Indicators y crear el mapeo de IDs
+        
         new_performance = db.query(PerformanceIndicator).filter(
             PerformanceIndicator.action_id.in_(action_id_map.values())
         ).all()
@@ -1080,8 +1179,8 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for old_pi, new_pi in zip(template_performance, new_performance):
             performance_id_map[old_pi.id] = new_pi.id
 
-        # 8. Copiar valores de Performance Indicators
-        # Cuantitativos
+        
+        
         template_quantitative = db.query(PerformanceIndicatorQuantitative).filter(
             PerformanceIndicatorQuantitative.performance_indicator_id.in_(performance_id_map.keys())
         ).all()
@@ -1094,7 +1193,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             )
             db.add(new_piq)
 
-        # Cualitativos
+        
         template_qualitative = db.query(PerformanceIndicatorQualitative).filter(
             PerformanceIndicatorQualitative.performance_indicator_id.in_(performance_id_map.keys())
         ).all()
@@ -1108,7 +1207,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
 
         db.commit()
 
-        # 9. Copiar Secondary ODS Actions
+        
         template_secondary_ods = db.query(SecondaryODSAction).filter(
             SecondaryODSAction.action_id.in_(action_id_map.keys())
         ).all()
@@ -1121,7 +1220,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             )
             db.add(new_soa)
 
-        # 10. Copiar Secondary ODS Material Topics
+        
         template_secondary_mt = db.query(SecondaryODSMaterialTopic).filter(
             SecondaryODSMaterialTopic.material_topic_id.in_(material_topic_id_map.keys())
         ).all()
@@ -1133,7 +1232,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             )
             db.add(new_somt)
 
-        # 11. Copiar Stakeholders
+        
         template_stakeholders = db.query(Stakeholder).filter(
             Stakeholder.report_id == template_report_id
         ).all()
@@ -1151,7 +1250,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
 
         db.commit()
 
-        # Obtener los nuevos Stakeholders y crear el mapeo de IDs
+        
         new_stakeholders = db.query(Stakeholder).filter(
             Stakeholder.report_id == new_report_id
         ).all()
@@ -1159,7 +1258,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
         for old_st, new_st in zip(template_stakeholders, new_stakeholders):
             stakeholder_id_map[old_st.id] = new_st.id
 
-        # 13. Copiar Report Agreements
+        
         template_agreements = db.query(ReportAgreementModel).filter(
             ReportAgreementModel.report_id == template_report_id
         ).all()
@@ -1171,7 +1270,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             )
             db.add(new_agreement)
 
-        # 14. Copiar Report Bibliography
+        
         template_bibliographies = db.query(ReportBibliographyModel).filter(
             ReportBibliographyModel.report_id == template_report_id
         ).all()
@@ -1183,7 +1282,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             )
             db.add(new_bibliography)
 
-        # 15. Copiar Report Norms
+        
         template_norms = db.query(ReportNormModel).filter(
             ReportNormModel.report_id == template_report_id
         ).all()
@@ -1195,7 +1294,7 @@ def transfer_report_data(db: Session, template_report_id: int, new_report_id: in
             )
             db.add(new_norm)
 
-        # 16. Copiar Sustainability Team Members
+        
         template_team_members = db.query(SustainabilityTeamMember).filter(
             SustainabilityTeamMember.report_id == template_report_id
         ).all()
@@ -1221,33 +1320,33 @@ def transfer_report_images(db: Session, template_report_id: int, new_report_id: 
     y actualizando las referencias en la base de datos.
     """
     try:
-        # Obtener la memoria plantilla
+        
         template_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == template_report_id).first()
         if not template_report:
             raise HTTPException(status_code=404, detail="Memoria plantilla no encontrada")
 
-        # Obtener la nueva memoria
+        
         new_report = db.query(SustainabilityReport).filter(SustainabilityReport.id == new_report_id).first()
         if not new_report:
             raise HTTPException(status_code=404, detail="Nueva memoria no encontrada")
 
-        # Función auxiliar para copiar una imagen
+        
         def copy_image(old_path: str, new_path: str) -> None:
             if not old_path:
                 return
 
-            # Convertir rutas relativas a absolutas
+            
             old_abs_path = settings.BASE_DIR / old_path.lstrip('/')
             new_abs_path = settings.BASE_DIR / new_path.lstrip('/')
 
-            # Asegurarse de que el directorio destino existe
+            
             new_abs_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Copiar el archivo
+            
             if old_abs_path.exists():
                 shutil.copy2(old_abs_path, new_abs_path)
 
-        # Copiar cover_photo
+        
         if template_report.cover_photo:
             old_filename = os.path.basename(template_report.cover_photo)
             new_filename = f"report_{new_report_id}_cover_{uuid.uuid4()}{os.path.splitext(old_filename)[1]}"
@@ -1255,7 +1354,7 @@ def transfer_report_images(db: Session, template_report_id: int, new_report_id: 
             copy_image(template_report.cover_photo, new_path)
             new_report.cover_photo = f"/{new_path}"
 
-        # Copiar org_chart_figure
+        
         if template_report.org_chart_figure:
             old_filename = os.path.basename(template_report.org_chart_figure)
             new_filename = f"report_{new_report_id}_organization_chart_{uuid.uuid4()}{os.path.splitext(old_filename)[1]}"
@@ -1263,7 +1362,7 @@ def transfer_report_images(db: Session, template_report_id: int, new_report_id: 
             copy_image(template_report.org_chart_figure, new_path)
             new_report.org_chart_figure = f"/{new_path}"
 
-        # Copiar report_logos
+        
         logos = db.query(ReportLogoModel).filter(ReportLogoModel.report_id == template_report_id).all()
         for logo in logos:
             old_filename = os.path.basename(logo.logo)
@@ -1277,7 +1376,7 @@ def transfer_report_images(db: Session, template_report_id: int, new_report_id: 
             )
             db.add(new_logo)
 
-        # Copiar report_photos
+        
         photos = db.query(ReportPhotoModel).filter(ReportPhotoModel.report_id == template_report_id).all()
         for photo in photos:
             old_filename = os.path.basename(photo.photo)
@@ -1300,7 +1399,7 @@ def transfer_report_images(db: Session, template_report_id: int, new_report_id: 
 
 def initialize_default_text(report):
     """
-    Inicializa los textos por defecto de un reporte a partir de los archivos .html en DEFAULT_TEXT_DIR.
+    Inicializa los textos por defecto de una memoria a partir de los archivos .html en DEFAULT_TEXT_DIR.
     """
     
     atributos = [

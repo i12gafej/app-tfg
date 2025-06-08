@@ -27,7 +27,7 @@ async def create_resource(
         
         db_resource = crud_resources.create(db, resource_data)
 
-        # Construir la respuesta
+        
         response = HeritageResource(
             id=db_resource.id,
             name=db_resource.name,
@@ -65,7 +65,7 @@ async def search_resources(
         )
 
     try:
-        # Llamar al crud para buscar recursos
+        
         resources = crud_resources.search(
             db=db,
             search_term=search_params.search_term,
@@ -76,7 +76,7 @@ async def search_resources(
         )
         total = len(resources)
 
-        # Convertir los recursos a esquema Pydantic
+        
         resources_schema = [
             HeritageResource(
                 id=resource.id,
@@ -116,7 +116,7 @@ async def update_resource(
         )
 
     try:
-        # Convertir el modelo Pydantic a dict para el CRUD
+        
         resource_data_dict = resource_data.model_dump()
 
         db_resource = crud_resources.update(db, resource_id, resource_data_dict)

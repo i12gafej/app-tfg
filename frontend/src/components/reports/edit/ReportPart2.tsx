@@ -6,7 +6,7 @@ import StakeholderSearch from './part2/Stakeholders/StakeholderSearch';
 import MaterialTopicSearch from './part2/MaterialTopic/MaterialTopicSearch';
 import Surveys from './part2/Surveys';
 
-// Importar componentes del diagnóstico
+
 import MainSecondaryImpacts from './part2/MainSecondaryImpacts';
 import Graphs from './part2/Graphs';
 import MaterialityMatrix from './part2/MaterialityMatrix';
@@ -27,7 +27,7 @@ const DIAGNOSIS_SECTIONS = [
   { id: 'indicators', label: 'Indicadores', permissionIndex: 12 },
 ];
 
-// Función para convertir decimal a array de booleanos
+
 function decimalToBoolArray(decimal: number, length: number): boolean[] {
   const bin = decimal.toString(2).padStart(length, '0');
   return bin.split('').map(x => x === '1');
@@ -107,7 +107,7 @@ const ReportPart2: React.FC<ReportPart2Props> = ({ section = 'stakeholders' }) =
             </Box>
           );
         }
-        // Si no hay sección activa o la sección activa no está en las visibles, seleccionar la primera visible
+        
         if (!visibleSections.find(s => s.id === activeDiagnosisSection)) {
           setActiveDiagnosisSection(visibleSections[0].id);
         }

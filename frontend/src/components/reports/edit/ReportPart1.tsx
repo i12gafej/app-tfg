@@ -16,7 +16,7 @@ const PART1_SECTIONS = [
   { id: 'sustainability-team', label: 'Equipo de Sostenibilidad', permissionIndex: 4 },
 ];
 
-// Función para convertir decimal a array de booleanos
+
 function decimalToBoolArray(decimal: number, length: number): boolean[] {
   const bin = decimal.toString(2).padStart(length, '0');
   return bin.split('').map(x => x === '1');
@@ -33,23 +33,23 @@ const ReportPart1 = () => {
       const perms = decimalToBoolArray(report.permissions, 31);
       setPermissions(perms);
       
-      // Filtrar secciones permitidas
+      
       const allowed = PART1_SECTIONS.filter(section => perms[section.permissionIndex]);
       setAllowedSections(allowed);
       
-      // Establecer la primera sección permitida como activa
+      
       if (allowed.length > 0) {
         setActiveSection(allowed[0].id);
       }
     } else {
-      // Si no es asesor externo, mostrar todas las secciones
+      
       setAllowedSections(PART1_SECTIONS);
       setActiveSection(PART1_SECTIONS[0].id);
     }
   }, [report, isExternalAdvisor]);
 
   const renderContent = () => {
-    // Verificar si la sección activa está permitida
+    
     const hasPermission = !isExternalAdvisor || allowedSections.some(section => section.id === activeSection);
     
     if (!hasPermission) {

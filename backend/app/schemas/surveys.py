@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Union
-from decimal import Decimal
+
 
 class AssessmentBase(BaseModel):
     material_topic_id: int
@@ -25,7 +25,7 @@ class Assessment(AssessmentBase):
 class MultipleAssessmentsCreate(BaseModel):
     stakeholder_id: int
     assessments: List[dict] = Field(..., description="Lista de {material_topic_id: int, score: int}")
-    report_id: int  # Para validar que la encuesta está activa
+    report_id: int  
     scale: int
 
 class SurveySearch(BaseModel):

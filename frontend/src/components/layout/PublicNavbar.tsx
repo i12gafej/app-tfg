@@ -11,7 +11,7 @@ const PublicNavbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Rutas que deberían tener fondo blanco
+  
   const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/contacto', '/login'];
   const shouldHaveWhiteBackground = whiteBackgroundRoutes.includes(location.pathname);
 
@@ -24,7 +24,7 @@ const PublicNavbar = () => {
     { text: 'Memorias Públicas', path: '/memorias-publicas' },
     { text: 'Encuestas', path: '/encuestas' },
     { text: 'Contacto', path: '/contacto' },
-    
+    { text: 'Ayuda', path: '/ayuda-usuario.pdf', external: true },
   ];
 
   const drawer = (
@@ -150,8 +150,10 @@ const PublicNavbar = () => {
               {menuItems.map((item) => (
                 <Button
                   key={item.text}
-                  component={RouterLink}
-                  to={item.path}
+                  component={item.external ? 'a' : RouterLink}
+                  href={item.external ? item.path : undefined}
+                  to={!item.external ? item.path : undefined}
+                  target={item.external ? '_blank' : undefined}
                   sx={{
                     color: theme.palette.text.primary,
                     fontWeight: 500,

@@ -65,7 +65,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ edit = true }) => {
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      // navigate('/perfil'); // Si quieres redirigir tras éxito
+      
     } catch (err: any) {
       setError('Error al cambiar la contraseña.');
     } finally {

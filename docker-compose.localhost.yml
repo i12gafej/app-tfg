@@ -1,0 +1,99 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: db_localhost
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: sustainability_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data_localhost:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network-localhost
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: myapp-backend-localhost:latest
+    container_name: backend_localhost
+    restart: always
+    env_file:
+      - ./backend/.env.production
+    command: >
+      sh -c "
+        echo 'Waiting for MySQL to be ready...' &&
+        while ! mysqladmin ping -h db -u root -p${MYSQL_ROOT_PASSWORD} --silent; do
+          sleep 1
+        done &&
+        echo 'MySQL is ready!' &&
+        alembic upgrade head &&
+        mysql -h db -u root -p${MYSQL_ROOT_PASSWORD} sustainability_db < /app/init.sql &&
+        uvicorn main:app --host 0.0.0.0 --port 8000
+      "
+    expose:
+      - "8000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+      - ./backend/backups:/app/backups
+      - ./init.sql:/app/init.sql:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app-network-localhost
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+    image: myapp-frontend-localhost:latest
+    container_name: frontend_localhost
+    restart: always
+    env_file:
+      - ./frontend/.env.production
+    expose:
+      - "80"
+    depends_on:
+      - backend
+      - db
+    networks:
+      - app-network-localhost
+
+  caddy:
+    image: caddy:2
+    container_name: caddy_localhost
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.localhost:/etc/caddy/Caddyfile
+      - caddy_data_localhost:/data
+      - caddy_config_localhost:/config
+      - caddy_logs_localhost:/var/log/caddy
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network-localhost
+
+volumes:
+  db_data_localhost:
+  caddy_data_localhost:
+  caddy_config_localhost:
+  caddy_logs_localhost:
+
+networks:
+  app-network-localhost:
+    driver: bridge 

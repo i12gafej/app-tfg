@@ -46,7 +46,7 @@ const InternalConsistencyGraph = () => {
     fetchGraph();
   }, [report, token]);
 
-  // Función para obtener el color de la dimensión
+  
   const getDimensionColor = (dimension: string): string => {
     switch (dimension.toUpperCase()) {
       case 'PERSONAS':

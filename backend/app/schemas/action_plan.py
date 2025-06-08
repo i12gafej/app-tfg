@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Literal
 from decimal import Decimal
 
-# Schemas para Objetivos Específicos
+
 class SpecificObjectiveBase(BaseModel):
     description: str
     responsible: Optional[str] = None
@@ -21,7 +21,7 @@ class SpecificObjective(SpecificObjectiveBase):
     class Config:
         from_attributes = True
 
-# Schemas para Acciones
+
 class ActionBase(BaseModel):
     description: str
     difficulty: Optional[Literal['low', 'medium', 'high']] = None
@@ -44,7 +44,7 @@ class Action(ActionBase):
     class Config:
         from_attributes = True
 
-# Schemas para Indicadores de Rendimiento
+
 class PerformanceIndicatorBase(BaseModel):
     name: str
     human_resources: Optional[str] = None
@@ -81,7 +81,7 @@ class PerformanceIndicator(PerformanceIndicatorBase):
     class Config:
         from_attributes = True
 
-# Schema para impactos principales de acciones
+
 class ActionPrimaryImpactResponse(BaseModel):
     ods_id: Optional[int] = None
     ods_name: Optional[str] = None
@@ -91,7 +91,7 @@ class ActionPrimaryImpactsList(BaseModel):
     items: List[ActionPrimaryImpactResponse]
     total: int
 
-# Schema para el gráfico de coherencia interna
+
 class DimensionTotal(BaseModel):
     dimension: str
     total: float

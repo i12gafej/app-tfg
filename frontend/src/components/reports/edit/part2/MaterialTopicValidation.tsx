@@ -59,11 +59,11 @@ const MaterialTopicValidation: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // Cargar asuntos de materialidad
+        
         const topics = await materialTopicService.getAllByReport(report.id, token);
         setMaterialTopics(sortMaterialTopics<MaterialTopic>(topics));
 
-        // Cargar valoraciones
+        
         const assessmentsData = await surveyService.getAllAssessments(report.id, token);
         setAssessments(assessmentsData);
       } catch (err) {

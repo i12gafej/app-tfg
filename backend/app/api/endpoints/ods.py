@@ -57,12 +57,12 @@ def get_secondary_impacts(
     Permite el acceso si el usuario es admin, gestor, consultor o asesor.
     """
     try:
-        # Obtener el material topic para saber a qué reporte pertenece
+        
         material_topic = crud_material_topics.get(db, material_topic_id)
         if not material_topic:
             raise HTTPException(status_code=404, detail="asunto de materialidad no encontrado")
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -94,7 +94,7 @@ def get_main_impacts_graph(
     Permite el acceso si el usuario es admin, gestor, consultor o asesor.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -104,10 +104,10 @@ def get_main_impacts_graph(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Obtener todos los material topics del reporte
+        
         material_topics = crud_material_topics.get_all_by_report(db, report_id)
         
-        # Generar la gráfica
+        
         graph_data_url = get_main_impacts_material_topics_graph(material_topics)
         
         return {"graph_data_url": graph_data_url}
@@ -128,7 +128,7 @@ def get_secondary_impacts_graph(
     Permite el acceso si el usuario es admin, gestor, consultor o asesor.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -138,10 +138,10 @@ def get_secondary_impacts_graph(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Obtener todos los impactos secundarios del reporte
+        
         secondary_impacts = crud_ods.get_all_secondary_impacts_by_report(db, report_id)
         
-        # Generar la gráfica
+        
         graph_data_url = get_secondary_impacts_material_topics_graph(secondary_impacts)
         
         return {"graph_data_url": graph_data_url}
@@ -162,12 +162,12 @@ def update_secondary_impacts(
     Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
     try:
-        # Obtener el material topic para saber a qué reporte pertenece
+        
         material_topic = crud_material_topics.get(db, update_data.material_topic_id)
         if not material_topic:
             raise HTTPException(status_code=404, detail="asunto de materialidad no encontrado")
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -203,7 +203,7 @@ async def get_all_dimensions(
     try:
         ods_by_dimension = crud_ods.get_all_ods_with_dimension(db)
         
-        # Convertir el diccionario a la estructura de respuesta esperada
+        
         dimensions = []
         for dimension_name, ods_list in ods_by_dimension.items():
             dimensions.append({
@@ -236,7 +236,7 @@ def get_action_secondary_impacts(
         if not action:
             raise HTTPException(status_code=404, detail="Acción no encontrada")
 
-        # Verificar permisos
+        
         if not current_user.admin:
             
             has_permission, error_message = check_user_permissions(
@@ -277,12 +277,12 @@ def update_action_secondary_impacts(
     Permite la actualización si el usuario es admin o si es gestor del reporte.
     """
     try:
-        # Obtener la acción para saber a qué reporte pertenece
+        
         report_id = crud_action_plan.get_report_id_by_action(db, action_id)
         if not report_id:
             raise HTTPException(status_code=404, detail="Acción no encontrada en una memoria de sostenibilidad")
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -319,9 +319,6 @@ def update_action_secondary_impacts(
             detail=f"Error al actualizar impactos secundarios de la acción: {str(e)}"
         )
 
-import logging
-
-logger = logging.getLogger(__name__)
 
 @router.get("/ods/get-all/action-secondary-impacts/{report_id}", response_model=ActionSecondaryImpactCountList)
 def get_all_action_secondary_impacts(
@@ -334,7 +331,7 @@ def get_all_action_secondary_impacts(
     Permite el acceso si el usuario es admin, gestor, consultor o asesor.
     """
     try:
-        # Verificar permisos
+        
         
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
@@ -353,7 +350,7 @@ def get_all_action_secondary_impacts(
             "total": len(impacts)
         }
     except Exception as e:
-        logger.error(f"Error al obtener impactos secundarios de acciones: {str(e)}")
+        
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener impactos secundarios de acciones: {str(e)}"

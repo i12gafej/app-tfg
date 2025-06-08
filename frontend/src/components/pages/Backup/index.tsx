@@ -36,10 +36,10 @@ const Backup = () => {
 
       const blob = await backupService.createBackup(token);
 
-      // Genera el nombre del archivo con la fecha actual
+      
       const filename = `backup_${new Date().toISOString().replace(/[:.]/g, '-').split('T')[0]}.sql`;
 
-      // Descarga el archivo
+      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

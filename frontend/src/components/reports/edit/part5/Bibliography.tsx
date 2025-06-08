@@ -30,7 +30,7 @@ import { useReport } from '@/context/ReportContext';
 import { reportService, ReportBibliography } from '@/services/reportServices';
 import { useAuth } from '@/context/auth.context';
 
-// Diálogo de consulta
+
 const ViewDialog = ({ open, onClose, bibliography }: { open: boolean; onClose: () => void; bibliography: ReportBibliography }) => (
   <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
     <DialogTitle>Consultar Referencia</DialogTitle>
@@ -45,7 +45,7 @@ const ViewDialog = ({ open, onClose, bibliography }: { open: boolean; onClose: (
   </Dialog>
 );
 
-// Diálogo de edición
+
 const EditDialog = ({
   open,
   onClose,
@@ -90,7 +90,7 @@ const EditDialog = ({
   );
 };
 
-// Diálogo de creación
+
 const CreateDialog = ({
   open,
   onClose,
@@ -130,7 +130,7 @@ const CreateDialog = ({
   );
 };
 
-// Diálogo de confirmación de eliminación
+
 const DeleteDialog = ({
   open,
   onClose,
@@ -165,14 +165,14 @@ const Bibliography = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Estados para los diálogos
+  
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedBibliography, setSelectedBibliography] = useState<ReportBibliography | null>(null);
 
-  // Cargar referencias iniciales
+  
   useEffect(() => {
     const loadBibliographies = async () => {
       if (!report?.id || !token) return;
@@ -190,12 +190,12 @@ const Bibliography = () => {
     loadBibliographies();
   }, [report?.id, token]);
 
-  // Filtrar referencias según el término de búsqueda
+  
   const filteredBibliographies = bibliographies.filter(bib =>
     bib.reference.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginar referencias
+  
   const paginatedBibliographies = filteredBibliographies.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage

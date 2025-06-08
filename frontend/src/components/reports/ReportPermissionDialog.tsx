@@ -8,16 +8,14 @@ import {
   Checkbox,
   List,
   ListItem,
-  ListItemText,
   Collapse,
-  Box,
   FormControlLabel
 } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { reportService, SustainabilityReport } from '@/services/reportServices';
 
-// Estructura de partes y apartados con rangos de bits
+
 const PARTS = [
   {
     name: 'Paso 1',

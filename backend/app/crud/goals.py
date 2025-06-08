@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from app.models.models import Goal, MaterialTopic
 
 def get_goals_by_ods(db: Session, ods_id: int) -> List[Goal]:
+    """
+    Obtiene todos los objetivos de un ODS.
+    """
     try:
         return db.query(Goal).filter(Goal.ods_id == ods_id).all()
     except Exception as e:
@@ -14,6 +17,9 @@ def update_main_impact(
     goal_ods_id: int,
     goal_number: str
 ) -> None:
+    """
+    Actualiza el objetivo de una memoria.
+    """
     try:
         material_topic = db.query(MaterialTopic).filter(MaterialTopic.id == material_topic_id).first()
         if not material_topic:
@@ -28,6 +34,9 @@ def update_main_impact(
         raise e
 
 def get_all_goals(db: Session) -> List[Goal]:
+    """
+    Obtiene todos los objetivos.
+    """
     try:
         return db.query(Goal).all()
     except Exception as e:

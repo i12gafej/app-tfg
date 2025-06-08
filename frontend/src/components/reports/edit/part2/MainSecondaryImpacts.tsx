@@ -46,7 +46,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   onUpdate,
   readOnly = false
 }) => {
-  console.log('Valor de readOnly en MainSecondaryImpacts:', readOnly);
+  
   const { token } = useAuth();
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
@@ -58,27 +58,27 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
   const [changes, setChanges] = useState<{ [key: number]: boolean }>({});
 
 
-  // Cargar datos iniciales
+  
   useEffect(() => {
     const fetchData = async () => {
       if (!token) return;
       try {
         setLoading(true);
         
-        // Cargar ODS
+        
         const odsResponse = await odsService.getAllODS(token);
         setOdsList(odsResponse.items);
 
-        // Cargar Goals
+        
         const goalsResponse = await goalsService.getAllGoals(token);
         setGoals(goalsResponse.items);
 
-        // Cargar Material Topics
+        
         const materialTopicsResponse = await materialTopicService.getAllByReport(reportId, token);
-        // Ordenar los asuntos materiales con la función común
+        
         setMaterialTopics(sortMaterialTopics<MaterialTopic>(materialTopicsResponse || []));
 
-        // Cargar impactos secundarios para cada asunto de materialidad
+        
         const secondaryImpactsData: { [key: number]: number[] } = {};
         for (const topic of materialTopicsResponse || []) {
           const response = await odsService.getSecondaryImpacts(topic.id, token);
@@ -104,7 +104,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
     const topic = materialTopics.find(t => t.id === topicId);
     if (!topic) return;
 
-    // Si se deselecciona el ODS, limpiar todo
+    
     if (odsId === '') {
       const updatedTopics = materialTopics.map(t => 
         t.id === topicId ? { ...t, goal_ods_id: undefined, goal_number: undefined } : t
@@ -114,7 +114,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
       return;
     }
 
-    // Actualizar el ODS seleccionado
+    
     const updatedTopics = materialTopics.map(t => 
       t.id === topicId ? { ...t, goal_ods_id: odsId as number, goal_number: undefined } : t
     );
@@ -127,7 +127,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
     const topic = materialTopics.find(t => t.id === topicId);
     if (!topic) return;
 
-    // Actualizar la meta seleccionada
+    
     const updatedTopics = materialTopics.map(t => 
       t.id === topicId ? { ...t, goal_number: goalNumber || undefined } : t
     );
@@ -148,14 +148,14 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
       const topic = materialTopics.find(t => t.id === topicId);
       if (!topic) return;
 
-      // Si no hay ODS principal ni meta, actualizar el asunto para eliminarlos en el backend
+      
       if (!topic.goal_ods_id && !topic.goal_number) {
         await materialTopicService.updateMaterialTopic(topicId, {
           goal_ods_id: null,
           goal_number: null
         }, token);
       } else if (topic.goal_ods_id && topic.goal_number) {
-        // Actualizar impacto principal normalmente
+        
         await goalsService.updateMainImpact({
           material_topic_id: topicId,
           goal_ods_id: topic.goal_ods_id,
@@ -163,7 +163,7 @@ const MainSecondaryImpacts: React.FC<MainSecondaryImpactsProps> = ({
         }, token);
       }
 
-      // Actualizar impactos secundarios
+      
       await odsService.updateSecondaryImpacts(
         topicId,
         secondaryImpacts[topicId] || [],

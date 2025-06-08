@@ -9,7 +9,6 @@ from app.schemas.stakeholders import (
     StakeholderSearch
 )
 from app.schemas.auth import TokenData
-from app.models.models import Stakeholder as StakeholderModel, SustainabilityTeamMember
 from app.crud import stakeholders as crud_stakeholder
 from app.services.user import check_user_permissions
 from app.schemas.stakeholders import StakeholderSearch
@@ -68,7 +67,7 @@ def create_stakeholder(
     Solo permite la creación si el usuario es admin o si es gestor del reporte.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -79,7 +78,7 @@ def create_stakeholder(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
     
-        # Verificar si el nombre ya existe para este reporte
+        
         existing_stakeholder = crud_stakeholder.get_by_name(db, stakeholder_data.name)
         if existing_stakeholder and existing_stakeholder.report_id == stakeholder_data.report_id:
             raise HTTPException(
@@ -109,7 +108,7 @@ def update_stakeholder(
     """
     try:
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -127,7 +126,7 @@ def update_stakeholder(
                 detail="Grupo de interés no encontrado"
             )
     
-        # Verificar que el stakeholder pertenece al reporte correcto
+        
         if db_stakeholder.report_id != stakeholder_data.report_id:
             raise HTTPException(
                 status_code=400,
@@ -154,7 +153,7 @@ def delete_stakeholder(
     Solo permite la eliminación si el usuario es admin o si es gestor del reporte.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,

@@ -84,7 +84,7 @@ const TeamMemberSearchPanel = ({
       const data = await teamService.getTeamMembers(reportId, token || '');
       setTeamMembers(data);
       onTeamMembersUpdate(data);
-      console.log('Miembros actualizados:', data);
+      
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -193,14 +193,14 @@ const TeamMemberSearchPanel = ({
     onUpdate?.();
   }, [onUpdate]);
 
-  // Efecto para manejar la paginación cuando cambia la lista
+  
   useEffect(() => {
     if (page > 0 && page * rowsPerPage >= filteredTeamMembers.length) {
       setPage(0);
     }
   }, [filteredTeamMembers.length, page, rowsPerPage]);
 
-  // Efecto para actualizar la lista cuando cambia el reportId
+  
   useEffect(() => {
     if (reportId) {
       fetchTeamMembers();
@@ -210,7 +210,7 @@ const TeamMemberSearchPanel = ({
     }
   }, [reportId]);
 
-  // Escuchar el evento de creación de miembro
+  
   useEffect(() => {
     const handleTeamMemberCreated = () => {
       fetchTeamMembers();
@@ -222,7 +222,7 @@ const TeamMemberSearchPanel = ({
     };
   }, []);
 
-  // Escuchar el evento de eliminación de miembro
+  
   useEffect(() => {
     const handleTeamMemberDeleted = () => {
       fetchTeamMembers();
@@ -234,7 +234,7 @@ const TeamMemberSearchPanel = ({
     };
   }, []);
 
-  // Escuchar el evento de asignación de miembro
+  
   useEffect(() => {
     const handleTeamMemberAssigned = () => {
       fetchTeamMembers();
@@ -248,7 +248,7 @@ const TeamMemberSearchPanel = ({
 
   const handleResourceChange = (newResourceId: string | null) => {
     onResourceChange(newResourceId);
-    onReportChange(null); // Resetear la memoria cuando cambia el recurso
+    onReportChange(null); 
   };
 
   const handleSearch = async () => {

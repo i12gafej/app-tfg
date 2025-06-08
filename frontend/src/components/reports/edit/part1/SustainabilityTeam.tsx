@@ -23,7 +23,7 @@ const SustainabilityTeam = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  // Función para cargar miembros del equipo
+  
   const loadTeamMembers = useCallback(async () => {
     if (!report?.id || !token) return;
     
@@ -36,7 +36,7 @@ const SustainabilityTeam = () => {
     }
   }, [report?.id, token]);
 
-  // Cargar miembros del equipo solo cuando cambie el report o el token
+  
   useEffect(() => {
     loadTeamMembers();
   }, [loadTeamMembers]);
@@ -57,7 +57,7 @@ const SustainabilityTeam = () => {
     );
   }
 
-  // Solo mostrar TeamMemberSearchPanel en modo lectura
+  
   if (readOnly) {
     return (
       <DndProvider backend={HTML5Backend}>
@@ -88,7 +88,7 @@ const SustainabilityTeam = () => {
     );
   }
 
-  // Modo edición (original)
+  
   return (
     <DndProvider backend={HTML5Backend}>
       <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
@@ -148,7 +148,7 @@ const SustainabilityTeam = () => {
           reportId={report.id.toString()}
           onCreate={() => {
             setIsCreateDialogOpen(false);
-            // Forzar actualización de la lista
+            
             const event = new Event('teamMemberCreated');
             window.dispatchEvent(event);
           }}

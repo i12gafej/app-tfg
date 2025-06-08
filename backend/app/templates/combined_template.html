@@ -368,9 +368,22 @@
                 const menu = document.getElementById('side-menu');
                 menu.classList.toggle('collapsed');
             }
+
+            function openAndPrint() {
+                const newWindow = window.open('report_{{data.id}}.html', '_blank');
+                if (newWindow) {
+                    // Esperar a que la página se cargue completamente
+                    newWindow.onload = function() {
+                        // Pequeño retraso para asegurar que todo esté listo
+                        setTimeout(() => {
+                            newWindow.print();
+                        }, 500);
+                    };
+                }
+            }
         </script>
 
-        <button class="download-button" onclick="window.open('report_{{data.id}}.html', '_blank').print()">
+        <button class="download-button" onclick="openAndPrint()">
             <svg class="download-icon" viewBox="0 0 24 24">
                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
             </svg>

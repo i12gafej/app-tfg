@@ -17,7 +17,7 @@ from app.utils.graphs.internal_consistency import get_dimension_totals, generate
 
 router = APIRouter()
 
-# Endpoints para Objetivos Específicos
+
 @router.get("/specific-objectives/get-all/{material_topic_id}", response_model=List[SpecificObjective])
 def get_all_specific_objectives(
     material_topic_id: int,
@@ -125,7 +125,7 @@ def delete_specific_objective(
             detail=f"Error al eliminar objetivo específico: {str(e)}"
         )
 
-# Endpoints para Acciones
+
 @router.get("/actions/get-all/{specific_objective_id}", response_model=List[Action])
 def get_all_actions(
     specific_objective_id: int,
@@ -212,7 +212,7 @@ def delete_action(
             detail=f"Error al eliminar acción: {str(e)}"
         )
 
-# Endpoints para Indicadores de Rendimiento
+
 @router.get("/performance-indicators/get-all/{action_id}", response_model=List[PerformanceIndicator])
 def get_all_performance_indicators(
     action_id: int,
@@ -332,7 +332,7 @@ def get_internal_consistency_graph(
     Obtener el gráfico de coherencia interna y los totales por dimensión.
     """
     try:
-        # 1. Obtener el reporte para las ponderaciones
+        
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(
@@ -340,21 +340,21 @@ def get_internal_consistency_graph(
                 detail="Reporte no encontrado"
             )
 
-        # Asegurarnos de que las ponderaciones son números válidos
+        
         main_weight = float(report.main_impact_weight if report.main_impact_weight is not None else 0)
         secondary_weight = float(report.secondary_impact_weight if report.secondary_impact_weight is not None else 0)
 
-        # 2. Obtener impactos principales y secundarios
+        
         primary_impacts = crud_action_plan.get_all_action_main_impacts(db, report_id)
         secondary_impacts = crud_ods.get_all_action_secondary_impacts_counts(db, report_id)
 
-        # 3. Calcular totales por dimensión y lista ordenada
+        
         dimension_totals, dimension_totals_list = get_dimension_totals(primary_impacts, secondary_impacts, main_weight, secondary_weight)
 
-        # 4. Generar el gráfico
+        
         graph_data_url, _ = generate_internal_consistency_graph(dimension_totals)
 
-        # 5. Preparar la respuesta
+        
         dimension_totals_list = [
             DimensionTotal(dimension=dim["dimension"], total=dim["total"])
             for dim in dimension_totals_list

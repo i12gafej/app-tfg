@@ -11,15 +11,18 @@ def create_assessments(
     report_id: int,
     scale: int
 ) -> List[Assessment]:
+    """
+    Crea las evaluaciones de una encuesta.
+    """
     try:
-        # Verificar que la encuesta está activa
+        
         report = db.query(SustainabilityReport).filter(SustainabilityReport.id == report_id).first()
         if not report or report.survey_state != 'active':
             raise ValueError("La encuesta no está activa")
 
         created_assessments = []
         for assessment_data in assessments:
-            # Verificar que el score está en el rango permitido
+            
             score = assessment_data['score']
             if score < 1 or score > scale:
                 raise ValueError(f"Score {score} fuera del rango permitido [1,{scale}]")
@@ -43,6 +46,9 @@ def search_surveys(
     heritage_resource_name: Optional[str] = None,
     year: Optional[str] = None
 ) -> List[SustainabilityReport]:
+    """
+    Busca encuestas.
+    """
     try:
         query = db.query(
             SustainabilityReport.id,
@@ -57,9 +63,9 @@ def search_surveys(
             SustainabilityReport.survey_state == 'active'
         )
 
-        # Aplicar filtros si se proporcionan
+        
         if heritage_resource_name:
-            # Buscar recursos por nombre
+            
             resources = db.query(HeritageResource).filter(
                 HeritageResource.name.ilike(f"%{heritage_resource_name}%")
             ).all()
@@ -73,7 +79,7 @@ def search_surveys(
             query = query.filter(SustainabilityReport.year == year)
 
         if search_term:
-            # Buscar en recursos por nombre
+            
             resources = db.query(HeritageResource).filter(
                 HeritageResource.name.ilike(f"%{search_term}%")
             ).all()
@@ -93,8 +99,11 @@ def get_all_assessments(
     db: Session,
     report_id: int
 ) -> List[Assessment]:
+    """
+    Obtiene todas las evaluaciones de una memoria.
+    """
     try:
-        # Obtener todas las valoraciones para los asuntos relevantes del reporte
+        
         assessments = db.query(Assessment)\
             .join(MaterialTopic, Assessment.material_topic_id == MaterialTopic.id)\
             .filter(MaterialTopic.report_id == report_id)\

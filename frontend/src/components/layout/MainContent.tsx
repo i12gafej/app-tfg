@@ -11,7 +11,7 @@ const MainContent = ({ children }: MainContentProps) => {
   const location = useLocation();
   const theme = useTheme();
 
-  // Rutas que deberían tener fondo blanco
+  
   const whiteBackgroundRoutes = ['/memorias', '/encuestas', '/contacto', '/login'];
   const shouldHaveWhiteBackground = whiteBackgroundRoutes.includes(location.pathname);
 

@@ -39,7 +39,7 @@ const ActionMainSecondaryImpact = () => {
   const [secondaryImpacts, setSecondaryImpacts] = useState<{ [key: number]: number[] }>({});
   const [changes, setChanges] = useState<{ [key: number]: boolean }>({});
 
-  // Cargar ODS
+  
   useEffect(() => {
     const fetchODS = async () => {
       if (!token) return;
@@ -55,7 +55,7 @@ const ActionMainSecondaryImpact = () => {
     fetchODS();
   }, [token]);
 
-  // Cargar asuntos relevantes
+  
   useEffect(() => {
     const fetchMaterialTopics = async () => {
       if (!report || !token) return;
@@ -74,7 +74,7 @@ const ActionMainSecondaryImpact = () => {
     fetchMaterialTopics();
   }, [report, token]);
 
-  // Cargar objetivos específicos
+  
   useEffect(() => {
     const fetchSpecificObjectives = async () => {
       if (!selectedTopic || !token) return;
@@ -95,7 +95,7 @@ const ActionMainSecondaryImpact = () => {
     fetchSpecificObjectives();
   }, [selectedTopic, token]);
 
-  // Cargar acciones y sus impactos secundarios
+  
   useEffect(() => {
     const fetchActionsAndImpacts = async () => {
       if (!selectedObjective || !token) return;
@@ -104,7 +104,7 @@ const ActionMainSecondaryImpact = () => {
         const actionsResponse = await actionPlanService.getActions(selectedObjective.id, token);
         setActions(actionsResponse);
 
-        // Cargar impactos secundarios para cada acción
+        
         const impactsData: { [key: number]: number[] } = {};
         for (const action of actionsResponse) {
           const response = await odsService.getActionSecondaryImpacts(action.id, token);
@@ -129,7 +129,7 @@ const ActionMainSecondaryImpact = () => {
     setActions(updatedActions);
     setChanges(prev => ({ ...prev, [actionId]: true }));
 
-    // Si se deselecciona el ODS principal, limpiar impactos secundarios
+    
     if (odsId === '') {
       setSecondaryImpacts(prev => ({ ...prev, [actionId]: [] }));
     }
@@ -147,14 +147,14 @@ const ActionMainSecondaryImpact = () => {
       const action = actions.find(a => a.id === actionId);
       if (!action) return;
 
-      // Actualizar impacto principal
+      
       await actionPlanService.updateAction(actionId, {
         description: action.description,
         difficulty: action.difficulty,
         ods_id: action.ods_id
       }, token);
 
-      // Actualizar impactos secundarios
+      
       await odsService.updateActionSecondaryImpacts(
         actionId,
         secondaryImpacts[actionId] || [],

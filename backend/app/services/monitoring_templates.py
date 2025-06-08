@@ -24,12 +24,12 @@ def add_page_number(section):
     run._r.append(instrText)
     run._r.append(fldChar2)
 
-# Utilidad para crear hipervínculos internos
+
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 def add_bookmark(paragraph, bookmark_name):
-    # Añade un bookmark a un párrafo
+    
     tag = paragraph._p
     start = OxmlElement('w:bookmarkStart')
     start.set(qn('w:id'), '0')
@@ -40,7 +40,7 @@ def add_bookmark(paragraph, bookmark_name):
     tag.append(end)
 
 def add_hyperlink(paragraph, text, bookmark):
-    # Añade un hipervínculo interno a un bookmark, en negrita y azul
+    
     part = paragraph.part
     r_id = part.relate_to('#' + bookmark, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True)
     hyperlink = OxmlElement('w:hyperlink')
@@ -50,11 +50,11 @@ def add_hyperlink(paragraph, text, bookmark):
     rStyle = OxmlElement('w:rStyle')
     rStyle.set(qn('w:val'), 'Hyperlink')
     rPr.append(rStyle)
-    # Negrita
+    
     b = OxmlElement('w:b')
     b.set(qn('w:val'), 'true')
     rPr.append(b)
-    # Azul
+    
     color = OxmlElement('w:color')
     color.set(qn('w:val'), '0563C1')
     rPr.append(color)
@@ -70,22 +70,22 @@ def generate_monitoring_template(material_topics):
     logger.info("Iniciando generación de plantilla DOCX bonita y funcional")
     try:
         doc = Document()
-        # Márgenes
+        
         for section in doc.sections:
             section.top_margin = Cm(2.54)
             section.bottom_margin = Cm(2.54)
             section.left_margin = Cm(2.54)
             section.right_margin = Cm(2.54)
             add_page_number(section)
-        # Fuente base
+        
         style = doc.styles['Normal']
         style.font.name = 'Arial'
         style.font.size = Pt(11)
 
-        # --- Índice ---
+        
         doc.add_heading('Índice', 0)
         for topic in material_topics:
-            # Bookmark para el asunto
+            
             idx_p = doc.add_paragraph()
             add_hyperlink(idx_p, f"{topic['name']}", f"asunto_{topic['id']}")
             for objective in topic['objectives']:
@@ -94,16 +94,16 @@ def generate_monitoring_template(material_topics):
                     add_hyperlink(idx_a, action['description'][:50] + '...', f"accion_{action['id']}")
         doc.add_page_break()
 
-        # --- Contenido ---
+        
         for topic in material_topics:
-            # Asunto de materialidad (Heading 1, bookmark)
+            
             asunto_p = doc.add_paragraph()
             asunto_p.style = doc.styles['Heading 1']
             asunto_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             asunto_p.add_run(topic['name']).bold = True
             add_bookmark(asunto_p, f"asunto_{topic['id']}")
-            doc.add_paragraph()  # Espacio
-            # Info del asunto
+            doc.add_paragraph()  
+            
             asunto_info = [
                 ('Prioridad', topic['priority']),
                 ('Objetivo principal', topic['main_objective'])
@@ -112,16 +112,16 @@ def generate_monitoring_template(material_topics):
                 p = doc.add_paragraph()
                 p.add_run(f"{label}: ").bold = True
                 p.add_run(value)
-            doc.add_paragraph()  # Espacio
-            # Acciones
+            doc.add_paragraph()  
+            
             for objective in topic['objectives']:
                 for action in objective['actions']:
-                    # Acción (Heading 2, bookmark)
+                    
                     action_p = doc.add_paragraph()
                     action_p.style = doc.styles['Heading 2']
                     action_p.add_run(action['description'][:80]).bold = True
                     add_bookmark(action_p, f"accion_{action['id']}")
-                    # Info de la acción
+                    
                     fields = [
                         ('Ejecución', action.get('execution_time', 'No definido')),
                         ('Impacto principal ODS', action['main_impact'] or 'No definido'),
@@ -136,7 +136,7 @@ def generate_monitoring_template(material_topics):
                         p = doc.add_paragraph()
                         p.add_run(f"{label}: ").bold = True
                         p.add_run(value)
-                    # Tabla para campos editables
+                    
                     now = datetime.datetime.now()
                     year = str(now.year)
                     month = now.month
@@ -152,7 +152,7 @@ def generate_monitoring_template(material_topics):
                     table.style = 'Light List Accent 1'
                     table.cell(0, 0).text = f'Año: {year}'
                     table.cell(0, 1).text = f'Trimestre: {trimestre}'
-                    doc.add_paragraph()  # Espacio
+                    doc.add_paragraph()  
             doc.add_page_break()
         logger.info("Plantilla DOCX generada correctamente")
         return doc

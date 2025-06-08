@@ -48,7 +48,7 @@ const Surveys = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const expectedStateRef = useRef<'active' | 'inactive' | null>(null);
 
-  // Estados para la tabla comparativa
+  
   const [materialTopics, setMaterialTopics] = useState<MaterialTopic[]>([]);
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
@@ -56,7 +56,7 @@ const Surveys = () => {
   const [compareDialogOpen, setCompareDialogOpen] = useState(false);
   const [selectedStakeholders, setSelectedStakeholders] = useState<number[]>([]);
 
-  // Efecto para cargar los datos de la tabla cuando el reporte está activo
+  
   useEffect(() => {
     const loadTableData = async () => {
       if (!token || !report || report.survey_state !== 'active') return;
@@ -65,17 +65,17 @@ const Surveys = () => {
         setTableLoading(true);
         setError(null);
 
-        // Cargar asuntos relevantes
+        
         const topics = await materialTopicService.getAllByReport(report.id, token);
         setMaterialTopics(topics);
 
-        // Cargar grupos de interés
+        
         const stakeholdersResponse = await stakeholderService.searchStakeholders({
           report_id: report.id,
         }, token);
         setStakeholders(stakeholdersResponse.items);
 
-        // Cargar valoraciones
+        
         const assessmentsData = await surveyService.getAllAssessments(report.id, token);
         setAssessments(assessmentsData);
       } catch (err) {
@@ -104,7 +104,7 @@ const Surveys = () => {
         },
         token
       );
-      console.log('Respuesta del backend (updateReport):', updatedReport);
+      
       await updateFullReport({
         survey_state: 'active',
         scale: scale
@@ -134,7 +134,7 @@ const Surveys = () => {
         },
         token
       );
-      console.log('Respuesta del backend (updateReport):', updatedReport);
+      
       await updateFullReport({
         survey_state: 'inactive'
       });
@@ -156,12 +156,12 @@ const Surveys = () => {
       setLoading(true);
       setError(null);
 
-      // Solo una llamada, y siempre con el estado actual
+      
       const updatedReport = await updateFullReport({
         scale: scale,
         survey_state: report.survey_state
       });
-      console.log('Respuesta del backend (updateReport):', updatedReport);
+      
 
       setSuccess('Escala actualizada correctamente');
       setEnableDialogOpen(false);
@@ -218,31 +218,31 @@ const Surveys = () => {
     const mean = calculateAverage(scores);
     if (mean === 0) return 0;
     const stdDev = calculateStandardDeviation(scores);
-    return (stdDev / mean) * 100; // Retorna como porcentaje
+    return (stdDev / mean) * 100; 
   };
 
   const calculateValuationBias = (scores: (number | null)[], scale: number): number => {
     const mean = calculateAverage(scores);
-    const theoreticalMean = (scale + 1) / 2; // Punto medio de la escala
-    return ((mean - theoreticalMean) / theoreticalMean) * 100; // Retorna como porcentaje
+    const theoreticalMean = (scale + 1) / 2; 
+    return ((mean - theoreticalMean) / theoreticalMean) * 100; 
   };
 
   const getValuationStatus = (cv: number, bias: number): { status: string; color: string } => {
     if (cv > 50) {
-      return { status: 'Alta dispersión', color: '#f44336' }; // Rojo
+      return { status: 'Alta dispersión', color: '#f44336' }; 
     } else if (cv > 30) {
-      return { status: 'Dispersión moderada', color: '#ff9800' }; // Naranja
+      return { status: 'Dispersión moderada', color: '#ff9800' }; 
     } else if (Math.abs(bias) > 30) {
-      return { status: 'Sesgo significativo', color: '#ff9800' }; // Naranja
+      return { status: 'Sesgo significativo', color: '#ff9800' }; 
     } else {
-      return { status: 'Normalizado', color: '#4caf50' }; // Verde
+      return { status: 'Normalizado', color: '#4caf50' }; 
     }
   };
 
   const internalStakeholders = stakeholders.filter(s => s.type === 'internal');
   const externalStakeholders = stakeholders.filter(s => s.type === 'external');
 
-  console.log('Estado actual en el render:', report?.survey_state);
+  
 
   const handleOpenCompareDialog = () => {
     setSelectedStakeholders(stakeholders.map(s => s.id));
@@ -256,13 +256,13 @@ const Surveys = () => {
   const handleStakeholderSelection = (event: any) => {
     const value = event.target.value;
     if (value.includes('all')) {
-      // Si se selecciona "Todos", seleccionar todos los stakeholders
+      
       setSelectedStakeholders(stakeholders.map(s => s.id));
     } else if (value.includes('none')) {
-      // Si se selecciona "Ninguno", deseleccionar todos
+      
       setSelectedStakeholders([]);
     } else {
-      // Si se seleccionan stakeholders individuales
+      
       setSelectedStakeholders(value);
     }
   };

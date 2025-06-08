@@ -1,5 +1,5 @@
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Body, Query
+from typing import List 
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from app.api.deps import get_db, get_current_user
 from app.schemas.material_topics import (
@@ -9,7 +9,6 @@ from app.schemas.material_topics import (
     MaterialTopicSearch
 )
 from app.schemas.auth import TokenData
-from app.models.models import MaterialTopic as MaterialTopicModel, SustainabilityTeamMember
 from app.crud import material_topics as crud_material_topic
 from app.utils.graphs.materiality_matrix import create_materiality_matrix_data, generate_matrix_image
 from app.services.user import check_user_permissions
@@ -28,7 +27,7 @@ def search_material_topics(
     Buscar asuntos relevantes con filtros opcionales.
     """
     try:
-        # Verificar si el usuario es admin o tiene un rol en el reporte
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -38,7 +37,7 @@ def search_material_topics(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Quitar paginación: obtener todos los asuntos que cumplan los filtros
+        
         material_topics = crud_material_topic.search(
             db=db,
             search_term=search_params.search_term,
@@ -47,7 +46,7 @@ def search_material_topics(
             
         )
 
-        # Convertir los material topics a esquema Pydantic
+        
         material_topics_schema = [
             MaterialTopic(
                 id=material_topic.id,
@@ -117,7 +116,7 @@ def update_material_topic(
     """
     Actualizar un asunto de materialidad.
     """
-    # Obtener el asunto de materialidad existente
+    
     db_material_topic = crud_material_topic.get(db, material_topic_id)
     if not db_material_topic:
         raise HTTPException(
@@ -125,7 +124,7 @@ def update_material_topic(
             detail="asunto de materialidad no encontrado"
         )
 
-    # Verificar si el usuario es admin o tiene un rol en el reporte
+    
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
             db=db,
@@ -153,7 +152,7 @@ def delete_material_topic(
     """
     Eliminar un asunto de materialidad.
     """
-    # Primero obtener el material topic para saber a qué reporte pertenece
+    
     db_material_topic = crud_material_topic.get(db, material_topic_id)
     if not db_material_topic:
         raise HTTPException(
@@ -161,7 +160,7 @@ def delete_material_topic(
             detail="asunto de materialidad no encontrado"
         )
 
-    # Verificar si el usuario es admin o tiene un rol en el reporte
+    
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
             db=db,
@@ -203,13 +202,16 @@ async def get_materiality_matrix(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
+    """
+    Obtiene la matriz de materialidad
+    """
     report_id = data.get('report_id')
     normalize = data.get('normalize', False)
     scale = data.get('scale', None)
     if report_id is None:
         raise HTTPException(status_code=400, detail="report_id es requerido")
     
-    # Verificar si el usuario es admin o tiene un rol en el reporte
+    
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
             db=db,

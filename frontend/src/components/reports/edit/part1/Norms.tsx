@@ -32,7 +32,7 @@ import { reportService } from '@/services/reportServices';
 import { useAuth } from '@/context/auth.context';
 import { ReportNorm } from '@/services/reportServices';
 
-// Función para extraer URLs del texto
+
 const extractUrls = (text: string): string[] => {
   const lines = text.split('\n');
   const urls: string[] = [];
@@ -53,7 +53,7 @@ const extractUrls = (text: string): string[] => {
   return urls;
 };
 
-// Función para extraer el texto sin URLs
+
 const extractText = (text: string): string => {
   const lines = text.split('\n');
   const textLines: string[] = [];
@@ -66,19 +66,19 @@ const extractText = (text: string): string => {
   return textLines.join('\n');
 };
 
-// Función para truncar texto
+
 const truncateText = (text: string, maxLength: number = 100): string => {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
 };
 
-// Función para truncar URLs
+
 const truncateUrl = (url: string, maxLength: number = 50): string => {
   if (url.length <= maxLength) return url;
   return url.substring(0, maxLength) + '...';
 };
 
-// Diálogo de consulta
+
 const ViewDialog = ({ open, onClose, norm }: { open: boolean; onClose: () => void; norm: ReportNorm }) => {
   const text = extractText(norm.norm);
   const urls = extractUrls(norm.norm);
@@ -108,7 +108,7 @@ const ViewDialog = ({ open, onClose, norm }: { open: boolean; onClose: () => voi
   );
 };
 
-// Diálogo de edición
+
 const EditDialog = ({ 
   open, 
   onClose, 
@@ -193,7 +193,7 @@ const EditDialog = ({
   );
 };
 
-// Diálogo de creación
+
 const CreateDialog = ({ 
   open, 
   onClose, 
@@ -278,7 +278,7 @@ const CreateDialog = ({
   );
 };
 
-// Diálogo de confirmación de eliminación
+
 const DeleteDialog = ({ 
   open, 
   onClose, 
@@ -315,14 +315,14 @@ const Norms = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Estados para los diálogos
+  
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedNorm, setSelectedNorm] = useState<ReportNorm | null>(null);
 
-  // Cargar normativas iniciales
+  
   useEffect(() => {
     const loadNorms = async () => {
       if (!report?.id || !token) return;
@@ -342,12 +342,12 @@ const Norms = () => {
     loadNorms();
   }, [report?.id, token]);
 
-  // Filtrar normativas según el término de búsqueda
+  
   const filteredNorms = norms.filter(norm => 
     norm.norm.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginar normativas
+  
   const paginatedNorms = filteredNorms.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage

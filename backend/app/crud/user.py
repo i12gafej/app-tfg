@@ -11,7 +11,7 @@ import logging
 
 def authenticate(db: Session, *, email: str, password: str) -> Optional[User]:
     """
-    Authenticate a user by email and password
+    Autentica un usuario por email y contraseña.
     """
     try:
         user = db.query(User).filter(User.email == email).first()
@@ -29,11 +29,11 @@ logger = logging.getLogger(__name__)
 
 def get_by_email(db: Session, *, email: str) -> Optional[User]:
     """
-    Get a user by email
+    Obtiene un usuario por email.
     """
     try:    
         logger.info(f"Buscando usuario por email: {email}")
-        # Realizar la búsqueda específica
+        
         query = db.query(User).filter(User.email == email)
            
         return query.first()
@@ -43,10 +43,10 @@ def get_by_email(db: Session, *, email: str) -> Optional[User]:
 
 def create(db: Session, user_data: UserCreate) -> User:
     try:
-        # Hashear la contraseña
+        
         hashed_password = get_password_hash(user_data.password)
         
-        # Crear el objeto de usuario
+        
         user = User(
             name=user_data.name,
             surname=user_data.surname,
@@ -56,7 +56,7 @@ def create(db: Session, user_data: UserCreate) -> User:
             phone_number=user_data.phone_number
         )
         
-        # Guardar en la base de datos
+        
         db.add(user)
         db.commit()
         db.refresh(user)
@@ -67,7 +67,7 @@ def create(db: Session, user_data: UserCreate) -> User:
 
 def get(db: Session, user_id: int) -> Optional[User]:
     """
-    Get a user by ID
+    Obtiene un usuario por ID.
     """
     try:
         return db.query(User).filter(User.id == user_id).first()
@@ -77,10 +77,10 @@ def get(db: Session, user_id: int) -> Optional[User]:
 
 def update(db: Session, user: User, user_data: dict) -> User:
     """
-    Update a user
+    Actualiza un usuario.
     """
     try:
-        # Convertir el objeto Pydantic a diccionario si es necesario
+        
         if hasattr(user_data, 'dict'):
             user_data = user_data.dict(exclude_unset=True)
             
@@ -97,7 +97,7 @@ def update(db: Session, user: User, user_data: dict) -> User:
 
 def delete(db: Session, user: User) -> None:
     """
-    Eliminar un usuario de la base de datos.
+    Elimina un usuario de la base de datos.
     """
     try:
         db.delete(user)
@@ -114,7 +114,7 @@ def search(
     is_admin: Optional[bool] = None
 ) -> List[User]:
     """
-    Buscar usuarios con filtros opcionales.
+    Busca usuarios con filtros opcionales.
     """
     try:
         query = db.query(User)
@@ -124,7 +124,7 @@ def search(
                 return None
             return text.strip()
 
-        # Filtro por término de búsqueda general
+        
         if search_term:
             search = normalize_text(search_term)
             if search:
@@ -135,7 +135,7 @@ def search(
                     User.email.ilike(search)
                 )
 
-        # Filtros específicos
+        
         if name:
             name_val = normalize_text(name)
             if name_val:
@@ -156,6 +156,9 @@ def search(
         raise e
 
 def change_password(db: Session, user_id: int, old_password: str, new_password: str) -> Optional[User]:
+    """
+    Cambia la contraseña de un usuario.
+    """
     try:
         user = get(db, user_id)
         if not user:
@@ -172,16 +175,19 @@ def change_password(db: Session, user_id: int, old_password: str, new_password: 
         raise e
 
 async def generate_change_password_token(db: Session, email: str) -> str:
+    """
+    Genera un token de cambio de contraseña.
+    """
     try:
         user = get_by_email(db, email=email)
         if not user:
             return None
         
-        # Generar token único
+        
         token = secrets.token_urlsafe(32)
         expiration = datetime.utcnow() + timedelta(minutes=30)
         
-        # Guardar token en la base de datos
+        
         user.reset_token = token
         user.reset_token_expiration = expiration
         db.commit()
@@ -192,6 +198,9 @@ async def generate_change_password_token(db: Session, email: str) -> str:
         raise e
 
 def verify_reset_token(db: Session, token: str) -> User:
+    """
+    Verifica un token de cambio de contraseña.
+    """
     try:
         user = db.query(User).filter(
             User.reset_token == token,
@@ -202,6 +211,9 @@ def verify_reset_token(db: Session, token: str) -> User:
         raise e
 
 def reset_password(db: Session, token: str, new_password: str) -> User:
+    """
+    Reinicia la contraseña de un usuario.
+    """
     try:
         user = db.query(User).filter(
             User.reset_token == token,
@@ -210,10 +222,10 @@ def reset_password(db: Session, token: str, new_password: str) -> User:
         if not user:
             return None
         
-        # Actualizar la contraseña
+        
         user.password = get_password_hash(new_password)
         
-        # Eliminar el token y la fecha de expiración
+        
         user.reset_token = None
         user.reset_expires = None
         

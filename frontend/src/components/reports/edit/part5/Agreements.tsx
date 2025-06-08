@@ -29,7 +29,7 @@ import { useReport } from '@/context/ReportContext';
 import { reportService, ReportAgreement } from '@/services/reportServices';
 import { useAuth } from '@/context/auth.context';
 
-// Diálogo de edición
+
 const EditDialog = ({
   open,
   onClose,
@@ -74,7 +74,7 @@ const EditDialog = ({
   );
 };
 
-// Diálogo de creación
+
 const CreateDialog = ({
   open,
   onClose,
@@ -114,7 +114,7 @@ const CreateDialog = ({
   );
 };
 
-// Diálogo de confirmación de eliminación
+
 const DeleteDialog = ({
   open,
   onClose,
@@ -149,13 +149,13 @@ const Agreements = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Estados para los diálogos
+  
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedAgreement, setSelectedAgreement] = useState<ReportAgreement | null>(null);
 
-  // Cargar Convenios iniciales
+  
   useEffect(() => {
     const loadAgreements = async () => {
       if (!report?.id || !token) return;
@@ -173,12 +173,12 @@ const Agreements = () => {
     loadAgreements();
   }, [report?.id, token]);
 
-  // Filtrar Convenios según el término de búsqueda
+  
   const filteredAgreements = agreements.filter(ag =>
     ag.agreement.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginar Convenios
+  
   const paginatedAgreements = filteredAgreements.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage

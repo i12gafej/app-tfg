@@ -55,7 +55,7 @@ const OrganizationChart = () => {
       }
       setOrgChartUrl(url);
     } catch (error: any) {
-      // Si es un 404, simplemente no hay organigrama, no es un error
+      
       if (error.response?.status !== 404) {
         console.error('Error al cargar el organigrama:', error);
       }
@@ -73,7 +73,7 @@ const OrganizationChart = () => {
       setLoading(true);
 
       await reportService.updateOrganizationChart(report.id, file, token);
-      await loadOrganizationChart(); // Recargar el organigrama
+      await loadOrganizationChart(); 
       setSuccessMessage('Organigrama subido correctamente');
     } catch (err: any) {
       console.error('Error al subir el organigrama:', err);
@@ -84,7 +84,7 @@ const OrganizationChart = () => {
       }
     } finally {
       setLoading(false);
-      // Limpiar el input para permitir subir el mismo archivo de nuevo
+      
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -110,7 +110,7 @@ const OrganizationChart = () => {
     }
   };
 
-  // Limpiar mensajes después de 5 segundos
+  
   useEffect(() => {
     if (successMessage || error) {
       const timer = setTimeout(() => {

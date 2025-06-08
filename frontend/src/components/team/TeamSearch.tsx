@@ -28,7 +28,7 @@ const TeamSearch = ({
   return (
     <DndProvider backend={HTML5Backend}>
       <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
-        {/* Panel de búsqueda de usuarios */}
+        
         <Paper sx={{ p: 2, flex: 1 }}>
           <Typography variant="h6" gutterBottom>
             Buscar Usuarios Disponibles
@@ -40,7 +40,7 @@ const TeamSearch = ({
           />
         </Paper>
 
-        {/* Panel de búsqueda de miembros del equipo */}
+        
         <Paper sx={{ p: 2, flex: 1 }}>
           <Typography variant="h6" gutterBottom>
             Miembros del Equipo

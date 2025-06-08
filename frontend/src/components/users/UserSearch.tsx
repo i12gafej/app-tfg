@@ -23,11 +23,6 @@ import {
   useMediaQuery,
   useTheme,
   TablePagination,
-  Popover,
-  List,
-  ListItem,
-  ListItemText,
-  Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -96,10 +91,10 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
       setLoading(true);
       setError(null);
       
-      // Crear un objeto con los parámetros de búsqueda
+      
       const searchParams: any = {};
 
-      // Solo agregar los parámetros que tienen valores
+      
       if (searchTerm) {
         searchParams.search_term = searchTerm;
       }
@@ -120,11 +115,11 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
       const response = await userService.searchUsers(searchParams, token || '');
       console.log('Respuesta del servidor:', response);
       
-      // Actualizar los estados
+      
       setAllUsers(response.items);
       setTotalUsers(response.total);
-      setPage(0); // Resetear a la primera página
-      // Mostrar los usuarios de la primera página
+      setPage(0); 
+      
       const start = 0;
       const end = rowsPerPage;
       setUsers(response.items.slice(start, end));
@@ -204,7 +199,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
     
     try {
       await userService.updateUser(userToEdit.id, userData, token || '');
-      // Actualizar la lista de usuarios
+      
       handleSearch();
       handleCloseEdit();
     } catch (error) {
@@ -227,7 +222,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
     
     try {
       await userService.deleteUser(userToDelete.id, token || '');
-      handleSearch(); // Actualizar la lista de usuarios
+      handleSearch(); 
       handleCloseDelete();
     } catch (error) {
       console.error('Error al eliminar usuario:', error);
@@ -244,7 +239,7 @@ const UserSearch = ({ onSearch }: UserSearchProps) => {
   };
 
   const handleUserCreated = (newUser: User) => {
-    handleSearch(); // Actualizar la lista de usuarios
+    handleSearch(); 
   };
 
   const handleSort = (field: SortField) => {

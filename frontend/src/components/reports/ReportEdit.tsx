@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, IconButton, Typography } from '@mui/material';
+import { Box, IconButton, Typography, Tooltip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ReportNavBar from './edit/ReportNavBar';
 import { ReportProvider } from '@/context/ReportContext';
 
@@ -16,11 +17,11 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdv
   const navigate = useNavigate();
   const reportId = id ? parseInt(id, 10) : null;
 
-  console.log('ReportEdit - Params:', { id, name, year });
-  console.log('ReportEdit - reportId:', reportId);
+  
+  
 
   useEffect(() => {
-    // Scroll al título de edición
+    
     const titleElement = document.getElementById('edit-title');
     if (titleElement) {
       titleElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -31,8 +32,13 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdv
     navigate('/memorias');
   };
 
+  const handleHelpClick = () => {
+    const helpFile = readOnly ? '/ayuda-consultor.pdf' : '/ayuda-gestor.pdf';
+    window.open(helpFile, '_blank');
+  };
+
   if (!reportId) {
-    console.log('ReportEdit - ID de reporte inválido');
+    
     return <div>ID de reporte inválido</div>;
   }
 
@@ -52,6 +58,21 @@ const ReportEdit: React.FC<ReportEditProps> = ({ readOnly = false, isExternalAdv
           <Typography variant="h6" id="edit-title">
             {readOnly ? `Consultar Memoria de ${name} - ${year}` : `Editar Memoria de ${name} - ${year}`}
           </Typography>
+          <Tooltip title={readOnly ? "Ayuda para consultores" : "Ayuda para gestores"}>
+            <IconButton 
+              onClick={handleHelpClick}
+              sx={{ 
+                ml: 2,
+                backgroundColor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                }
+              }}
+            >
+              <HelpOutlineIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
         <Box sx={{ flex: 1}}>
           <ReportNavBar />

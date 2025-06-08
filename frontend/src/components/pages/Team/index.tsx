@@ -44,7 +44,7 @@ const Team = () => {
           reportId={selectedReport}
           onCreate={() => {
             setIsCreateDialogOpen(false);
-            // Forzar actualización de la lista
+            
             const event = new Event('teamMemberCreated');
             window.dispatchEvent(event);
           }}

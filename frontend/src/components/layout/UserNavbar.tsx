@@ -30,6 +30,7 @@ const UserNavbar = () => {
     { text: 'Memorias', path: '/memorias' },
     { text: 'Encuestas', path: '/encuestas' },
     { text: 'Perfil', path: '/perfil' },
+    { text: 'Ayuda', path: '/ayuda-miembro.pdf', external: true },
   ];
 
   const drawer = (
@@ -135,8 +136,10 @@ const UserNavbar = () => {
               {menuItems.map((item) => (
                 <Button
                   key={item.text}
-                  component={RouterLink}
-                  to={item.path}
+                  component={item.external ? 'a' : RouterLink}
+                  href={item.external ? item.path : undefined}
+                  to={!item.external ? item.path : undefined}
+                  target={item.external ? '_blank' : undefined}
                   sx={{
                     color: theme.palette.text.primary,
                     fontWeight: 500,

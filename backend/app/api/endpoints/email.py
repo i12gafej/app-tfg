@@ -12,6 +12,9 @@ router = APIRouter()
 
 @router.post("/send/contact-information/")
 async def send_contact_information(data: ContactFormData):
+    """
+    Envía información de contacto al servidor
+    """
     try:
         await send_contact_info_to_server(data)
         return {"message": "Correo enviado exitosamente"}
@@ -21,8 +24,11 @@ async def send_contact_information(data: ContactFormData):
 
 @router.post("/send/change-password-verification/")
 async def send_change_password_verification(data: PasswordResetRequest, db: Session = Depends(get_db)):
+    """
+    Envía un correo de verificación para cambiar la contraseña
+    """
     try:
-        # Generar token y guardarlo en la base de datos
+        
         user = crud_user.get_by_email(db, email=data.email)
         if not user:
             return {"message": ""}
@@ -30,7 +36,7 @@ async def send_change_password_verification(data: PasswordResetRequest, db: Sess
         if not token:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
         
-        # Enviar correo con el token
+        
         await send_change_password_verification_mail(data.email, token)
         return {"message": "Correo de verificación enviado exitosamente"}
     except Exception as e:

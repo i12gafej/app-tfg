@@ -8,7 +8,9 @@ import bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifica si la contraseña en texto plano coincide con el hash"""
+    """
+    Verifica si la contraseña en texto plano coincide con el hash
+    """
     try:
         return bcrypt.checkpw(
             plain_password.encode('utf-8'),
@@ -19,7 +21,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 def get_password_hash(password: str) -> str:
-    """Genera un hash bcrypt de la contraseña"""
+    """
+    Genera un hash bcrypt de la contraseña.
+    """
     return bcrypt.hashpw(
         password.encode('utf-8'),
         bcrypt.gensalt()
@@ -28,6 +32,9 @@ def get_password_hash(password: str) -> str:
 def create_access_token(
     subject: Union[str, Any], expires_delta: timedelta | None = None
 ) -> str:
+    """
+    Genera un token de acceso.
+    """
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:

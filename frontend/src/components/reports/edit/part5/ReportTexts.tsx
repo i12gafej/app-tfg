@@ -114,7 +114,7 @@ const ReportTexts = () => {
           variant="contained"
           color="primary"
           onClick={() => {
-            console.log('Botón de guardar clickeado');
+            
             handleSubmit();
           }}
           disabled={reportLoading || isSaving}

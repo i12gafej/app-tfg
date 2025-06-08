@@ -17,7 +17,6 @@ const ResourceDetailsDialog = ({ open, onClose, onEdit, resource }: ResourceDeta
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <Grid container spacing={3}>
-            {/* Información Básica */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
                 Información Básica
@@ -59,7 +58,7 @@ const ResourceDetailsDialog = ({ open, onClose, onEdit, resource }: ResourceDeta
               <Divider sx={{ my: 2 }} />
             </Grid>
 
-            {/* Información de Contacto */}
+            
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
                 Información de Contacto
@@ -94,7 +93,7 @@ const ResourceDetailsDialog = ({ open, onClose, onEdit, resource }: ResourceDeta
               <Divider sx={{ my: 2 }} />
             </Grid>
 
-            {/* Información Adicional */}
+            
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
                 Información Adicional

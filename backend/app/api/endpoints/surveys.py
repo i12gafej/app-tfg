@@ -11,8 +11,6 @@ from app.schemas.surveys import (
     Survey
 )
 from app.crud import surveys as crud_surveys
-from app.crud import resources as crud_resources
-from app.models.models import HeritageResource
 
 router = APIRouter()
 
@@ -68,10 +66,10 @@ async def search_surveys(
     """
     try:
 
-        # Convertir el año a string si es un número
+        
         year = str(search_params.year) if search_params.year is not None else None
             
-        # Buscar las encuestas
+        
         reports = crud_surveys.search_surveys(
             db=db,
             search_term=search_params.search_term,
@@ -79,7 +77,7 @@ async def search_surveys(
             year=year
         )
 
-        # Convertir los reportes a esquema Pydantic
+        
         surveys = [
             Survey(
                 id=report.id,

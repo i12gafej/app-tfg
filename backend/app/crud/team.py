@@ -11,7 +11,9 @@ def search_available_users(
     surname: Optional[str] = None,
     email: Optional[str] = None
 ) -> List[User]:
-    """Buscar usuarios disponibles para agregar a un equipo"""
+    """
+    Busca usuarios disponibles para agregar a un equipo.
+    """
     try:
         query = db.query(User).filter(User.admin == False)
 
@@ -52,7 +54,7 @@ def search_team_members(
     search_params: TeamMemberSearch
 ) -> dict:
     """
-    Buscar miembros del equipo de un reporte con filtros opcionales.
+    Busca miembros del equipo de una memoria con filtros opcionales.
     """
     try:
         query = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.report_id == report_id)
@@ -109,9 +111,11 @@ def create_team_member(
     db: Session,
     team_member_data: TeamMemberCreate
 ) -> SustainabilityTeamMember:
-    """Crear un nuevo miembro del equipo"""
+    """
+    Crea un nuevo miembro del equipo.
+    """
     try:
-        # Verificar si el usuario ya es miembro
+        
         existing_member = db.query(SustainabilityTeamMember).filter(
             SustainabilityTeamMember.report_id == team_member_data.report_id,
             SustainabilityTeamMember.user_id == team_member_data.user_id
@@ -120,7 +124,7 @@ def create_team_member(
         if existing_member:
             raise ValueError("El usuario ya es miembro del equipo")
 
-        # Crear el miembro del equipo
+        
         team_member = SustainabilityTeamMember(
             report_id=team_member_data.report_id,
             user_id=team_member_data.user_id,
@@ -140,14 +144,16 @@ def update_team_member(
     member_id: int,
     update_data: dict
 ) -> SustainabilityTeamMember:
-    """Actualizar un miembro del equipo"""
+    """
+    Actualiza un miembro del equipo.
+    """
     try:
-        # Buscar el miembro
+        
         member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
         if not member:
             raise ValueError("Miembro del equipo no encontrado")
 
-        # Actualizar los campos
+        
         member.type = update_data["role"]
         member.organization = update_data["organization"]
 
@@ -162,20 +168,25 @@ def delete_team_member(
     db: Session,
     member_id: int
 ) -> None:
-    """Eliminar un miembro del equipo"""
+    """
+    Elimina un miembro del equipo.
+    """
     try:
-        # Buscar el miembro
+        
         member = db.query(SustainabilityTeamMember).filter(SustainabilityTeamMember.id == member_id).first()
         if not member:
             raise ValueError("Miembro del equipo no encontrado")
 
-        # Eliminar el miembro
+        
         db.delete(member)
         db.commit()
     except Exception as e:
         raise e
 
 def get_all_team_members_by_report(db: Session, report_id: int) -> List[dict]:
+    """
+    Obtiene todos los miembros del equipo de una memoria.
+    """
     try:
         members = db.query(
             SustainabilityTeamMember.type.label('role'),

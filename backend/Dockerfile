@@ -5,7 +5,7 @@ WORKDIR /app
 # --- instalar cliente MySQL 8 del repo de Oracle ---
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y wget gnupg lsb-release && \
+    apt-get install -y wget gnupg lsb-release pkg-config default-libmysqlclient-dev build-essential && \
     wget -qO /tmp/mysql-apt-config.deb \
         https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb && \
     echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.0" | debconf-set-selections && \

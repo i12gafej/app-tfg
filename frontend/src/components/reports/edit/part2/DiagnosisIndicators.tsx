@@ -51,7 +51,7 @@ const DiagnosisIndicators: React.FC = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [indicatorToDelete, setIndicatorToDelete] = useState<DiagnosisIndicator | null>(null);
 
-  // Función para cargar los indicadores
+  
   const fetchIndicators = async () => {
     if (!token || !report) return;
     try {
@@ -66,7 +66,7 @@ const DiagnosisIndicators: React.FC = () => {
     }
   };
 
-  // Cargar asuntos relevantes y todos los indicadores al montar el componente
+  
   useEffect(() => {
     const fetchData = async () => {
       if (!token || !report) return;
@@ -89,7 +89,7 @@ const DiagnosisIndicators: React.FC = () => {
     fetchData();
   }, [token, report]);
 
-  // Filtrar indicadores según el material topic seleccionado
+  
   const filteredIndicators = selectedTopic
     ? allIndicators.filter(indicator => indicator.material_topic_id === selectedTopic.id)
     : [];
@@ -103,7 +103,16 @@ const DiagnosisIndicators: React.FC = () => {
         material_topic_id: selectedTopic.id
       };
       const response = await diagnosisIndicatorService.createIndicator(data, token);
-      setAllIndicators(prev => [...prev, response]);
+      
+      
+      const completeIndicator = await diagnosisIndicatorService.getIndicator(response.id, token);
+      
+      
+      setAllIndicators(prev => [...prev, completeIndicator]);
+      
+      
+      setSelectedIndicator(completeIndicator);
+      
       setOpenCreateDialog(false);
       setNewIndicator({
         name: '',
@@ -131,13 +140,13 @@ const DiagnosisIndicators: React.FC = () => {
         throw new Error('No se encontró el token de autenticación');
       }
 
-      // Preparar los datos de actualización
+      
       const updateData: DiagnosisIndicatorUpdate = {
         name: selectedIndicator.name,
         type: selectedIndicator.type
       };
 
-      // Agregar los datos específicos según el tipo
+      
       if (selectedIndicator.type === 'quantitative') {
         updateData.numeric_response = selectedIndicator.quantitative_data?.numeric_response;
         updateData.unit = selectedIndicator.quantitative_data?.unit;
@@ -145,17 +154,17 @@ const DiagnosisIndicators: React.FC = () => {
         updateData.response = selectedIndicator.qualitative_data?.response;
       }
 
-      // Actualizar el indicador
+      
       const updatedIndicator = await diagnosisIndicatorService.updateIndicator(
         selectedIndicator.id,
         updateData,
         token
       );
 
-      // Obtener el indicador actualizado con todos sus datos
+      
       const refreshedIndicator = await diagnosisIndicatorService.getIndicator(updatedIndicator.id, token);
 
-      // Actualizar el estado con el indicador refrescado
+      
       setAllIndicators(prev => 
         prev.map(indicator => 
           indicator.id === refreshedIndicator.id ? refreshedIndicator : indicator

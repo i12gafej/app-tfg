@@ -39,7 +39,7 @@ interface MaterialTopicSearchProps {
   readOnly?: boolean;
 }
 
-// Orden personalizado para las dimensiones
+
 const DIMENSION_ORDER = ['SIN_DIMENSION', 'PERSONAS', 'PLANETA', 'PROSPERIDAD', 'PAZ', 'ALIANZAS'];
 function getDimensionOrder(goal_ods_id: number | undefined): string {
   if (!goal_ods_id) return 'SIN_DIMENSION';
@@ -86,7 +86,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
     if (token) {
       handleSearch();
     }
-    // eslint-disable-next-line
+    
   }, [token, reportId]);
 
   const handleSearch = async () => {
@@ -105,7 +105,7 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
     }
   };
 
-  // Agrupar por dimensión
+  
   const groupedByDimension = useMemo(() => {
     const groups: { [key: string]: MaterialTopic[] } = {};
     allMaterialTopics.forEach(topic => {
@@ -113,19 +113,19 @@ const MaterialTopicSearch: React.FC<MaterialTopicSearchProps> = ({ reportId, rea
       if (!groups[dim]) groups[dim] = [];
       groups[dim].push(topic);
     });
-    // Ordenar cada grupo por id
+    
     Object.keys(groups).forEach(dim => {
       groups[dim].sort((a, b) => a.id - b.id);
     });
     return groups;
   }, [allMaterialTopics]);
 
-  // Unir los grupos en el orden deseado
+  
   const orderedTopics = useMemo(() => {
     return DIMENSION_ORDER.flatMap(dim => groupedByDimension[dim] || []);
   }, [groupedByDimension]);
 
-  // Paginación local
+  
   const paginatedTopics = useMemo(() => {
     const start = page * rowsPerPage;
     return orderedTopics.slice(start, start + rowsPerPage);

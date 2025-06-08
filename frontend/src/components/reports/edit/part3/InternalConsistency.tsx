@@ -34,7 +34,7 @@ interface ODSImpact {
   total_value: number;
 }
 
-// Definir los colores por dimensión
+
 const DIMENSION_COLORS: { [key in Dimension]: string } = {
   'Personas': '#d8dcf4',
   'Planeta': '#c8dcb4',
@@ -43,7 +43,7 @@ const DIMENSION_COLORS: { [key in Dimension]: string } = {
   'Alianzas': '#e0cce4'
 };
 
-// Mapeo de ODS a dimensiones
+
 const ODS_DIMENSIONS: { [key: number]: Dimension } = {
   1: 'Personas', 2: 'Personas', 3: 'Personas', 4: 'Personas', 5: 'Personas',
   6: 'Planeta', 12: 'Planeta', 13: 'Planeta', 14: 'Planeta', 15: 'Planeta',
@@ -62,7 +62,7 @@ const InternalConsistency = () => {
   const [mainWeight, setMainWeight] = useState(report?.main_impact_weight || 3);
   const [secondaryWeight, setSecondaryWeight] = useState(report?.secondary_impact_weight || 1);
 
-  // Cargar impactos
+  
   useEffect(() => {
     const fetchImpacts = async () => {
       if (!report || !token) return;
@@ -85,7 +85,7 @@ const InternalConsistency = () => {
     fetchImpacts();
   }, [report, token]);
 
-  // Procesar datos para la tabla
+  
   const processedData: ODSImpact[] = Array.from({ length: 17 }, (_, i) => i + 1).map(odsId => {
     const primaryImpact = primaryImpacts.find(impact => impact.ods_id === odsId);
     const secondaryImpact = secondaryImpacts.find(impact => impact.ods_id === odsId);
@@ -104,7 +104,7 @@ const InternalConsistency = () => {
     };
   });
 
-  // Calcular totales
+  
   const totals = processedData.reduce((acc, curr) => ({
     primary_impacts: acc.primary_impacts + curr.primary_impacts,
     weighted_primary_impacts: acc.weighted_primary_impacts + curr.weighted_primary_impacts,
@@ -119,7 +119,7 @@ const InternalConsistency = () => {
     total_value: 0
   });
 
-  // Calcular totales por dimensión
+  
   const dimensionTotals = processedData.reduce((acc, curr) => {
     if (!acc[curr.dimension]) {
       acc[curr.dimension] = 0;

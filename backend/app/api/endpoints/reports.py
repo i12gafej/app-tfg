@@ -50,10 +50,10 @@ async def get_report(
 ):
     """
     Obtener una memoria de sostenibilidad por su ID.
-    Permite el acceso si el usuario es admin o si tiene un rol asignado en el reporte.
+    Permite el acceso si el usuario es admin o si tiene un rol asignado en la memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -88,7 +88,7 @@ def get_all_report_templates(
     try:        
         result = crud_reports.get_all_report_templates(db)
         
-        # Convertir los resultados a un formato más amigable
+        
         resources_schema = [
             {
                 "resource_id": item[0],
@@ -116,15 +116,15 @@ async def search_reports(
     Buscar memorias de sostenibilidad con filtros opcionales.
     """
     try:
-        # Extraer parámetros de búsqueda del objeto search_params
+        
         search_term = search_params.search_term
         heritage_resource_name = search_params.heritage_resource_name
         year = search_params.year
         state = search_params.state
 
-        # Caso 1: Búsqueda por nombre de recurso
+        
         if heritage_resource_name:
-            # Buscar recursos por nombre
+            
             resources = crud_resources.search(
                 db=db,
                 name=heritage_resource_name
@@ -136,10 +136,10 @@ async def search_reports(
                     "total": 0
                 }
             
-            # Obtener IDs de recursos
+            
             resource_ids = [r.id for r in resources]
             
-            # Buscar memorias por IDs de recursos y otros filtros
+            
             reports = crud_reports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
@@ -149,7 +149,7 @@ async def search_reports(
                 state=state
             )
         
-        # Caso 2: Búsqueda por año y/o estado
+        
         elif year or state:
             reports = crud_reports.search_reports(
                 db=db,
@@ -159,18 +159,18 @@ async def search_reports(
                 state=state
             )
         
-        # Caso 3: Búsqueda por término de búsqueda
+        
         elif search_term:
-            # Buscar recursos por nombre
+            
             resources = crud_resources.search(
                 db=db,
                 name=search_term
             )
             
-            # Obtener IDs de recursos
+            
             resource_ids = [r.id for r in resources]
             
-            # Buscar memorias por IDs de recursos
+            
             reports = crud_reports.search_reports(
                 db=db,
                 user_id=current_user.id if not current_user.admin else None,
@@ -178,7 +178,7 @@ async def search_reports(
                 heritage_resource_ids=resource_ids
             )
         
-        # Caso 4: Sin filtros, devolver todas las memorias
+        
         else:
             reports = crud_reports.search_reports(
                 db=db,
@@ -186,14 +186,14 @@ async def search_reports(
                 is_admin=current_user.admin
             )
 
-        # Obtener los recursos asociados a las memorias
+        
         resource_ids = [report.heritage_resource_id for report in reports]
         resources = crud_resources.get_all_by_resources_ids(db, resource_ids)
         
-        # Crear un diccionario para acceder rápidamente a los recursos por ID
+        
         resources_dict = {resource.id: resource for resource in resources}
 
-        # Añadir el nombre del recurso a cada memoria
+        
         for report in reports:
             if report.heritage_resource_id in resources_dict:
                 report.heritage_resource_name = resources_dict[report.heritage_resource_id].name
@@ -220,12 +220,12 @@ async def search_public_reports(
     Buscar memorias de sostenibilidad públicas con filtros opcionales.
     """
     try:
-        # Extraer parámetros de búsqueda del objeto search_params
+        
         search_term = search_params.search_term
         heritage_resource_name = search_params.heritage_resource_name
         year = search_params.year
 
-        # Caso 1: Búsqueda por nombre de recurso
+        
         if heritage_resource_name:
             resources = crud_resources.search(
                 db=db,
@@ -238,17 +238,17 @@ async def search_public_reports(
                     "total": 0
                 }
             
-            # Obtener IDs de recursos
+            
             resource_ids = [r.id for r in resources]
 
-            # Buscar memorias por IDs de recursos
+            
             reports = crud_reports.search_reports(
                 db=db,
                 heritage_resource_ids=resource_ids,
                 state="Published"
             )
         
-        # Caso 2: Búsqueda por año
+        
         elif year:
             reports = crud_reports.search_reports(
                 db=db,
@@ -256,7 +256,7 @@ async def search_public_reports(
                 state="Published"
             )
         
-        # Caso 3: Búsqueda por término de búsqueda
+        
         elif search_term:
             resources = crud_resources.search(
                 db=db,
@@ -265,28 +265,28 @@ async def search_public_reports(
             
             resource_ids = [r.id for r in resources]
 
-            # Buscar memorias por IDs de recursos
+            
             reports = crud_reports.search_reports(
                 db=db,
                 heritage_resource_ids=resource_ids,
                 state="Published"
             )
         
-        # Caso 4: Sin filtros, devolver todas las memorias
+        
         else:
             reports = crud_reports.search_reports(
                 db=db,
                 state="Published"
             )
 
-        # Obtener los recursos asociados a las memorias
+        
         resource_ids = [report.heritage_resource_id for report in reports]
         resources = crud_resources.get_all_by_resources_ids(db, resource_ids)
 
-        # Crear un diccionario para acceder rápidamente a los recursos por ID
+        
         resources_dict = {resource.id: resource for resource in resources}
 
-        # Convertir los reportes al formato de lista de items
+        
         items = []
         for report in reports:
             if report.heritage_resource_id in resources_dict:
@@ -321,7 +321,7 @@ async def create_report(
     Permite la creación si el usuario es admin o si es gestor del recurso.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -332,7 +332,7 @@ async def create_report(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
         
-        # Verificar si ya existe una memoria para el mismo recurso y año
+        
         existing_report = db.query(SustainabilityReportModel).filter(
             SustainabilityReportModel.heritage_resource_id == report.heritage_resource_id,
             SustainabilityReportModel.year == report.year
@@ -345,10 +345,10 @@ async def create_report(
             )
         
         db_report = crud_reports.create_report(db=db, report=report)
-        # Obtener el recurso asociado
+        
         resource = db.query(HeritageResourceModel).filter(HeritageResourceModel.id == db_report.heritage_resource_id).first()
         
-        # Convertir el modelo a esquema Pydantic
+        
         report_dict = db_report.__dict__.copy()
         if resource:
             report_dict['heritage_resource_name'] = resource.name
@@ -371,10 +371,10 @@ async def update_report(
 ):
     """
     Actualizar una memoria de sostenibilidad existente.
-    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    Permite la actualización si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -396,12 +396,12 @@ async def update_report(
                 detail="Memoria no encontrada"
             )
 
-        # Obtener el recurso asociado (opcional, si quieres añadir el nombre)
+        
         resource = db.query(HeritageResourceModel).filter(HeritageResourceModel.id == db_report.heritage_resource_id).first()
         if resource:
             db_report.heritage_resource_name = resource.name
 
-        # Devolver el objeto completo usando Pydantic v2
+        
         return SustainabilityReport.model_validate(db_report, from_attributes=True)
 
     except Exception as e:
@@ -418,10 +418,10 @@ async def delete_report(
 ):
     """
     Eliminar una memoria de sostenibilidad.
-    Permite la eliminación si el usuario es admin o si es gestor del reporte.
+    Permite la eliminación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -479,10 +479,10 @@ async def publish_report(
 ):
     """
     Publicar una memoria de sostenibilidad.
-    Permite la publicación si el usuario es admin o si es gestor del reporte.
+    Permite la publicación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -493,16 +493,16 @@ async def publish_report(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
         
-        # Actualizar el estado del reporte a Published
+        
         report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
         if report:
             report.state = 'Published'
             db.commit()
 
-        # Generar el reporte
+        
         report_url = crud_reports.generate_report_html(db, report_id)
 
-        return {"message": "Reporte publicado correctamente", "url": report_url}
+        return {"message": "Memoria publicada correctamente", "url": report_url}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -515,10 +515,10 @@ async def get_all_report_norms(
 ):
     """
     Obtener todas las normativas de una memoria de sostenibilidad.
-    Permite el acceso si el usuario es admin o si tiene un rol asignado en el reporte.
+    Permite el acceso si el usuario es admin o si tiene un rol asignado en la memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -528,7 +528,7 @@ async def get_all_report_norms(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Verificar que el reporte existe
+        
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(
@@ -536,7 +536,7 @@ async def get_all_report_norms(
                 detail="Memoria no encontrada"
             )
 
-        # Obtener todas las normativas del reporte
+        
         norms = crud_reports.get_all_norms_by_report_id(db, report_id)
         return norms
 
@@ -554,10 +554,10 @@ async def create_norm(
 ):
     """
     Crear una nueva normativa para una memoria.
-    Permite la creación si el usuario es admin o si es gestor del reporte.
+    Permite la creación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -586,10 +586,10 @@ async def update_norm(
 ):
     """
     Actualizar una normativa existente.
-    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    Permite la actualización si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -624,10 +624,10 @@ async def delete_norm(
 ):
     """
     Eliminar una normativa.
-    Permite la eliminación si el usuario es admin o si es gestor del reporte.
+    Permite la eliminación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Primero obtener la normativa para saber a qué reporte pertenece
+        
         db_norm = db.query(ReportNormModel).filter(ReportNormModel.id == norm_id).first()
         if not db_norm:
             raise HTTPException(
@@ -635,7 +635,7 @@ async def delete_norm(
                 detail="Normativa no encontrada"
             )
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -664,10 +664,10 @@ async def update_cover_photo(
 ):
     """
     Actualizar la foto de portada de una memoria.
-    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    Permite la actualización si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -681,12 +681,12 @@ async def update_cover_photo(
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria de sostenibilidad no encontrada")
-        # Verificar extensión del archivo
+        
         file_extension = os.path.splitext(file.filename)[1].lower()
         if file_extension not in ['.jpg', '.jpeg', '.png']:
             raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
 
-        # Eliminar la foto anterior si existe
+        
         if report.cover_photo:
             try:
                 old_file_path = settings.BASE_DIR / report.cover_photo.lstrip('/')
@@ -694,9 +694,9 @@ async def update_cover_photo(
                     old_file_path.unlink()
             except Exception as e:
                 pass
-                # Continuamos con el proceso aunque falle la eliminación
+                
 
-        # Leer el contenido del archivo
+        
         content = await file.read()
         
         file_url = crud_reports.update_cover_photo(db, report, content)
@@ -715,10 +715,10 @@ async def upload_logo(
 ):
     """
     Subir un nuevo logo para una memoria.
-    Permite la subida si el usuario es admin o si es gestor del reporte.
+    Permite la subida si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -733,12 +733,12 @@ async def upload_logo(
         if not report:
             raise HTTPException(status_code=404, detail="Memoria no encontrada")
 
-        # Verificar extensión del archivo
+        
         file_extension = os.path.splitext(file.filename)[1].lower()
         if file_extension not in ['.jpg', '.jpeg', '.png']:
             raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
 
-        # Leer el contenido del archivo
+        
         content = await file.read()
 
         new_logo = crud_reports.upload_logo(db, report, content, file_extension)
@@ -760,10 +760,10 @@ async def get_all_report_logos(
 ):
     """
     Obtener todos los logos de una memoria como data URLs.
-    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -773,7 +773,7 @@ async def get_all_report_logos(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
         
-        # Verificar que el reporte existe
+        
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(
@@ -796,15 +796,15 @@ async def delete_logo(
 ):
     """
     Eliminar un logo de una memoria y su archivo físico asociado.
-    Permite la eliminación si el usuario es admin o si es gestor del reporte.
+    Permite la eliminación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Primero obtener el logo para saber a qué reporte pertenece
+        
         logo = crud_reports.get_logo_by_id(db, logo_id)
         if not logo:
             raise HTTPException(status_code=404, detail="Logo no encontrado")
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -830,10 +830,10 @@ async def get_cover_photo(
 ):
     """
     Obtener la imagen de portada de una memoria.
-    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -843,14 +843,14 @@ async def get_cover_photo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Verificar que el reporte existe y tiene foto de portada
+        
         report = crud_reports.get_report(db, report_id)
         if not report or not report.cover_photo:
             raise HTTPException(status_code=404, detail="Imagen no encontrada")
 
-        # La ruta en la base de datos es relativa (/static/uploads/covers/filename)
-        # Necesitamos convertirla a ruta absoluta
-        relative_path = report.cover_photo.lstrip('/')  # Eliminar el primer '/'
+        
+        
+        relative_path = report.cover_photo.lstrip('/')  
         file_path = settings.BASE_DIR / relative_path
 
         
@@ -860,7 +860,7 @@ async def get_cover_photo(
 
         response = FileResponse(
             file_path,
-            media_type="image/jpeg",  # Ajustaremos el tipo según la extensión
+            media_type="image/jpeg",  
             filename=file_path.name
         )
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
@@ -879,10 +879,10 @@ async def get_all_report_agreements(
 ):
     """
     Obtener todos los acuerdos de una memoria de sostenibilidad.
-    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -892,7 +892,7 @@ async def get_all_report_agreements(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Verificar que el reporte existe
+        
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(
@@ -900,7 +900,7 @@ async def get_all_report_agreements(
                 detail="Memoria no encontrada"
             )
 
-        # Obtener todos los acuerdos del reporte
+        
         agreements = crud_reports.get_all_report_agreements(db, report_id)
         return agreements
 
@@ -918,10 +918,10 @@ async def create_agreement(
 ):
     """
     Crear un nuevo acuerdo para una memoria.
-    Permite la creación si el usuario es admin o si es gestor del reporte.
+    Permite la creación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -950,10 +950,10 @@ async def update_agreement(
 ):
     """
     Actualizar un acuerdo existente.
-    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    Permite la actualización si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -988,10 +988,10 @@ async def delete_agreement(
 ):
     """
     Eliminar un acuerdo.
-    Permite la eliminación si el usuario es admin o si es gestor del reporte.
+    Permite la eliminación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Primero obtener el acuerdo para saber a qué reporte pertenece
+        
         db_agreement = crud_reports.get_agreement_by_id(db, agreement_id)
         if not db_agreement:
             raise HTTPException(
@@ -999,7 +999,7 @@ async def delete_agreement(
                 detail="Acuerdo no encontrado"
             )
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1027,10 +1027,10 @@ async def create_bibliography(
 ):
     """
     Crear una nueva bibliografía para una memoria.
-    Permite la creación si el usuario es admin o si es gestor del reporte.
+    Permite la creación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1059,10 +1059,10 @@ async def update_bibliography(
 ):
     """
     Actualizar una bibliografía existente.
-    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    Permite la actualización si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1097,10 +1097,10 @@ async def delete_bibliography(
 ):
     """
     Eliminar una bibliografía.
-    Permite la eliminación si el usuario es admin o si es gestor del reporte.
+    Permite la eliminación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Primero obtener la bibliografía para saber a qué reporte pertenece
+        
         db_bibliography = db.query(ReportBibliographyModel).filter(ReportBibliographyModel.id == bibliography_id).first()
         if not db_bibliography:
             raise HTTPException(
@@ -1108,7 +1108,7 @@ async def delete_bibliography(
                 detail="Bibliografía no encontrada"
             )
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1136,10 +1136,10 @@ async def get_all_report_bibliographies(
 ):
     """
     Obtener todas las referencias bibliográficas de una memoria de sostenibilidad.
-    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1149,7 +1149,7 @@ async def get_all_report_bibliographies(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Verificar que el reporte existe
+        
         report = db.query(SustainabilityReportModel).filter(SustainabilityReportModel.id == report_id).first()
         if not report:
             raise HTTPException(
@@ -1157,7 +1157,7 @@ async def get_all_report_bibliographies(
                 detail="Memoria no encontrada"
             )
 
-        # Obtener todas las referencias bibliográficas del reporte
+        
         bibliographies = crud_reports.get_all_report_bibliographies(db, report_id)
         return bibliographies
 
@@ -1167,9 +1167,6 @@ async def get_all_report_bibliographies(
             detail=f"Error al obtener las referencias bibliográficas: {str(e)}"
         )
 
-import logging
-
-logger = logging.getLogger(__name__)
 
 @router.post("/reports/update/organization-chart/{report_id}")
 async def update_organization_chart(
@@ -1180,10 +1177,10 @@ async def update_organization_chart(
 ):
     """
     Actualizar el organigrama de una memoria.
-    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    Permite la actualización si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1197,22 +1194,20 @@ async def update_organization_chart(
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria de sostenibilidad no encontrada")
-        # Verificar extensión del archivo
+        
         file_extension = os.path.splitext(file.filename)[1].lower()
         if file_extension not in ['.jpg', '.jpeg', '.png']:
             raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
 
-        # Eliminar el organigrama anterior si existe
+        
         if report.org_chart_figure:
             try:
                 old_file_path = settings.BASE_DIR / report.org_chart_figure.lstrip('/')
                 if old_file_path.exists():
                     old_file_path.unlink()
             except Exception as e:
-                pass
-                # Continuamos con el proceso aunque falle la eliminación
+                pass 
 
-        # Leer el contenido del archivo
         content = await file.read()
 
         file_url = crud_reports.update_organization_chart(db, report, content)
@@ -1220,7 +1215,6 @@ async def update_organization_chart(
         return {"url": file_url}
 
     except Exception as e:
-        logger.error(f"Error al actualizar el organigrama: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/reports/upload/photos/{report_id}", response_model=ReportPhotoResponse)
@@ -1233,10 +1227,10 @@ async def upload_photo(
 ):
     """
     Subir una nueva foto para una memoria.
-    Permite la subida si el usuario es admin o si es gestor del reporte.
+    Permite la subida si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1247,15 +1241,15 @@ async def upload_photo(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
 
-        # Verificar que el reporte existe
+        
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(status_code=404, detail="Memoria no encontrada")
 
-        # Leer el contenido del archivo
+        
         content = await file.read()
 
-        # Verificar extensión del archivo
+        
         file_extension = os.path.splitext(file.filename)[1].lower()
         if file_extension not in ['.jpg', '.jpeg', '.png']:
             raise HTTPException(status_code=400, detail="Formato de archivo no permitido")
@@ -1280,10 +1274,10 @@ async def get_all_report_photos(
 ):
     """
     Obtener todas las fotos de una memoria.
-    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor dla memoria.
     """
     try:
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1293,7 +1287,7 @@ async def get_all_report_photos(
             if not has_permission:
                 raise HTTPException(status_code=403, detail=error_message)
         
-        # Verificar que el reporte existe
+        
         report = crud_reports.get_report(db, report_id)
         if not report:
             raise HTTPException(
@@ -1316,15 +1310,15 @@ async def delete_photo(
 ):
     """
     Eliminar una foto de una memoria y su archivo físico asociado.
-    Permite la eliminación si el usuario es admin o si es gestor del reporte.
+    Permite la eliminación si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Primero obtener la foto para saber a qué reporte pertenece
+        
         photo = crud_reports.get_photo_by_id(db, photo_id)
         if not photo:
             raise HTTPException(status_code=404, detail="Foto no encontrada")
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1351,15 +1345,15 @@ async def update_photo(
 ):
     """
     Actualizar la descripción de una foto.
-    Permite la actualización si el usuario es admin o si es gestor del reporte.
+    Permite la actualización si el usuario es admin o si es gestor dla memoria.
     """
     try:
-        # Primero obtener la foto para saber a qué reporte pertenece
+        
         photo = crud_reports.get_photo_by_id(db, photo_id)
         if not photo:
             raise HTTPException(status_code=404, detail="Foto no encontrada")
 
-        # Verificar permisos
+        
         if not current_user.admin:
             has_permission, error_message = check_user_permissions(
                 db=db,
@@ -1389,19 +1383,19 @@ def get_user_role(
     db: Session = Depends(get_db)
 ):
     """
-    Obtiene el rol del usuario actual en el reporte especificado.
+    Obtiene el rol del usuario actual en la memoria especificado.
     """
-    # Verificar si el usuario es admin
+    
     if current_user.admin:
         return {"role": "manager"}
 
-    # Obtener el rol del usuario en el reporte
+    
     team_member = crud_reports.get_team_member(db, current_user.id, report_id)
 
     if not team_member:
         raise HTTPException(
             status_code=404,
-            detail="No se encontró un rol asignado para este usuario en el reporte"
+            detail="No se encontró un rol asignado para este usuario en la memoria"
         )
 
     return {"role": team_member.type}
@@ -1414,10 +1408,10 @@ async def get_organization_chart(
 ):
     """
     Obtener la imagen del organigrama de una memoria.
-    Permite el acceso si el usuario es admin, gestor, consultor o asesor del reporte.
+    Permite el acceso si el usuario es admin, gestor, consultor o asesor dla memoria.
     """
     
-    # Verificar permisos
+    
     if not current_user.admin:
         has_permission, error_message = check_user_permissions(
             db=db,
@@ -1427,24 +1421,24 @@ async def get_organization_chart(
         if not has_permission:
             raise HTTPException(status_code=403, detail=error_message)
 
-    # Verificar que el reporte existe y tiene organigrama
+    
     report = crud_reports.get_report(db, report_id)
     if not report or not report.org_chart_figure:
         raise HTTPException(status_code=404, detail="Imagen no encontrada")
 
-    # La ruta en la base de datos es relativa (/static/uploads/organization_charts/filename)
-    # Necesitamos convertirla a ruta absoluta
+    
+    
     relative_path = report.org_chart_figure.lstrip('/')
     file_path = settings.BASE_DIR / relative_path
 
-    # Verificar que el archivo existe físicamente
+    
     if not file_path.exists():
-        # Si el archivo no existe pero hay referencia en BD, limpiar la referencia
+        
         report.org_chart_figure = None
         db.commit()
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
 
-    # Determinar el tipo MIME basado en la extensión del archivo
+    
     file_extension = file_path.suffix.lower()
     mime_type = {
         '.jpg': 'image/jpeg',

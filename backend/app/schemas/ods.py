@@ -34,7 +34,7 @@ class Dimension(BaseModel):
 
 class DimensionResponse(BaseModel):
     dimensions: List[Dimension]
-# Nuevos schemas para impactos secundarios de acciones
+
 class ActionSecondaryImpactUpdate(BaseModel):
     action_id: int
     ods_ids: List[int]
@@ -43,7 +43,7 @@ class ActionSecondaryImpactResponse(BaseModel):
     action_id: int
     ods_ids: List[int]
 
-# Schema para impactos secundarios de acciones
+
 class ActionSecondaryImpactCount(BaseModel):
     ods_id: int
     ods_name: str

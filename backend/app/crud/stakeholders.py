@@ -6,6 +6,9 @@ from app.schemas.stakeholders import StakeholderCreate, StakeholderUpdate
 
 
 def create(db: Session, stakeholder_data: StakeholderCreate) -> Stakeholder:
+    """
+    Crea un stakeholder.
+    """
     try:
         stakeholder = Stakeholder(
             name=stakeholder_data.name,
@@ -23,18 +26,27 @@ def create(db: Session, stakeholder_data: StakeholderCreate) -> Stakeholder:
         raise e
 
 def get(db: Session, stakeholder_id: int) -> Optional[Stakeholder]:
+    """
+    Obtiene un stakeholder.
+    """
     try:
         return db.query(Stakeholder).filter(Stakeholder.id == stakeholder_id).first()
     except Exception as e:
         return None
 
 def get_by_name(db: Session, name: str) -> Optional[Stakeholder]:
+    """
+    Obtiene un stakeholder por su nombre.
+    """
     try:
         return db.query(Stakeholder).filter(Stakeholder.name == name).first()
     except Exception as e:
         return None
 
 def update(db: Session, stakeholder: Stakeholder, stakeholder_data: StakeholderUpdate) -> Stakeholder:
+    """
+    Actualiza un stakeholder.
+    """
     try:
         if hasattr(stakeholder_data, 'dict'):
             stakeholder_data = stakeholder_data.dict(exclude_unset=True)
@@ -51,6 +63,9 @@ def update(db: Session, stakeholder: Stakeholder, stakeholder_data: StakeholderU
         raise e
 
 def delete(db: Session, stakeholder: Stakeholder) -> None:
+    """
+    Elimina un stakeholder.
+    """
     try:
         db.delete(stakeholder)
         db.commit()
@@ -64,6 +79,9 @@ def search(
     type: Optional[str] = None,
     report_id: Optional[int] = None
 ) -> tuple[List[Stakeholder], int]:
+    """
+    Busca stakeholders.
+    """
     try:
         query = db.query(Stakeholder)
 
@@ -92,6 +110,9 @@ def search(
         raise e
 
 def get_all_stakeholders_by_report(db: Session, report_id: int) -> List[Stakeholder]:
+    """
+    Obtiene todos los stakeholders de una memoria.
+    """
     try:
         stakeholders = db.query(Stakeholder).filter(Stakeholder.report_id == report_id).all()
         return [{"name": stakeholder.name, "description": stakeholder.description, "type": stakeholder.type} for stakeholder in stakeholders]

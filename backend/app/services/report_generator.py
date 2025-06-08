@@ -119,10 +119,10 @@ class ReportGenerator:
         Returns:
             str: HTML renderizado del diagnóstico
         """
-        # Renderizar el template principal de ODS y dimensiones
+        
         ods_template = self.template_env.get_template("ods_dimension_template.html")
         
-        # Preparar los datos para el template
+        
         return ods_template.render(ods=data)
 
     def generate_material_topics_text(self, material_topics_intro: Dict[str, Any], material_topics: List[Dict[str, Any]]) -> str:
@@ -379,7 +379,7 @@ class ReportGenerator:
             
             
             materiality_matrix = data["materiality_matrix_text"] if data["materiality_matrix_text"] else ""
-            # Añadir la imagen de la matriz
+            
             materiality_matrix += self.generate_photo({"photo_url": data["materiality_matrix"], "description": "Matriz de materialidad"}, background_color="#FFFFFF")
             
             materiality_matrix_text_html = ""
@@ -556,7 +556,7 @@ class ReportGenerator:
             }
 
             combined_html = self.generate_combined_html(combined_text_data)
-            # Crear subdirectorio para el reporte
+            
             report_dir = os.path.join(settings.REPORTS_DIR, str(data['id']))
             if not os.path.exists(report_dir):
                 os.makedirs(report_dir, exist_ok=True)
@@ -564,7 +564,7 @@ class ReportGenerator:
             path = os.path.join(report_dir, filename)
             with open(path, "w", encoding="utf-8") as file:
                 file.write(combined_html)
-            # Devuelve la URL pública, no la ruta absoluta
+            
             return f"/static/uploads/reports/{data['id']}/{filename}"
         except Exception as e:
             logger.error(f"Error al generar el reporte: {str(e)}")
@@ -818,7 +818,7 @@ class ReportGenerator:
             }
 
             combined_html = self.generate_combined_html(combined_text_data)
-            # Crear subdirectorio para el reporte
+            
             report_dir = os.path.join(settings.REPORTS_DIR, str(data['id']))
             if not os.path.exists(report_dir):
                 os.makedirs(report_dir, exist_ok=True)
@@ -826,7 +826,7 @@ class ReportGenerator:
             path = os.path.join(report_dir, filename)
             with open(path, "w", encoding="utf-8") as file:
                 file.write(combined_html)
-            # Devuelve la URL pública, no la ruta absoluta
+            
             return f"/static/uploads/reports/{data['id']}/{filename}"
         except Exception as e:
             logger.error(f"Error al generar la vista previa del reporte: {str(e)}")

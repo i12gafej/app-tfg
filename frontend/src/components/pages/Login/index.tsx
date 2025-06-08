@@ -22,7 +22,7 @@ const Login = () => {
   const [resetError, setResetError] = useState('');
   const [isResetLoading, setIsResetLoading] = useState(false);
 
-  // Cargar el correo guardado al iniciar
+  
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
     if (savedEmail) {
@@ -53,21 +53,21 @@ const Login = () => {
 
     try {
       const response = await authService.login(formData);
-      console.log('Respuesta completa del login:', response);
+      
       
       if (!response.user) {
         console.error('No se recibió información del usuario en la respuesta');
         throw new Error('Error en la respuesta del servidor');
       }
       
-      // Guardar el correo si se marcó la opción
+      
       if (rememberEmail) {
         localStorage.setItem('rememberedEmail', formData.email);
       } else {
         localStorage.removeItem('rememberedEmail');
       }
       
-      // Convertir la respuesta a tipo User
+      
       const userData: User = {
         id: response.user.id,
         email: response.user.email,
@@ -77,7 +77,7 @@ const Login = () => {
         phone_number: response.user.phone_number
       };
       
-      console.log('Datos del usuario convertidos:', userData);
+      
       
       login(response.access_token, userData);
       navigate('/dashboard');

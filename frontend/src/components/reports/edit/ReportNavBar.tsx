@@ -18,7 +18,7 @@ const STEP_COLORS = {
 };
 
 const STEP_NAMES = [
-  '', // para que el índice 1 sea el primer paso
+  '', 
   'Entendiendo los ODS',
   'Definiendo prioridades',
   'Estableciendo objetivos',
@@ -26,7 +26,7 @@ const STEP_NAMES = [
   'Informando y comunicando'
 ];
 
-// Función para convertir decimal a array de booleanos
+
 function decimalToBoolArray(decimal: number, length: number): boolean[] {
   const bin = decimal.toString(2).padStart(length, '0');
   return bin.split('').map(x => x === '1');
@@ -48,7 +48,7 @@ const ReportNavBar = () => {
 
   const handlePartClick = (part: number) => {
     if (isExternalAdvisor) {
-      // Verificar si el asesor tiene permiso para ver esta parte
+      
       const partStart = getPartStartIndex(part);
       const partEnd = getPartEndIndex(part);
       const hasPermission = permissions.slice(partStart, partEnd + 1).some(Boolean);
@@ -100,7 +100,7 @@ const ReportNavBar = () => {
     if (!isExternalAdvisor) return true;
     
     if (section === 'diagnostic') {
-      // Verificar si tiene permiso en cualquiera de las secciones del diagnóstico (bits 9-13)
+      
       return permissions.slice(8, 13).some(Boolean);
     }
 

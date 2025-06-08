@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app import crud
 from app.api import deps
@@ -19,8 +18,6 @@ async def login_access_token(
     """
     Login for access token using email and password
     """
-
-    # Obtener el usuario
     user = crud.user.get_by_email(db, email=form_data.email)
     if not user:
         raise HTTPException(
@@ -28,7 +25,6 @@ async def login_access_token(
             detail="Correo electrónico o contraseña incorrectos"
         )
     
-    # Verificar contraseña
     if not security.verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

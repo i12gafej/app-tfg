@@ -13,7 +13,7 @@ class User(Base):
     surname = Column(String(255), nullable=False)
     phone_number = Column(String(20), nullable=True)
 
-    # Seguridad 
+    
     reset_token = Column(String(255), nullable=True)
     reset_token_expiration = Column(DateTime, nullable=True)
     reset_token_state = Column(Boolean, nullable=False, default=False)
@@ -51,7 +51,7 @@ class HeritageResource(Base):
     web_address = Column(String(255), nullable=True)
     phone_number = Column(String(255), nullable=True)
     
-    # Relaciones
+    
     typologies = relationship("HeritageResourceTypology", back_populates="resource", cascade="all, delete-orphan")
     social_networks = relationship("HeritageResourceSocialNetwork", back_populates="resource", cascade="all, delete-orphan")
 
@@ -104,8 +104,8 @@ class SustainabilityReport(Base):
     materiality_text = Column(Text, nullable=True) 
     materiality_matrix_text = Column(Text, nullable=True)
     main_secondary_impacts_text = Column(Text, nullable=True)
-    action_plan_text = Column(Text, nullable=True) # texto plan de acción.
-    roadmap_description = Column(Text, nullable=True) # Descripción previa al plan de acción.
+    action_plan_text = Column(Text, nullable=True) 
+    roadmap_description = Column(Text, nullable=True) 
     internal_consistency_description = Column(Text, nullable=True)
     diffusion_text = Column(Text, nullable=True)
     data_tables_text = Column(Text, nullable=True)

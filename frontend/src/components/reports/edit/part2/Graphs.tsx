@@ -32,7 +32,7 @@ const Graphs = () => {
       setLoading(true);
       setError(null);
 
-      // Obtener las gráficos secuencialmente
+      
       const mainResponse = await graphsService.getMainImpactsGraph(report.id, token);
       setMainImpactsGraph(mainResponse.graph_data_url);
 
@@ -46,7 +46,7 @@ const Graphs = () => {
     }
   };
 
-  // Obtener ODS dinámicamente
+  
   useEffect(() => {
     const fetchODS = async () => {
       if (!token) return;
@@ -54,13 +54,13 @@ const Graphs = () => {
         const data = await odsService.getAllODS(token);
         setOdsList(data.items);
       } catch (e) {
-        // Manejo de error opcional
+        
       }
     };
     fetchODS();
   }, [token]);
 
-  // Generar gráficas automáticamente al cargar el componente
+  
   useEffect(() => {
     if (token && report) {
       handleGenerateGraphs();
@@ -68,7 +68,7 @@ const Graphs = () => {
   }, [token, report]);
 
   const handleDownload = (imageUrl: string, filename: string) => {
-    // Crear un enlace temporal
+    
     const link = document.createElement('a');
     link.href = imageUrl;
     link.download = filename;
@@ -77,7 +77,7 @@ const Graphs = () => {
     document.body.removeChild(link);
   };
 
-  // Leyenda dinámica de ODS
+  
   const ODSLegend = () => (
     <Box
       sx={{

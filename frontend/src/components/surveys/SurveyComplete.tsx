@@ -42,7 +42,7 @@ const dimensions = [
   { name: 'Alianzas', description: 'ODS relacionados con las alianzas para lograr los objetivos', color: "#c0448c" }
 ];
 
-// Componente personalizado para el icono del Stepper
+
 const CustomStepIcon = (props: any) => {
   const { active, completed, className, icon } = props;
   const stepIndex = Number(icon) - 1;
@@ -86,15 +86,15 @@ const SurveyComplete = ({ reportId, scale, onComplete }: SurveyCompleteProps) =>
         setLoading(true);
         setError(null);
 
-        // Cargar asuntos relevantes
+        
         const topics = await materialTopicService.getAllByReport(reportId, token || '');
         setMaterialTopics(topics);
 
-        // Cargar dimensiones
+        
         const dimensionsResponse = await odsService.getAllDimensions(token || '');
         setDimensionsData(dimensionsResponse.dimensions);
 
-        // Cargar grupos de interés
+        
         const stakeholdersResponse = await stakeholderService.searchStakeholders({
           report_id: reportId,
         }, token || '');

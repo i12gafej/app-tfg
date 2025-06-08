@@ -60,7 +60,7 @@ const MaterialityMatrix = () => {
     document.body.removeChild(link);
   };
 
-  // Generar matriz automáticamente al cargar el componente
+  
   useEffect(() => {
     if (token && report) {
       handleGenerateMatrix();

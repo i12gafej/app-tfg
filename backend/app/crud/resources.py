@@ -4,9 +4,10 @@ from app.models.models import HeritageResource, HeritageResourceTypology, Herita
 from datetime import datetime
 
 def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
+    """
+    Crea un recurso patrimonial.
+    """
     try:
-        
-        # Crear el recurso principal
         db_resource = HeritageResource(
             name=resource_data["name"],
             ownership=resource_data.get("ownership"),
@@ -17,9 +18,9 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
         )
         
         db.add(db_resource)
-        db.flush()  # Para obtener el ID del recurso creado
+        db.flush()  
 
-        # Crear las tipologías
+        
         for typology in resource_data["typology"]:
             db_typology = HeritageResourceTypology(
                 typology=typology,
@@ -27,7 +28,7 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
             )
             db.add(db_typology)
 
-        # Crear las redes sociales
+        
         for social_network in resource_data["social_networks"]:
             db_social = HeritageResourceSocialNetwork(
                 social_network=social_network["network"],
@@ -36,7 +37,7 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
             )
             db.add(db_social)
 
-        # Crear memoria vacía para el año actual
+        
         current_year = datetime.now().year
         db_report = SustainabilityReport(
             heritage_resource_id=db_resource.id,
@@ -55,6 +56,9 @@ def create(db: Session, resource_data: Dict[str, Any]) -> HeritageResource:
         raise e
 
 def get(db: Session, resource_id: int) -> Optional[HeritageResource]:
+    """
+    Obtiene un recurso patrimonial.
+    """
     try:
         return db.query(HeritageResource)\
             .options(
@@ -67,6 +71,9 @@ def get(db: Session, resource_id: int) -> Optional[HeritageResource]:
         raise e
 
 def get_all_by_resources_ids(db: Session, resource_ids: list) -> List[HeritageResource]:
+    """
+    Obtiene todos los recursos patrimoniales por una lista de IDs.
+    """
     try:
         if not resource_ids:
             return []
@@ -82,6 +89,9 @@ def search(
     management_model: Optional[str] = None,
     postal_address: Optional[str] = None
 ) -> List[HeritageResource]:
+    """
+    Busca recursos patrimoniales.
+    """
     try:
         query = db.query(HeritageResource)
 
@@ -90,7 +100,7 @@ def search(
                 return None
             return text.strip()
 
-        # Filtro general
+        
         if search_term:
             search = normalize_text(search_term)
             if search:
@@ -102,7 +112,7 @@ def search(
                     HeritageResource.postal_address.ilike(search)
                 )
 
-        # Filtros específicos
+        
         if name:
             name_val = normalize_text(name)
             if name_val:
@@ -129,23 +139,26 @@ def update(
     resource_id: int,
     resource_data: Dict[str, Any]
 ) -> Optional[HeritageResource]:
+    """
+    Actualiza un recurso patrimonial.
+    """
     try:
         db_resource = get(db, resource_id)
         if not db_resource:
             return None
 
-        # Actualizar campos del recurso principal
+        
         for field, value in resource_data.items():
             if field not in ["typology", "social_networks"] and value is not None:
                 setattr(db_resource, field, value)
 
-        # Actualizar tipologías
+        
         if "typology" in resource_data:
-            # Eliminar tipologías existentes
+            
             db.query(HeritageResourceTypology).filter(
                 HeritageResourceTypology.resource_id == resource_id
             ).delete()
-            # Crear nuevas tipologías
+            
             for typology in resource_data["typology"]:
                 db_typology = HeritageResourceTypology(
                     typology=typology,
@@ -153,13 +166,13 @@ def update(
                 )
                 db.add(db_typology)
 
-        # Actualizar redes sociales
+        
         if "social_networks" in resource_data:
-            # Eliminar redes sociales existentes
+            
             db.query(HeritageResourceSocialNetwork).filter(
                 HeritageResourceSocialNetwork.resource_id == resource_id
             ).delete()
-            # Crear nuevas redes sociales
+            
             for social_network in resource_data["social_networks"]:
                 db_social = HeritageResourceSocialNetwork(
                     social_network=social_network["network"],
@@ -175,12 +188,15 @@ def update(
         raise e
 
 def delete(db: Session, resource_id: int) -> bool:
+    """
+    Elimina un recurso patrimonial.
+    """
     try:
         db_resource = get(db, resource_id)
         if not db_resource:
             return False
 
-        # Las relaciones tienen cascade="all, delete-orphan", así que se eliminarán automáticamente
+        
         db.delete(db_resource)
         db.commit()
         return True
@@ -192,7 +208,7 @@ def get_all_reports_by_resource(
     resource_id: int
 ) -> List[dict]:
     """
-    Obtener todos los reportes de un recurso patrimonial.
+    Obtener todas las memorias de un recurso patrimonial.
     """
     try:
         reports = db.query(
@@ -238,22 +254,22 @@ def get_all_resources(
 
 def get_all_resources_manager(db: Session, user_id: int) -> list:
     """
-    Devuelve los recursos patrimoniales de los que el usuario es gestor en alguna memoria.
+    Devuelve los recursos patrimoniales de los que el usuario es gestor en alguna memoria de sostenibilidad.
     """
     try:
-        # Obtener IDs de reportes donde el usuario es gestor
+        
         managed_reports = db.query(SustainabilityTeamMember).filter(
             SustainabilityTeamMember.user_id == user_id,
             SustainabilityTeamMember.type == 'manager'
         ).all()
         if not managed_reports:
             return []
-        # Obtener los heritage_resource_id únicos de esas memorias
+        
         report_ids = [tm.report_id for tm in managed_reports]
         resource_ids = db.query(SustainabilityReport.heritage_resource_id).filter(
             SustainabilityReport.id.in_(report_ids)
         ).distinct()
-        # Obtener los recursos únicos
+        
         resources = db.query(HeritageResource).filter(
             HeritageResource.id.in_(resource_ids)
         ).all()

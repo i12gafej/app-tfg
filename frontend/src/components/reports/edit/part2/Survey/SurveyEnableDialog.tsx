@@ -31,7 +31,7 @@ const SurveyEnableDialog: React.FC<SurveyEnableDialogProps> = ({
     const value = event.target.value;
     setScale(value);
     
-    // Validar que sea un número mayor que 1
+    
     const numValue = Number(value);
     if (isNaN(numValue) || numValue <= 1) {
       setError('La escala debe ser un número mayor que 1');

@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import ReportPartNavBar from './ReportPartNavBar';
 import { useReport } from '@/context/ReportContext';
 
-// Importar componentes de la parte 3
+
 import ActionPlanText from './part3/ActionPlanText';
 import MainObjective from './part3/MainObjective';
 import SpecificObjectives from './part3/SpecificObjectives';
@@ -24,7 +24,7 @@ const PART3_SECTIONS = [
   { id: 'internal-consistency-graph', label: 'Gráfico Coherencia Interna', permissionIndex: 18 },
 ];
 
-// Función para convertir decimal a array de booleanos
+
 function decimalToBoolArray(decimal: number, length: number): boolean[] {
   const bin = decimal.toString(2).padStart(length, '0');
   return bin.split('').map(x => x === '1');
@@ -41,23 +41,23 @@ const ReportPart3: React.FC<ReportPart3Props> = ({ section = 'action-plan-text' 
       const perms = decimalToBoolArray(report.permissions, 31);
       setPermissions(perms);
       
-      // Filtrar secciones permitidas
+      
       const allowed = PART3_SECTIONS.filter(section => perms[section.permissionIndex]);
       setAllowedSections(allowed);
       
-      // Establecer la primera sección permitida como activa
+      
       if (allowed.length > 0) {
         setActiveSection(allowed[0].id);
       }
     } else {
-      // Si no es asesor externo, mostrar todas las secciones
+      
       setAllowedSections(PART3_SECTIONS);
       setActiveSection(section);
     }
   }, [report, isExternalAdvisor, section]);
 
   const renderContent = () => {
-    // Verificar si la sección activa está permitida
+    
     const hasPermission = !isExternalAdvisor || allowedSections.some(section => section.id === activeSection);
     
     if (!hasPermission) {

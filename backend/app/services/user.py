@@ -9,19 +9,10 @@ def check_user_permissions(
     require_manager: bool = False
 ) -> Tuple[bool, str]:
     """
-    Verifica los permisos del usuario en un reporte específico.
-    
-    Args:
-        db: Sesión de la base de datos
-        user_id: ID del usuario
-        report_id: ID del reporte
-        require_manager: Si es True, requiere que el usuario sea gestor
-        
-    Returns:
-        Tuple[bool, str]: (tiene_permiso, mensaje_error)
+    Verifica los permisos del usuario en una memoria específica.
     """
     try:
-        # Buscar el rol del usuario en el reporte
+        
         team_member = db.query(SustainabilityTeamMember).filter(
             SustainabilityTeamMember.report_id == report_id,
             SustainabilityTeamMember.user_id == user_id
